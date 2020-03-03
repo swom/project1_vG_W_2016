@@ -1,0 +1,5 @@
+#include <cassert>
+
+void test() {
+
+}
