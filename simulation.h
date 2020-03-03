@@ -8,4 +8,5 @@ public:
     Simulation();
 };
 
+void test_simulation();
 #endif // SIMULATION_H

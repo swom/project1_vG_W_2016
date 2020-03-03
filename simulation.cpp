@@ -4,3 +4,7 @@ Simulation::Simulation()
 {
 
 }
+
+void test_simulation(){
+
+}
