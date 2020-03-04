@@ -9,6 +9,7 @@ public:
     simulation(int pop_size = 1);
 
     ///finds the individuals ready to divide
+    // to be changed to vectorof references
     std::vector<individual> get_dividing_individuals();
 
     ///Gets an inidividual at a certain index in the vector
@@ -24,6 +25,7 @@ public:
     const std::vector<individual>& get_pop() const noexcept {return population;}
 
     ///The individuals in the vector are copied at the end of the pop vector
+    // To be chaged to take vec of references as an argument
     void individuals_divide(std::vector<individual> dividing_individuals);
 
 private:
