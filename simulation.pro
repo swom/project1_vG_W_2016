@@ -1,5 +1,17 @@
 # Entry point for user
 
+HEADERS += \
+    environment.h \
+    individual.h \
+    simulation.h
+
+SOURCES += \
+    environment.cpp \
+    individual.cpp \
+    main.cpp \
+    simulation.cpp
+
+
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += resources_big
@@ -44,15 +56,6 @@ win32{
   LIBS += -lwinmm                 #Dependency
 }
 
-HEADERS += \
-    environment.h \
-    individual.h \
-    simulation.h
 
-SOURCES += \
-    environment.cpp \
-    individual.cpp \
-    main.cpp \
-    simulation.cpp
 
 
