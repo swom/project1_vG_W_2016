@@ -1,5 +1,6 @@
 #include "simulation.h"
 #include <cassert>
+#include <numeric>
 
 simulation::simulation(int pop_size):
     population(pop_size,individual(0,0))
@@ -7,25 +8,36 @@ simulation::simulation(int pop_size):
 
 }
 
-std::vector<individual> simulation::get_dividing_individuals(){
-    std::vector<individual> dividing_individuals;
+std::vector<int> simulation::get_dividing_individuals()
+{
 
-    for(auto ind : population)
+    std::vector<int> dividing_individuals;
+    for(int i = 0; i != get_pop_size(); i++)
     {
-        if(ind.get_energy()>= ind.get_treshold_energy()){dividing_individuals.push_back(ind);}
+        if(population[i].get_energy()>= population[i].get_treshold_energy())
+        {
+            dividing_individuals.push_back(i);
+        }
     }
     return dividing_individuals;
 }
 
-void simulation::individuals_divide(std::vector<individual> dividing_individuals){
+void simulation::division(std::vector<int> dividing_individuals)
+{
 
-    for(auto ind : dividing_individuals)
+    for(size_t i = 0; i != dividing_individuals.size(); i++)
     {
-        population.push_back(ind);
+        int div_ind = dividing_individuals[i];
+        double offspring_initial_energy = population[div_ind].split_excess_energy();
+        population[div_ind].set_energy(offspring_initial_energy);
+        population.push_back(population[div_ind]);
     }
 }
 
-
+void simulation::do_reprduction() noexcept
+{
+    division(get_dividing_individuals());
+}
 
 
 void test_simulation()
@@ -52,7 +64,10 @@ void test_simulation()
         simulation s;
         double lhs = s.get_pop_size();
         //let's allow all individuals in the population to reproduce, to facilitate the testing conditions
-        s.individuals_divide(s.get_pop());
+        std::vector<int> dividing_pop(s.get_pop_size()) ;
+        std::iota (std::begin(dividing_pop), std::end(dividing_pop), 0);
+        s.division(dividing_pop);
+
         double rhs = s.get_pop_size();
         assert(lhs * 2 - rhs < 0.0000001);
 
@@ -67,11 +82,28 @@ void test_simulation()
 
     }
 
+    //Only individuals with energy >= than the treshold will divide
+    {
+        simulation s(3);
+        s.get_individual(0).set_energy(s.get_individual(0).get_treshold_energy()-1);
+        s.get_individual(1).set_energy(s.get_individual(1).get_treshold_energy());
+        s.get_individual(2).set_energy(s.get_individual(2).get_treshold_energy()+1);
+
+        std::vector<int> div_ind = s.get_dividing_individuals();
+
+        assert(div_ind.size() > 0);
+        assert(s.get_pop()[div_ind[0]].get_energy() >= s.get_individual(1).get_treshold_energy());
+        assert(s.get_pop()[div_ind[1]].get_energy() >= s.get_individual(2).get_treshold_energy());
+
+    }
+
     //Individuals that have more than the energy treshold value are put in the dividing individuals vector
     //NOT SURE HOW TO BE MORE PRECISE, should add ID to individuals and create a == operator for individual class
     //for now I will just check that the reproducing_individuals vector has the same size as the number of reproducing individuals
+
+    //I do not like this test, i do not know how to test it otherwise though
     {
-        std::vector<individual> dividing_individuals;
+        std::vector<int> dividing_individuals;
         simulation s(3);
         //At the beginning no individual reproduce
         assert(static_cast<int>(s.get_dividing_individuals().size()) < 0.00000000001);
@@ -86,19 +118,44 @@ void test_simulation()
     }
 
 
-//    {
-//    simulation s;
-//    int initial_pop_size = s.get_pop_size();
+    //After a reproduction round individuals with enough energy will divide
+    //(already tested)
+    //and redistribute their remaining energy to their daughter cells
 
-//    for(auto ind : s.get_pop()){
-//    ind.set_energy(ind.get_treshold_energy()+1);
-//    }
+    //I do not like this test, i do not know how to test it otherwise though
+    {
+        simulation s(2);
+        //This individual will not reproduce
+        s.get_individual(0).set_energy(s.get_individual(0).get_treshold_energy()-1);
+        //This individual will reproduce
+        s.get_individual(1).set_energy(s.get_individual(1).get_treshold_energy());
 
-//    s.reproduction_round();
+        int original_pop = s.get_pop_size();
+        int new_ind = s.get_dividing_individuals().size();
+        double excess_energy_of_reproducing_ind = s.get_individual(1).get_energy() - s.get_individual(1).get_treshold_energy();
 
-//    for(int i = 0; i != s.get_pop_size(); i++){
+        s.do_reprduction();
+        assert(s.get_pop_size() - (original_pop + new_ind) < 0.000000001);
+        assert(s.get_individual(1).get_energy() - excess_energy_of_reproducing_ind/2 < 0.00000001);
+        assert(s.get_individual(2).get_energy() - excess_energy_of_reproducing_ind/2 < 0.00000001);
 
-//    }
-
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

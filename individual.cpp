@@ -52,6 +52,15 @@ void test_individual(){
         assert(abs(rhs - lhs)>0.0000001);
     }
 
-    //
+    //Energy after reproduction should be half of the excess of energy
+    {
+        individual i(0,0,0,4,2);//this individual should have energy in excess = 2
+                                //after division
+        double excess_energy = i.get_energy()-i.get_treshold_energy();
+        assert(i.split_excess_energy() - excess_energy/2 < 0.000000001);
+
+
+    }
+
 
 }

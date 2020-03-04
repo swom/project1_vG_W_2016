@@ -11,7 +11,6 @@ SOURCES += \
     main.cpp \
     simulation.cpp
 
-
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += resources_big

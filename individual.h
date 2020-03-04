@@ -27,6 +27,13 @@ public:
      ///gets the treshold energy at which an individual reproduces
      double get_treshold_energy() const noexcept {return m_treshold_energy;}
 
+     ///Splits the excess energy not required for division in two9to be then
+     ///(to be then assigned to the two daughter cells by
+     /// simulation::reproduce/cells_divide)
+     /// This might be too many steps(can directly change m_energy)
+     /// But I want to do it dumb and safe
+     double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
+
 private:
 
      double m_x;
