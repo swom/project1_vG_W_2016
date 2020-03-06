@@ -1,5 +1,6 @@
 #include "individual.h"
 #include <cassert>
+#include <math.h>
 
 individual::individual(double x_pos, double y_pos, double size, double energy, double treshold_energy):
     m_x(x_pos),
@@ -9,6 +10,25 @@ individual::individual(double x_pos, double y_pos, double size, double energy, d
     m_treshold_energy(treshold_energy)
 {
 
+}
+
+bool operator == (const individual& lhs, const individual& rhs) noexcept {
+  // Check if left-hand side is equal to the right-hand side
+  return lhs.get_x() - rhs.get_x() < 0.00001 && lhs.get_y() - rhs.get_y() < 0.000001;
+}
+
+bool operator == ( individual& lhs, const individual& rhs) noexcept {
+  // Check if left-hand side is equal to the right-hand side
+  return lhs.get_x() - rhs.get_x() < 0.00001 && lhs.get_y() - rhs.get_y() < 0.000001;
+}
+
+bool are_colliding(const individual &lhs, const individual &rhs) noexcept
+{
+  const double dx = std::abs(lhs.get_x() - rhs.get_x());
+  const double dy = std::abs(lhs.get_y() - rhs.get_y());
+  const double actual_distance = std::sqrt((dx * dx) + (dy * dy));
+  const double collision_distance = (lhs.get_size() + rhs.get_size()) / 2;
+  return actual_distance < collision_distance;
 }
 
 void test_individual(){
