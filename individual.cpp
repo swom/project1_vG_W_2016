@@ -13,13 +13,9 @@ individual::individual(double x_pos, double y_pos, double size, double energy, d
 }
 
 bool operator == (const individual& lhs, const individual& rhs) noexcept {
-  // Check if left-hand side is equal to the right-hand side
-  return lhs.get_x() - rhs.get_x() < 0.00001 && lhs.get_y() - rhs.get_y() < 0.000001;
-}
-
-bool operator == ( individual& lhs, const individual& rhs) noexcept {
-  // Check if left-hand side is equal to the right-hand side
-  return lhs.get_x() - rhs.get_x() < 0.00001 && lhs.get_y() - rhs.get_y() < 0.000001;
+    //check that two individuals' centers are at the same coordinates
+    return lhs.get_x() - rhs.get_x() < 0.00001
+            && lhs.get_y() - rhs.get_y() < 0.000001;
 }
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept
