@@ -6,11 +6,10 @@
 class simulation
 {
 public:
-    simulation(int pop_size = 1);
+    simulation(int pop_size = 1, double min_dist = 0.1);
 
-    ///finds the individuals ready to divide
-    // to be changed to vectorof references
-    std::vector<int> get_dividing_individuals();
+    ///finds the indexes of the individuals ready to divide
+    std::vector<int> get_dividing_individuals() const noexcept;
 
     ///Gets an inidividual at a certain index in the vector
     const individual get_individual(int i) const {return population[i];}
@@ -18,11 +17,20 @@ public:
     ///Gets an inidividual at a certain index in the vector and allows to change it
     individual& get_individual(int i) {return population[i];}
 
+    ///Gets the excess energy for a vector of index of individuals in population vector
+    std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
+
     ///Gets an individual's energy
-    double get_ind_en(int i) {return population[i].get_energy();}
+    double get_ind_en(int i) const {return population[i].get_energy();}
 
     ///Gets an individual's treshold energy
-    double get_ind_tr_en(int i) {return population[i].get_treshold_energy();}
+    double get_ind_tr_en(int i) const {return population[i].get_treshold_energy();}
+
+    ///Gets distance in vector elements between two duaghters of same mother cell
+    std::vector<std::pair<int, int> > get_off_indexes() const noexcept;
+
+    ///Get minimum distance between individuals at the start of the simulation
+    double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
 
     ///Gets the size of the population
     int get_pop_size() const noexcept {return static_cast<int>(population.size());}
@@ -37,7 +45,8 @@ public:
     ///Individuals with enough energy divide and redistribute energy
     void do_reprduction() noexcept;
 
-    ///Places starting cells in hexagonal packing pattern
+    /// Places cells in an hexagonal grid
+    /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
     void place_start_cells() noexcept;
 
     ///Sets and individual's energy
@@ -49,7 +58,11 @@ private:
     double m_min_init_dist_btw_cells;
 };
 
+//counts the number of hexagonal layers necessary to place all individuals in hex pattern
+int count_hex_layers(int pop_size)  noexcept ;
+
 bool has_collision(simulation s);
+
 void test_simulation();
 
 #endif // SIMULATION_H
