@@ -30,12 +30,10 @@ services:
 
 script: 
   # Build the project, then:
-
-  - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS game.pro
+  - qmake -qt=qt5 simulation.pro
   - make --silent debug
-  - ./game --test
-  # 2) Run the game for a short time, then quit
-  # Call OCLint
+  - ./simulation --test
+  # OCLint
   - ./scripts/do_oclint
   # Get code coverage
   - cp debug/*.* .
