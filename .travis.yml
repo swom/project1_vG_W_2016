@@ -52,7 +52,7 @@ script:
   - rm -rf .git
   - rm -rf debug
   - rm -rf release
-  - cd ..; sloccount --overhead 1 --personcost 22614 game | egrep -v "Adding"; cd game
+  - cd ..; sloccount --overhead 1 --personcost 22614 project1_vG_W_2016 | egrep -v "Adding"; cd project1_vG_W_2016
 
 after_success:
   # Codecov
