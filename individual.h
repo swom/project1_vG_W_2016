@@ -49,8 +49,14 @@ private:
 
 };
 
+///returns the position of the second daughter cell just outside the mother
+const std::pair<double,double> get_d2_pos(individual& i) noexcept;
+
 ///Gets the x,y coordinates as a pair
 const std::pair<double,double> get_pos(individual& i) noexcept;
+
+///Sets x,y given a pair of doubles(x,y)
+void set_pos(individual& i, std::pair<double, double> pos)  noexcept;
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 

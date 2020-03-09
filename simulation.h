@@ -12,10 +12,10 @@ public:
     std::vector<int> get_dividing_individuals() const noexcept;
 
     ///Gets an inidividual at a certain index in the vector
-    const individual get_individual(int i) const {return population[i];}
+    const individual get_ind(int i) const {return population[i];}
 
     ///Gets an inidividual at a certain index in the vector and allows to change it
-    individual& get_individual(int i) {return population[i];}
+    individual& get_ind(int i) {return population[i];}
 
     ///Gets the excess energy from a referenced vector of index of individuals in population vector
     std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
@@ -33,7 +33,7 @@ public:
     const std::pair<double,double> get_ind_pos(int i);
 
     ///Gets distance in vector elements between two duaghters of same mother cell
-    std::vector<std::pair<int, int> > get_sisters_indexes() const noexcept;
+    std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
 
     ///Get minimum distance between individuals at the start of the simulation
     double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
@@ -44,8 +44,11 @@ public:
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_pop() const noexcept {return population;}
 
+    ///Gets the vector containing all the individuals of the population
+    std::vector<individual>& get_pop() noexcept {return population;}
+
     ///Divides an individual at a given index
-    void divide_ind(int i);
+    void divide_ind(individual &i);
 
 
     ///The individuals in the vector are copied at the end of the pop vector
@@ -60,7 +63,10 @@ public:
     void place_start_cells() noexcept;
 
     ///Places an individual of index i at position x,y
-    void place_individual(int i, double x, double y);
+    void set_ind_pos(individual& i, double x, double y);
+
+    ///Places an individual of index i at position x,y
+    void set_ind_pos(individual& i, std::pair<double, double> pos);
 
     ///Sets and individual's energy
     void set_ind_en(int i, double en) {population[i].set_energy(en);}
@@ -74,7 +80,14 @@ private:
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
 int count_hex_layers(int pop_size)  noexcept ;
 
-bool has_collision(simulation s);
+///Calculate the distance between two cells given their positions
+double calculate_distance(std::pair<double, double> lhs, std::pair<double, double> rhs) noexcept;
+
+///Checks if any two cells are colliding
+bool has_collision(const simulation& s);
+
+/// Displaces colliding cells so that they do not collide anymore
+void manage_static_collisions(simulation& s);
 
 void test_simulation();
 

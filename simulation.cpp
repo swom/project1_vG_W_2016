@@ -24,11 +24,13 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
     }
     return dividing_individuals;
 }
-void simulation::divide_ind(int i)
+void simulation::divide_ind(individual& i)
 {
-    double offspring_initial_energy = population[i].split_excess_energy();
-    population[i].set_energy(offspring_initial_energy);
-    population.push_back(population[i]);
+    double offspring_initial_energy = i.split_excess_energy();
+    i.set_energy(offspring_initial_energy);
+    individual d2 = i;
+    population.push_back(d2);
+    set_ind_pos(population.back(),get_d2_pos(d2));
 }
 
 void simulation::do_division(std::vector<int> dividing_individuals)
@@ -37,7 +39,7 @@ void simulation::do_division(std::vector<int> dividing_individuals)
     for(size_t i = 0; i != dividing_individuals.size(); i++)
     {
         int div_ind = dividing_individuals[i];
-        divide_ind(div_ind);
+        divide_ind(get_ind(div_ind));
     }
 }
 
@@ -72,7 +74,13 @@ std::vector<double> simulation::get_excess_energies(std::vector<int>& v_ind) con
     return excess_energy;
 }
 
-std::vector<std::pair<int,int>> simulation::get_sisters_indexes() const noexcept
+const std::pair<double,double> simulation::get_ind_pos(int i)
+{
+    std::pair<double, double> pos = get_pos(get_ind(i));
+    return pos;
+}
+
+std::vector<std::pair<int,int>> simulation::get_sisters_index_offset() const noexcept
 {
     std::vector<std::pair<int,int>> sis_indexes;
     std::pair<int,int> daughters;
@@ -89,11 +97,15 @@ std::vector<std::pair<int,int>> simulation::get_sisters_indexes() const noexcept
     return sis_indexes;
 }
 
-void simulation::place_individual(int i, double x, double y)
+void simulation::set_ind_pos(individual& i, double x, double y)
 {
-    individual& ind = get_individual(i);
-    ind.set_x(x);
-    ind.set_y(y);
+    i.set_x(x);
+    i.set_y(y);
+}
+
+void simulation::set_ind_pos(individual& i, std::pair<double, double> pos)
+{
+    set_pos(i, pos);
 }
 
 
@@ -131,14 +143,14 @@ void simulation::place_start_cells() noexcept
     }
 }
 
-bool has_collision(simulation s)
+bool has_collision(const simulation& s)
 {
     const auto n_ind = s.get_pop().size();
     for (unsigned int i = 0; i < n_ind - 1; ++i)
     {
         for (unsigned int j = i + 1; j < n_ind; ++j)
         {
-            if (are_colliding(s.get_individual(i), s.get_individual(j)))
+            if (are_colliding(s.get_ind(i), s.get_ind(j)))
             {
                 return true;
             }
@@ -146,6 +158,41 @@ bool has_collision(simulation s)
     }
     return false;
 
+}
+
+void manage_static_collisions(simulation& s)
+{
+    const auto n_ind = s.get_pop().size();
+    for (unsigned int i = 0; i < n_ind; ++i)
+    {
+        for (unsigned int j = 0 ; j < n_ind; ++j)
+        {
+            if( i != j)
+            {
+
+                if (are_colliding(s.get_ind(i), s.get_ind(j)))
+                {
+                    // Distance between ball centers
+                    double distance = sqrtf
+                            (
+                                (s.get_ind(i).get_x() - s.get_ind(j).get_x()) * (s.get_ind(i).get_x() - s.get_ind(j).get_x())
+                                + (s.get_ind(i).get_y() - s.get_ind(j).get_y()) * (s.get_ind(i).get_y() - s.get_ind(j).get_y())
+                             );
+
+                    // Calculate displacement required
+                    double overlap = (distance - s.get_ind(i).get_size() - s.get_ind(j).get_size())/2;
+
+                    // Displace Current Ball away from collision
+                    s.get_ind(i).set_x(s.get_ind(i).get_x() - (overlap * (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance));
+                    s.get_ind(i).set_y(s.get_ind(i).get_y() - (overlap * (s.get_ind(i).get_y() - s.get_ind(j).get_y()) / distance));
+
+                    // Displace Target Ball away from collision
+                    s.get_ind(j).set_x(s.get_ind(j).get_x() + (overlap * (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance));
+                    s.get_ind(j).set_y(s.get_ind(j).get_y() + (overlap * (s.get_ind(i).get_y() - s.get_ind(j).get_y()) / distance));
+                }
+            }
+        }
+    }
 }
 
 int count_hex_layers(int pop_size)  noexcept
@@ -156,10 +203,22 @@ int count_hex_layers(int pop_size)  noexcept
     return n;
 }
 
-const std::pair<double,double> simulation::get_ind_pos(int i)
+std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 {
-    std::pair<double, double> pos = get_pos(get_individual(i));
-    return pos;
+    std::vector<double> v_modulus;
+    for(int i = 0; i != s.get_pop_size()-2; i++)
+        for(int j = i+1; j != s.get_pop_size(); j++)
+            for(int k = j+1; k != s.get_pop_size(); k++)
+            {
+                individual P1 = s.get_ind(i);
+                individual P2 = s.get_ind(j);
+                individual P3 = s.get_ind(k);
+                double angle =
+                        std::atan2(P3.get_y() - P1.get_y(), P3.get_x() - P1.get_x()) -
+                        atan2(P2.get_y() - P1.get_y(), P2.get_x() - P1.get_x());
+                v_modulus.push_back((abs(fmod(angle,ang_rad))));
+            }
+    return v_modulus;
 }
 
 void test_simulation()
@@ -171,7 +230,7 @@ void test_simulation()
         // The value 1234567890 is irrelevant: just get this to compile
         for(unsigned int i = 0; i < s.get_pop().size(); ++i)
         {
-            double x = s.get_individual(i).get_x();
+            double x = s.get_ind(i).get_x();
             assert( x > -1234567890 );
         }
     }
@@ -213,19 +272,10 @@ void test_simulation()
         //The angle formed by any 3 individual_centers is a multiple of PI/6*number_of_hex_layers
         //This is true in an hex_patt but i do not know if it is sufficient
 
-        for(int i = 0; i != s.get_pop_size()-2; i++)
-            for(int j = i+1; j != s.get_pop_size(); j++)
-                for(int k = j+1; k != s.get_pop_size(); k++)
-                {
-                    individual P1 = s.get_individual(i);
-                    individual P2 = s.get_individual(j);
-                    individual P3 = s.get_individual(k);
-                    double angle =
-                            std::atan2(P3.get_y() - P1.get_y(), P3.get_x() - P1.get_x()) -
-                            atan2(P2.get_y() - P1.get_y(), P2.get_x() - P1.get_x());
-                    double modulus = abs(fmod(angle,M_PI/12));
-                    assert( modulus < 0.0000000001 || modulus > M_PI/12 - 0.000001);
-                }
+        auto v_modulus = modulus_of_btw_ind_angles(s,M_PI/12);
+        for(auto ind_modulus : v_modulus)
+            assert( ind_modulus < 0.0000000001 || ind_modulus > M_PI/12 - 0.000001);
+
     }
 
 
@@ -236,7 +286,7 @@ void test_simulation()
     }
 
 
-    //An individual position can be retrieved as a vector
+    //An individual position can be retrieved as a pair object x,y
     {
         simulation s;
         std::pair<double, double> v{0,0};//default coordinates of individuals
@@ -252,7 +302,7 @@ void test_simulation()
         simulation s(2);
         for(int i = 0; i < s.get_pop_size(); i++)
         {
-            s.place_individual(i,i,i);
+            s.set_ind_pos(s.get_ind(i),i,i);
         }
 
         for (int i = 0; i < s.get_pop_size() - 1; i++)
@@ -286,17 +336,17 @@ void test_simulation()
     {
         simulation s(3);
         //This ind will not reproduce
-        s.get_individual(0).set_energy(s.get_individual(0).get_treshold_energy()-1);
+        s.get_ind(0).set_energy(s.get_ind(0).get_treshold_energy()-1);
         //This ind will reproduce with no extra energy
-        s.get_individual(1).set_energy(s.get_individual(1).get_treshold_energy());
+        s.get_ind(1).set_energy(s.get_ind(1).get_treshold_energy());
         //This ind will reproduce with extra energy
-        s.get_individual(2).set_energy(s.get_individual(2).get_treshold_energy()+1);
+        s.get_ind(2).set_energy(s.get_ind(2).get_treshold_energy()+1);
 
         std::vector<int> div_ind = s.get_dividing_individuals();
         assert(div_ind.size() > 0);
 
         for(int i = 0; i != static_cast<int>(div_ind.size()); i++)
-            assert(s.get_individual(div_ind[i]).get_energy() >= s.get_individual(div_ind[i]).get_treshold_energy());
+            assert(s.get_ind(div_ind[i]).get_energy() >= s.get_ind(div_ind[i]).get_treshold_energy());
 
     }
 
@@ -320,7 +370,7 @@ void test_simulation()
         simulation s(1);
         //First individual reproduces
         s.set_ind_en(0,s.get_ind_tr_en(0)*2);
-        auto daughters = s.get_sisters_indexes();
+        auto daughters = s.get_sisters_index_offset();
         // In this case the distance between the two offspring will be 1 element of the vector in next gen
         auto predicted_sister_distances = 1;
         for(auto sisters : daughters)
@@ -332,7 +382,6 @@ void test_simulation()
 
     //After a reproduction round individuals with enough energy will divide
     //and redistribute their remaining energy to their daughter cells
-    //I do not like this test, i do not know how to test it otherwise though
     {
         simulation s(3);
         //This individual will not reproduce
@@ -342,13 +391,13 @@ void test_simulation()
         //This ind will reproduce with extra energy
         s.set_ind_en(2,s.get_ind_tr_en(2) + 1);
 
-        auto excess_energy = s.get_excess_energies(s.get_dividing_individuals());
-        auto sister_cells_vector = s.get_sisters_indexes();
+        auto mother_excess_energy = s.get_excess_energies(s.get_dividing_individuals());
+        auto sister_cells_vector = s.get_sisters_index_offset();
         s.do_reprduction();
-        for(int i = 0; i < static_cast<int>(s.get_sisters_indexes().size()); i++)
+        for(int i = 0; i < static_cast<int>(s.get_sisters_index_offset().size()); i++)
         {
-            assert(s.get_ind_en(sister_cells_vector[i].first) - excess_energy[i]/2 < 0.00001);
-            assert(s.get_ind_en(sister_cells_vector[i].second) - excess_energy[i]/2 < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].first) - mother_excess_energy[i]/2 < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].second) - mother_excess_energy[i]/2 < 0.00001);
             assert(s.get_ind_en(sister_cells_vector[i].first) - s.get_ind_en(sister_cells_vector[i].second) < 0.00001);
         }
     }
@@ -358,10 +407,44 @@ void test_simulation()
     {
         simulation s;
         auto parent_pop = s.get_pop();
+        //setting energy high enough for the individual to reproduce without offspring having negative enrgies
         s.set_ind_en(0,s.get_ind_tr_en(0));
-        s.divide_ind(0);
+
+        s.divide_ind(s.get_ind(0));
         //The first daughter cell is at the same index of the mother cell
         assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
+    }
+
+    //After reproduction the second daughter cell is placed just outside the position of the first daughter cell
+    {
+        simulation s;
+        //setting energy high enough for the individual to reproduce without offspring having negative enrgies
+        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.divide_ind(s.get_ind(0));
+        //The first daughter cell is at the same index of the mother cell
+        assert(!has_collision(s));
+    }
+
+    //If there are collisions cells are displaced until there are no more collisions
+    {
+        int init_pop_size = 8;
+        simulation s(init_pop_size);
+        assert(!has_collision(s));
+        //all population divides
+        for( individual& ind : s.get_pop())
+        {
+            ind.set_energy(ind.get_treshold_energy());
+        }
+
+        s.do_reprduction();
+        assert(s.get_pop_size() - init_pop_size * 2 < 0.0000001);
+        assert(has_collision(s));
+        while(has_collision(s))
+        {
+        manage_static_collisions(s);
+        }
+        assert(!has_collision(s));
+
     }
 
 }
