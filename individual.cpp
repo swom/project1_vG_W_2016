@@ -27,6 +27,15 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept
   return actual_distance < collision_distance;
 }
 
+
+const std::pair<double, double> get_pos(individual& i)  noexcept
+{
+    std::pair<double, double> pos;
+    pos.first = i.get_x();
+    pos.second = i.get_y();
+    return pos;
+}
+
 void test_individual(){
 
     //An individual should be initialized with the defined starting size
@@ -75,8 +84,12 @@ void test_individual(){
         double excess_energy = i.get_energy()-i.get_treshold_energy();
         assert(i.split_excess_energy() - excess_energy/2 < 0.000000001);
 
-
     }
-
+// An individual position can be extracted as a pair of doubles x,y
+    {
+        individual i(0,0);
+        assert(get_pos(i).first - i.get_x() < 0.00001);
+        assert(get_pos(i).second - i.get_y() < 0.00001);
+    }
 
 }

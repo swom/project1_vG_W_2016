@@ -1,6 +1,7 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
-
+#include <utility>
+#include <algorithm>
 
 class individual
 {
@@ -36,7 +37,6 @@ public:
      ///Splits the excess energy not required for division in two9to be then
      ///(to be then assigned to the two daughter cells by
      /// simulation::reproduce/cells_divide)
-
      double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
 
 private:
@@ -48,6 +48,9 @@ private:
      double m_treshold_energy;
 
 };
+
+///Gets the x,y coordinates as a pair
+const std::pair<double,double> get_pos(individual& i) noexcept;
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 

@@ -17,8 +17,11 @@ public:
     ///Gets an inidividual at a certain index in the vector and allows to change it
     individual& get_individual(int i) {return population[i];}
 
-    ///Gets the excess energy for a vector of index of individuals in population vector
+    ///Gets the excess energy from a referenced vector of index of individuals in population vector
     std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
+
+    ///Gets the excess energy for a vector of index of individuals in population vector
+    std::vector<double> get_excess_energies(std::vector<int> v_ind) const noexcept;
 
     ///Gets an individual's energy
     double get_ind_en(int i) const {return population[i].get_energy();}
@@ -26,8 +29,11 @@ public:
     ///Gets an individual's treshold energy
     double get_ind_tr_en(int i) const {return population[i].get_treshold_energy();}
 
+    ///Gets the position of an individual as a vector x,y
+    const std::pair<double,double> get_ind_pos(int i);
+
     ///Gets distance in vector elements between two duaghters of same mother cell
-    std::vector<std::pair<int, int> > get_off_indexes() const noexcept;
+    std::vector<std::pair<int, int> > get_sisters_indexes() const noexcept;
 
     ///Get minimum distance between individuals at the start of the simulation
     double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
@@ -38,9 +44,13 @@ public:
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_pop() const noexcept {return population;}
 
+    ///Divides an individual at a given index
+    void divide_ind(int i);
+
+
     ///The individuals in the vector are copied at the end of the pop vector
     // To be chaged to take vec of references as an argument
-    void division(std::vector<int> dividing_individuals);
+    void do_division(std::vector<int> dividing_individuals);
 
     ///Individuals with enough energy divide and redistribute energy
     void do_reprduction() noexcept;
@@ -48,6 +58,9 @@ public:
     /// Places cells in an hexagonal grid
     /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
     void place_start_cells() noexcept;
+
+    ///Places an individual of index i at position x,y
+    void place_individual(int i, double x, double y);
 
     ///Sets and individual's energy
     void set_ind_en(int i, double en) {population[i].set_energy(en);}
@@ -58,7 +71,7 @@ private:
     double m_min_init_dist_btw_cells;
 };
 
-//counts the number of hexagonal layers necessary to place all individuals in hex pattern
+///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
 int count_hex_layers(int pop_size)  noexcept ;
 
 bool has_collision(simulation s);

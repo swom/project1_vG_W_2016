@@ -24,22 +24,39 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
     }
     return dividing_individuals;
 }
+void simulation::divide_ind(int i)
+{
+    double offspring_initial_energy = population[i].split_excess_energy();
+    population[i].set_energy(offspring_initial_energy);
+    population.push_back(population[i]);
+}
 
-void simulation::division(std::vector<int> dividing_individuals)
+void simulation::do_division(std::vector<int> dividing_individuals)
 {
 
     for(size_t i = 0; i != dividing_individuals.size(); i++)
     {
         int div_ind = dividing_individuals[i];
-        double offspring_initial_energy = population[div_ind].split_excess_energy();
-        population[div_ind].set_energy(offspring_initial_energy);
-        population.push_back(population[div_ind]);
+        divide_ind(div_ind);
     }
 }
 
 void simulation::do_reprduction() noexcept
 {
-    division(get_dividing_individuals());
+    do_division(get_dividing_individuals());
+}
+
+std::vector<double> simulation::get_excess_energies(std::vector<int> v_ind) const noexcept
+{
+    std::vector<double> excess_energy;
+    for(auto i=0; i != static_cast<int>(v_ind.size()); i++)
+    {
+        int ind_index = v_ind[i];
+        excess_energy.push_back(
+                    get_ind_en(ind_index) - get_ind_tr_en(ind_index)
+                    );
+    }
+    return excess_energy;
 }
 
 std::vector<double> simulation::get_excess_energies(std::vector<int>& v_ind) const noexcept
@@ -55,21 +72,30 @@ std::vector<double> simulation::get_excess_energies(std::vector<int>& v_ind) con
     return excess_energy;
 }
 
-std::vector<std::pair<int,int>> simulation::get_off_indexes() const noexcept
+std::vector<std::pair<int,int>> simulation::get_sisters_indexes() const noexcept
 {
-    std::vector<std::pair<int,int>> off_indexes;
-    int off_dist;
-    auto div_ind = get_dividing_individuals();
+    std::vector<std::pair<int,int>> sis_indexes;
     std::pair<int,int> daughters;
-    for (int ind_index = 0; ind_index < get_pop_size(); ind_index++)
+    int sis_dist;
+    auto div_ind = get_dividing_individuals();
+
+    for (int ind_index = 0; ind_index < static_cast<int>(div_ind.size()); ind_index++)
     {
-        off_dist = get_pop_size() - div_ind[ind_index];
+        sis_dist = get_pop_size() - div_ind[ind_index];
         daughters.first = ind_index;
-        daughters.second = ind_index + off_dist;
-        off_indexes.push_back(daughters);
+        daughters.second = ind_index + sis_dist;
+        sis_indexes.push_back(daughters);
     }
-    return off_indexes;
+    return sis_indexes;
 }
+
+void simulation::place_individual(int i, double x, double y)
+{
+    individual& ind = get_individual(i);
+    ind.set_x(x);
+    ind.set_y(y);
+}
+
 
 void simulation::place_start_cells() noexcept
 {
@@ -130,6 +156,12 @@ int count_hex_layers(int pop_size)  noexcept
     return n;
 }
 
+const std::pair<double,double> simulation::get_ind_pos(int i)
+{
+    std::pair<double, double> pos = get_pos(get_individual(i));
+    return pos;
+}
+
 void test_simulation()
 {
     //Simulation is initialized with a certain number of individuals
@@ -177,6 +209,7 @@ void test_simulation()
     //Individuals' centers are placed in an hexagonal pattern
     {
         simulation s(7);
+
         //The angle formed by any 3 individual_centers is a multiple of PI/6*number_of_hex_layers
         //This is true in an hex_patt but i do not know if it is sufficient
 
@@ -195,13 +228,45 @@ void test_simulation()
                 }
     }
 
+
     //No individuals are overlapping at the start of the simulation
     {
         simulation s(50);
         assert(!has_collision(s));
     }
 
-    //when an individual divides it adds a copy of itself to the population/individual vector(i.e divides)
+
+    //An individual position can be retrieved as a vector
+    {
+        simulation s;
+        std::pair<double, double> v{0,0};//default coordinates of individuals
+        std::pair<double, double> v2{1,1};//different coordinates from default
+
+        assert(s.get_ind_pos(0) == v);
+        assert(s.get_ind_pos(0) != v2);
+    }
+
+
+    // An individaul can be placed to some given coordinates after initialization
+    {
+        simulation s(2);
+        for(int i = 0; i < s.get_pop_size(); i++)
+        {
+            s.place_individual(i,i,i);
+        }
+
+        for (int i = 0; i < s.get_pop_size() - 1; i++)
+        {
+            for(int j = i+1 ; j < s.get_pop_size(); j++)
+            {
+                assert(s.get_ind_pos(i) != s.get_ind_pos(j));
+            }
+        }
+
+    }
+
+
+    //When an individual divides it adds a copy of itself to the population/individual vector(i.e divides)
     {
         simulation s;
         double lhs = s.get_pop_size();
@@ -209,7 +274,7 @@ void test_simulation()
         std::vector<int> dividing_pop(s.get_pop_size()) ;
         std::iota (std::begin(dividing_pop), std::end(dividing_pop), 0);
 
-        s.division(dividing_pop);
+        s.do_division(dividing_pop);
 
         double rhs = s.get_pop_size();
         assert(lhs * 2 - rhs < 0.0000001);
@@ -241,8 +306,7 @@ void test_simulation()
         double energy = s.get_ind_tr_en(0);
         s.set_ind_en(0,energy);
         s.set_ind_en(1,energy*2);
-        auto div_ind = s.get_dividing_individuals();
-        auto v_ex_en = s.get_excess_energies(div_ind);
+        auto v_ex_en = s.get_excess_energies(s.get_dividing_individuals());
         for(int i =0; i != static_cast<int>(v_ex_en.size()); i++){
             assert(v_ex_en[i] - (s.get_ind_en(i) - s.get_ind_tr_en(i)) < 0.00000001);
         }
@@ -256,11 +320,12 @@ void test_simulation()
         simulation s(1);
         //First individual reproduces
         s.set_ind_en(0,s.get_ind_tr_en(0)*2);
-        auto daughters = s.get_off_indexes();
-        //the distance between the two offspring will be 1 element of the vector in next gen
+        auto daughters = s.get_sisters_indexes();
+        // In this case the distance between the two offspring will be 1 element of the vector in next gen
+        auto predicted_sister_distances = 1;
         for(auto sisters : daughters)
         {
-        assert( sisters.second - sisters.first - 1 < 0.000001);
+            assert( sisters.second - sisters.first - predicted_sister_distances < 0.000001);
         }
     }
 
@@ -268,43 +333,36 @@ void test_simulation()
     //After a reproduction round individuals with enough energy will divide
     //and redistribute their remaining energy to their daughter cells
     //I do not like this test, i do not know how to test it otherwise though
-//    {
-//        simulation s(3);
-//        //This individual will not reproduce
-//        s.set_ind_en(0,s.get_ind_tr_en(0) - 1);
-//        //This individual will reproduce with no extra energy
-//        s.set_ind_en(1,s.get_ind_tr_en(1));
-//        //This ind will reproduce with extra energy
-//        s.set_ind_en(2,s.get_ind_tr_en(2) + 1);
+    {
+        simulation s(3);
+        //This individual will not reproduce
+        s.set_ind_en(0,s.get_ind_tr_en(0) - 1);
+        //This individual will reproduce with no extra energy
+        s.set_ind_en(1,s.get_ind_tr_en(1));
+        //This ind will reproduce with extra energy
+        s.set_ind_en(2,s.get_ind_tr_en(2) + 1);
+
+        auto excess_energy = s.get_excess_energies(s.get_dividing_individuals());
+        auto sister_cells_vector = s.get_sisters_indexes();
+        s.do_reprduction();
+        for(int i = 0; i < static_cast<int>(s.get_sisters_indexes().size()); i++)
+        {
+            assert(s.get_ind_en(sister_cells_vector[i].first) - excess_energy[i]/2 < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].second) - excess_energy[i]/2 < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].first) - s.get_ind_en(sister_cells_vector[i].second) < 0.00001);
+        }
+    }
 
 
-//        //Horrible code to find both daughter cells and check that their energy corresponds
-//        //To half the energy of the mother cell
-
-
-
-//        std::vector<double> excess_energy = s.get_excess_energies(divided_ind);
-
-//        int original_pop_size = s.get_pop_size();
-//        int par_off_dist = s.get_off_dist();
-//        s.do_reprduction();
-//        for(int i = 0; i != original_pop_size; i++)
-//        {
-//            if(std::count(divided_ind.begin(),divided_ind.end(),i)){
-
-//                auto en_ind = std::distance(
-//                            divided_ind.begin(),
-//                            std::find(divided_ind.begin(),divided_ind.end(),i)
-//                            );
-
-//                assert(s.get_ind_en(i) - excess_energy[en_ind]/2 < 0.00000001);
-//                assert(s.get_ind_en(i + par_off_dist) - excess_energy[en_ind]/2 < 0.00000001);
-
-//            }
-//        }
-//    }
-
-
+    //After reproduction the first daughter cell takes the position of the mother
+    {
+        simulation s;
+        auto parent_pop = s.get_pop();
+        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.divide_ind(0);
+        //The first daughter cell is at the same index of the mother cell
+        assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
+    }
 
 }
 
