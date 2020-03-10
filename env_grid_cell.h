@@ -8,7 +8,7 @@ public:
     env_grid_cell(double metabolite = 0, double food = 0);
 
     ///Gets the amount of metabolite in the cell
-    const double& get_metabolite()  noexcept {return m_metabolite;}
+    const double& get_metabolite() const noexcept {return m_metabolite;}
 
     ///Sets the amount of metabolite
     void set_metabolite(double m) noexcept {m_metabolite = m;}
@@ -17,7 +17,7 @@ public:
     void change_metabolite(double m) noexcept {m_metabolite + m > 0 ? m_metabolite += m : 0;}
 
     ///Gets the amount of metabolite in the cell
-    const double& get_food()  noexcept {return m_food;}
+    const double& get_food() const noexcept {return m_food;}
 
     ///Sets the amount of metabolite
     void set_food(double f) noexcept {m_food = f;}

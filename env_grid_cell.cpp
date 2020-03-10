@@ -1,5 +1,5 @@
 #include "env_grid_cell.h"
-#include <assert.h>
+#include <cassert>
 
 env_grid_cell::env_grid_cell(double metabolite, double food):
     m_metabolite(metabolite),
