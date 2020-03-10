@@ -23,7 +23,7 @@ public:
     void set_food(double f) noexcept {m_food = f;}
 
     ///Sets the amount of metabolite
-    void change_food(double f) noexcept {m_food + f > 0 ? m_food += f : 0;}
+    void increment_food(double f) noexcept {m_food + f > 0 ? m_food += f : 0;}
 
 private:
     double m_metabolite;

@@ -8,6 +8,8 @@ env_grid_cell::env_grid_cell(double metabolite, double food):
 
 }
 
+
+
 void test_env_grid_cell()
 {
     //A grid cell has a metabolite value,
@@ -71,7 +73,7 @@ void test_env_grid_cell()
         env_grid_cell g1 = g;
         double change_in_food = 3;
         assert(g.get_food() != change_in_food);
-        g1.change_food(change_in_food);
+        g1.increment_food(change_in_food);
         assert(g.get_food() != g1.get_food());
         assert(abs(g.get_food() - g1.get_food()) - change_in_food < 0.000001);
 
@@ -80,7 +82,7 @@ void test_env_grid_cell()
     //Food concentration cannot be less than 0
     {
         env_grid_cell g;
-        g.change_food(-10000);
+        g.increment_food(-10000);
         assert(g.get_food() >= 0);
     }
 }

@@ -172,7 +172,7 @@ void manage_static_collisions(simulation& s)
 
                 if (are_colliding(s.get_ind(i), s.get_ind(j)))
                 {
-                    // Distance between ball centers
+                    // Distance between individual centers
                     double distance = sqrtf
                             (
                                 (s.get_ind(i).get_x() - s.get_ind(j).get_x()) * (s.get_ind(i).get_x() - s.get_ind(j).get_x())
@@ -182,13 +182,13 @@ void manage_static_collisions(simulation& s)
                     // Calculate displacement required
                     double overlap = (distance - s.get_ind(i).get_size() - s.get_ind(j).get_size())/2;
 
-                    // Displace Current Ball away from collision
+                    // Displace Current individual away from collision
                     auto i_x = s.get_ind(i).get_x() - (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
                     auto i_y = s.get_ind(i).get_y() - (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
                     s.get_ind(i).set_x(i_x);
                     s.get_ind(i).set_y(i_y);
 
-                    // Displace Target Ball away from collision
+                    // Displace Target individual away from collision
                     auto j_x = s.get_ind(j).get_x() + (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
                     auto j_y = s.get_ind(j).get_y() + (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
                     s.get_ind(j).set_x(j_x);
@@ -256,7 +256,7 @@ void test_simulation()
     }
 
 
-    // The number n of hex_layers required for x cells is
+    // The number n of hex_layers required for x individual is
     // 3n(n-1)+1 <= x < 3(n+1)((n+1)-1)+1
     {
         std::vector<int> x{0,1,7,19,22};
@@ -407,7 +407,7 @@ void test_simulation()
     }
 
 
-    //After reproduction the first daughter cell takes the position of the mother
+    //After reproduction the first daughter individual takes the position of the mother
     {
         simulation s;
         auto parent_pop = s.get_pop();
@@ -419,7 +419,7 @@ void test_simulation()
         assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
     }
 
-    //After reproduction the second daughter cell is placed just outside the position of the first daughter cell
+    //After reproduction the second daughter individual is placed just outside the position of the first daughter cell
     {
         simulation s;
         //setting energy high enough for the individual to reproduce without offspring having negative enrgies
@@ -429,7 +429,7 @@ void test_simulation()
         assert(!has_collision(s));
     }
 
-    //If there are collisions cells are displaced until there are no more collisions
+    //If there are collisions individuals are displaced until there are no more collisions
     {
 
         simulation s(2);
@@ -440,7 +440,7 @@ void test_simulation()
         assert(!has_collision(s));
 
     }
-    //After reproduction new collisions caused by new cells being placed where other cells already are are managed
+    //After reproduction new collisions caused by new individuals being placed where other individuals already are managed
     {
         simulation s(7);
         assert(!has_collision(s));
@@ -450,8 +450,8 @@ void test_simulation()
             ind.set_energy(ind.get_treshold_energy());
         }
         s.do_reprduction();
-        //There are collisions happening for sure since one cell is completely surounded
-        //Since they are disposed in the hexagonal grid pattern and 7 cells for a full hexagon
+        //There are collisions happening for sure, since one individual is completely surrounded
+        //Since they are disposed in the hexagonal grid pattern and 7 individuals form a full hexagon
         assert(has_collision(s));
 
         while(has_collision(s))
