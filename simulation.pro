@@ -1,11 +1,13 @@
 # Entry point for user
 
 HEADERS += \
+    env_grid_cell.h \
     environment.h \
     individual.h \
     simulation.h
 
 SOURCES += \
+    env_grid_cell.cpp \
     environment.cpp \
     individual.cpp \
     main.cpp \

@@ -450,7 +450,10 @@ void test_simulation()
             ind.set_energy(ind.get_treshold_energy());
         }
         s.do_reprduction();
+        //There are collisions happening for sure since one cell is completely surounded
+        //Since they are disposed in the hexagonal grid pattern and 7 cells for a full hexagon
         assert(has_collision(s));
+
         while(has_collision(s))
         {
             manage_static_collisions(s);
