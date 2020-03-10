@@ -5,6 +5,7 @@
 #include "individual.h"
 
 void test() {
+    test_env_grid_cell();
     test_environment();
     test_simulation();
     test_individual();
