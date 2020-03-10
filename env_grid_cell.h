@@ -8,7 +8,10 @@ public:
     env_grid_cell(double metabolite = 0);
 
     ///Gets the amount of metabolite in the cell
-    double get_metabolite() const noexcept {return m_metabolite;}
+    const double& get_metabolite()  noexcept {return m_metabolite;}
+
+    ///Sets the amount of metabolite
+    void set_metabolite(double m) noexcept {m_metabolite = m;}
 
 private:
     double m_metabolite;

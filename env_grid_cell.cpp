@@ -18,7 +18,7 @@ void test_env_grid_cell()
         assert( g.get_metabolite() > -123456789);
     }
 
-    //A grid cell concentration of metabolite can be set
+    //Concentration of metabolite can be set
     {
         env_grid_cell g;
         double new_metabolite_conc = 3;
@@ -27,4 +27,15 @@ void test_env_grid_cell()
         assert(g.get_metabolite() - new_metabolite_conc < 0.00001);
     }
 
+    //Concentration of metabolite can be changed
+    {
+        env_grid_cell g;
+        env_grid_cell g1 = g;
+        double change_in_metabolite_conc = 3;
+        assert(g.get_metabolite() != change_in_metabolite_conc);
+        g1.change_metabolite(change_in_metabolite_conc);
+        assert(g.get_metabolite() != g1.get_metabolite());
+        assert(abs(g.get_metabolite() - g1.get_metabolite()) - change_in_metabolite_conc < 0.000001);
+
+    }
 }
