@@ -103,7 +103,7 @@ void simulation::set_ind_pos(individual& i, double x, double y)
     i.set_y(y);
 }
 
-void simulation::set_ind_pos(individual& i, std::pair<double, double> pos)
+void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
 {
     set_pos(i, pos);
 }
@@ -183,12 +183,16 @@ void manage_static_collisions(simulation& s)
                     double overlap = (distance - s.get_ind(i).get_size() - s.get_ind(j).get_size())/2;
 
                     // Displace Current Ball away from collision
-                    s.get_ind(i).set_x(s.get_ind(i).get_x() - (overlap * (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance));
-                    s.get_ind(i).set_y(s.get_ind(i).get_y() - (overlap * (s.get_ind(i).get_y() - s.get_ind(j).get_y()) / distance));
+                    auto i_x = s.get_ind(i).get_x() - (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
+                    auto i_y = s.get_ind(i).get_y() - (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
+                    s.get_ind(i).set_x(i_x);
+                    s.get_ind(i).set_y(i_y);
 
                     // Displace Target Ball away from collision
-                    s.get_ind(j).set_x(s.get_ind(j).get_x() + (overlap * (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance));
-                    s.get_ind(j).set_y(s.get_ind(j).get_y() + (overlap * (s.get_ind(i).get_y() - s.get_ind(j).get_y()) / distance));
+                    auto j_x = s.get_ind(j).get_x() + (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
+                    auto j_y = s.get_ind(j).get_y() + (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
+                    s.get_ind(j).set_x(j_x);
+                    s.get_ind(j).set_y(j_y);
                 }
             }
         }
@@ -427,24 +431,31 @@ void test_simulation()
 
     //If there are collisions cells are displaced until there are no more collisions
     {
-        int init_pop_size = 8;
-        simulation s(init_pop_size);
+
+        simulation s(2);
+        assert(!has_collision(s));
+        s.set_ind_pos(s.get_ind(1),s.get_ind_pos(0));
+        assert(has_collision(s));
+        manage_static_collisions(s);
+        assert(!has_collision(s));
+
+    }
+    //After reproduction new collisions caused by new cells being placed where other cells already are are managed
+    {
+        simulation s(7);
         assert(!has_collision(s));
         //all population divides
         for( individual& ind : s.get_pop())
         {
             ind.set_energy(ind.get_treshold_energy());
         }
-
         s.do_reprduction();
-        assert(s.get_pop_size() - init_pop_size * 2 < 0.0000001);
         assert(has_collision(s));
         while(has_collision(s))
         {
-        manage_static_collisions(s);
+            manage_static_collisions(s);
         }
         assert(!has_collision(s));
-
     }
 
 }

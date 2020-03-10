@@ -4,7 +4,3 @@ environment::environment()
 {
 
 }
-
-void test_environment(){
-
-}

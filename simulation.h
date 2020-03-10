@@ -66,7 +66,7 @@ public:
     void set_ind_pos(individual& i, double x, double y);
 
     ///Places an individual of index i at position x,y
-    void set_ind_pos(individual& i, std::pair<double, double> pos);
+    void set_ind_pos(individual& i, const std::pair<double, double> pos);
 
     ///Sets and individual's energy
     void set_ind_en(int i, double en) {population[i].set_energy(en);}
