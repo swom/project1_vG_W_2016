@@ -1,15 +1,15 @@
 #include "environment.h"
 #include <cassert>
 
-environment::environment(int n):
-    m_grid(n*n),
-    m_side(n)
+environment::environment(int grid_side):
+    m_grid(grid_side*grid_side),
+    m_side(grid_side)
 
 {
 
 }
 
-const std::vector<int> find_neighbours(int grid_size, int grid_side, int index) noexcept
+const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
 {
 
     //vector where indexes of neighbours will be stored
@@ -22,39 +22,38 @@ const std::vector<int> find_neighbours(int grid_size, int grid_side, int index) 
         for(int column = -1; column != 2; column++)
         {
             //if on the left-most cell of the row
-            if(index % grid_side == 0)
+            //do not check cells on the left
+            if(index % grid_side == 0 && column == -1)
             {
-                //do not check cells on the left
-                if(column == -1)
-                {
                     continue;
-                }
             }
 
             //if on the right most column of the row
-            if(index % grid_side == 0)
+            //do not check cells on the right
+            if(index % grid_side == grid_side - 1 && column == 1)
             {
-                //do not check cells on the right
-                if(column == -1)
-                {
                     continue;
-                }
             }
 
                 //checks row up/same/bottom starting from up
                 for(int row = -1; row != 2; row++ )
                 {
-                    int n_index = index + grid_side * row + column;
+                    //cells does not count itself as a neighbor
+                    if(row == 0 && column == 0)
+                    {
+                        continue;
+                    }
                     //if on bottom-most or top-most row do not check rows below or above
-                    if(n_index < 0 || n_index >= grid_size )
+                    if(index - grid_side < 0 || index + grid_side >= grid_size )
                     {
                         continue;
                     }
                     else
                     {
-                        n_indexes.push_back(n_index);
+                        int neighbor_index = index + grid_side * row + column;
+                        n_indexes.push_back(neighbor_index);
                     }
-            }
+                }
         }
 
         return n_indexes;
@@ -145,12 +144,17 @@ void test_environment()
 
 
     //find_neigbours returns a vector of indexes of other grid_cells
-//    {
-//        environment e;
-//        //the focal cell in this case is the first and only cell of the grid
-//        auto focal_cell_index = 0;
-//        assert(find_neighbors(focal_cell_index).size() == 0);
-//    }
+    {
+        environment e;
+        //the focal cell in this case is the first and only cell of the grid
+        auto focal_cell_index = 0;
+        assert(find_neighbors(e.get_env_size(),e.get_grid_side(), focal_cell_index).size() == 0);
+
+        //the central grid_cell in a 3x3 grid (index = 4) should have 8 neighbors
+        environment e3x3(3);
+        focal_cell_index = 4;
+        assert(find_neighbors(e3x3.get_env_size(),e3x3.get_grid_side(), focal_cell_index).size() == 8);
+    }
 
 
     //Diffusion: a grid_cell transfers part of his food

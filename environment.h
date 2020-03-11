@@ -6,7 +6,7 @@
 class environment
 {
 public:
-    environment(int n = 1);
+    environment(int grid_side = 1);
 
     ///Gets the size of the grid of cells(number of grid cells)
     int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
@@ -29,7 +29,8 @@ private:
 };
 
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
-const std::vector<int> find_neighbours(int grid_size, int grid_side, int index) noexcept;
+///Assumes that the grid is a square
+const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept;
 
 void diffusion(environment& e) noexcept;
 
