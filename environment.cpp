@@ -9,24 +9,20 @@ environment::environment(int n):
 
 }
 
-void diffusion(environment& e) noexcept
+const std::vector<int> find_neighbours(int grid_size, int grid_side, int index) noexcept
 {
-    //Find neighbouring cells
 
-    int grid_side = e.get_grid_side();
-    int grid_size = e.get_env_size();
+    //vector where indexes of neighbours will be stored
+    std::vector<int> n_indexes;
 
-    //take each grid_cell i in env and find index of its neighbours
-    //that requires the focal grid_cell to transfer to them
+    //find index of neighbor grid_cells
     //considering env is a square of side = grid_side
 
-    for (int i = 0; i != grid_size ; i++)
-    {
         //checks columns to left/same/right starting from left
         for(int column = -1; column != 2; column++)
         {
             //if on the left-most cell of the row
-            if(i % grid_side == 0)
+            if(index % grid_side == 0)
             {
                 //do not check cells on the left
                 if(column == -1)
@@ -36,7 +32,7 @@ void diffusion(environment& e) noexcept
             }
 
             //if on the right most column of the row
-            if(i % grid_side == 0)
+            if(index % grid_side == 0)
             {
                 //do not check cells on the right
                 if(column == -1)
@@ -48,20 +44,27 @@ void diffusion(environment& e) noexcept
                 //checks row up/same/bottom starting from up
                 for(int row = -1; row != 2; row++ )
                 {
-                    int index = i + grid_side * row + column;
+                    int n_index = index + grid_side * row + column;
                     //if on bottom-most or top-most row do not check rows below or above
-                    if(index < 0 || index >= grid_size )
+                    if(n_index < 0 || n_index >= grid_size )
                     {
                         continue;
                     }
                     else
                     {
-
+                        n_indexes.push_back(n_index);
                     }
             }
         }
-    }
+
+        return n_indexes;
 }
+
+
+//void diffusion(environment& e) noexcept
+//{
+
+//}
 
 
 
@@ -91,7 +94,7 @@ void test_environment()
     {
         int side = 42;
         environment e(side);
-        assert(e.get_grid_side() == side )
+        assert(e.get_grid_side() == side );
     }
 
     //An environment is initialized by default with
@@ -140,132 +143,142 @@ void test_environment()
         assert(e.get_cell(target_cell).get_metabolite() - metabolite < 0.000001);
     }
 
+
+    //find_neigbours returns a vector of indexes of other grid_cells
+//    {
+//        environment e;
+//        //the focal cell in this case is the first and only cell of the grid
+//        auto focal_cell_index = 0;
+//        assert(find_neighbors(focal_cell_index).size() == 0);
+//    }
+
+
     //Diffusion: a grid_cell transfers part of his food
     //to neighbouring grid_cells with less food
 
-    {
-        environment e(9);
-        //central cell has more food
-        int central_cell = 4;
-        double food_increment = 8;
-        e.get_cell(central_cell).increment_food(food_increment);
-        e.get_cell(central_cell).get_food();
+//    {
+//        environment e(9);
+//        //central cell has more food
+//        int central_cell = 4;
+//        double food_increment = 8;
+//        e.get_cell(central_cell).increment_food(food_increment);
+//        e.get_cell(central_cell).get_food();
 
-        std::vector<double> original_grid_food;
-        for(auto& cell : e.get_grid())
-        {
-            original_grid_food.push_back(cell.get_food());
-        }
+//        std::vector<double> original_grid_food;
+//        for(auto& cell : e.get_grid())
+//        {
+//            original_grid_food.push_back(cell.get_food());
+//        }
 
-        //Maybe put this in test above
-        for(int i = 0; i != e.get_env_size(); i++)
-        {
-            for(int j = 0; j != e.get_env_size(); j++)
-            {
-                if(i != central_cell)
-                {
-                    if(j != central_cell)
-                    {
-                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0.00001);
-                    }
-                    else
-                    {
-                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0);
-                    }
-                }
-                else
-                {
-                    if(j != central_cell)
-                    {
-                        assert(e.get_grid()[j].get_food() - e.get_grid()[i].get_food() < 0 );
-                    }
-                    else
-                    {
-                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0.000001);
-                    }
-                }
+//        //Maybe put this in test above
+//        for(int i = 0; i != e.get_env_size(); i++)
+//        {
+//            for(int j = 0; j != e.get_env_size(); j++)
+//            {
+//                if(i != central_cell)
+//                {
+//                    if(j != central_cell)
+//                    {
+//                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0.00001);
+//                    }
+//                    else
+//                    {
+//                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0);
+//                    }
+//                }
+//                else
+//                {
+//                    if(j != central_cell)
+//                    {
+//                        assert(e.get_grid()[j].get_food() - e.get_grid()[i].get_food() < 0 );
+//                    }
+//                    else
+//                    {
+//                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0.000001);
+//                    }
+//                }
 
-            }
-        }
+//            }
+//        }
 
-        diffusion(e);
+//        diffusion(e);
 
-        for(int i = 0; i != e.get_env_size(); i++)
-        {
-            if(i != central_cell)
-            {
-                assert(e.get_cell(i).get_food() > original_grid_food[i]);
-            }
-            else
-            {
-                assert(e.get_cell(i).get_food() < original_grid_food[i]);
-            }
-        }
-    }
+//        for(int i = 0; i != e.get_env_size(); i++)
+//        {
+//            if(i != central_cell)
+//            {
+//                assert(e.get_cell(i).get_food() > original_grid_food[i]);
+//            }
+//            else
+//            {
+//                assert(e.get_cell(i).get_food() < original_grid_food[i]);
+//            }
+//        }
+//    }
 
 
     //A grid_cell transfers part of his metabolite
     //to neighbouring grid_cells with less metabolite
 
 
-    {
-        environment e(9);
-        //central cell has more food
-        int central_cell = 4;
-        double food_increment = 8;
-        e.get_cell(central_cell).increment_metabolite(food_increment);
-        e.get_cell(central_cell).get_metabolite();
+//    {
+//        environment e(9);
+//        //central cell has more food
+//        int central_cell = 4;
+//        double food_increment = 8;
+//        e.get_cell(central_cell).increment_metabolite(food_increment);
+//        e.get_cell(central_cell).get_metabolite();
 
-        std::vector<double> original_grid_metabolite;
-        for(auto& cell : e.get_grid())
-        {
-            original_grid_metabolite.push_back(cell.get_metabolite());
-        }
+//        std::vector<double> original_grid_metabolite;
+//        for(auto& cell : e.get_grid())
+//        {
+//            original_grid_metabolite.push_back(cell.get_metabolite());
+//        }
 
-        //Maybe put this in test above
-        for(int i = 0; i != e.get_env_size(); i++)
-        {
-            for(int j = 0; j != e.get_env_size(); j++)
-            {
-                if(i != central_cell)
-                {
-                    if(j != central_cell)
-                    {
-                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0.00001);
-                    }
-                    else
-                    {
-                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0);
-                    }
-                }
-                else
-                {
-                    if(j != central_cell)
-                    {
-                        assert(e.get_grid()[j].get_metabolite() - e.get_grid()[i].get_metabolite() < 0);
-                    }
-                    else
-                    {
-                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0.000001);
-                    }
-                }
+//        //Maybe put this in test above
+//        for(int i = 0; i != e.get_env_size(); i++)
+//        {
+//            for(int j = 0; j != e.get_env_size(); j++)
+//            {
+//                if(i != central_cell)
+//                {
+//                    if(j != central_cell)
+//                    {
+//                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0.00001);
+//                    }
+//                    else
+//                    {
+//                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0);
+//                    }
+//                }
+//                else
+//                {
+//                    if(j != central_cell)
+//                    {
+//                        assert(e.get_grid()[j].get_metabolite() - e.get_grid()[i].get_metabolite() < 0);
+//                    }
+//                    else
+//                    {
+//                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0.000001);
+//                    }
+//                }
 
-            }
-        }
+//            }
+//        }
 
-        diffusion(e);
+//        diffusion(e);
 
-        for(int i = 0; i != e.get_env_size(); i++)
-        {
-            if(i != central_cell)
-            {
-                assert(e.get_cell(i).get_metabolite() > original_grid_metabolite[i]);
-            }
-            else
-            {
-                assert(e.get_cell(i).get_metabolite() < original_grid_metabolite[i]);
-            }
-        }
-    }
+//        for(int i = 0; i != e.get_env_size(); i++)
+//        {
+//            if(i != central_cell)
+//            {
+//                assert(e.get_cell(i).get_metabolite() > original_grid_metabolite[i]);
+//            }
+//            else
+//            {
+//                assert(e.get_cell(i).get_metabolite() < original_grid_metabolite[i]);
+//            }
+//        }
+//    }
 
 }

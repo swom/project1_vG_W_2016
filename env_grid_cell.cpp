@@ -36,7 +36,7 @@ void test_env_grid_cell()
         env_grid_cell g1 = g;
         double change_in_metabolite = 3;
         assert(g.get_metabolite() != change_in_metabolite);
-        g1.change_metabolite(change_in_metabolite);
+        g1.increment_metabolite(change_in_metabolite);
         assert(g.get_metabolite() != g1.get_metabolite());
         assert(abs(g.get_metabolite() - g1.get_metabolite()) - change_in_metabolite < 0.000001);
 
@@ -45,7 +45,7 @@ void test_env_grid_cell()
     //Metabolite concentration cannot be less than 0
     {
         env_grid_cell g;
-        g.change_metabolite(-10000);
+        g.increment_metabolite(-10000);
         assert(g.get_metabolite() >= 0);
     }
 
@@ -84,5 +84,26 @@ void test_env_grid_cell()
         env_grid_cell g;
         g.increment_food(-10000);
         assert(g.get_food() >= 0);
+    }
+
+    //A grid_cell has a vector that can store
+    //the indexes of its neighbouring cells if placed in a grid
+    {
+        env_grid_cell g;
+        assert(g.get_v_neighbors().size() == 0);
+    }
+
+    //A grid cell vector of neighbors can be set
+    {
+        //all neighors will have the same address for the purpose of this test
+        int neighbors_address = 42;
+        std::vector<int> list_of_neighbors(42,neighbors_address);
+        env_grid_cell g;
+        g.set_v_neighbors(list_of_neighbors);
+        assert(g.get_v_neighbors().size() - list_of_neighbors.size() < 0.0000001);
+        for(auto neighbor : g.get_v_neighbors())
+        {
+        assert(neighbor == neighbors_address);
+        }
     }
 }

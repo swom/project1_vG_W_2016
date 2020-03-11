@@ -11,6 +11,9 @@ public:
     ///Gets the size of the grid of cells(number of grid cells)
     int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
 
+    ///Gets the size of the grid of cells(number of grid cells)
+    int get_grid_side() const noexcept {return m_side;}
+
     ///Gets the entire grid by const reference
     const std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
 
@@ -22,9 +25,13 @@ public:
 
 private:
     std::vector<env_grid_cell> m_grid;
+    int m_side;
 };
 
-void diffuse(environment& e) noexcept;
+///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
+const std::vector<int> find_neighbours(int grid_size, int grid_side, int index) noexcept;
+
+void diffusion(environment& e) noexcept;
 
 void test_environment();
 
