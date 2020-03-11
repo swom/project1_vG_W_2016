@@ -42,6 +42,10 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
 ///finds neighbors for all cells in grid
 void find_neighbors_all_grid(environment& e) noexcept;
 
+///diffuses metabolite in grid
+void diffusion_metabolite(environment& e) noexcept;
+
+///diffuses food in grid
 void diffusion_food(environment& e) noexcept;
 
 void test_environment();

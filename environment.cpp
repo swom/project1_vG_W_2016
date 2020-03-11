@@ -69,6 +69,11 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
         return n_indexes;
 }
 
+void diffusion(environment& e) noexcept
+{
+    diffusion_food(e);
+    diffusion_metabolite(e);
+}
 
 void diffusion_food(environment& e) noexcept
 {
@@ -254,8 +259,7 @@ void test_environment()
         std::vector<double> v_original_metabolite_values;
         for(auto cell : e.get_grid()) {v_original_metabolite_values.push_back(cell.get_metabolite());}
 
-        diffusion_food(e);
-        diffusion_metabolite(e);
+        diffusion(e);
 
         std::vector<double> v_new_food_values;
         for(auto cell : e.get_grid()) {v_new_food_values.push_back(cell.get_food());}
