@@ -1,12 +1,21 @@
 #include "environment.h"
 #include <cassert>
 
-environment::environment(int grid_side):
+environment::environment(int grid_side, double diff_coeff):
     m_grid(grid_side*grid_side),
-    m_side(grid_side)
+    m_side(grid_side),
+    m_diffusion_coefficient(diff_coeff)
 
 {
+ find_neighbors_all_grid(*this);
+}
 
+void find_neighbors_all_grid(environment& e) noexcept
+{
+    for (int i = 0; i != e.get_env_size(); i++)
+    {
+        e.get_cell(i).set_v_neighbors(find_neighbors(e.get_env_size(), e.get_grid_side(), i));
+    }
 }
 
 const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
@@ -119,7 +128,28 @@ void test_environment()
         }
     }
 
+    //An environment is initialized with a specific diffusion coefficient
+    //same for food and metabolite (this might change in the future)
+    //0 by default
+    {
+        environment e;
+        assert(e.get_diff_coeff() == 0);
 
+        double diff_coeff = 3.14;
+        environment e1(1, diff_coeff);
+        assert(e1.get_diff_coeff() - diff_coeff < 0.0001);
+    }
+
+    //On initializtion each grid_cells has its neighbor vector updated with the indexes of its neighbors
+    {
+        auto env_side = 3;
+        auto env_size = 3 * 3;
+        environment e3x3(3);//3x3 env just to have some actual neighbours
+        for(int i = 0; i != e3x3.get_env_size(); i++)
+        {
+            assert(e3x3.get_cell(i).get_v_neighbors() == find_neighbors(env_size, env_side, i));
+        }
+    }
     //The environment can get a specific a cell's address
     //The -123456789 value is irrelevant, just to assure the function is called properly
     {
@@ -156,133 +186,12 @@ void test_environment()
         assert(find_neighbors(e3x3.get_env_size(),e3x3.get_grid_side(), focal_cell_index).size() == 8);
     }
 
-
-    //Diffusion: a grid_cell transfers part of his food
-    //to neighbouring grid_cells with less food
-
+    //A cell with more substance than its neighbours diffuses substance to them
 //    {
-//        environment e(9);
-//        //central cell has more food
-//        int central_cell = 4;
-//        double food_increment = 8;
-//        e.get_cell(central_cell).increment_food(food_increment);
-//        e.get_cell(central_cell).get_food();
+//        environment e3x3(3);
+//        auto focal_cell_index = 4;
 
-//        std::vector<double> original_grid_food;
-//        for(auto& cell : e.get_grid())
-//        {
-//            original_grid_food.push_back(cell.get_food());
-//        }
-
-//        //Maybe put this in test above
-//        for(int i = 0; i != e.get_env_size(); i++)
-//        {
-//            for(int j = 0; j != e.get_env_size(); j++)
-//            {
-//                if(i != central_cell)
-//                {
-//                    if(j != central_cell)
-//                    {
-//                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0.00001);
-//                    }
-//                    else
-//                    {
-//                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0);
-//                    }
-//                }
-//                else
-//                {
-//                    if(j != central_cell)
-//                    {
-//                        assert(e.get_grid()[j].get_food() - e.get_grid()[i].get_food() < 0 );
-//                    }
-//                    else
-//                    {
-//                        assert(e.get_grid()[i].get_food() - e.get_grid()[j].get_food() < 0.000001);
-//                    }
-//                }
-
-//            }
-//        }
-
-//        diffusion(e);
-
-//        for(int i = 0; i != e.get_env_size(); i++)
-//        {
-//            if(i != central_cell)
-//            {
-//                assert(e.get_cell(i).get_food() > original_grid_food[i]);
-//            }
-//            else
-//            {
-//                assert(e.get_cell(i).get_food() < original_grid_food[i]);
-//            }
-//        }
 //    }
 
-
-    //A grid_cell transfers part of his metabolite
-    //to neighbouring grid_cells with less metabolite
-
-
-//    {
-//        environment e(9);
-//        //central cell has more food
-//        int central_cell = 4;
-//        double food_increment = 8;
-//        e.get_cell(central_cell).increment_metabolite(food_increment);
-//        e.get_cell(central_cell).get_metabolite();
-
-//        std::vector<double> original_grid_metabolite;
-//        for(auto& cell : e.get_grid())
-//        {
-//            original_grid_metabolite.push_back(cell.get_metabolite());
-//        }
-
-//        //Maybe put this in test above
-//        for(int i = 0; i != e.get_env_size(); i++)
-//        {
-//            for(int j = 0; j != e.get_env_size(); j++)
-//            {
-//                if(i != central_cell)
-//                {
-//                    if(j != central_cell)
-//                    {
-//                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0.00001);
-//                    }
-//                    else
-//                    {
-//                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0);
-//                    }
-//                }
-//                else
-//                {
-//                    if(j != central_cell)
-//                    {
-//                        assert(e.get_grid()[j].get_metabolite() - e.get_grid()[i].get_metabolite() < 0);
-//                    }
-//                    else
-//                    {
-//                        assert(e.get_grid()[i].get_metabolite() - e.get_grid()[j].get_metabolite() < 0.000001);
-//                    }
-//                }
-
-//            }
-//        }
-
-//        diffusion(e);
-
-//        for(int i = 0; i != e.get_env_size(); i++)
-//        {
-//            if(i != central_cell)
-//            {
-//                assert(e.get_cell(i).get_metabolite() > original_grid_metabolite[i]);
-//            }
-//            else
-//            {
-//                assert(e.get_cell(i).get_metabolite() < original_grid_metabolite[i]);
-//            }
-//        }
-//    }
 
 }

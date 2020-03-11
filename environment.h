@@ -6,7 +6,7 @@
 class environment
 {
 public:
-    environment(int grid_side = 1);
+    environment(int grid_side = 1, double diff_coeff = 0);
 
     ///Gets the size of the grid of cells(number of grid cells)
     int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
@@ -23,14 +23,21 @@ public:
     ///Gets reference of cell at a certain index
     env_grid_cell& get_cell(int i) noexcept {return m_grid[i];}
 
+    ///Get the diffusion coefficent of the environment
+    const double& get_diff_coeff() const noexcept {return m_diffusion_coefficient;}
+
 private:
     std::vector<env_grid_cell> m_grid;
     int m_side;
+    double m_diffusion_coefficient;
 };
 
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
 ///Assumes that the grid is a square
 const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept;
+
+///finds neighbors for all cells in grid
+void find_neighbors_all_grid(environment& e) noexcept;
 
 void diffusion(environment& e) noexcept;
 
