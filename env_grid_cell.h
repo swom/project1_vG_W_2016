@@ -31,10 +31,18 @@ public:
     ///Sets the vector of neigbors to a vector of integers
     void set_v_neighbors(std::vector<int> neighbors) noexcept {m_v_neighbors = neighbors;}
 
+    ///Gets the change in the amount of food in the next tick ofthe simulation
+    const double& get_food_change() const noexcept {return m_food_change;}
+
+    ///Gets the change in the amount of metabolite in the next tick ofthe simulation
+    const double& get_metabolite_change() const noexcept {return m_metabolite_change;}
+
 private:
     std::vector<int> m_v_neighbors;
     double m_metabolite;
+    double m_metabolite_change;
     double m_food;
+    double m_food_change;
 };
 
 void test_env_grid_cell();

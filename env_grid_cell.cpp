@@ -3,7 +3,10 @@
 
 env_grid_cell::env_grid_cell(double metabolite, double food):
     m_metabolite(metabolite),
-    m_food(food)
+    m_metabolite_change(0),//this will always be 0 at initialization
+    m_food(food),
+    m_food_change(0)//this will always be 0 at initialization
+
 {
 
 }
@@ -105,5 +108,19 @@ void test_env_grid_cell()
         {
         assert(neighbor == neighbors_address);
         }
+    }
+
+    //A grid_cell has a member variable that stores
+    //the amount of change in food at the next tick
+    {
+        env_grid_cell g;
+        assert(g.get_food_change() == 0);
+    }
+
+    //A grid_cell has a member variable that stores
+    //the amount of change in metabolite at the next tick
+    {
+        env_grid_cell g;
+        assert(g.get_metabolite_change() == 0);
     }
 }
