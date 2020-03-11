@@ -1,5 +1,6 @@
 #include "environment.h"
 #include <cassert>
+#include <numeric>
 
 environment::environment(int grid_side, double diff_coeff):
     m_grid(grid_side*grid_side),
@@ -53,7 +54,7 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
                         continue;
                     }
                     //if on bottom-most or top-most row do not check rows below or above
-                    if(index - grid_side < 0 || index + grid_side >= grid_size )
+                    if((index - grid_side < 0 && row == -1) || (index + grid_side >= grid_size && row == 1) )
                     {
                         continue;
                     }
@@ -69,11 +70,46 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
 }
 
 
-//void diffusion(environment& e) noexcept
-//{
+void diffusion_food(environment& e) noexcept
+{
+ for(auto& cell : e.get_grid())
+ {
+     //find the difference in food amount with neighboring cells,
+     //if neighbor has more difference is 0 (no food will move into that neighbor)
+     std::vector<double> v_food_diff;
+     for(auto neighbor : cell.get_v_neighbors())
+     {
+         auto food_diff = cell.get_food() - e.get_cell(neighbor).get_food();
+         food_diff > 0 ? v_food_diff.push_back(food_diff) : v_food_diff.push_back(0) ;
+     }
+    //calculate the amount of food exiting the cell
+    auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0);
+    auto max_diff = cell.get_food() * cell.get_v_neighbors().size();
 
-//}
+    //if the diffusion coefficient is 1(max value)
+    //then it is possible that this cell will empty itself
+    auto exiting_food = cell.get_food() * (max_diff > 0 ? total_diff / max_diff : 0) * e.get_diff_coeff();
+    cell.increment_food_change(exiting_food > 0 ? -exiting_food : 0);
 
+    //distribute the amount of food exiting
+    //proportionally to the ratio of the difference in amount
+    //over the total difference
+    for(int i = 0; i != static_cast<int>(v_food_diff.size()); i++)
+    {
+        auto recieved_food = exiting_food * (total_diff > 0 ? v_food_diff[i]/total_diff : 0);
+        e.get_cell(cell.get_v_neighbors()[i]).increment_food_change(recieved_food);
+    }
+ }
+ //When done update all the food in cells
+ //according to the food-change variable updated above
+ //and reset said variable to 0
+ for(auto& cell : e.get_grid())
+ {
+     cell.increment_food(cell.get_food_change());
+     cell.reset_food_change();
+ }
+
+}
 
 
 void test_environment()
@@ -186,12 +222,44 @@ void test_environment()
         assert(find_neighbors(e3x3.get_env_size(),e3x3.get_grid_side(), focal_cell_index).size() == 8);
     }
 
-    //A cell with more substance than its neighbours diffuses substance to them
-//    {
-//        environment e3x3(3);
-//        auto focal_cell_index = 4;
+    //A cell with more substance than its neighbours diffuses food to them
+    {
+        environment e(3, 0.1);
+        auto focal_cell_index = 4;
+        e.get_cell(focal_cell_index).set_food(1);
 
-//    }
+        std::vector<double> v_original_food_values;
+        for(auto cell : e.get_grid())
+        {
+          v_original_food_values.push_back(cell.get_food());
+        }
+
+        diffusion_food(e);
+
+        std::vector<double> v_new_food_values;
+        for(auto cell : e.get_grid())
+        {
+          v_new_food_values.push_back(cell.get_food());
+        }
+
+
+        assert(v_original_food_values != v_new_food_values);
+
+        for(int i = 0; i != e.get_env_size(); i++)
+        {
+            if(i == focal_cell_index)
+            {
+                assert(v_new_food_values[i] < v_original_food_values[i]);
+            }
+            else
+            {
+                assert(v_new_food_values[i] > v_original_food_values[i]);
+
+            }
+        }
+
+
+    }
 
 
 }

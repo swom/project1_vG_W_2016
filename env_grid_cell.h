@@ -28,14 +28,27 @@ public:
     ///Gets the const reference to the vector of the neighbors
     const std::vector<int>& get_v_neighbors() const noexcept {return m_v_neighbors;}
 
-    ///Sets the vector of neigbors to a vector of integers
-    void set_v_neighbors(std::vector<int> neighbors) noexcept {m_v_neighbors = neighbors;}
-
     ///Gets the change in the amount of food in the next tick ofthe simulation
     const double& get_food_change() const noexcept {return m_food_change;}
 
-    ///Gets the change in the amount of metabolite in the next tick ofthe simulation
+    ///Gets the change in the amount of metabolite in the next tick of the simulation
     const double& get_metabolite_change() const noexcept {return m_metabolite_change;}
+
+    ///Sets the change in the amount of food in the next tick of the simulation
+    void increment_food_change(double change) noexcept {m_food_change += change;}
+
+    ///Sets the change in the amount of food in the next tick of the simulation
+    void increment_metabolite_change(double change) noexcept {m_metabolite_change += change;}
+
+    ///resets the change in the amount of food in the next tick of the simulation
+    void reset_food_change() noexcept {m_food_change = 0;}
+
+    ///resets the change in the amount of metabolite in the next tick of the simulation
+    void reset_metabolite_change() noexcept {m_metabolite_change = 0;}
+
+    ///Sets the vector of neigbors to a vector of integers
+    void set_v_neighbors(std::vector<int> neighbors) noexcept {m_v_neighbors = neighbors;}
+
 
 private:
     std::vector<int> m_v_neighbors;

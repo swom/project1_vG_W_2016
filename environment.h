@@ -15,7 +15,10 @@ public:
     int get_grid_side() const noexcept {return m_side;}
 
     ///Gets the entire grid by const reference
-    const std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
+    const std::vector<env_grid_cell>& get_grid() const noexcept {return m_grid;}
+
+    ///Gets the entire grid by reference
+    std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
 
     ///Gets const reference of cell at a certain index
     const env_grid_cell& get_cell(int i) const noexcept {return m_grid[i];}
@@ -39,7 +42,7 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
 ///finds neighbors for all cells in grid
 void find_neighbors_all_grid(environment& e) noexcept;
 
-void diffusion(environment& e) noexcept;
+void diffusion_food(environment& e) noexcept;
 
 void test_environment();
 
