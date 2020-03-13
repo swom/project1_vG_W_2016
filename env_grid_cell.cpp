@@ -1,5 +1,6 @@
 #include "env_grid_cell.h"
 #include <cassert>
+#include <cmath>
 
 env_grid_cell::env_grid_cell(double metabolite, double food):
     m_metabolite(metabolite),
@@ -28,7 +29,8 @@ void test_env_grid_cell()
     {
         env_grid_cell g;
         double new_metabolite_conc = 3;
-        assert(g.get_metabolite() != new_metabolite_conc);
+        assert(g.get_metabolite() - new_metabolite_conc > 0.0000001
+               || g.get_metabolite() - new_metabolite_conc < -0.0000001);
         g.set_metabolite(new_metabolite_conc);
         assert(g.get_metabolite() - new_metabolite_conc < 0.00001);
     }
@@ -38,9 +40,11 @@ void test_env_grid_cell()
         env_grid_cell g;
         env_grid_cell g1 = g;
         double change_in_metabolite = 3;
-        assert(g.get_metabolite() != change_in_metabolite);
+        assert(g.get_metabolite() - change_in_metabolite > 0.0000001
+               || g.get_metabolite() - change_in_metabolite < -0.0000001);
         g1.increment_metabolite(change_in_metabolite);
-        assert(g.get_metabolite() != g1.get_metabolite());
+        assert(g.get_metabolite() - g1.get_metabolite() > 0.000000001
+               || g.get_metabolite() - g1.get_metabolite() < -0.000000001);
         assert(abs(g.get_metabolite() - g1.get_metabolite()) - change_in_metabolite < 0.000001);
 
     }
@@ -65,7 +69,8 @@ void test_env_grid_cell()
     {
         env_grid_cell g;
         double new_food_conc = 3;
-        assert(g.get_food() != new_food_conc);
+        assert(g.get_food() - new_food_conc > 0.00000001
+               || g.get_food() - new_food_conc < -0.00000001);
         g.set_food(new_food_conc);
         assert(g.get_food() - new_food_conc < 0.00001);
     }
@@ -75,9 +80,11 @@ void test_env_grid_cell()
         env_grid_cell g;
         env_grid_cell g1 = g;
         double change_in_food = 3;
-        assert(g.get_food() != change_in_food);
+        assert(g.get_food() - change_in_food > 0.0000001
+               || g.get_food() - change_in_food < -0.0000001);
         g1.increment_food(change_in_food);
-        assert(g.get_food() != g1.get_food());
+        assert(g.get_food() - g1.get_food() > 0.00000001
+               || g.get_food() - g1.get_food() < -0.00000001);
         assert(abs(g.get_food() - g1.get_food()) - change_in_food < 0.000001);
 
     }
@@ -114,13 +121,13 @@ void test_env_grid_cell()
     //the amount of change in food at the next tick
     {
         env_grid_cell g;
-        assert(g.get_food_change() == 0);
+        assert(g.get_food_change() < 0.0000001 || g.get_food_change() > -0.0000001);
     }
 
     //A grid_cell has a member variable that stores
     //the amount of change in metabolite at the next tick
     {
         env_grid_cell g;
-        assert(g.get_metabolite_change() == 0);
+        assert(g.get_metabolite_change() < 0.0000001 || g.get_metabolite_change() > -0.0000001);
     }
 }
