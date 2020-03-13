@@ -54,7 +54,8 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
                         continue;
                     }
                     //if on bottom-most or top-most row do not check rows below or above
-                    if((index - grid_side < 0 && row == -1) || (index + grid_side >= grid_size && row == 1) )
+                    if((index - grid_side < 0 && row == -1) ||
+                       (index + grid_side >= grid_size && row == 1) )
                     {
                         continue;
                     }
@@ -88,7 +89,10 @@ void diffusion_food(environment& e) noexcept
     auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0);
     auto max_diff = cell.get_food() * cell.get_v_neighbors().size();
 
-    auto exiting_food = cell.get_food() * (max_diff > 0 ? total_diff / max_diff : 0) * e.get_diff_coeff();
+    auto exiting_food = cell.get_food() *
+                        (max_diff > 0 ? total_diff / max_diff : 0) *
+                        e.get_diff_coeff();
+
     cell.increment_food_change(exiting_food > 0 ? -exiting_food : 0);
 
     for(int i = 0; i != static_cast<int>(v_food_diff.size()); i++)
@@ -114,17 +118,22 @@ void diffusion_metabolite(environment& e) noexcept
      for(auto neighbor : cell.get_v_neighbors())
      {
          auto metabolite_diff = cell.get_metabolite() - e.get_cell(neighbor).get_metabolite();
-         metabolite_diff > 0 ? v_metabolite_diff.push_back(metabolite_diff) : v_metabolite_diff.push_back(0) ;
+         metabolite_diff > 0 ? v_metabolite_diff.push_back(metabolite_diff)
+                             : v_metabolite_diff.push_back(0) ;
      }
     auto total_diff = std::accumulate(v_metabolite_diff.begin(), v_metabolite_diff.end(), 0);
     auto max_diff = cell.get_metabolite() * cell.get_v_neighbors().size();
 
-    auto exiting_metabolite = cell.get_metabolite() * (max_diff > 0 ? total_diff / max_diff : 0) * e.get_diff_coeff();
+    auto exiting_metabolite = cell.get_metabolite() *
+        (max_diff > 0 ? total_diff / max_diff : 0) *
+        e.get_diff_coeff();
+
     cell.increment_metabolite_change(exiting_metabolite > 0 ? -exiting_metabolite : 0);
 
     for(int i = 0; i != static_cast<int>(v_metabolite_diff.size()); i++)
     {
-        auto recieved_metabolite = exiting_metabolite * (total_diff > 0 ? v_metabolite_diff[i]/total_diff : 0);
+        auto recieved_metabolite = exiting_metabolite *
+            (total_diff > 0 ? v_metabolite_diff[i]/total_diff : 0);
         e.get_cell(cell.get_v_neighbors()[i]).increment_metabolite_change(recieved_metabolite);
     }
  }
