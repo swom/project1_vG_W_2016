@@ -167,7 +167,11 @@ void manage_static_collisions(simulation& s)
     {
       for ( int j = 0 ; j < n_ind; ++j)
         {
-              if (i != j && are_colliding(s.get_ind(i), s.get_ind(j)))
+              if (i != j)
+                {
+                  continue;
+                }
+              else if(are_colliding(s.get_ind(i), s.get_ind(j)))
                 {
                   // Distance between individual centers
                   double distance = sqrt(

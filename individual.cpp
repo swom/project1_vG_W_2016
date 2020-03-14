@@ -52,7 +52,8 @@ void set_pos(individual& i, std::pair<double, double> pos)  noexcept
     i.set_y(pos.second);
 }
 
-void test_individual(){
+void test_individual()//!OCLINT tests may be many
+{
 
     //An individual should be initialized with the defined starting size
     {
