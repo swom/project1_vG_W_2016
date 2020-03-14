@@ -5,7 +5,7 @@
 #include <math.h>
 
 simulation::simulation(int pop_size, double min_dist):
-  population(pop_size,individual(0,0)),
+  population(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_min_init_dist_btw_cells(min_dist)
 {
   place_start_cells();
@@ -15,11 +15,11 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
 {
 
   std::vector<int> dividing_individuals;
-  for(auto i = 0; i != get_pop_size(); i++)
+  for(unsigned int i = 0; i != get_pop().size(); i++)
     {
       if(population[i].get_energy()>= population[i].get_treshold_energy())
         {
-          dividing_individuals.push_back(i);
+          dividing_individuals.push_back(static_cast<int>(i));
         }
     }
   return dividing_individuals;
@@ -51,7 +51,7 @@ void simulation::do_reprduction() noexcept
 std::vector<double> simulation::get_excess_energies(std::vector<int> v_ind) const noexcept
 {
   std::vector<double> excess_energy;
-  for(auto i=0; i != static_cast<int>(v_ind.size()); i++)
+  for(unsigned int i=0; i != v_ind.size(); i++)
     {
       int ind_index = v_ind[i];
       excess_energy.push_back(
@@ -64,7 +64,7 @@ std::vector<double> simulation::get_excess_energies(std::vector<int> v_ind) cons
 std::vector<double> simulation::get_excess_energies(std::vector<int>& v_ind) const noexcept
 {
   std::vector<double> excess_energy;
-  for(auto i=0; i != static_cast<int>(v_ind.size()); i++)
+  for(unsigned int i=0; i != v_ind.size(); i++)
     {
       int ind_index = v_ind[i];
       excess_energy.push_back(
@@ -89,7 +89,7 @@ std::vector<std::pair<int,int>> simulation::get_sisters_index_offset() const noe
 
   for (int ind_index = 0; ind_index < static_cast<int>(div_ind.size()); ind_index++)
     {
-      sis_dist = get_pop_size() - div_ind[ind_index];
+      sis_dist = get_pop_size() - div_ind[static_cast<unsigned int>(ind_index)];
       daughters.first = ind_index;
       daughters.second = ind_index + sis_dist;
       sis_indexes.push_back(daughters);
@@ -112,30 +112,30 @@ void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
 void simulation::place_start_cells() noexcept
 {
   int n = count_hex_layers(get_pop_size());
-  int placed_ind = 0;
+   unsigned int placed_ind = 0;
 
   // d is the distance between 2 individuals's centers
-  float d = 2 * population[0].get_size() + m_min_init_dist_btw_cells;
+  double d = 2 * (population[0].get_size() + m_min_init_dist_btw_cells);
 
   for(int i=0; i != n; i++)
     {
-      double y = (sqrt(3)*i*d)/2.0;
+      double y = (sqrt(3) * i * d) / 2.0;
 
-      for (int j = 0; j < (2*n-1-i); j++)
+      for (int j = 0; j < (2 * n - 1 - i); j++)
         {
-          double x = (-(2*n-i-2)*d)/2.0 + j*d;
+          double x = (-(2 * n - i - 2) * d) / 2.0 + j * d;
 
           population[placed_ind].set_x(x);
           population[placed_ind].set_y(y);
           placed_ind++;
-          if(placed_ind == get_pop_size()) return;
+          if(placed_ind == get_pop().size()) return;
 
-          if (y!=0)
+          if (y > 0.000001 || y < -0.000001)
             {
               population[placed_ind].set_x(x);
               population[placed_ind].set_y(-y);
               placed_ind++;
-              if(placed_ind == get_pop_size()) return;
+              if(placed_ind == get_pop().size()) return;
 
             }
         }
@@ -145,19 +145,22 @@ void simulation::place_start_cells() noexcept
 
 bool has_collision(const simulation& s)
 {
-  const auto n_ind = s.get_pop().size();
-  for (unsigned int i = 0; i < n_ind - 1; ++i)
+  int n_ind = s.get_pop_size();
+  for ( int i = 0; i < n_ind; ++i)
     {
-      for (unsigned int j = i + 1; j < n_ind; ++j)
+      for ( int j = i ; j < n_ind; ++j)
         {
-          if (are_colliding(s.get_ind(i), s.get_ind(j)))
+          if(i == j)
+            {
+              continue;
+            }
+          else if (are_colliding(s.get_ind(i), s.get_ind(j)))
             {
               return true;
             }
         }
     }
   return false;
-
 }
 
 void manage_static_collisions(simulation& s)
@@ -167,7 +170,7 @@ void manage_static_collisions(simulation& s)
     {
       for ( int j = 0 ; j < n_ind; ++j)
         {
-              if (i != j)
+              if (i == j)
                 {
                   continue;
                 }
@@ -299,7 +302,7 @@ void test_simulation()//!OCLINT tests may be many
 
   //No individuals are overlapping at the start of the simulation
   {
-    simulation s(50);
+    simulation s(2);
     assert(!has_collision(s));
   }
 
@@ -458,7 +461,6 @@ void test_simulation()//!OCLINT tests may be many
   //If there are collisions individuals are displaced
   //until there are no more collisions
   {
-
     simulation s(2);
     assert(!has_collision(s));
     s.set_ind_pos(s.get_ind(1),s.get_ind_pos(0));

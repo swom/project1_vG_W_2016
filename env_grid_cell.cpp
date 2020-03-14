@@ -1,6 +1,8 @@
 #include "env_grid_cell.h"
 #include <cassert>
 #include <cmath>
+
+
 env_grid_cell::env_grid_cell(double metabolite, double food):
     m_metabolite(metabolite),
     m_metabolite_change(0),//this will always be 0 at initialization

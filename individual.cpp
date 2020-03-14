@@ -2,7 +2,9 @@
 #include <cassert>
 #include <math.h>
 
-individual::individual(double x_pos, double y_pos, double size, double energy, double treshold_energy):
+individual::individual(double x_pos, double y_pos,
+                       double size, double energy,
+                       double treshold_energy):
     m_x(x_pos),
     m_y(y_pos),
     m_size(size),
