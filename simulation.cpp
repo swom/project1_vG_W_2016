@@ -285,6 +285,22 @@ void test_simulation()//!OCLINT tests may be many
       }
   }
 
+  //The distance between two individuals can be calculated
+  {
+    simulation s(2);
+    //place individuals along x axis at 1 distance fro each other
+    for (int i = 0; i != s.get_pop_size(); i++)
+      {
+        s.set_ind_pos(s.get_ind(i),0.0,static_cast<double>(i));
+      }
+    for (int i = 0; i != s.get_pop_size(); i++)
+      {
+        for (int j = 0; j != s.get_pop_size(); j++)
+          {
+
+          }
+      }
+  }
 
   //Individuals' centers are placed in an hexagonal pattern
   {
