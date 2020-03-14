@@ -236,7 +236,7 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
   return v_modulus;
 }
 
-void test_simulation()
+void test_simulation()//!OCLINT tests may be many
 {
   //Simulation is initialized with a certain number of individuals
   {

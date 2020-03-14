@@ -3,7 +3,7 @@
 #include <numeric>
 
 environment::environment(int grid_side, double diff_coeff):
-    m_grid(grid_side*grid_side),
+    m_grid(static_cast<unsigned int>(grid_side * grid_side)),
     m_side(grid_side),
     m_diffusion_coefficient(diff_coeff)
 
@@ -95,7 +95,7 @@ void diffusion_food(environment& e) noexcept
 
     cell.increment_food_change(exiting_food > 0 ? -exiting_food : 0);
 
-    for(int i = 0; i != static_cast<int>(v_food_diff.size()); i++)
+    for(unsigned int i = 0; i != v_food_diff.size(); i++)
     {
         auto recieved_food = exiting_food * (total_diff > 0 ? v_food_diff[i]/total_diff : 0);
         e.get_cell(cell.get_v_neighbors()[i]).increment_food_change(recieved_food);
@@ -130,7 +130,7 @@ void diffusion_metabolite(environment& e) noexcept
 
     cell.increment_metabolite_change(exiting_metabolite > 0 ? -exiting_metabolite : 0);
 
-    for(int i = 0; i != static_cast<int>(v_metabolite_diff.size()); i++)
+    for(unsigned int i = 0; i != v_metabolite_diff.size(); i++)
     {
         auto recieved_metabolite = exiting_metabolite *
             (total_diff > 0 ? v_metabolite_diff[i]/total_diff : 0);
@@ -146,7 +146,7 @@ void diffusion_metabolite(environment& e) noexcept
 
 }
 
-void test_environment()
+void test_environment()//!OCLINT tests may be many
 {
 
     //An enevironment has a grid of cells
@@ -291,15 +291,15 @@ void test_environment()
         assert(v_orig_food_val != v_new_food_values);
         assert(v_orig_metab_val != v_new_metab_val);
 
-        for(int i = 0; i != e.get_env_size(); i++)
+        for(unsigned int i = 0; i != e.get_grid().size(); i++)
         {
-            if(i == focal_cell_index)
+            if(static_cast<int>(i) == focal_cell_index)
               {assert(v_new_food_values[i] < v_orig_food_val[i]);}
             else {assert(v_new_food_values[i] > v_orig_food_val[i]);}
         }
-        for(int i = 0; i != e.get_env_size(); i++)
+        for(unsigned int i = 0; i != e.get_grid().size(); i++)
         {
-            if(i == focal_cell_index)
+            if(static_cast<int>(i) == focal_cell_index)
               {assert(v_new_metab_val[i] < v_orig_metab_val[i]);}
             else {assert(v_new_metab_val[i] > v_orig_metab_val[i]);}
         }
