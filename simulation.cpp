@@ -162,10 +162,10 @@ bool has_collision(const simulation& s)
 
 void manage_static_collisions(simulation& s)
 {
-    const auto n_ind = s.get_pop().size();
-    for (unsigned int i = 0; i < n_ind; ++i)
+    const auto n_ind = s.get_pop_size();
+    for ( int i = 0; i < n_ind; ++i)
     {
-        for (unsigned int j = 0 ; j < n_ind; ++j)
+        for ( int j = 0 ; j < n_ind; ++j)
         {
             if( i != j)
             {
@@ -173,24 +173,39 @@ void manage_static_collisions(simulation& s)
                 if (are_colliding(s.get_ind(i), s.get_ind(j)))
                 {
                     // Distance between individual centers
-                    double distance = sqrtf
-                            (
-                                (s.get_ind(i).get_x() - s.get_ind(j).get_x()) * (s.get_ind(i).get_x() - s.get_ind(j).get_x())
-                                + (s.get_ind(i).get_y() - s.get_ind(j).get_y()) * (s.get_ind(i).get_y() - s.get_ind(j).get_y())
-                             );
+                    double distance = sqrt(
+                          (s.get_ind(i).get_x() - s.get_ind(j).get_x())
+                          * (s.get_ind(i).get_x() - s.get_ind(j).get_x())
+                          + (s.get_ind(i).get_y() - s.get_ind(j).get_y())
+                          * (s.get_ind(i).get_y() - s.get_ind(j).get_y())
+                          );
 
                     // Calculate displacement required
                     double overlap = (distance - s.get_ind(i).get_size() - s.get_ind(j).get_size())/2;
 
                     // Displace Current individual away from collision
-                    auto i_x = s.get_ind(i).get_x() - (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
-                    auto i_y = s.get_ind(i).get_y() - (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
+                    auto i_x = s.get_ind(i).get_x()
+                              - (overlap * distance > 0
+                                 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
+                                );
+                    auto i_y = s.get_ind(i).get_y()
+                              - (overlap * distance > 0
+                                 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
+                                );
+
                     s.get_ind(i).set_x(i_x);
                     s.get_ind(i).set_y(i_y);
 
                     // Displace Target individual away from collision
-                    auto j_x = s.get_ind(j).get_x() + (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
-                    auto j_y = s.get_ind(j).get_y() + (overlap * distance > 0 ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1);
+                    auto j_x = s.get_ind(j).get_x()
+                               + (overlap * distance > 0
+                                  ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
+                                 );
+                    auto j_y = s.get_ind(j).get_y()
+                               + (overlap * distance > 0
+                                  ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
+                                 );
+
                     s.get_ind(j).set_x(j_x);
                     s.get_ind(j).set_y(j_y);
                 }
@@ -203,7 +218,7 @@ int count_hex_layers(int pop_size)  noexcept
 {
     int n = 1;
     if(pop_size>0){while(3*n*(n-1)+1 < pop_size) n++;}
-    else {return 0;};
+    else {return 0;}
     return n;
 }
 
@@ -232,7 +247,7 @@ void test_simulation()
         int pop_size = 100;
         simulation s(pop_size);
         // The value 1234567890 is irrelevant: just get this to compile
-        for(unsigned int i = 0; i < s.get_pop().size(); ++i)
+        for(int i = 0; i < s.get_pop_size(); ++i)
         {
             double x = s.get_ind(i).get_x();
             assert( x > -1234567890 );
@@ -262,7 +277,7 @@ void test_simulation()
         std::vector<int> x{0,1,7,19,22};
         std::vector<int> n{0,1,2,3,4};
 
-        for(auto i = 0; i < static_cast<int>(x.size()); i++ )
+        for(unsigned int i = 0; i < x.size(); i++ )
         {
             assert(count_hex_layers(x[i]) == n[i]);
         }
@@ -320,12 +335,14 @@ void test_simulation()
     }
 
 
-    //When an individual divides it adds a copy of itself to the population/individual vector(i.e divides)
+    //When an individual divides it adds a copy of itself
+    //to the population/individual vector(i.e divides)
     {
         simulation s;
         double lhs = s.get_pop_size();
-        //let's allow all individuals in the population to reproduce, to facilitate the testing conditions
-        std::vector<int> dividing_pop(s.get_pop_size()) ;
+        //let's allow all individuals in the population to reproduce,
+        //to facilitate the testing conditions
+        std::vector<int> dividing_pop(s.get_pop().size()) ;
         std::iota (std::begin(dividing_pop), std::end(dividing_pop), 0);
 
         s.do_division(dividing_pop);
@@ -349,12 +366,14 @@ void test_simulation()
         std::vector<int> div_ind = s.get_dividing_individuals();
         assert(div_ind.size() > 0);
 
-        for(int i = 0; i != static_cast<int>(div_ind.size()); i++)
-            assert(s.get_ind(div_ind[i]).get_energy() >= s.get_ind(div_ind[i]).get_treshold_energy());
+        for(unsigned int i = 0; i != div_ind.size(); i++)
+            assert(s.get_ind(div_ind[i]).get_energy()
+                   >= s.get_ind(div_ind[i]).get_treshold_energy());
 
     }
 
-    //The excess energy of dividing individuals is equal to the diference between their energy and their treshold energy
+    //The excess energy of dividing individuals is equal
+    //to the diference between their energy and their treshold energy
     {
         simulation s(2);
         double energy = s.get_ind_tr_en(0);
@@ -362,7 +381,8 @@ void test_simulation()
         s.set_ind_en(1,energy*2);
         auto v_ex_en = s.get_excess_energies(s.get_dividing_individuals());
         for(int i =0; i != static_cast<int>(v_ex_en.size()); i++){
-            assert(v_ex_en[i] - (s.get_ind_en(i) - s.get_ind_tr_en(i)) < 0.00000001);
+            assert(v_ex_en[static_cast<unsigned int>(i)]
+                - (s.get_ind_en(i) - s.get_ind_tr_en(i)) < 0.00000001);
         }
     }
 
@@ -375,7 +395,8 @@ void test_simulation()
         //First individual reproduces
         s.set_ind_en(0,s.get_ind_tr_en(0)*2);
         auto daughters = s.get_sisters_index_offset();
-        // In this case the distance between the two offspring will be 1 element of the vector in next gen
+        // In this case the distance between the two offspring
+        //will be 1 element of the vector in next gen
         auto predicted_sister_distances = 1;
         for(auto sisters : daughters)
         {
@@ -398,11 +419,14 @@ void test_simulation()
         auto mother_excess_energy = s.get_excess_energies(s.get_dividing_individuals());
         auto sister_cells_vector = s.get_sisters_index_offset();
         s.do_reprduction();
-        for(int i = 0; i < static_cast<int>(s.get_sisters_index_offset().size()); i++)
+        for(unsigned int i = 0; i < s.get_sisters_index_offset().size(); i++)
         {
-            assert(s.get_ind_en(sister_cells_vector[i].first) - mother_excess_energy[i]/2 < 0.00001);
-            assert(s.get_ind_en(sister_cells_vector[i].second) - mother_excess_energy[i]/2 < 0.00001);
-            assert(s.get_ind_en(sister_cells_vector[i].first) - s.get_ind_en(sister_cells_vector[i].second) < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].first)
+                   - mother_excess_energy[i]/2 < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].second)
+                   - mother_excess_energy[i]/2 < 0.00001);
+            assert(s.get_ind_en(sister_cells_vector[i].first)
+                   - s.get_ind_en(sister_cells_vector[i].second) < 0.00001);
         }
     }
 
@@ -411,7 +435,8 @@ void test_simulation()
     {
         simulation s;
         auto parent_pop = s.get_pop();
-        //setting energy high enough for the individual to reproduce without offspring having negative enrgies
+        //setting energy high enough for the individual
+        //to reproduce without offspring having negative enrgies
         s.set_ind_en(0,s.get_ind_tr_en(0));
 
         s.divide_ind(s.get_ind(0));
@@ -419,17 +444,20 @@ void test_simulation()
         assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
     }
 
-    //After reproduction the second daughter individual is placed just outside the position of the first daughter cell
+    //After reproduction the second daughter individual
+    //is placed just outside the position of the first daughter cell
     {
         simulation s;
-        //setting energy high enough for the individual to reproduce without offspring having negative enrgies
+        //setting energy high enough for the individual to reproduce
+        //without offspring having negative enrgies
         s.set_ind_en(0,s.get_ind_tr_en(0));
         s.divide_ind(s.get_ind(0));
         //The first daughter cell is at the same index of the mother cell
         assert(!has_collision(s));
     }
 
-    //If there are collisions individuals are displaced until there are no more collisions
+    //If there are collisions individuals are displaced
+    //until there are no more collisions
     {
 
         simulation s(2);
@@ -440,7 +468,8 @@ void test_simulation()
         assert(!has_collision(s));
 
     }
-    //After reproduction new collisions caused by new individuals being placed where other individuals already are managed
+    //After reproduction new collisions caused by new individuals
+    //being placed where other individuals already are managed
     {
         simulation s(7);
         assert(!has_collision(s));
@@ -450,8 +479,10 @@ void test_simulation()
             ind.set_energy(ind.get_treshold_energy());
         }
         s.do_reprduction();
-        //There are collisions happening for sure, since one individual is completely surrounded
-        //Since they are disposed in the hexagonal grid pattern and 7 individuals form a full hexagon
+        //There are collisions happening for sure,
+        //since one individual is completely surrounded
+        //Since they are disposed in the hexagonal grid
+        //pattern and 7 individuals form a full hexagon
         assert(has_collision(s));
 
         while(has_collision(s))

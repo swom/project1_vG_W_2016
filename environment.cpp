@@ -212,7 +212,8 @@ void test_environment()
         assert(e1.get_diff_coeff() - diff_coeff < 0.0001);
     }
 
-    //On initializtion each grid_cells has its neighbor vector updated with the indexes of its neighbors
+    //On initializtion each grid_cells has its neighbor vector
+    //updated with the indexes of its neighbors
     {
         auto env_side = 3;
         auto env_size = 3 * 3;
