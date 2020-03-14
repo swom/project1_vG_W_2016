@@ -194,7 +194,8 @@ void test_environment()
         environment g;
         for (auto& cell : g.get_grid())
         {
-            assert(cell.get_metabolite() == 0);
+            assert(cell.get_metabolite() < 0.000001
+                   || cell.get_metabolite() > -0.000001);
         }
     }
 
@@ -203,7 +204,8 @@ void test_environment()
     //0 by default
     {
         environment e;
-        assert(e.get_diff_coeff() == 0);
+        assert(e.get_diff_coeff() < 0.000001
+               || e.get_diff_coeff() > -0.000001);
 
         double diff_coeff = 3.14;
         environment e1(1, diff_coeff);
@@ -217,7 +219,8 @@ void test_environment()
         environment e3x3(3);//3x3 env just to have some actual neighbours
         for(int i = 0; i != e3x3.get_env_size(); i++)
         {
-            assert(e3x3.get_cell(i).get_v_neighbors() == find_neighbors(env_size, env_side, i));
+            assert(e3x3.get_cell(i).get_v_neighbors()
+                   == find_neighbors(env_size, env_side, i));
         }
     }
     //The environment can get a specific a cell's address
@@ -248,12 +251,20 @@ void test_environment()
         environment e;
         //the focal cell in this case is the first and only cell of the grid
         auto focal_cell_index = 0;
-        assert(find_neighbors(e.get_env_size(),e.get_grid_side(), focal_cell_index).size() == 0);
+        assert(find_neighbors(e.get_env_size(),e.get_grid_side(),focal_cell_index).size() == 0);
 
         //the central grid_cell in a 3x3 grid (index = 4) should have 8 neighbors
         environment e3x3(3);
         focal_cell_index = 4;
-        assert(find_neighbors(e3x3.get_env_size(),e3x3.get_grid_side(), focal_cell_index).size() == 8);
+        assert(
+              find_neighbors
+              (
+                e3x3.get_env_size(),
+                e3x3.get_grid_side(),
+                focal_cell_index
+                ).size()
+               == 8
+              );
     }
 
     //A cell with more substance than its neighbours diffuses food to them
@@ -266,7 +277,8 @@ void test_environment()
         std::vector<double> v_original_food_values;
         for(auto cell : e.get_grid()) {v_original_food_values.push_back(cell.get_food());}
         std::vector<double> v_original_metabolite_values;
-        for(auto cell : e.get_grid()) {v_original_metabolite_values.push_back(cell.get_metabolite());}
+        for(auto cell : e.get_grid())
+          {v_original_metabolite_values.push_back(cell.get_metabolite());}
 
         diffusion(e);
 
@@ -280,12 +292,14 @@ void test_environment()
 
         for(int i = 0; i != e.get_env_size(); i++)
         {
-            if(i == focal_cell_index) {assert(v_new_food_values[i] < v_original_food_values[i]);}
+            if(i == focal_cell_index)
+              {assert(v_new_food_values[i] < v_original_food_values[i]);}
             else {assert(v_new_food_values[i] > v_original_food_values[i]);}
         }
         for(int i = 0; i != e.get_env_size(); i++)
         {
-            if(i == focal_cell_index) {assert(v_new_metabolite_values[i] < v_original_metabolite_values[i]);}
+            if(i == focal_cell_index)
+              {assert(v_new_metabolite_values[i] < v_original_metabolite_values[i]);}
             else {assert(v_new_metabolite_values[i] > v_original_metabolite_values[i]);}
         }
 
