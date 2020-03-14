@@ -23,7 +23,8 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept
     const double dx = std::abs(lhs.get_x() - rhs.get_x());
     const double dy = std::abs(lhs.get_y() - rhs.get_y());
     const double actual_distance = ((dx * dx) + (dy * dy)) ;
-    const double collision_distance = (lhs.get_size() + rhs.get_size()) * (lhs.get_size() + rhs.get_size()) ;
+    const double collision_distance =
+        (lhs.get_size() + rhs.get_size()) * (lhs.get_size() + rhs.get_size()) ;
     return actual_distance < collision_distance;
 }
 

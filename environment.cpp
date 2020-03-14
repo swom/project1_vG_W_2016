@@ -275,33 +275,33 @@ void test_environment()
         e.get_cell(focal_cell_index).set_food(1);
         e.get_cell(focal_cell_index).set_metabolite(1);
 
-        std::vector<double> v_original_food_values;
-        for(auto cell : e.get_grid()) {v_original_food_values.push_back(cell.get_food());}
-        std::vector<double> v_original_metabolite_values;
+        std::vector<double> v_orig_food_val;
+        for(auto cell : e.get_grid()) {v_orig_food_val.push_back(cell.get_food());}
+        std::vector<double> v_orig_metab_val;
         for(auto cell : e.get_grid())
-          {v_original_metabolite_values.push_back(cell.get_metabolite());}
+          {v_orig_metab_val.push_back(cell.get_metabolite());}
 
         diffusion(e);
 
         std::vector<double> v_new_food_values;
         for(auto cell : e.get_grid()) {v_new_food_values.push_back(cell.get_food());}
-        std::vector<double> v_new_metabolite_values;
-        for(auto cell : e.get_grid()) {v_new_metabolite_values.push_back(cell.get_metabolite());}
+        std::vector<double> v_new_metab_val;
+        for(auto cell : e.get_grid()) {v_new_metab_val.push_back(cell.get_metabolite());}
 
-        assert(v_original_food_values != v_new_food_values);
-        assert(v_original_metabolite_values != v_new_metabolite_values);
+        assert(v_orig_food_val != v_new_food_values);
+        assert(v_orig_metab_val != v_new_metab_val);
 
         for(int i = 0; i != e.get_env_size(); i++)
         {
             if(i == focal_cell_index)
-              {assert(v_new_food_values[i] < v_original_food_values[i]);}
-            else {assert(v_new_food_values[i] > v_original_food_values[i]);}
+              {assert(v_new_food_values[i] < v_orig_food_val[i]);}
+            else {assert(v_new_food_values[i] > v_orig_food_val[i]);}
         }
         for(int i = 0; i != e.get_env_size(); i++)
         {
             if(i == focal_cell_index)
-              {assert(v_new_metabolite_values[i] < v_original_metabolite_values[i]);}
-            else {assert(v_new_metabolite_values[i] > v_original_metabolite_values[i]);}
+              {assert(v_new_metab_val[i] < v_orig_metab_val[i]);}
+            else {assert(v_new_metab_val[i] > v_orig_metab_val[i]);}
         }
 
 
