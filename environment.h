@@ -61,7 +61,7 @@ bool is_over_sides(int index, int grid_side, int column)  noexcept;
 bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept;
 
 ///Checks cells do not look for neighbors at their own coordinates
-bool is_same(int column, int row) noexcept {return column == row;}
+bool is_same_cell(int column, int row) noexcept;
 
 void test_environment();
 
