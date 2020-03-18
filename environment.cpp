@@ -108,7 +108,7 @@ bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept
 
 bool is_same_cell(int column, int row) noexcept
 {
-  return column == row;
+  return column == 0 && row == 0;
 }
 
 const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
@@ -120,11 +120,12 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
       else {
           for(int row = -1; row != 2; row++ )
             {
-              if(is_same_cell(column, row)){continue;}
-              else if(is_past_limit(index, grid_side, grid_size, row)){continue;}
+              if(is_past_limit(index, grid_side, grid_size, row)){continue;}
+              else if(is_same_cell(column, row)){continue;}
               else
                 {
-                  n_indexes.push_back(index + grid_side * row + column);
+                  int neighbor_index = index + grid_side * row + column;
+                  n_indexes.push_back(neighbor_index);
                 }
             }
         }

@@ -55,7 +55,8 @@ void test_env_grid_cell()//!OCLINT tests may be many
         g1.increment_metabolite(change_in_metabolite);
         assert(g.get_metabolite() - g1.get_metabolite() > 0.000000001
                || g.get_metabolite() - g1.get_metabolite() < -0.000000001);
-        assert(std::abs(g.get_metabolite() - g1.get_metabolite()) - change_in_metabolite < 0.000001);
+        assert(std::abs(g.get_metabolite() - g1.get_metabolite()) -
+               change_in_metabolite < 0.000001);
 
     }
 
