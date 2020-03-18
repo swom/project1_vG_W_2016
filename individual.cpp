@@ -55,13 +55,23 @@ double distance(const individual& lhs, const individual& rhs) noexcept
 
 double overlap(const individual& lhs, const individual& rhs) noexcept
 {
-  return (distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
+  return abs(distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
 }
 
 void set_pos(individual& i, std::pair<double, double> pos)  noexcept
 {
   i.set_x(pos.first);
   i.set_y(pos.second);
+}
+
+std::pair<double, double> get_displacement(individual& lhs, individual& rhs) noexcept
+{
+  std::pair<double, double> displ_x_y;
+  displ_x_y.first = overlap(lhs,rhs) *
+      (distance(lhs, rhs) > 0 ? (lhs.get_x() - rhs.get_x()) / distance(lhs, rhs) : 1);
+  displ_x_y.second = overlap(lhs,rhs) *
+      (distance(lhs, rhs) > 0 ? (lhs.get_y() - rhs.get_y()) / distance(lhs, rhs) : 1);
+  return  displ_x_y;
 }
 
 void test_individual()//!OCLINT tests may be many
@@ -162,13 +172,16 @@ void test_individual()//!OCLINT tests may be many
     assert(overlap(lhs, rhs) - lhs.get_size() < 0.000001);
   }
 
-  //An individual can be displaced given a certain overlap and distance value
+  //The necessary displacement along the x and y axis can be calculated
+  //for two individuals to not overlap
   //This is used to manage static_collisions in simulation.cpp
-//  {
-//    individual lhs(0,0);
-//    individual rhs(0,0);
-//    displace(lhs,);
-//    assert()
-//  }
+  {
+    individual lhs(0,0);
+    individual rhs(0,0);
+    assert(get_displacement(lhs,rhs).first -
+           (lhs.get_size() + rhs.get_size())/2 < 0.00001);
+    assert(get_displacement(lhs,rhs).second -
+           (lhs.get_size() + rhs.get_size())/2 < 0.00001);
+  }
 
 }

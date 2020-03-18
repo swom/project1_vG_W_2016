@@ -68,6 +68,9 @@ double overlap(const individual& lhs, const individual& rhs) noexcept;
 ///Checks if two individuals are colliding
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 
+///Displaces individuals according to their distance and overlap
+std::pair<double, double> get_displacement(individual& lhs, individual& rhs) noexcept;
+
 void test_individual();
 
 #endif // INDIVIDUAL_H
