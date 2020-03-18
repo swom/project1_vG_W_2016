@@ -112,7 +112,7 @@ void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
 void simulation::place_start_cells() noexcept
 {
   int n = count_hex_layers(get_pop_size());
-   unsigned int placed_ind = 0;
+  unsigned int placed_ind = 0;
 
   // d is the distance between 2 individuals's centers
   double d = 2 * (population[0].get_size() + m_min_init_dist_btw_cells);
@@ -170,49 +170,44 @@ void manage_static_collisions(simulation& s)
     {
       for ( int j = 0 ; j < n_ind; ++j)
         {
-              if (i == j)
-                {
-                  continue;
-                }
-              else if(are_colliding(s.get_ind(i), s.get_ind(j)))
-                {
-                  // Distance between individual centers
-                  double distance = sqrt(
-                        (s.get_ind(i).get_x() - s.get_ind(j).get_x())
-                        * (s.get_ind(i).get_x() - s.get_ind(j).get_x())
-                        + (s.get_ind(i).get_y() - s.get_ind(j).get_y())
-                        * (s.get_ind(i).get_y() - s.get_ind(j).get_y())
-                        );
+          if (i == j)
+            {
+              continue;
+            }
+          else if(are_colliding(s.get_ind(i), s.get_ind(j)))
+            {
+              // Distance between individual centers
+              double distance_i_j = distance(s.get_ind(i), s.get_ind(j));
 
-                  // Calculate displacement required
-                  double overlap = (distance - s.get_ind(i).get_size() - s.get_ind(j).get_size())/2;
+              // Calculate displacement required
+              double overlap_i_j = overlap(s.get_ind(i), s.get_ind(j));
 
-                  // Displace Current individual away from collision
-                  auto i_x = s.get_ind(i).get_x()
-                      - (overlap * distance > 0
-                         ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
-                           );
-                  auto i_y = s.get_ind(i).get_y()
-                      - (overlap * distance > 0
-                         ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
-                           );
+              // Displace Current individual away from collision
+              auto i_x = s.get_ind(i).get_x()
+                  - (overlap_i_j * distance_i_j > 0
+                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
+                       );
+              auto i_y = s.get_ind(i).get_y()
+                  - (overlap_i_j * distance_i_j > 0
+                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
+                       );
 
-                  s.get_ind(i).set_x(i_x);
-                  s.get_ind(i).set_y(i_y);
+              s.get_ind(i).set_x(i_x);
+              s.get_ind(i).set_y(i_y);
 
-                  // Displace Target individual away from collision
-                  auto j_x = s.get_ind(j).get_x()
-                      + (overlap * distance > 0
-                         ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
-                           );
-                  auto j_y = s.get_ind(j).get_y()
-                      + (overlap * distance > 0
-                         ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance : 1
-                           );
+              // Displace Target individual away from collision
+              auto j_x = s.get_ind(j).get_x()
+                  + (overlap_i_j * distance_i_j > 0
+                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
+                       );
+              auto j_y = s.get_ind(j).get_y()
+                  + (overlap_i_j * distance_i_j > 0
+                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
+                       );
 
-                  s.get_ind(j).set_x(j_x);
-                  s.get_ind(j).set_y(j_y);
-                }
+              s.get_ind(j).set_x(j_x);
+              s.get_ind(j).set_y(j_y);
+            }
         }
     }
 }
@@ -282,23 +277,6 @@ void test_simulation()//!OCLINT tests may be many
     for(unsigned int i = 0; i < x.size(); i++ )
       {
         assert(count_hex_layers(x[i]) == n[i]);
-      }
-  }
-
-  //The distance between two individuals can be calculated
-  {
-    simulation s(2);
-    //place individuals along x axis at 1 distance fro each other
-    for (int i = 0; i != s.get_pop_size(); i++)
-      {
-        s.set_ind_pos(s.get_ind(i),0.0,static_cast<double>(i));
-      }
-    for (int i = 0; i != s.get_pop_size(); i++)
-      {
-        for (int j = 0; j != s.get_pop_size(); j++)
-          {
-
-          }
       }
   }
 

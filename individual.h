@@ -59,6 +59,13 @@ const std::pair<double,double> get_pos(individual& i) noexcept;
 ///Sets x,y given a pair of doubles(x,y)
 void set_pos(individual& i, std::pair<double, double> pos)  noexcept;
 
+/// Finds the distance between two individuals
+double distance(const individual& lhs, const individual& rhs) noexcept;
+
+///Finds the overlap between two individuals
+double overlap(const individual& lhs, const individual& rhs) noexcept;
+
+///Checks if two individuals are colliding
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 
 void test_individual();
