@@ -11,42 +11,6 @@ environment::environment(int grid_side, double diff_coeff):
   find_neighbors_all_grid(*this);
 }
 
-void find_neighbors_all_grid(environment& e) noexcept
-{
-  for (int i = 0; i != e.get_env_size(); i++)
-    {
-      e.get_cell(i).set_v_neighbors(find_neighbors(e.get_env_size(), e.get_grid_side(), i));
-    }
-}
-
-const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
-{
-  std::vector<int> n_indexes;
-  for(int column = -1; column != 2; column++)
-    {
-      if(
-         (index % grid_side == 0 && column == -1) ||
-         (index % grid_side == grid_side - 1 && column == 1)
-         ){continue;}
-      else {
-          for(int row = -1; row != 2; row++ )
-            {
-              if(
-                 (row == 0 && column == 0) ||
-                 (index - grid_side < 0 && row == -1) ||
-                 (index + grid_side >= grid_size && row == 1)
-                 ){continue;}
-              else
-                {
-                  int neighbor_index = index + grid_side * row + column;
-                  n_indexes.push_back(neighbor_index);
-                }
-            }
-        }
-    }
-  return n_indexes;
-}
-
 void diffusion(environment& e) noexcept
 {
   diffusion_food(e);
@@ -121,6 +85,46 @@ void diffusion_metabolite(environment& e) noexcept
       cell.reset_metabolite_change();
     }
 
+}
+
+void find_neighbors_all_grid(environment& e) noexcept
+{
+  for (int i = 0; i != e.get_env_size(); i++)
+    {
+      e.get_cell(i).set_v_neighbors(find_neighbors(e.get_env_size(), e.get_grid_side(), i));
+    }
+}
+
+bool is_over_sides(int index, int grid_side, int column) noexcept
+{
+  return (index % grid_side == 0 && column == -1) ||
+      (index % grid_side == grid_side - 1 && column == 1);
+}
+
+bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept
+{
+  return (index - grid_side < 0 && row == -1) ||(index + grid_side >= grid_size && row == 1);
+}
+
+const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
+{
+  std::vector<int> n_indexes;
+  for(int column = -1; column != 2; column++)
+    {
+      if(is_over_sides(index, grid_side, column)){continue;}
+      else {
+          for(int row = -1; row != 2; row++ )
+            {
+              if(is_same(column, row)){continue;}
+              else if(is_past_limit(index, grid_side, grid_size, row)){continue;}
+              else
+                {
+                  n_indexes.push_back(index + grid_side * row + column);
+                }
+            }
+        }
+    }
+  return n_indexes;
 }
 
 void test_environment()//!OCLINT tests may be many

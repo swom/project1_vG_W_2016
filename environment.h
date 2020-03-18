@@ -54,6 +54,15 @@ void diffusion_metabolite(environment& e) noexcept;
 ///diffuses food in grid
 void diffusion_food(environment& e) noexcept;
 
+///Checks that cells do not check for neighbors over the side of the grid
+bool is_over_sides(int index, int grid_side, int column)  noexcept;
+
+///Checks that cells do not check for neighbors past the limits of the grid
+bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept;
+
+///Checks cells do not look for neighbors at their own coordinates
+bool is_same(int column, int row) noexcept {return column == row;}
+
 void test_environment();
 
 #endif // ENVIRONMENT_H
