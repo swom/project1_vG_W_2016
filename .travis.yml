@@ -33,8 +33,8 @@ script:
   - qmake -qt=qt5 simulation.pro
   - make --silent debug
   - ./simulation --test
-  # OCLint
-  - ./scripts/do_oclint
+  # OCLint, failed OCLint does not break the build
+  - ./scripts/do_oclint || true
   # Get code coverage
   - cp debug/*.* .
   - ./scripts/get_code_cov >/dev/null
