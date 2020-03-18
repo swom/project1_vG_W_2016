@@ -20,10 +20,11 @@ double food_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
 
 double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
 {
-  return lhs.get_metabolite() - rhs.get_metabolite() > 0 ? lhs.get_metabolite() - rhs.get_metabolite() : 0;
+  return lhs.get_metabolite() - rhs.get_metabolite() > 0 ?
+        lhs.get_metabolite() - rhs.get_metabolite() : 0;
 }
 
-void test_env_grid_cell()
+void test_env_grid_cell()//!OCLINT tests may be many
 {
     //A grid cell has a metabolite value,
     //The value -123456789 is irrelevant
