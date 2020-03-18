@@ -34,7 +34,7 @@ script:
   - make --silent debug
   - ./simulation --test
   # OCLint, failed OCLint does not break the build
-  - ./scripts/do_oclint || true
+  - ./scripts/do_oclint
   # Get code coverage
   - cp debug/*.* .
   - ./scripts/get_code_cov >/dev/null
