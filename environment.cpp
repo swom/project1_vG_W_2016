@@ -58,7 +58,8 @@ void diffusion_food(environment& e) noexcept
      std::vector<double> v_food_diff;
      for(const auto& neighbor : cell.get_v_neighbors())
      {
-         v_food_diff.push_back(food_diff(cell,neighbor));
+         auto food_diff = cell.get_food() - e.get_cell(neighbor).get_food();
+         food_diff > 0 ? v_food_diff.push_back(food_diff) : v_food_diff.push_back(0) ;
      }
     auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0);
     auto max_diff = cell.get_food() * cell.get_v_neighbors().size();
@@ -242,8 +243,6 @@ void test_environment()//!OCLINT tests may be many
               );
     }
 
-
-
     //A cell with more substance than its neighbours diffuses food to them
     {
         environment e(3, 0.1);
@@ -283,8 +282,6 @@ void test_environment()//!OCLINT tests may be many
               {assert(v_new_metab_val[i] < v_orig_metab_val[i]);}
             else {assert(v_new_metab_val[i] > v_orig_metab_val[i]);}
         }
-
-
     }
 
 

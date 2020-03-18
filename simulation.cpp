@@ -438,16 +438,8 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s(7);
     assert(!has_collision(s));
-    //all population divides
-    for( individual& ind : s.get_pop())
-      {
-        ind.set_energy(ind.get_treshold_energy());
-      }
-    s.do_reprduction();
-    //There are collisions happening for sure,
-    //since one individual is completely surrounded
-    //Since they are disposed in the hexagonal grid
-    //pattern and 7 individuals form a full hexagon
+    //add 1 individual overlapping with central individual
+    s.get_pop().push_back(individual(0,0));
     assert(has_collision(s));
 
     while(has_collision(s))

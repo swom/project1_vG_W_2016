@@ -22,11 +22,10 @@ bool operator == (const individual& lhs, const individual& rhs) noexcept {
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept
 {
-  const double dx = std::abs(lhs.get_x() - rhs.get_x());
-  const double dy = std::abs(lhs.get_y() - rhs.get_y());
+  const double dx = lhs.get_x() - rhs.get_x();
+  const double dy = lhs.get_y() - rhs.get_y();
   const double actual_distance = ((dx * dx) + (dy * dy)) ;
-  const double collision_distance =
-      (lhs.get_size() + rhs.get_size()) * (lhs.get_size() + rhs.get_size()) ;
+  const double collision_distance = (lhs.get_size() + rhs.get_size());
   return actual_distance < collision_distance;
 }
 
@@ -55,7 +54,7 @@ double distance(const individual& lhs, const individual& rhs) noexcept
 
 double overlap(const individual& lhs, const individual& rhs) noexcept
 {
-  return abs(distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
+  return (distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
 }
 
 void set_pos(individual& i, std::pair<double, double> pos)  noexcept
@@ -68,19 +67,21 @@ std::pair<double, double> get_displacement(const individual& lhs, const individu
 {
   std::pair<double, double> displ_x_y;
   displ_x_y.first = overlap(lhs,rhs) *
-      (distance(lhs, rhs) > 0 ? (lhs.get_x() - rhs.get_x()) / distance(lhs, rhs) : 1);
+      (distance(lhs, rhs) > 0 ? (lhs.get_x() - rhs.get_x()) / distance(lhs, rhs) :
+                                (lhs.get_size() + rhs.get_size())/(2*sqrt(2)));
   displ_x_y.second = overlap(lhs,rhs) *
-      (distance(lhs, rhs) > 0 ? (lhs.get_y() - rhs.get_y()) / distance(lhs, rhs) : 1);
+      (distance(lhs, rhs) > 0 ? (lhs.get_y() - rhs.get_y()) / distance(lhs, rhs) :
+                                (lhs.get_size() + rhs.get_size())/(2*sqrt(2)));
   return  displ_x_y;
 }
 
 void displace(individual& lhs, individual& rhs) noexcept
 {
   auto displacement = get_displacement(lhs,rhs);
-  lhs.change_x(-displacement.first);
-  lhs.change_y(-displacement.second);
-  rhs.change_x(displacement.first);
-  rhs.change_y(displacement.second);
+  lhs.change_x(displacement.first);
+  lhs.change_y(displacement.second);
+  rhs.change_x(-displacement.first);
+  rhs.change_y(-displacement.second);
 }
 
 void test_individual()//!OCLINT tests may be many
