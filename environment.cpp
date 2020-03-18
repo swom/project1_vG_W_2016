@@ -22,52 +22,41 @@ void find_neighbors_all_grid(environment& e) noexcept
 const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
 {
 
-    //vector where indexes of neighbours will be stored
-    std::vector<int> n_indexes;
+  std::vector<int> n_indexes;
 
-    //find index of neighbor grid_cells
-    //considering env is a square of side = grid_side
-
-        //checks columns to left/same/right starting from left
-        for(int column = -1; column != 2; column++)
+  for(int column = -1; column != 2; column++)
+    {
+      if(index % grid_side == 0 && column == -1)
         {
-            //if on the left-most cell of the row
-            //do not check cells on the left
-            if(index % grid_side == 0 && column == -1)
-            {
-                    continue;
-            }
-
-            //if on the right most column of the row
-            //do not check cells on the right
-            if(index % grid_side == grid_side - 1 && column == 1)
-            {
-                    continue;
-            }
-
-                //checks row up/same/bottom starting from up
-                for(int row = -1; row != 2; row++ )
-                {
-                    //cells does not count itself as a neighbor
-                    if(row == 0 && column == 0)
-                    {
-                        continue;
-                    }
-                    //if on bottom-most or top-most row do not check rows below or above
-                    if((index - grid_side < 0 && row == -1) ||
-                       (index + grid_side >= grid_size && row == 1) )
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        int neighbor_index = index + grid_side * row + column;
-                        n_indexes.push_back(neighbor_index);
-                    }
-                }
+          continue;
         }
 
-        return n_indexes;
+      if(index % grid_side == grid_side - 1 && column == 1)
+        {
+          continue;
+        }
+
+      for(int row = -1; row != 2; row++ )
+        {
+          if(row == 0 && column == 0)
+            {
+              continue;
+            }
+
+          if((index - grid_side < 0 && row == -1) ||
+             (index + grid_side >= grid_size && row == 1) )
+            {
+              continue;
+            }
+          else
+            {
+              int neighbor_index = index + grid_side * row + column;
+              n_indexes.push_back(neighbor_index);
+            }
+        }
+    }
+
+  return n_indexes;
 }
 
 void diffusion(environment& e) noexcept
@@ -275,6 +264,7 @@ void test_environment()//!OCLINT tests may be many
         e.get_cell(focal_cell_index).set_food(1);
         e.get_cell(focal_cell_index).set_metabolite(1);
 
+        //register strting values
         std::vector<double> v_orig_food_val;
         for(auto cell : e.get_grid()) {v_orig_food_val.push_back(cell.get_food());}
         std::vector<double> v_orig_metab_val;
@@ -283,14 +273,17 @@ void test_environment()//!OCLINT tests may be many
 
         diffusion(e);
 
+        //register new values
         std::vector<double> v_new_food_values;
         for(auto cell : e.get_grid()) {v_new_food_values.push_back(cell.get_food());}
         std::vector<double> v_new_metab_val;
         for(auto cell : e.get_grid()) {v_new_metab_val.push_back(cell.get_metabolite());}
 
+        //Check they are different
         assert(v_orig_food_val != v_new_food_values);
         assert(v_orig_metab_val != v_new_metab_val);
 
+        //Check they diminish or augment as expected
         for(unsigned int i = 0; i != e.get_grid().size(); i++)
         {
             if(static_cast<int>(i) == focal_cell_index)
