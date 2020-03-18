@@ -13,7 +13,15 @@ env_grid_cell::env_grid_cell(double metabolite, double food):
 
 }
 
+double food_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
+{
+  return lhs.get_food() - rhs.get_food() > 0 ? lhs.get_food() - rhs.get_food() : 0;
+}
 
+double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
+{
+  return lhs.get_metabolite() - rhs.get_metabolite() > 0 ? lhs.get_metabolite() - rhs.get_metabolite() : 0;
+}
 
 void test_env_grid_cell()
 {
@@ -131,4 +139,21 @@ void test_env_grid_cell()
         env_grid_cell g;
         assert(g.get_metabolite_change() < 0.0000001 || g.get_metabolite_change() > -0.0000001);
     }
+
+  //The substance difference between two cells can be found
+  //by subtracting the amount of substance of the neighbor cell
+  //from the focal, if the difference is negative, it is considered 0
+  {
+    env_grid_cell lhs(1,0);
+    env_grid_cell rhs(0,1);
+
+    assert(food_diff(lhs,rhs) < 0.0000001
+           && food_diff(lhs,rhs) > -0.0000001);
+    assert(food_diff(rhs,lhs) - 1 < 0.000001);
+    assert(metab_diff(lhs,rhs) - 1 < 0.000001);
+    assert(metab_diff(rhs,lhs)< 0.0000001
+           && metab_diff(lhs,rhs) > -0.0000001);
+  }
 }
+
+

@@ -21,28 +21,15 @@ void find_neighbors_all_grid(environment& e) noexcept
 
 const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
 {
-
   std::vector<int> n_indexes;
-
   for(int column = -1; column != 2; column++)
     {
-      if(index % grid_side == 0 && column == -1)
-        {
-          continue;
-        }
-
-      if(index % grid_side == grid_side - 1 && column == 1)
-        {
-          continue;
-        }
+      if(index % grid_side == 0 && column == -1){continue;}
+      if(index % grid_side == grid_side - 1 && column == 1){continue;}
 
       for(int row = -1; row != 2; row++ )
         {
-          if(row == 0 && column == 0)
-            {
-              continue;
-            }
-
+          if(row == 0 && column == 0){continue;}
           if((index - grid_side < 0 && row == -1) ||
              (index + grid_side >= grid_size && row == 1) )
             {
@@ -55,7 +42,6 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
             }
         }
     }
-
   return n_indexes;
 }
 
@@ -70,10 +56,9 @@ void diffusion_food(environment& e) noexcept
  for(auto& cell : e.get_grid())
  {
      std::vector<double> v_food_diff;
-     for(auto neighbor : cell.get_v_neighbors())
+     for(const auto& neighbor : cell.get_v_neighbors())
      {
-         auto food_diff = cell.get_food() - e.get_cell(neighbor).get_food();
-         food_diff > 0 ? v_food_diff.push_back(food_diff) : v_food_diff.push_back(0) ;
+         v_food_diff.push_back(food_diff(cell,neighbor));
      }
     auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0);
     auto max_diff = cell.get_food() * cell.get_v_neighbors().size();
@@ -256,6 +241,8 @@ void test_environment()//!OCLINT tests may be many
                == 8
               );
     }
+
+
 
     //A cell with more substance than its neighbours diffuses food to them
     {
