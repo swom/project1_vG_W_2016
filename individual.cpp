@@ -64,7 +64,7 @@ void set_pos(individual& i, std::pair<double, double> pos)  noexcept
   i.set_y(pos.second);
 }
 
-std::pair<double, double> get_displacement(individual& lhs, individual& rhs) noexcept
+std::pair<double, double> get_displacement(const individual& lhs, const individual& rhs) noexcept
 {
   std::pair<double, double> displ_x_y;
   displ_x_y.first = overlap(lhs,rhs) *
@@ -72,6 +72,15 @@ std::pair<double, double> get_displacement(individual& lhs, individual& rhs) noe
   displ_x_y.second = overlap(lhs,rhs) *
       (distance(lhs, rhs) > 0 ? (lhs.get_y() - rhs.get_y()) / distance(lhs, rhs) : 1);
   return  displ_x_y;
+}
+
+void displace(individual& lhs, individual& rhs) noexcept
+{
+  auto displacement = get_displacement(lhs,rhs);
+  lhs.change_x(-displacement.first);
+  lhs.change_y(-displacement.second);
+  rhs.change_x(displacement.first);
+  rhs.change_y(displacement.second);
 }
 
 void test_individual()//!OCLINT tests may be many
@@ -182,6 +191,15 @@ void test_individual()//!OCLINT tests may be many
            (lhs.get_size() + rhs.get_size())/2 < 0.00001);
     assert(get_displacement(lhs,rhs).second -
            (lhs.get_size() + rhs.get_size())/2 < 0.00001);
+  }
+
+  //Two cells can be displaced so not to overlap anymore
+  {
+    individual lhs(0,0);
+    individual rhs(0,0);
+    displace(lhs, rhs);
+    assert(distance(lhs,rhs) - (lhs.get_size() + rhs.get_size()) < 0.00001
+           && distance(lhs,rhs) - (lhs.get_size() + rhs.get_size()) > -0.00001);
   }
 
 }

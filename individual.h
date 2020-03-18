@@ -11,14 +11,17 @@ public:
     individual(double x_pos, double y_pos, double size  = 1,
                double energy = 0, double treshold_energy = 2);
 
+     ///Changes x of an individual
+     void change_x(double x) noexcept {m_x += x;}
+
+     ///Changes y of an individual
+     void change_y(double y) noexcept {m_y += y;}
+
      ///gets size of individual
      double get_size() const noexcept {return m_size;}
 
      ///gets energy of individual
      double get_energy() const noexcept {return m_energy;}
-
-     ///sets the energy of an individual
-     void set_energy(double new_energy) {m_energy = new_energy;}
 
      ///gets x position of the individual
      double get_x() const noexcept {return m_x;}
@@ -28,6 +31,9 @@ public:
 
      ///gets the treshold energy at which an individual reproduces
      double get_treshold_energy() const noexcept {return m_treshold_energy;}
+
+     ///sets the energy of an individual
+     void set_energy(double new_energy) {m_energy = new_energy;}
 
      ///Sets the x of an individual
      void set_x(double x) noexcept {m_x = x;}
@@ -68,8 +74,11 @@ double overlap(const individual& lhs, const individual& rhs) noexcept;
 ///Checks if two individuals are colliding
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 
-///Displaces individuals according to their distance and overlap
-std::pair<double, double> get_displacement(individual& lhs, individual& rhs) noexcept;
+///Calculates how much individuals need to be displaced to not overlap
+std::pair<double, double> get_displacement(const individual &lhs, const individual &rhs) noexcept;
+
+///Dislpaces two individuals so that they do not overlap
+void displace(individual& lhs, individual& rhs) noexcept;
 
 void test_individual();
 

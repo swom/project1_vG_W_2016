@@ -176,37 +176,7 @@ void manage_static_collisions(simulation& s)
             }
           else if(are_colliding(s.get_ind(i), s.get_ind(j)))
             {
-              // Distance between individual centers
-              double distance_i_j = distance(s.get_ind(i), s.get_ind(j));
-
-              // Calculate displacement required
-              double overlap_i_j = overlap(s.get_ind(i), s.get_ind(j));
-
-              // Displace Current individual away from collision
-              auto i_x = s.get_ind(i).get_x()
-                  - (overlap_i_j * distance_i_j > 0
-                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
-                       );
-              auto i_y = s.get_ind(i).get_y()
-                  - (overlap_i_j * distance_i_j > 0
-                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
-                       );
-
-              s.get_ind(i).set_x(i_x);
-              s.get_ind(i).set_y(i_y);
-
-              // Displace Target individual away from collision
-              auto j_x = s.get_ind(j).get_x()
-                  + (overlap_i_j * distance_i_j > 0
-                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
-                       );
-              auto j_y = s.get_ind(j).get_y()
-                  + (overlap_i_j * distance_i_j > 0
-                     ? (s.get_ind(i).get_x() - s.get_ind(j).get_x()) / distance_i_j : 1
-                       );
-
-              s.get_ind(j).set_x(j_x);
-              s.get_ind(j).set_y(j_y);
+              displace(s.get_ind(i), s.get_ind(j));
             }
         }
     }
