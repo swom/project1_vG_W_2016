@@ -1,6 +1,6 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
-#include <vector>
+#include "vector"
 #include "env_grid_cell.h"
 
 class environment
@@ -21,10 +21,16 @@ public:
     std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
 
     ///Gets const reference of cell at a certain index
-    const env_grid_cell& get_cell(int i) const noexcept {return m_grid[i];}
+    const env_grid_cell& get_cell(int i) const noexcept
+    {
+      return m_grid[static_cast<unsigned int>(i)];
+    }
 
     ///Gets reference of cell at a certain index
-    env_grid_cell& get_cell(int i) noexcept {return m_grid[i];}
+    env_grid_cell& get_cell(int i) noexcept
+    {
+      return m_grid[static_cast<unsigned int>(i)];
+    }
 
     ///Get the diffusion coefficent of the environment
     const double& get_diff_coeff() const noexcept {return m_diffusion_coefficient;}

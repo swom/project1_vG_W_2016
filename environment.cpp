@@ -24,14 +24,18 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
   std::vector<int> n_indexes;
   for(int column = -1; column != 2; column++)
     {
-      if(index % grid_side == 0 && column == -1){continue;}
-      else if(index % grid_side == grid_side - 1 && column == 1){continue;}
+      if(
+         (index % grid_side == 0 && column == -1) ||
+         (index % grid_side == grid_side - 1 && column == 1)
+         ){continue;}
       else {
           for(int row = -1; row != 2; row++ )
             {
-              if(row == 0 && column == 0){continue;}
-              else if((index - grid_side < 0 && row == -1) ||
-                      (index + grid_side >= grid_size && row == 1)){continue;}
+              if(
+                 (row == 0 && column == 0) ||
+                 (index - grid_side < 0 && row == -1) ||
+                 (index + grid_side >= grid_size && row == 1)
+                 ){continue;}
               else
                 {
                   int neighbor_index = index + grid_side * row + column;

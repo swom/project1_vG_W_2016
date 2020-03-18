@@ -1,6 +1,6 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
-#include <vector>
+#include "vector"
 #include"individual.h"
 
 class simulation
@@ -12,10 +12,16 @@ public:
     std::vector<int> get_dividing_individuals() const noexcept;
 
     ///Gets an inidividual at a certain index in the vector
-    const individual get_ind(int i) const {return population[i];}
+    const individual get_ind(int i) const
+    {
+      return population[static_cast<unsigned int>(i)];
+    }
 
     ///Gets an inidividual at a certain index in the vector and allows to change it
-    individual& get_ind(int i) {return population[i];}
+    individual& get_ind(int i)
+    {
+      return population[static_cast<unsigned int>(i)];
+    }
 
     ///Gets the excess energy from a referenced vector of index of individuals in population vector
     std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
@@ -24,10 +30,16 @@ public:
     std::vector<double> get_excess_energies(std::vector<int> v_ind) const noexcept;
 
     ///Gets an individual's energy
-    double get_ind_en(int i) const {return population[i].get_energy();}
+    double get_ind_en(int i) const
+    {
+      return population[static_cast<unsigned int>(i)].get_energy();
+    }
 
     ///Gets an individual's treshold energy
-    double get_ind_tr_en(int i) const {return population[i].get_treshold_energy();}
+    double get_ind_tr_en(int i) const
+    {
+      return population[static_cast<unsigned int>(i)].get_treshold_energy();
+    }
 
     ///Gets the position of an individual as a vector x,y
     const std::pair<double,double> get_ind_pos(int i);
@@ -69,7 +81,10 @@ public:
     void set_ind_pos(individual& i, const std::pair<double, double> pos);
 
     ///Sets and individual's energy
-    void set_ind_en(int i, double en) {population[i].set_energy(en);}
+    void set_ind_en(int i, double en)
+    {
+      population[static_cast<unsigned int>(i)].set_energy(en);
+    }
 
 
 private:
