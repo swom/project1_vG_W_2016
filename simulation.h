@@ -15,6 +15,9 @@ public:
     ///Gets the environment of a simulation
     const environment& get_env() const noexcept {return m_e;}
 
+    ///Gets the reference to environment of a simulation
+    environment& get_env() noexcept {return m_e;}
+
     ///Gets an inidividual at a certain index in the vector
     const individual get_ind(int i) const
     {
@@ -108,6 +111,9 @@ bool has_collision(const simulation& s);
 
 /// Displaces colliding cells so that they do not collide anymore
 void manage_static_collisions(simulation& s);
+
+/// All the individuals feed
+void feeding(simulation& s);
 
 void test_simulation();
 

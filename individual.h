@@ -1,5 +1,6 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
+#include "env_grid_cell.h"
 #include "vector"
 #include <utility>
 #include <algorithm>
@@ -90,10 +91,10 @@ void displace(individual& lhs, individual& rhs) noexcept;
 
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
-int find_grid_index(const individual& i, double  grid_side);
+int find_grid_index( individual& i, double grid_side) ;
 
 ///An individual increases its energy depleting food
-void feed(individual& i, double& food) noexcept;
+void feed(individual& i, env_grid_cell& food) noexcept;
 
 void test_individual();
 

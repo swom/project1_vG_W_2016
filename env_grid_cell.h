@@ -16,13 +16,16 @@ public:
     ///Sets the amount of metabolite
     void increment_metabolite(double m) noexcept {m_metabolite + m > 0 ? m_metabolite += m : 0;}
 
-    ///Gets the amount of metabolite in the cell
+    ///Gets the amount of food in the cell
     const double& get_food() const noexcept {return m_food;}
 
-    ///Sets the amount of metabolite
+    ///Gets the reference to the amount of food in the cell
+    double& get_food() noexcept {return m_food;}
+
+    ///Sets the amount of food
     void set_food(double f) noexcept {m_food = f;}
 
-    ///Sets the amount of metabolite
+    ///Sets the amount of food
     void increment_food(double f) noexcept {m_food + f > 0 ? m_food += f : 0;}
 
     ///Gets the const reference to the vector of the neighbors

@@ -50,6 +50,13 @@ void simulation::do_reprduction() noexcept
   do_division(get_dividing_individuals());
 }
 
+void feeding(simulation& s)
+{
+  for(auto& ind : s.get_pop())
+    {
+      feed(ind,s.get_env().get_cell(find_grid_index(ind,s.get_env().get_grid_side())));
+    }
+}
 std::vector<double> simulation::get_excess_energies(std::vector<int> v_ind) const noexcept
 {
   std::vector<double> excess_energy;
@@ -466,28 +473,59 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     for( auto& grid_cell : s.get_env().get_grid())
       {
-    assert(grid_cell.get_food() - 1 < 0.000001
-           && grid_cell.get_food() - 1 > -0.0000001);
+        assert(grid_cell.get_food() - 1 < 0.000001
+               && grid_cell.get_food() - 1 > -0.0000001);
       }
 
     double starting_food = 3.14;
     s = simulation(1, 0.1, starting_food);
     for( auto& grid_cell : s.get_env().get_grid())
       {
-    assert(grid_cell.get_food() - starting_food < 0.000001
-           && grid_cell.get_food() - starting_food > -0.0000001);
+        assert(grid_cell.get_food() - starting_food < 0.000001
+               && grid_cell.get_food() - starting_food > -0.0000001);
       }
   }
- //Individuals can take up energy from the environment
+  //Individuals can take up energy from the environment
   {
     simulation s;
-    double total_food_init = std::accumulate(s.get_env().get_grid().begin(),
-                                             s.get_env().get_grid().end(),0);
+    double total_food_init = std::accumulate
+        (
+          s.get_env().get_grid().begin(),
+          s.get_env().get_grid().end(),0,
+          [](double sum,const env_grid_cell& c){return sum + c.get_food();}
+    );
+
+    double total_en_init = std::accumulate
+        (
+          s.get_pop().begin(),
+          s.get_pop().end(),0,
+          [](double sum,const individual& i){return sum + i.get_energy();}
+    );
+
     feeding(s);
-    double total_food_after = std::accumulate(s.get_env().get_grid().begin(),
-                                             s.get_env().get_grid().end(),0);
+
+    double total_food_after = std::accumulate
+        (
+          s.get_env().get_grid().begin(),
+          s.get_env().get_grid().end(),0.0,
+          [](double sum, const env_grid_cell& c){return sum + c.get_food();}
+    );
+
+    double total_en_after = std::accumulate
+        (
+          s.get_pop().begin(),
+          s.get_pop().end(),0.0,
+          [](double sum,const individual& i){
+        return sum + i.get_energy();}
+    );
 
     assert(total_food_init > total_food_after);
+    assert(total_en_init < total_en_after);
+    assert(total_en_after - s.get_pop_size() * s.get_ind(0).get_uptake_rate()
+           - total_en_init < 0.00000001
+           &&
+           total_en_after - s.get_pop_size() * s.get_ind(0).get_uptake_rate()
+           - total_en_init > -0.00000001);
   }
 }
 

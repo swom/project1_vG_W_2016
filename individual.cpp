@@ -36,22 +36,22 @@ double distance(const individual& lhs, const individual& rhs) noexcept
               + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
 }
 
-void feed(individual& i, double& food) noexcept
+void feed(individual& i, env_grid_cell& c) noexcept
 {
-  if(food > i.get_uptake_rate())
+  if(c.get_food() > i.get_uptake_rate())
     {
-      food -= i.get_uptake_rate();
+      c.increment_food(- i.get_uptake_rate());
       i.change_en(i.get_uptake_rate());
     }
   else
     {
-      i.change_en(food);
-      food = 0;
+      i.change_en(c.get_food());
+      c.set_food(0);
     }
 }
 
 
-int find_grid_index(const individual& i, double grid_side)
+int find_grid_index( individual& i, double grid_side)
 {
   auto x_offset = i.get_x() + grid_side/2;
   auto y_offset = i.get_y() + grid_side/2;
@@ -303,13 +303,13 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     double init_en = i.get_energy();
-    double intial_food = 0.1;
-    double food = intial_food;
-    feed(i,food);
+    double init_food = 0.1;
+    env_grid_cell c(0,init_food);
+    feed(i,c);
     assert(i.get_energy() > init_en);
-    assert(intial_food - i.get_uptake_rate() < 0.00001);
-    assert((i.get_energy() + i.get_uptake_rate() + food) -
-           (init_en + intial_food) > 0.000001);
+    assert(init_food - i.get_uptake_rate() < 0.00001);
+    assert((i.get_energy() + i.get_uptake_rate() + c.get_food()) -
+           (init_en + init_food) > 0.000001);
 
   }
   //if there is less food than a individual
@@ -318,11 +318,11 @@ void test_individual()//!OCLINT tests may be many
     individual i;
     double init_en = i.get_energy();
     double init_food = 0.01;
-    double food = init_food;
-    assert(i.get_uptake_rate() > food);
+    env_grid_cell c(0,init_food);
+    assert(i.get_uptake_rate() > c.get_food());
 
-    feed(i, food);
-    assert(food < 0.000001 && food > -0.000001);
+    feed(i, c);
+    assert(c.get_food() < 0.000001 && c.get_food() > -0.000001);
     assert(i.get_energy() - init_food - init_en < 0.000001);
   }
 
