@@ -4,12 +4,13 @@
 
 individual::individual(double x_pos, double y_pos,
                        double size, double energy,
-                       double treshold_energy):
+                       double treshold_energy, double uptake_rate):
   m_x(x_pos),
   m_y(y_pos),
   m_size(size),
   m_energy(energy),
-  m_treshold_energy(treshold_energy)
+  m_treshold_energy(treshold_energy),
+  m_uptake_rate(uptake_rate)
 {
 
 }
@@ -35,6 +36,21 @@ double distance(const individual& lhs, const individual& rhs) noexcept
               + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
 }
 
+void feed(individual& i, double& food) noexcept
+{
+  if(food > i.get_uptake_rate())
+    {
+      food -= i.get_uptake_rate();
+      i.change_en(i.get_uptake_rate());
+    }
+  else
+    {
+      i.change_en(food);
+      food = 0;
+    }
+}
+
+
 int find_grid_index(const individual& i, double grid_side)
 {
   auto x_offset = i.get_x() + grid_side/2;
@@ -48,7 +64,7 @@ int find_grid_index(const individual& i, double grid_side)
   if(x_offset >= grid_side || x_offset < 0
      || y_offset >= grid_side || y_offset < 0)
     {return  -100;}
-    return x_index_offset + y_index_offset * static_cast<int>(grid_side);
+  return x_index_offset + y_index_offset * static_cast<int>(grid_side);
 }
 
 const std::pair<double,double> get_d2_pos(individual& i) noexcept
@@ -121,9 +137,20 @@ void test_individual()//!OCLINT tests may be many
     assert(i.get_y() - y < 0.0000001);
   }
 
+  //An individual is initialized with an m_food_uptake value
+  //0.1 by default
+  {
+    individual i;
+    assert(i.get_uptake_rate() - 0.1 < 0.000001);
+
+    double uptake_rate = 0.3;
+    i = individual(0, 0, 0, 0, 0, uptake_rate);
+    assert(i.get_uptake_rate() - uptake_rate < 0.000001);
+  }
+
   //Individuals should be initialized with 0 internal energy
   {
-    individual i(0,0);
+    individual i;
     assert(i.get_energy() - 0.0 < 0.000001);
   }
 
@@ -134,7 +161,7 @@ void test_individual()//!OCLINT tests may be many
     assert(i.get_treshold_energy() - treshold_energy < 0.00000001);
   }
 
-  // an individual's energy can be changed
+  // an individual's energy can be set
   {
     individual i(0,0);
     double lhs = i.get_energy();
@@ -142,6 +169,15 @@ void test_individual()//!OCLINT tests may be many
     i.set_energy(new_energy);
     double rhs = i.get_energy();
     assert(abs(rhs - lhs)>0.0000001);
+  }
+
+  //an individual energy can be changed
+  {
+    individual i;
+    double init_en = i.get_energy();
+    double en_change = 3.14;
+    i.change_en(en_change);
+    assert(i.get_energy() - en_change - init_en < 0.000001);
   }
 
   //Energy after reproduction should be half of the excess of energy
@@ -261,4 +297,33 @@ void test_individual()//!OCLINT tests may be many
     set_pos(i,pos);
     assert(find_grid_index(i, grid_side) == -100);
   }
+
+  //An individual can increase its energy by eating food
+  //It also depletes the food
+  {
+    individual i;
+    double init_en = i.get_energy();
+    double intial_food = 0.1;
+    double food = intial_food;
+    feed(i,food);
+    assert(i.get_energy() > init_en);
+    assert(intial_food - i.get_uptake_rate() < 0.00001);
+    assert((i.get_energy() + i.get_uptake_rate() + food) -
+           (init_en + intial_food) > 0.000001);
+
+  }
+  //if there is less food than a individual
+  //can normally eat, it eats what is available
+  {
+    individual i;
+    double init_en = i.get_energy();
+    double init_food = 0.01;
+    double food = init_food;
+    assert(i.get_uptake_rate() > food);
+
+    feed(i, food);
+    assert(food < 0.000001 && food > -0.000001);
+    assert(i.get_energy() - init_food - init_en < 0.000001);
+  }
+
 }

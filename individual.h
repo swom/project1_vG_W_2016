@@ -8,8 +8,9 @@ class individual
 {
 public:
 
-    individual(double x_pos, double y_pos, double size  = 1,
-               double energy = 0, double treshold_energy = 2);
+    individual(double x_pos = 0, double y_pos = 0, double size  = 1,
+               double energy = 0, double treshold_energy = 2,
+               double uptake_rate = 0.1);
 
      ///Changes x of an individual
      void change_x(double x) noexcept {m_x += x;}
@@ -17,11 +18,17 @@ public:
      ///Changes y of an individual
      void change_y(double y) noexcept {m_y += y;}
 
+     ///Changes the energy level of an individual
+     void change_en(double en_change) noexcept {m_energy += en_change;}
+
      ///gets size of individual
      double get_size() const noexcept {return m_size;}
 
      ///gets energy of individual
      double get_energy() const noexcept {return m_energy;}
+
+     ///gets the food uptake_rate of an individual
+     double get_uptake_rate() const noexcept {return m_uptake_rate;}
 
      ///gets x position of the individual
      double get_x() const noexcept {return m_x;}
@@ -53,6 +60,7 @@ private:
      double m_size;
      double m_energy;
      double m_treshold_energy;
+     double m_uptake_rate;
 
 };
 
@@ -83,6 +91,9 @@ void displace(individual& lhs, individual& rhs) noexcept;
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
 int find_grid_index(const individual& i, double  grid_side);
+
+///An individual increases its energy depleting food
+void feed(individual& i, double& food) noexcept;
 
 void test_individual();
 

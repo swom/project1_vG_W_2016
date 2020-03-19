@@ -480,8 +480,14 @@ void test_simulation()//!OCLINT tests may be many
   }
  //Individuals can take up energy from the environment
   {
-//    simulation s;
+    simulation s;
+    double total_food_init = std::accumulate(s.get_env().get_grid().begin(),
+                                             s.get_env().get_grid().end(),0);
+    feeding(s);
+    double total_food_after = std::accumulate(s.get_env().get_grid().begin(),
+                                             s.get_env().get_grid().end(),0);
 
+    assert(total_food_init > total_food_after);
   }
 }
 
