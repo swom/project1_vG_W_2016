@@ -4,13 +4,14 @@
 
 individual::individual(double x_pos, double y_pos,
                        double size, double energy,
-                       double treshold_energy, double uptake_rate):
+                       double treshold_energy, double uptake_rate, double metabolic_rate):
   m_x(x_pos),
   m_y(y_pos),
   m_size(size),
   m_energy(energy),
   m_treshold_energy(treshold_energy),
-  m_uptake_rate(uptake_rate)
+  m_uptake_rate(uptake_rate),
+  m_metab_rate(metabolic_rate)
 {
 
 }
@@ -118,6 +119,13 @@ void displace(individual& lhs, individual& rhs) noexcept
   rhs.change_y(-displacement.second);
 }
 
+
+void metabolism(individual& i) noexcept
+{
+  if(i.get_energy() >= i.get_metab_rate()){i.change_en(-i.get_metab_rate());}
+  else{i.set_energy(0);}
+}
+
 void test_individual()//!OCLINT tests may be many
 {
 
@@ -148,6 +156,18 @@ void test_individual()//!OCLINT tests may be many
     assert(i.get_uptake_rate() - uptake_rate < 0.000001);
   }
 
+  //An individual is initialized with a m_metab_rate
+  //0.01 by default
+  {
+    individual i;
+    assert(i.get_metab_rate() - 0.01 < 0.000001
+           && i.get_metab_rate() - 0.01 > -0.000001);
+    double metabolic_rate = 2;
+    i = individual(0,0,0,0,0,0,metabolic_rate);
+    assert(i.get_metab_rate() - metabolic_rate < 0.000001
+           && i.get_metab_rate() - metabolic_rate > -0.000001);
+
+  }
   //Individuals should be initialized with 0 internal energy
   {
     individual i;
@@ -324,6 +344,24 @@ void test_individual()//!OCLINT tests may be many
     feed(i, c);
     assert(c.get_food() < 0.000001 && c.get_food() > -0.000001);
     assert(i.get_energy() - init_food - init_en < 0.000001);
+  }
+
+  //individuals lose energy due to their metabolism
+  {
+    individual i(0,0,0,1);
+    auto init_en = i.get_energy();
+    metabolism(i);
+    auto en_after = i.get_energy();
+    assert(init_en > en_after);
+  }
+
+  //An individual's energy cannot go below 0
+  {
+    individual i(0,0,0,0,0,0);
+    assert(i.get_energy() - i.get_metab_rate() < 0);
+    metabolism(i);
+    assert(i.get_energy() < 0.000001
+           && i.get_energy() > -0.0000001);
   }
 
 }

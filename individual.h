@@ -11,7 +11,7 @@ public:
 
     individual(double x_pos = 0, double y_pos = 0, double size  = 1,
                double energy = 0, double treshold_energy = 2,
-               double uptake_rate = 0.1);
+               double uptake_rate = 0.1, double metabolic_rate = 0.01);
 
      ///Changes x of an individual
      void change_x(double x) noexcept {m_x += x;}
@@ -27,6 +27,9 @@ public:
 
      ///gets energy of individual
      double get_energy() const noexcept {return m_energy;}
+
+     ///gets the metabolic rate of an individual
+     double get_metab_rate() const noexcept {return m_metab_rate;}
 
      ///gets the food uptake_rate of an individual
      double get_uptake_rate() const noexcept {return m_uptake_rate;}
@@ -62,6 +65,7 @@ private:
      double m_energy;
      double m_treshold_energy;
      double m_uptake_rate;
+     double m_metab_rate;
 
 };
 
@@ -95,6 +99,9 @@ int find_grid_index( individual& i, double grid_side) ;
 
 ///An individual increases its energy depleting food
 void feed(individual& i, env_grid_cell& food) noexcept;
+
+///Individuals lose energry due to metabolism
+void metabolism(individual& i) noexcept;
 
 void test_individual();
 

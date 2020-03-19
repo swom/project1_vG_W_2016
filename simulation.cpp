@@ -108,6 +108,14 @@ std::vector<std::pair<int,int>> simulation::get_sisters_index_offset() const noe
   return sis_indexes;
 }
 
+
+void metabolism_pop(simulation& s)
+{
+  for(auto& ind : s.get_pop())
+    {
+      metabolism(ind);
+    }
+}
 void simulation::set_ind_pos(individual& i, double x, double y)
 {
   i.set_x(x);
@@ -536,14 +544,14 @@ void test_simulation()//!OCLINT tests may be many
     double total_food_init = std::accumulate
         (
           s.get_env().get_grid().begin(),
-          s.get_env().get_grid().end(),0,
+          s.get_env().get_grid().end(),0.0,
           [](double sum,const env_grid_cell& c){return sum + c.get_food();}
     );
 
     double total_en_init = std::accumulate
         (
           s.get_pop().begin(),
-          s.get_pop().end(),0,
+          s.get_pop().end(),0.0,
           [](double sum,const individual& i){return sum + i.get_energy();}
     );
 
@@ -570,6 +578,27 @@ void test_simulation()//!OCLINT tests may be many
            && total_food_init - total_food_after > -0.00001);
     assert(total_en_init - total_en_after < 0.000001
            && total_en_init - total_en_after > -0.000001);
+  }
+
+  //Individuals lose energy through metabolism
+  {
+    simulation s;
+    feeding(s);
+    double init_en_tot = std::accumulate
+        (
+          s.get_pop().begin(),
+          s.get_pop().end(),0.0,
+          [](double sum,const individual& i){return sum + i.get_energy();}
+    );
+
+    metabolism_pop(s);
+    double after_en_tot = std::accumulate
+        (
+          s.get_pop().begin(),
+          s.get_pop().end(),0.0,
+          [](double sum,const individual& i){return sum + i.get_energy();}
+    );
+    assert(after_en_tot < init_en_tot);
   }
 }
 

@@ -106,14 +106,17 @@ int count_hex_layers(int pop_size)  noexcept ;
 ///Calculate the distance between two cells given their positions
 double calculate_distance(std::pair<double, double> lhs, std::pair<double, double> rhs) noexcept;
 
+/// All the individuals feed
+void feeding(simulation& s);
+
 ///Checks if any two cells are colliding
 bool has_collision(const simulation& s);
 
 /// Displaces colliding cells so that they do not collide anymore
 void manage_static_collisions(simulation& s);
 
-/// All the individuals feed
-void feeding(simulation& s);
+///All inidviduals lose energy due to metabolism
+void metabolism_pop(simulation& s);
 
 void test_simulation();
 
