@@ -223,7 +223,6 @@ void test_simulation()//!OCLINT tests may be many
       }
   }
 
-
   //The size of a population is equal to the size of the vector containing its individuals
   {
     simulation s;
@@ -458,6 +457,17 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_env().get_grid_side() > -1234567890);
   }
 
+  //A simulation can be initialized with a certain amount
+  //of food in all the cells of its environment grid
+  //1 by default
+  {
+    simulation s;
+    for( auto& grid_cell : s.get_env().get_grid())
+      {
+    assert(grid_cell.get_food() - 1 < 0.000001
+           && grid_cell.get_food() > -0.0000001);
+      }
+  }
  //Individuals can take up energy from the environment
   {
     simulation s;
