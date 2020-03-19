@@ -7,7 +7,7 @@
 class simulation
 {
 public:
-    simulation(int pop_size = 1, double min_dist = 0.1);
+    simulation(int pop_size = 1, double min_dist = 0.1, double starting_food = 1);
 
     ///finds the indexes of the individuals ready to divide
     std::vector<int> get_dividing_individuals() const noexcept;
@@ -92,9 +92,9 @@ public:
 
 
 private:
-    environment m_e;
     std::vector<individual> population;
     double m_min_init_dist_btw_cells;
+    environment m_e;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern

@@ -4,9 +4,11 @@
 #include <algorithm>
 #include <math.h>
 
-simulation::simulation(int pop_size, double min_dist):
+simulation::simulation(int pop_size, double min_dist,
+                       double starting_food):
   population(static_cast<unsigned int>(pop_size),individual(0,0)),
-  m_min_init_dist_btw_cells(min_dist)
+  m_min_init_dist_btw_cells(min_dist),
+  m_e(1,0.1,starting_food)
 {
   place_start_cells();
 }
@@ -465,12 +467,20 @@ void test_simulation()//!OCLINT tests may be many
     for( auto& grid_cell : s.get_env().get_grid())
       {
     assert(grid_cell.get_food() - 1 < 0.000001
-           && grid_cell.get_food() > -0.0000001);
+           && grid_cell.get_food() - 1 > -0.0000001);
+      }
+
+    double starting_food = 3.14;
+    s = simulation(1, 0.1, starting_food);
+    for( auto& grid_cell : s.get_env().get_grid())
+      {
+    assert(grid_cell.get_food() - starting_food < 0.000001
+           && grid_cell.get_food() - starting_food > -0.0000001);
       }
   }
  //Individuals can take up energy from the environment
   {
-    simulation s;
+//    simulation s;
 
   }
 }
