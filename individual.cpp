@@ -35,11 +35,21 @@ double distance(const individual& lhs, const individual& rhs) noexcept
               + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
 }
 
-int find_grid_pos(const individual& i, double grid_side)
+int find_grid_index(const individual& i, double grid_side)
 {
-  return static_cast<int>(i.get_x() + grid_side/2) +
-      static_cast<int>(i.get_y() + grid_side/2) *
-      static_cast<int>(grid_side);
+  auto x_offset = i.get_x() + grid_side/2;
+  auto y_offset = i.get_y() + grid_side/2;
+  //cast correctly negative numbers so to keep them outside the grid
+  int x_index_offset = x_offset < 0 ?
+        static_cast<int>(x_offset - 1) : static_cast<int>(x_offset);
+  int y_index_offset = y_offset < 0 ?
+        static_cast<int>(y_offset - 1) : static_cast<int>(y_offset);
+
+  if(x_offset >= grid_side || x_offset < 0
+     || y_offset >= grid_side || y_offset < 0)
+    {return  -100;}
+  else
+    {return x_index_offset + y_index_offset * static_cast<int>(grid_side);}
 }
 
 const std::pair<double,double> get_d2_pos(individual& i) noexcept
@@ -214,14 +224,44 @@ void test_individual()//!OCLINT tests may be many
 
   //The grid cell where an individual should be
   //can be deduced from individual's coordinates
-
-  //If an individual is beyond the grid, this will
-  //still return a value of the hypothetical grid_cell
-  //but the individual cannot do anything there
   {
     individual i(0,0);
     int grid_side = 1;
-    assert(find_grid_pos(i,grid_side) == 0);
-
+    assert(find_grid_index(i, grid_side) == 0);
+    grid_side = 3;
+    assert(find_grid_index(i, grid_side) == 4);
+    auto pos = std::pair<double,double>(-0.2, 1.2);
+    set_pos(i,pos);
+    assert(find_grid_index(i, grid_side) == 7);
   }
+
+  //If an individual is past the grid side
+  //find_grid_index() will return -100
+  {
+    individual i(0,0);
+    int grid_side = 3;
+    auto pos = std::pair<double,double>(1.7, 0);
+    set_pos(i,pos);
+    assert( find_grid_index(i, grid_side) == -100);
+
+    pos = std::pair<double,double>(-1.7, 0);
+    set_pos(i,pos);
+    assert(find_grid_index(i, grid_side) == -100);
+  }
+
+  //If an individual is above or below the grid limit
+  //find_grid_index() will return -100
+  {
+    individual i(0,0);
+    int grid_side = 3;
+    auto pos = std::pair<double,double>(0, -1.7);
+    set_pos(i,pos);
+    assert(find_grid_index(i, grid_side) == -100);
+
+    pos = std::pair<double,double>(0, 1.7);
+    set_pos(i,pos);
+    assert(find_grid_index(i, grid_side) == -100);
+  }
+
+
 }

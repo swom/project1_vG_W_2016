@@ -82,7 +82,7 @@ void displace(individual& lhs, individual& rhs) noexcept;
 
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
-int find_grid_pos(const individual& i, double  grid_side);
+int find_grid_index(const individual& i, double  grid_side);
 
 void test_individual();
 
