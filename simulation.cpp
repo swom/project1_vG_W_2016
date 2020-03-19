@@ -4,11 +4,13 @@
 #include <algorithm>
 #include <math.h>
 
-simulation::simulation(int pop_size, double min_dist,
+simulation::simulation(int pop_size,
+                       int grid_side,
+                       double min_dist,
                        double starting_food):
   population(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_min_init_dist_btw_cells(min_dist),
-  m_e(1,0.1,starting_food)
+  m_e(grid_side,0.1,starting_food)
 {
   place_start_cells();
 }
@@ -19,7 +21,7 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   std::vector<int> dividing_individuals;
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
-      if(population[i].get_energy()>= population[i].get_treshold_energy())
+      if(population[i].get_energy() >= population[i].get_treshold_energy())
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -128,6 +130,13 @@ void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
 }
 
 
+void tick(simulation& s)
+{
+  feeding(s);
+  metabolism_pop(s);
+  s.do_reprduction();
+  diffusion(s.get_env());
+}
 void simulation::place_start_cells() noexcept
 {
   int n = count_hex_layers(get_pop_size());
@@ -488,7 +497,7 @@ void test_simulation()//!OCLINT tests may be many
       }
 
     double starting_food = 3.14;
-    s = simulation(1, 0.1, starting_food);
+    s = simulation(1, 1, 0.1, starting_food);
     for( auto& grid_cell : s.get_env().get_grid())
       {
         assert(grid_cell.get_food() - starting_food < 0.000001
@@ -599,6 +608,29 @@ void test_simulation()//!OCLINT tests may be many
           [](double sum,const individual& i){return sum + i.get_energy();}
     );
     assert(after_en_tot < init_en_tot);
+  }
+
+  //In one tick/timestep individuals first feed,
+  //than reproduce, than substances diffuse
+  {
+    simulation s(1,3);
+
+    //The single individual in this population
+    //after a tick should reproduce
+    auto init_pop_size = s.get_pop().size();
+    s.get_ind(0).set_energy(s.get_ind_tr_en(0)
+                            + s.get_ind(0).get_metab_rate() + 0.01
+                            - s.get_ind(0).get_uptake_rate());
+
+    //and the grid_cell where it is should recieve
+    //food nutrients
+    auto grid_index_ind =  find_grid_index(s.get_ind(0),s.get_env().get_grid_side());
+    double food_after_feeding =
+        s.get_env().get_cell(grid_index_ind).get_food() - s.get_ind(0).get_uptake_rate();
+
+    tick(s);
+    assert(food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001);
+    assert(s.get_pop().size() == 2 * init_pop_size);
   }
 }
 

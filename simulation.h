@@ -7,7 +7,7 @@
 class simulation
 {
 public:
-    simulation(int pop_size = 1, double min_dist = 0.1, double starting_food = 1);
+    simulation(int pop_size = 1, int grid_side = 1, double min_dist = 0.1, double starting_food = 1);
 
     ///finds the indexes of the individuals ready to divide
     std::vector<int> get_dividing_individuals() const noexcept;
@@ -117,6 +117,9 @@ void manage_static_collisions(simulation& s);
 
 ///All inidviduals lose energy due to metabolism
 void metabolism_pop(simulation& s);
+
+///Runs all the necessary actions for a timestep to happen
+void tick(simulation& s);
 
 void test_simulation();
 
