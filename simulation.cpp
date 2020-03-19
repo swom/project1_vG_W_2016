@@ -458,7 +458,11 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_env().get_grid_side() > -1234567890);
   }
 
+ //Individuals can take up energy from the environment
+  {
+    simulation s;
 
+  }
 }
 
 

@@ -48,8 +48,7 @@ int find_grid_index(const individual& i, double grid_side)
   if(x_offset >= grid_side || x_offset < 0
      || y_offset >= grid_side || y_offset < 0)
     {return  -100;}
-  else
-    {return x_index_offset + y_index_offset * static_cast<int>(grid_side);}
+    return x_index_offset + y_index_offset * static_cast<int>(grid_side);
 }
 
 const std::pair<double,double> get_d2_pos(individual& i) noexcept
@@ -262,6 +261,4 @@ void test_individual()//!OCLINT tests may be many
     set_pos(i,pos);
     assert(find_grid_index(i, grid_side) == -100);
   }
-
-
 }

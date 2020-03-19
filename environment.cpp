@@ -2,8 +2,8 @@
 #include <cassert>
 #include <numeric>
 
-environment::environment(int grid_side, double diff_coeff):
-  m_grid(static_cast<unsigned int>(grid_side * grid_side)),
+environment::environment(int grid_side, double diff_coeff, double food):
+  m_grid(static_cast<unsigned int>(grid_side * grid_side),env_grid_cell(0,food)),
   m_side(grid_side),
   m_diffusion_coefficient(diff_coeff)
 
@@ -186,6 +186,17 @@ void test_environment()//!OCLINT tests may be many
       }
   }
 
+  //An environment is initialized by default with
+  //all his gridcells with 1 food
+  {
+    environment g;
+    for (auto& cell : g.get_grid())
+      {
+        assert(cell.get_food() - 1 < 0.000001
+               || cell.get_food() -1 > -0.000001);
+      }
+  }
+
   //An environment is initialized with a specific diffusion coefficient
   //same for food and metabolite (this might change in the future)
   //0 by default
@@ -257,7 +268,7 @@ void test_environment()//!OCLINT tests may be many
 
   //A cell with more substance than its neighbours diffuses food to them
   {
-    environment e(3, 0.1);
+    environment e(3, 0.1, 0);
     auto focal_cell_index = 4;
     e.get_cell(focal_cell_index).set_food(1);
     e.get_cell(focal_cell_index).set_metabolite(1);

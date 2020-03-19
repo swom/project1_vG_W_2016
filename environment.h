@@ -6,7 +6,7 @@
 class environment
 {
 public:
-    environment(int grid_side = 1, double diff_coeff = 0);
+    environment(int grid_side = 1, double diff_coeff = 0, double food = 1);
 
     ///Gets the size of the grid of cells(number of grid cells)
     int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
@@ -38,6 +38,7 @@ public:
 private:
     std::vector<env_grid_cell> m_grid;
     int m_side;
+    //Always needs to be between 0 and 1!!!
     double m_diffusion_coefficient;
 };
 
