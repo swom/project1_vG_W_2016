@@ -80,6 +80,10 @@ std::pair<double, double> get_displacement(const individual &lhs, const individu
 ///Dislpaces two individuals so that they do not overlap
 void displace(individual& lhs, individual& rhs) noexcept;
 
+///Finds the grid cell where an individual is on,
+///given the side of the environment grid
+int find_grid_pos(const individual& i, double  grid_side);
+
 void test_individual();
 
 #endif // INDIVIDUAL_H

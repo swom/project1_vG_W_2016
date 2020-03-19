@@ -211,10 +211,11 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 void test_simulation()//!OCLINT tests may be many
 {
   //Simulation is initialized with a certain number of individuals
+  // The value 1234567890 is irrelevant: just get this to compile
+
   {
     int pop_size = 100;
     simulation s(pop_size);
-    // The value 1234567890 is irrelevant: just get this to compile
     for(int i = 0; i < s.get_pop_size(); ++i)
       {
         double x = s.get_ind(i).get_x();
@@ -448,6 +449,15 @@ void test_simulation()//!OCLINT tests may be many
       }
     assert(!has_collision(s));
   }
+
+  //A simulation has an environment
+  // The value -1234567890 is irrelevant: just get this to compile
+
+  {
+    simulation s;
+    assert(s.get_env().get_grid_side() > -1234567890);
+  }
+
 
 }
 

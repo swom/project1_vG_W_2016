@@ -29,6 +29,19 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept
   return actual_distance < collision_distance;
 }
 
+double distance(const individual& lhs, const individual& rhs) noexcept
+{
+  return sqrt((lhs.get_x() - rhs.get_x()) * (lhs.get_x() - rhs.get_x())
+              + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
+}
+
+int find_grid_pos(const individual& i, double grid_side)
+{
+  return static_cast<int>(i.get_x() + grid_side/2) +
+      static_cast<int>(i.get_y() + grid_side/2) *
+      static_cast<int>(grid_side);
+}
+
 const std::pair<double,double> get_d2_pos(individual& i) noexcept
 {
   std::pair<double, double> pos;
@@ -46,11 +59,7 @@ const std::pair<double, double> get_pos(individual& i)  noexcept
   return pos;
 }
 
-double distance(const individual& lhs, const individual& rhs) noexcept
-{
-  return sqrt((lhs.get_x() - rhs.get_x()) * (lhs.get_x() - rhs.get_x())
-              + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
-}
+
 
 double overlap(const individual& lhs, const individual& rhs) noexcept
 {
@@ -203,4 +212,16 @@ void test_individual()//!OCLINT tests may be many
            && distance(lhs,rhs) - (lhs.get_size() + rhs.get_size()) > -0.00001);
   }
 
+  //The grid cell where an individual should be
+  //can be deduced from individual's coordinates
+
+  //If an individual is beyond the grid, this will
+  //still return a value of the hypothetical grid_cell
+  //but the individual cannot do anything there
+  {
+    individual i(0,0);
+    int grid_side = 1;
+    assert(find_grid_pos(i,grid_side) == 0);
+
+  }
 }

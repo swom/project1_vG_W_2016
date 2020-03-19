@@ -1,7 +1,8 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 #include "vector"
-#include"individual.h"
+#include "individual.h"
+#include "environment.h"
 
 class simulation
 {
@@ -10,6 +11,9 @@ public:
 
     ///finds the indexes of the individuals ready to divide
     std::vector<int> get_dividing_individuals() const noexcept;
+
+    ///Gets the environment of a simulation
+    const environment& get_env() const noexcept {return m_e;}
 
     ///Gets an inidividual at a certain index in the vector
     const individual get_ind(int i) const
@@ -88,6 +92,7 @@ public:
 
 
 private:
+    environment m_e;
     std::vector<individual> population;
     double m_min_init_dist_btw_cells;
 };

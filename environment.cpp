@@ -296,5 +296,4 @@ void test_environment()//!OCLINT tests may be many
       }
   }
 
-
 }
