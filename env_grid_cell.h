@@ -63,6 +63,9 @@ private:
 
 double food_diff(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 
+double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
+
 void test_env_grid_cell();
+
 
 #endif // ENVIRONMENT_GRID_CELL_H

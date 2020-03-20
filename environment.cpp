@@ -24,15 +24,12 @@ void diffusion_food(environment& e) noexcept
       std::vector<double> v_food_diff;
       for(const auto& neighbor : cell.get_v_neighbors())
         {
-          auto food_diff = cell.get_food() - e.get_cell(neighbor).get_food();
-          food_diff > 0 ? v_food_diff.push_back(food_diff) : v_food_diff.push_back(0) ;
+         v_food_diff.push_back(food_diff(cell, e.get_cell(neighbor)));
         }
-      auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0);
-      auto max_diff = cell.get_food() * cell.get_v_neighbors().size();
 
-      auto exiting_food = cell.get_food() *
-          (max_diff > 0 ? total_diff / max_diff : 0) *
-          e.get_diff_coeff();
+      auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0.0);
+      auto exiting_food = total_diff * e.get_diff_coeff() >= cell.get_food() ?
+            cell.get_food() : cell.get_food() * total_diff * e.get_diff_coeff();
 
       cell.increment_food_change(exiting_food > 0 ? -exiting_food : 0);
 
@@ -58,16 +55,11 @@ void diffusion_metabolite(environment& e) noexcept
       std::vector<double> v_metabolite_diff;
       for(auto neighbor : cell.get_v_neighbors())
         {
-          auto metabolite_diff = cell.get_metabolite() - e.get_cell(neighbor).get_metabolite();
-          metabolite_diff > 0 ? v_metabolite_diff.push_back(metabolite_diff)
-                              : v_metabolite_diff.push_back(0) ;
+          v_metabolite_diff.push_back(metab_diff(cell, e.get_cell(neighbor)));
         }
       auto total_diff = std::accumulate(v_metabolite_diff.begin(), v_metabolite_diff.end(), 0);
-      auto max_diff = cell.get_metabolite() * cell.get_v_neighbors().size();
-
-      auto exiting_metabolite = cell.get_metabolite() *
-          (max_diff > 0 ? total_diff / max_diff : 0) *
-          e.get_diff_coeff();
+      auto exiting_metabolite = total_diff * e.get_diff_coeff() >= cell.get_metabolite() ?
+            cell.get_metabolite() : cell.get_metabolite() * total_diff * e.get_diff_coeff();
 
       cell.increment_metabolite_change(exiting_metabolite > 0 ? -exiting_metabolite : 0);
 

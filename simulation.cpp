@@ -57,7 +57,7 @@ void feeding(simulation& s)
   for(auto& ind : s.get_pop())
     {
       auto index_grid = find_grid_index(ind,s.get_env().get_grid_side());
-      if(index_grid == -100){return;}
+      if(index_grid == -100){continue;}
       feed(ind,s.get_env().get_cell(index_grid));
     }
 }
@@ -135,6 +135,7 @@ void tick(simulation& s)
   feeding(s);
   metabolism_pop(s);
   s.do_reprduction();
+  manage_static_collisions(s);
   diffusion(s.get_env());
 }
 void simulation::place_start_cells() noexcept
@@ -193,18 +194,21 @@ bool has_collision(const simulation& s)
 
 void manage_static_collisions(simulation& s)
 {
-  const auto n_ind = s.get_pop_size();
-  for ( int i = 0; i < n_ind; ++i)
+  while(has_collision(s))
     {
-      for ( int j = 0 ; j < n_ind; ++j)
+      const auto n_ind = s.get_pop_size();
+      for ( int i = 0; i < n_ind; ++i)
         {
-          if (i == j)
+          for ( int j = 0 ; j < n_ind; ++j)
             {
-              continue;
-            }
-          else if(are_colliding(s.get_ind(i), s.get_ind(j)))
-            {
-              displace(s.get_ind(i), s.get_ind(j));
+              if (i == j)
+                {
+                  continue;
+                }
+              else if(are_colliding(s.get_ind(i), s.get_ind(j)))
+                {
+                  displace(s.get_ind(i), s.get_ind(j));
+                }
             }
         }
     }
@@ -629,8 +633,25 @@ void test_simulation()//!OCLINT tests may be many
         s.get_env().get_cell(grid_index_ind).get_food() - s.get_ind(0).get_uptake_rate();
 
     tick(s);
-    assert(food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001);
+
+    assert(!(food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001
+             && food_after_feeding -s.get_env().get_cell(grid_index_ind).get_food() > -0.0001));
     assert(s.get_pop().size() == 2 * init_pop_size);
+    assert(!has_collision(s));
+  }
+  //every timestep/tick collisions are handled
+  {
+    simulation s(7,3);
+    //The central individual in this population
+    //after a tick should reproduce
+    auto init_pop_size = s.get_pop().size();
+    s.get_ind(1).set_energy(s.get_ind_tr_en(1)
+                            + s.get_ind(1).get_metab_rate() + 0.01
+                            - s.get_ind(1).get_uptake_rate());
+    tick(s);
+
+    assert(s.get_pop().size() == init_pop_size + 1);
+    assert(!has_collision(s));
   }
 }
 
