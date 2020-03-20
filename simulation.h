@@ -7,97 +7,104 @@
 class simulation
 {
 public:
-    simulation(int pop_size = 1, int grid_side = 1, double min_dist = 0.1, double starting_food = 1);
+  simulation(int pop_size = 1, int grid_side = 1, double min_dist = 0.1, double starting_food = 1);
 
-    ///finds the indexes of the individuals ready to divide
-    std::vector<int> get_dividing_individuals() const noexcept;
+  ///finds the indexes of the individuals ready to divide
+  std::vector<int> get_dividing_individuals() const noexcept;
 
-    ///Gets the environment of a simulation
-    const environment& get_env() const noexcept {return m_e;}
+  ///Gets the environment of a simulation
+  const environment& get_env() const noexcept {return m_e;}
 
-    ///Gets the reference to environment of a simulation
-    environment& get_env() noexcept {return m_e;}
+  ///Gets the reference to environment of a simulation
+  environment& get_env() noexcept {return m_e;}
 
-    ///Gets an inidividual at a certain index in the vector
-    const individual get_ind(int i) const
-    {
-      return population[static_cast<unsigned int>(i)];
-    }
+  ///Gets an inidividual at a certain index in the vector
+  const individual get_ind(int i) const
+  {
+    return population[static_cast<unsigned int>(i)];
+  }
 
-    ///Gets an inidividual at a certain index in the vector and allows to change it
-    individual& get_ind(int i)
-    {
-      return population[static_cast<unsigned int>(i)];
-    }
+  ///Gets an inidividual at a certain index in the vector and allows to change it
+  individual& get_ind(int i)
+  {
+    return population[static_cast<unsigned int>(i)];
+  }
 
-    ///Gets the excess energy from a referenced vector of index of individuals in population vector
-    std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
+  ///Gets the excess energy from a referenced vector of index of individuals in population vector
+  std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
 
-    ///Gets the excess energy for a vector of index of individuals in population vector
-    std::vector<double> get_excess_energies(std::vector<int> v_ind) const noexcept;
+  ///Gets the excess energy for a vector of index of individuals in population vector
+  std::vector<double> get_excess_energies(std::vector<int> v_ind) const noexcept;
 
-    ///Gets an individual's energy
-    double get_ind_en(int i) const
-    {
-      return population[static_cast<unsigned int>(i)].get_energy();
-    }
+  ///Gets an individual's energy
+  double get_ind_en(int i) const
+  {
+    return population[static_cast<unsigned int>(i)].get_energy();
+  }
 
-    ///Gets an individual's treshold energy
-    double get_ind_tr_en(int i) const
-    {
-      return population[static_cast<unsigned int>(i)].get_treshold_energy();
-    }
+  ///Gets an individual's treshold energy
+  double get_ind_tr_en(int i) const
+  {
+    return population[static_cast<unsigned int>(i)].get_treshold_energy();
+  }
 
-    ///Gets the position of an individual as a vector x,y
-    const std::pair<double,double> get_ind_pos(int i);
+  ///Gets the position of an individual as a vector x,y
+  const std::pair<double,double> get_ind_pos(int i);
 
-    ///Gets distance in vector elements between two duaghters of same mother cell
-    std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
+  ///Get minimum distance between individuals at the start of the simulation
+  double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
 
-    ///Get minimum distance between individuals at the start of the simulation
-    double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
+  ///Gets the size of the population
+  int get_pop_size() const noexcept {return static_cast<int>(population.size());}
 
-    ///Gets the size of the population
-    int get_pop_size() const noexcept {return static_cast<int>(population.size());}
+  ///Gets the vector containing all the individuals of the population
+  const std::vector<individual>& get_pop() const noexcept {return population;}
 
-    ///Gets the vector containing all the individuals of the population
-    const std::vector<individual>& get_pop() const noexcept {return population;}
+  ///Gets the vector containing all the individuals of the population
+  std::vector<individual>& get_pop() noexcept {return population;}
 
-    ///Gets the vector containing all the individuals of the population
-    std::vector<individual>& get_pop() noexcept {return population;}
+  ///Gets distance in vector elements between two duaghters of same mother cell
+  std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
 
-    ///Divides an individual at a given index
-    void divide_ind(individual &i);
+  ///Gets the number of ticks in the simulation
+  const int& get_tick() const noexcept {return m_tick;}
+
+  ///Divides an individual at a given index
+  void divide_ind(individual &i);
 
 
-    ///The individuals in the vector are copied at the end of the pop vector
-    // To be chaged to take vec of references as an argument
-    void do_division(std::vector<int> dividing_individuals);
+  ///The individuals in the vector are copied at the end of the pop vector
+  // To be chaged to take vec of references as an argument
+  void do_division(std::vector<int> dividing_individuals);
 
-    ///Individuals with enough energy divide and redistribute energy
-    void do_reprduction() noexcept;
+  ///Individuals with enough energy divide and redistribute energy
+  void do_reprduction() noexcept;
 
-    /// Places cells in an hexagonal grid
-    /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
-    void place_start_cells() noexcept;
+  /// Places cells in an hexagonal grid
+  /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
+  void place_start_cells() noexcept;
 
-    ///Places an individual of index i at position x,y
-    void set_ind_pos(individual& i, double x, double y);
+  ///Places an individual of index i at position x,y
+  void set_ind_pos(individual& i, double x, double y);
 
-    ///Places an individual of index i at position x,y
-    void set_ind_pos(individual& i, const std::pair<double, double> pos);
+  ///Places an individual of index i at position x,y
+  void set_ind_pos(individual& i, const std::pair<double, double> pos);
 
-    ///Sets and individual's energy
-    void set_ind_en(int i, double en)
-    {
-      population[static_cast<unsigned int>(i)].set_energy(en);
-    }
+  ///Sets and individual's energy
+  void set_ind_en(int i, double en)
+  {
+    population[static_cast<unsigned int>(i)].set_energy(en);
+  }
+
+  ///Updates tick counter by one
+  void tick_up() noexcept {m_tick++;}
 
 
 private:
-    std::vector<individual> population;
-    double m_min_init_dist_btw_cells;
-    environment m_e;
+  std::vector<individual> population;
+  double m_min_init_dist_btw_cells;
+  environment m_e;
+  int m_tick = 0;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
@@ -120,6 +127,9 @@ void metabolism_pop(simulation& s);
 
 ///Runs all the necessary actions for a timestep to happen
 void tick(simulation& s);
+
+///Runs a simulation or a given amount of time
+void exec(simulation& s, int n_tick) noexcept;
 
 void test_simulation();
 

@@ -61,6 +61,12 @@ void feeding(simulation& s)
       feed(ind,s.get_env().get_cell(index_grid));
     }
 }
+
+void exec(simulation& s, int n_tick) noexcept
+{
+  while(s.get_tick() != n_tick){tick(s);}
+}
+
 std::vector<double> simulation::get_excess_energies(std::vector<int> v_ind) const noexcept
 {
   std::vector<double> excess_energy;
@@ -137,6 +143,7 @@ void tick(simulation& s)
   s.do_reprduction();
   manage_static_collisions(s);
   diffusion(s.get_env());
+  s.tick_up();
 }
 void simulation::place_start_cells() noexcept
 {
@@ -652,6 +659,28 @@ void test_simulation()//!OCLINT tests may be many
 
     assert(s.get_pop().size() == init_pop_size + 1);
     assert(!has_collision(s));
+  }
+  //A simulation is initialized with a m_tick = 0;
+  {
+    simulation s;
+    assert(s.get_tick() == 0);
+  }
+  //After each tick the simulation updates its m_tick
+  //by one
+  {
+    simulation s;
+    for(int i = 0; i != 3; i++)
+      {
+        assert(s.get_tick() == i);
+        tick(s);
+      }
+  }
+  //A simulation can be run for a certain amount of ticks
+  {
+    simulation s;
+    auto n_ticks = 100;
+    exec(s, n_ticks);
+    assert(s.get_tick() - n_ticks == 0);
   }
 }
 

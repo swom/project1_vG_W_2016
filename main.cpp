@@ -25,8 +25,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     //We've already tested, so the program is done
     if (args.size() > 1 && args[1] == "--test") return 0;
 
-
-
+    simulation s(19,200);
+    auto time = 100;
+    exec(s, time);
     return 0;
 }
 
