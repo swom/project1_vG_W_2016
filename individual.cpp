@@ -127,8 +127,7 @@ void displace(individual& lhs, individual& rhs) noexcept
 bool is_dead(individual const&  i) noexcept
 { if(i.get_type() == individual_type::spore)
     {return false;}
-  else
-    {return i.get_energy() <= 0;}
+  return i.get_energy() <= 0;
 }
 
 void metabolism(individual& i) noexcept
@@ -140,6 +139,13 @@ void metabolism(individual& i) noexcept
 
   sporulation(i);
 
+}
+
+void revert(individual& i) noexcept
+{
+  assert(i.get_type() == individual_type::sporulating);
+  i.set_type(individual_type::living);
+  i.reset_spo_timer();
 }
 
 void sporulation(individual& i) noexcept
@@ -464,6 +470,22 @@ void test_individual()//!OCLINT tests may be many
     assert(i.get_type() == individual_type::spore);
   }
 
+  //Sporulating individuals that revert back to living
+  //get their timer reset
+  {
+    individual i;
+    i.set_type(individual_type::sporulating);
+    int time = 42;
+    for(int j = 0; j != time; j++)
+      {
+        i.tick_spo_timer();
+      }
+    assert(i.get_spo_timer() == time);
+    revert(i);
+    assert(i.get_spo_timer() == 0 && i.get_type() == individual_type::living);
+  }
+
+
   //An individual with 0 energy is signaled to be destroyed
   {
     individual i;
@@ -492,4 +514,6 @@ void test_individual()//!OCLINT tests may be many
     i.set_type(individual_type::spore);
     assert(!is_dead(i));
   }
+
+
 }

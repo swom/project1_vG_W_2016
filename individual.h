@@ -134,6 +134,10 @@ bool is_dead(const individual &i) noexcept;
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;
 
+
+///Reverts a sporulating individual back to living (and resets the timer)
+void revert(individual& i) noexcept;
+
 ///Checks and updates the timer of sporulating individuals
 /// and changes them into spores if they have sporulated long enough
 void sporulation(individual& i) noexcept;
