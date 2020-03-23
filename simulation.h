@@ -113,6 +113,9 @@ int count_hex_layers(int pop_size)  noexcept ;
 ///Calculate the distance between two cells given their positions
 double calculate_distance(std::pair<double, double> lhs, std::pair<double, double> rhs) noexcept;
 
+///Removes dead inidviduals from population vector
+void death(simulation& s) noexcept;
+
 /// All the individuals feed
 void feeding(simulation& s);
 

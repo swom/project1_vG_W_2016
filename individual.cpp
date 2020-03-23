@@ -124,7 +124,7 @@ void displace(individual& lhs, individual& rhs) noexcept
   rhs.change_y(-displacement.second);
 }
 
-bool is_destroyed(individual& i) noexcept
+bool is_dead(individual& i) noexcept
 {return i.get_energy() <= 0;}
 
 void metabolism(individual& i) noexcept
@@ -464,19 +464,19 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(i.get_energy() < 0.00001 && i.get_energy() > -0.00001);
-    assert(is_destroyed(i));
+    assert(is_dead(i));
   }
 
   //After feeding and metabolism if energy is 0 individual is destroyed
   {
     individual i;
-    assert(is_destroyed(i));//individual is initialized with 0 energy
+    assert(is_dead(i));//individual is initialized with 0 energy
     //Let's create an env grid cell that will feed the individual
     //the exact quantity it will lose with metabolism
     env_grid_cell c(0,i.get_metab_rate());
     feed(i,c);
-    assert(!is_destroyed(i));
+    assert(!is_dead(i));
     metabolism(i);
-    assert(is_destroyed(i));
+    assert(is_dead(i));
   }
 }

@@ -82,18 +82,18 @@ private:
 
   double m_x;
   double m_y;
-  const double m_size;
+  double m_size;
   double m_energy;
-  const double m_treshold_energy;
-  const double m_uptake_rate;
-  const double m_metab_rate;
+  double m_treshold_energy;
+  double m_uptake_rate;
+  double m_metab_rate;
   individual_type m_individual_type;
   int m_sporulation_timer;
 
   //number of time steps the individual needs
   //to go through to sporulate, if it is alive at
   //m_transformation time + 1 it will become a spore
-  const int m_transformation_time;
+  int m_transformation_time;
 
 };
 
@@ -129,7 +129,7 @@ int find_grid_index( individual& i, double grid_side) ;
 void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///Signals if an individual has to be destroyed
-bool is_destroyed(individual& i) noexcept;
+bool is_dead(individual& i) noexcept;
 
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;

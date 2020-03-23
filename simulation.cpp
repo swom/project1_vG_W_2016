@@ -139,6 +139,13 @@ void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
   set_pos(i, pos);
 }
 
+//not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
+void death(simulation& s) noexcept
+{
+  s.get_pop().erase(std::remove_if(s.get_pop().begin(),s.get_pop().end(),
+                                   [](individual const &i){ return i.get_energy() <= 0;})
+      ,s.get_pop().end());
+}
 
 void tick(simulation& s)
 {
@@ -790,8 +797,14 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
   }
 
-  //When a sporulating individual timer == 5
-  //That individual turns into a spore
+  //Individuals that die are removed from the population
+  {
+    simulation s;//only individual in this sim has 0 energy, thus it will die
+    assert(s.get_pop_size() == 1);
+    death(s);
+    assert(s.get_pop().empty() && s.get_pop_size() == 0);
+  }
+
 }
 
 
