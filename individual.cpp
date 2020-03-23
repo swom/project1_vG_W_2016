@@ -377,4 +377,15 @@ void test_individual()//!OCLINT tests may be many
     assert(to_str(i.get_type()) == "sporulating");
   }
 
+  //An individuals type can be changed after initialization
+  {
+    individual i;
+    assert(to_str(i.get_type()) == "living");
+    i.set_type(individual_type::spore);
+    assert(to_str(i.get_type()) == "spore");
+    assert(to_str(i.get_type()) != "living");
+
+
+  }
+
 }
