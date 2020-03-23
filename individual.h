@@ -129,7 +129,7 @@ int find_grid_index( individual& i, double grid_side) ;
 void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///Signals if an individual has to be destroyed
-bool is_dead(individual& i) noexcept;
+bool is_dead(const individual &i) noexcept;
 
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;

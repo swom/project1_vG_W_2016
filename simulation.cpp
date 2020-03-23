@@ -143,7 +143,7 @@ void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
 void death(simulation& s) noexcept
 {
   s.get_pop().erase(std::remove_if(s.get_pop().begin(),s.get_pop().end(),
-                                   [](individual const &i){ return i.get_energy() <= 0;})
+                                   [](individual const &i){ return is_dead(i);})
       ,s.get_pop().end());
 }
 
@@ -822,6 +822,7 @@ void test_simulation()//!OCLINT tests may be many
     tick(s);
     assert(s.get_pop().empty() && s.get_pop_size() == 0);
   }
+
 
 }
 

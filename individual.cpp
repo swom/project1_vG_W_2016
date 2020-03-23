@@ -124,8 +124,12 @@ void displace(individual& lhs, individual& rhs) noexcept
   rhs.change_y(-displacement.second);
 }
 
-bool is_dead(individual& i) noexcept
-{return i.get_energy() <= 0;}
+bool is_dead(individual const&  i) noexcept
+{ if(i.get_type() == individual_type::spore)
+    {return false;}
+  else
+    {return i.get_energy() <= 0;}
+}
 
 void metabolism(individual& i) noexcept
 {
@@ -478,5 +482,14 @@ void test_individual()//!OCLINT tests may be many
     assert(!is_dead(i));
     metabolism(i);
     assert(is_dead(i));
+  }
+
+  //Spores do not die even if their energy is 0
+  {
+    individual i;
+    assert(i.get_type() != individual_type::spore);
+    assert(is_dead(i));
+    i.set_type(individual_type::spore);
+    assert(!is_dead(i));
   }
 }
