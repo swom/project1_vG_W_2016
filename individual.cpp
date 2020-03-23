@@ -124,6 +124,8 @@ void displace(individual& lhs, individual& rhs) noexcept
   rhs.change_y(-displacement.second);
 }
 
+bool is_destroyed(individual& i) noexcept
+{return i.get_energy() <= 0;}
 
 void metabolism(individual& i) noexcept
 {
@@ -147,7 +149,6 @@ void sporulation(individual& i) noexcept
           i.set_type(individual_type::spore);
           i.reset_spo_timer();
         }
-
     }
 }
 
@@ -457,5 +458,25 @@ void test_individual()//!OCLINT tests may be many
         sporulation(i);
       }
     assert(i.get_type() == individual_type::spore);
+  }
+
+  //An individual with 0 energy is signaled to be destroyed
+  {
+    individual i;
+    assert(i.get_energy() < 0.00001 && i.get_energy() > -0.00001);
+    assert(is_destroyed(i));
+  }
+
+  //After feeding and metabolism if energy is 0 individual is destroyed
+  {
+    individual i;
+    assert(is_destroyed(i));//individual is initialized with 0 energy
+    //Let's create an env grid cell that will feed the individual
+    //the exact quantity it will lose with metabolism
+    env_grid_cell c(0,i.get_metab_rate());
+    feed(i,c);
+    assert(!is_destroyed(i));
+    metabolism(i);
+    assert(is_destroyed(i));
   }
 }
