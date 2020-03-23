@@ -131,9 +131,23 @@ void metabolism(individual& i) noexcept
     {i.change_en(-i.get_metab_rate());}
   else
     {i.set_energy(0);}
+
+  sporulation(i);
+
+}
+
+void sporulation(individual& i) noexcept
+{
   if(i.get_type() == individual_type::sporulating )
     {
       i.tick_spo_timer();
+      assert(i.get_spo_timer() <= i.get_transformation_time());
+      if(i.get_spo_timer() == i.get_transformation_time())
+        {
+          i.set_type(individual_type::spore);
+          i.reset_spo_timer();
+        }
+
     }
 }
 
@@ -429,5 +443,19 @@ void test_individual()//!OCLINT tests may be many
     auto transformation_time = 42;
     individual i2(0,0,0,0,0,0,0,individual_type::sporulating,0,transformation_time);
     assert(i2.get_transformation_time() == transformation_time);
+  }
+
+  //When the timer_for_sporulation reaches the transformation time
+  //The sporulating individual will turn into a spore
+  {
+    individual i;
+    i.set_type(individual_type::sporulating);
+    i.set_energy(i.get_metab_rate() * i.get_transformation_time());
+    for(int j = 0; j != i.get_transformation_time(); j++)
+      {
+        assert(i.get_type() == individual_type::sporulating);
+        sporulation(i);
+      }
+    assert(i.get_type() == individual_type::spore);
   }
 }

@@ -89,6 +89,10 @@ private:
   const double m_metab_rate;
   individual_type m_individual_type;
   int m_sporulation_timer;
+
+  //number of time steps the individual needs
+  //to go through to sporulate, if it is alive at
+  //m_transformation time + 1 it will become a spore
   const int m_transformation_time;
 
 };
@@ -126,6 +130,10 @@ void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;
+
+///Checks and updates the timer of sporulating individuals
+/// and changes them into spores if they have sporulated long enough
+void sporulation(individual& i) noexcept;
 
 void test_individual();
 
