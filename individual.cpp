@@ -5,7 +5,7 @@
 individual::individual(double x_pos, double y_pos,
                        double size, double energy,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
-                       individual_type individual_type):
+                       individual_type individual_type, int sporulation_timer):
   m_x(x_pos),
   m_y(y_pos),
   m_size(size),
@@ -13,7 +13,8 @@ individual::individual(double x_pos, double y_pos,
   m_treshold_energy(treshold_energy),
   m_uptake_rate(uptake_rate),
   m_metab_rate(metabolic_rate),
-  m_individual_type(individual_type)
+  m_individual_type(individual_type),
+  m_sporulation_timer(sporulation_timer)
 {
 
 }
@@ -124,8 +125,14 @@ void displace(individual& lhs, individual& rhs) noexcept
 
 void metabolism(individual& i) noexcept
 {
-  if(i.get_energy() >= i.get_metab_rate()){i.change_en(-i.get_metab_rate());}
-  else{i.set_energy(0);}
+  if(i.get_energy() >= i.get_metab_rate())
+    {i.change_en(-i.get_metab_rate());}
+  else
+    {i.set_energy(0);}
+  if(i.get_type() == individual_type::sporulating )
+    {
+      i.tick_spo_timer();
+    }
 }
 
 void test_individual()//!OCLINT tests may be many
@@ -385,5 +392,33 @@ void test_individual()//!OCLINT tests may be many
     assert(to_str(i.get_type()) == "spore");
     assert(to_str(i.get_type()) != "living");
   }
+
+  //Individuals are initialized with a sporulating timer
+  //By default is 0
+  {
+    individual i;
+    assert(i.get_spo_timer() == 0);
+  }
+
+  //The timer can be increased by one
+  {
+    individual i;
+    auto timer_init = i.get_spo_timer();
+    assert( timer_init == 0);
+    i.tick_spo_timer();
+    assert(i.get_spo_timer() == timer_init + 1);
+  }
+
+  //The sporulation timer can be reset to 0
+  {
+    individual ind;
+    auto timer_value = 42;
+    for (int i = 0; i != timer_value; i++){ind.tick_spo_timer(); }
+    assert(ind.get_spo_timer() == timer_value);
+    ind.reset_spo_timer();
+    assert(ind.get_spo_timer() == 0);
+  }
+
+
 
 }

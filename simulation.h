@@ -67,7 +67,7 @@ public:
   std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
 
   ///Gets the number of ticks in the simulation
-  const int& get_tick() const noexcept {return m_tick;}
+  const int& get_tick() const noexcept {return m_sim_timer;}
 
   ///Divides an individual at a given index
   void divide_ind(individual &i);
@@ -97,14 +97,14 @@ public:
   }
 
   ///Updates tick counter by one
-  void tick_up() noexcept {m_tick++;}
+  void update_sim_timer() noexcept {m_sim_timer++;}
 
 
 private:
   std::vector<individual> population;
   double m_min_init_dist_btw_cells;
   environment m_e;
-  int m_tick = 0;
+  int m_sim_timer = 0;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern

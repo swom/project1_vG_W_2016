@@ -147,7 +147,7 @@ void tick(simulation& s)
   s.do_reprduction();
   manage_static_collisions(s);
   diffusion(s.get_env());
-  s.tick_up();
+  s.update_sim_timer();
 }
 void simulation::place_start_cells() noexcept
 {
@@ -763,6 +763,17 @@ void test_simulation()//!OCLINT tests may be many
   }
 
 
+  //A sporulating individual updates its timer every tick
+  {
+    simulation s;
+    s.get_ind(0).set_type(individual_type::sporulating);
+    auto init_timer = s.get_ind(0).get_spo_timer();
+    tick(s);
+    assert(init_timer != s.get_ind(0).get_spo_timer());
+    assert(s.get_ind(0).get_spo_timer() == init_timer + 1);
+    assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
+
+  }
 }
 
 

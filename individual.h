@@ -13,7 +13,8 @@ public:
   individual(double x_pos = 0, double y_pos = 0, double size  = 1,
              double energy = 0, double treshold_energy = 2,
              double uptake_rate = 0.1, double metabolic_rate = 0.01,
-             individual_type individual_type = individual_type::living);
+             individual_type individual_type = individual_type::living,
+             int sporulation_timer = 0);
 
   ///Changes x of an individual
   void change_x(double x) noexcept {m_x += x;}
@@ -48,6 +49,12 @@ public:
   ///gets the treshold energy at which an individual reproduces
   double get_treshold_energy() const noexcept {return m_treshold_energy;}
 
+  ///Gets the sporulation timer
+  int get_spo_timer() const noexcept {return m_sporulation_timer;}
+
+  ///Resets the sporulation timer
+  void reset_spo_timer() noexcept {m_sporulation_timer = 0;}
+
   ///sets the energy of an individual
   void set_energy(double new_energy) {m_energy = new_energy;}
 
@@ -59,6 +66,9 @@ public:
 
   ///Sets the y of an individual
   void set_y(double y) noexcept {m_y = y;}
+
+  ///Ticks the sporulation timer by one
+  void tick_spo_timer() noexcept {m_sporulation_timer++;}
 
   ///Splits the excess energy not required for division in two9to be then
   ///(to be then assigned to the two daughter cells by
@@ -75,6 +85,7 @@ private:
   double m_uptake_rate;
   double m_metab_rate;
   individual_type m_individual_type;
+  int m_sporulation_timer;
 
 };
 
