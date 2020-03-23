@@ -3,6 +3,7 @@
 HEADERS += \
     env_grid_cell.h \
     environment.h \
+    grn.h \
     individual.h \
     individual_type.h \
     simulation.h
@@ -10,6 +11,7 @@ HEADERS += \
 SOURCES += \
     env_grid_cell.cpp \
     environment.cpp \
+    grn.cpp \
     individual.cpp \
     individual_type.cpp \
     main.cpp \

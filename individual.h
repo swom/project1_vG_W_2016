@@ -1,10 +1,11 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
 #include "env_grid_cell.h"
-#include "vector"
+#include "individual_type.h"
+#include "grn.h"
+#include <vector>
 #include <utility>
 #include <algorithm>
-#include "individual_type.h"
 
 class individual
 {
