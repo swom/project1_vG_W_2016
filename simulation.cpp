@@ -59,7 +59,7 @@ void feeding(simulation& s)
     {
       auto index_grid = find_grid_index(ind,s.get_env().get_grid_side());
       if(index_grid == -100 ||
-         ind.get_type() == individual_type::spore)
+         ind.get_type() != individual_type::living)
         {continue;}
       feed(ind,s.get_env().get_cell(index_grid));
     }
@@ -124,6 +124,7 @@ void metabolism_pop(simulation& s)
 {
   for(auto& ind : s.get_pop())
     {
+      if(ind.get_type() != individual_type::spore)
       metabolism(ind);
     }
 }
@@ -700,6 +701,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     s.get_ind(0).set_type(individual_type::spore);
+    s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_pop_size = s.get_pop_size();
     s.set_ind_en(0,s.get_ind_tr_en(0));
     tick(s);
@@ -712,6 +714,29 @@ void test_simulation()//!OCLINT tests may be many
     auto init_food = s.get_env().get_cell(0).get_food();
     s.get_ind(0).set_type(individual_type::spore);
     feeding(s);
+    assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
+           && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
+  }
+  //Spores do not lose energy
+  {
+    simulation s;
+    s.get_ind(0).set_type(individual_type::spore);
+    s.set_ind_en(0,s.get_ind_tr_en(0));
+    auto init_en_ind0 = s.get_ind_en(0);
+    tick(s);
+    assert(s.get_ind_en(0) - init_en_ind0 < 0.000001
+           && s.get_ind_en(0) - init_en_ind0 > -0.000001);
+  }
+  //Sporulating individuals do not feed but they lose energy
+  {
+    simulation s;
+    s.get_ind(0).set_type(individual_type::sporulating);
+    s.set_ind_en(0,1);
+    auto init_en_ind0 = s.get_ind_en(0);
+    auto init_food = s.get_env().get_cell(0).get_food();
+    tick(s);
+    assert(init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metab_rate() < 0.000001
+           && init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metab_rate() > -0.000001);
     assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
            && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
   }
