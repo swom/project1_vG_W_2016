@@ -151,6 +151,7 @@ void tick(simulation& s)
 {
   feeding(s);
   metabolism_pop(s);
+  death(s);
   s.do_reprduction();
   manage_static_collisions(s);
   diffusion(s.get_env());
@@ -666,7 +667,10 @@ void test_simulation()//!OCLINT tests may be many
     s.get_ind(1).set_energy(s.get_ind_tr_en(1)
                             + s.get_ind(1).get_metab_rate() + 0.01
                             - s.get_ind(1).get_uptake_rate());
-    tick(s);
+    feeding(s);
+    metabolism_pop(s);
+    s.do_reprduction();
+    manage_static_collisions(s);
 
     assert(s.get_pop().size() == init_pop_size + 1);
     assert(!has_collision(s));
@@ -799,9 +803,23 @@ void test_simulation()//!OCLINT tests may be many
 
   //Individuals that die are removed from the population
   {
-    simulation s;//only individual in this sim has 0 energy, thus it will die
+    simulation s;//the only individual in this sim has 0 energy, thus it will die
     assert(s.get_pop_size() == 1);
     death(s);
+    assert(s.get_pop().empty() && s.get_pop_size() == 0);
+
+    int pop_size = 5;
+    //The simulation does not have a grid with food,
+    //so organisms cannot feed
+    s = simulation(pop_size,0);
+    //Only the first individual has enough energy to survive
+    //for 1 tick
+    s.set_ind_en(0,s.get_ind(0).get_metab_rate() + 0.001);
+    assert(s.get_pop_size() == pop_size);
+    tick(s);
+    assert(s.get_pop_size() == 1);
+    //then at the second tick the only individual left dies
+    tick(s);
     assert(s.get_pop().empty() && s.get_pop_size() == 0);
   }
 
