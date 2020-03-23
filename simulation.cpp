@@ -125,7 +125,7 @@ void metabolism_pop(simulation& s)
   for(auto& ind : s.get_pop())
     {
       if(ind.get_type() != individual_type::spore)
-      metabolism(ind);
+        metabolism(ind);
     }
 }
 void simulation::set_ind_pos(individual& i, double x, double y)
@@ -766,14 +766,32 @@ void test_simulation()//!OCLINT tests may be many
   //A sporulating individual updates its timer every tick
   {
     simulation s;
-    s.get_ind(0).set_type(individual_type::sporulating);
     auto init_timer = s.get_ind(0).get_spo_timer();
+    s.get_ind(0).set_type(individual_type::sporulating);
     tick(s);
     assert(init_timer != s.get_ind(0).get_spo_timer());
     assert(s.get_ind(0).get_spo_timer() == init_timer + 1);
     assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
 
+    s.get_ind(0).reset_spo_timer();
+    init_timer = s.get_ind(0).get_spo_timer();
+    s.get_ind(0).set_type(individual_type::spore);
+    tick(s);
+    assert(s.get_ind(0).get_spo_timer() == init_timer);
+    assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
+    assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
+
+    s.get_ind(0).reset_spo_timer();
+    init_timer = s.get_ind(0).get_spo_timer();
+    s.get_ind(0).set_type(individual_type::living);
+    tick(s);
+    assert(s.get_ind(0).get_spo_timer() == init_timer);
+    assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
+    assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
   }
+
+  //When a sporulating individual timer == 5
+  //That individual turns into a spore
 }
 
 

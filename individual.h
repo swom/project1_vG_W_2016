@@ -14,7 +14,7 @@ public:
              double energy = 0, double treshold_energy = 2,
              double uptake_rate = 0.1, double metabolic_rate = 0.01,
              individual_type individual_type = individual_type::living,
-             int sporulation_timer = 0);
+             int sporulation_timer = 0, int transformation_time = 5);
 
   ///Changes x of an individual
   void change_x(double x) noexcept {m_x += x;}
@@ -36,6 +36,9 @@ public:
 
   ///Gets the type of the individual
   individual_type get_type() const noexcept {return m_individual_type;}
+
+  ///Gets the time it takes to transform into a spore
+  int get_transformation_time() const noexcept {return m_transformation_time;}
 
   ///gets the food uptake_rate of an individual
   double get_uptake_rate() const noexcept {return m_uptake_rate;}
@@ -79,13 +82,14 @@ private:
 
   double m_x;
   double m_y;
-  double m_size;
+  const double m_size;
   double m_energy;
-  double m_treshold_energy;
-  double m_uptake_rate;
-  double m_metab_rate;
+  const double m_treshold_energy;
+  const double m_uptake_rate;
+  const double m_metab_rate;
   individual_type m_individual_type;
   int m_sporulation_timer;
+  const int m_transformation_time;
 
 };
 

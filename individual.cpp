@@ -5,7 +5,8 @@
 individual::individual(double x_pos, double y_pos,
                        double size, double energy,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
-                       individual_type individual_type, int sporulation_timer):
+                       individual_type individual_type, int sporulation_timer,
+                       int transformation_time):
   m_x(x_pos),
   m_y(y_pos),
   m_size(size),
@@ -14,7 +15,8 @@ individual::individual(double x_pos, double y_pos,
   m_uptake_rate(uptake_rate),
   m_metab_rate(metabolic_rate),
   m_individual_type(individual_type),
-  m_sporulation_timer(sporulation_timer)
+  m_sporulation_timer(sporulation_timer),
+  m_transformation_time(transformation_time)
 {
 
 }
@@ -161,8 +163,8 @@ void test_individual()//!OCLINT tests may be many
     assert(i.get_uptake_rate() - 0.1 < 0.000001);
 
     double uptake_rate = 0.3;
-    i = individual(0, 0, 0, 0, 0, uptake_rate);
-    assert(i.get_uptake_rate() - uptake_rate < 0.000001);
+    individual i2(0, 0, 0, 0, 0, uptake_rate);
+    assert(i2.get_uptake_rate() - uptake_rate < 0.000001);
   }
 
   //An individual is initialized with a m_metab_rate
@@ -172,9 +174,9 @@ void test_individual()//!OCLINT tests may be many
     assert(i.get_metab_rate() - 0.01 < 0.000001
            && i.get_metab_rate() - 0.01 > -0.000001);
     double metabolic_rate = 2;
-    i = individual(0,0,0,0,0,0,metabolic_rate);
-    assert(i.get_metab_rate() - metabolic_rate < 0.000001
-           && i.get_metab_rate() - metabolic_rate > -0.000001);
+    individual i2(0,0,0,0,0,0,metabolic_rate);
+    assert(i2.get_metab_rate() - metabolic_rate < 0.000001
+           && i2.get_metab_rate() - metabolic_rate > -0.000001);
 
   }
   //Individuals should be initialized with 0 internal energy
@@ -378,10 +380,10 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(to_str(i.get_type()) == "living");
-    i = individual (0,0,0,0,0,0,0,individual_type::spore);
-    assert(to_str(i.get_type()) == "spore");
-    i = individual (0,0,0,0,0,0,0,individual_type::sporulating);
-    assert(to_str(i.get_type()) == "sporulating");
+    individual i2(0,0,0,0,0,0,0,individual_type::spore);
+    assert(to_str(i2.get_type()) == "spore");
+    individual i3(0,0,0,0,0,0,0,individual_type::sporulating);
+    assert(to_str(i3.get_type()) == "sporulating");
   }
 
   //An individuals type can be changed after initialization
@@ -419,6 +421,13 @@ void test_individual()//!OCLINT tests may be many
     assert(ind.get_spo_timer() == 0);
   }
 
-
-
+  //An individual is initialized with a sporulation time
+  //by default 5, the value will be constant
+  {
+    individual i;
+    assert(i.get_transformation_time() == 5);
+    auto transformation_time = 42;
+    individual i2(0,0,0,0,0,0,0,individual_type::sporulating,0,transformation_time);
+    assert(i2.get_transformation_time() == transformation_time);
+  }
 }
