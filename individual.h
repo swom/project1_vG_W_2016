@@ -4,68 +4,74 @@
 #include "vector"
 #include <utility>
 #include <algorithm>
+#include "individual_type.h"
 
 class individual
 {
 public:
 
-    individual(double x_pos = 0, double y_pos = 0, double size  = 1,
-               double energy = 0, double treshold_energy = 2,
-               double uptake_rate = 0.1, double metabolic_rate = 0.01);
+  individual(double x_pos = 0, double y_pos = 0, double size  = 1,
+             double energy = 0, double treshold_energy = 2,
+             double uptake_rate = 0.1, double metabolic_rate = 0.01,
+             individual_type individual_type = individual_type::living);
 
-     ///Changes x of an individual
-     void change_x(double x) noexcept {m_x += x;}
+  ///Changes x of an individual
+  void change_x(double x) noexcept {m_x += x;}
 
-     ///Changes y of an individual
-     void change_y(double y) noexcept {m_y += y;}
+  ///Changes y of an individual
+  void change_y(double y) noexcept {m_y += y;}
 
-     ///Changes the energy level of an individual
-     void change_en(double en_change) noexcept {m_energy += en_change;}
+  ///Changes the energy level of an individual
+  void change_en(double en_change) noexcept {m_energy += en_change;}
 
-     ///gets size of individual
-     double get_size() const noexcept {return m_size;}
+  ///gets size of individual
+  double get_size() const noexcept {return m_size;}
 
-     ///gets energy of individual
-     double get_energy() const noexcept {return m_energy;}
+  ///gets energy of individual
+  double get_energy() const noexcept {return m_energy;}
 
-     ///gets the metabolic rate of an individual
-     double get_metab_rate() const noexcept {return m_metab_rate;}
+  ///gets the metabolic rate of an individual
+  double get_metab_rate() const noexcept {return m_metab_rate;}
 
-     ///gets the food uptake_rate of an individual
-     double get_uptake_rate() const noexcept {return m_uptake_rate;}
+  ///Gets the type of the individual
+  individual_type get_type() const noexcept {return m_individual_type;}
 
-     ///gets x position of the individual
-     double get_x() const noexcept {return m_x;}
+  ///gets the food uptake_rate of an individual
+  double get_uptake_rate() const noexcept {return m_uptake_rate;}
 
-     ///gets y position of the individual
-     double get_y() const noexcept {return m_y;}
+  ///gets x position of the individual
+  double get_x() const noexcept {return m_x;}
 
-     ///gets the treshold energy at which an individual reproduces
-     double get_treshold_energy() const noexcept {return m_treshold_energy;}
+  ///gets y position of the individual
+  double get_y() const noexcept {return m_y;}
 
-     ///sets the energy of an individual
-     void set_energy(double new_energy) {m_energy = new_energy;}
+  ///gets the treshold energy at which an individual reproduces
+  double get_treshold_energy() const noexcept {return m_treshold_energy;}
 
-     ///Sets the x of an individual
-     void set_x(double x) noexcept {m_x = x;}
+  ///sets the energy of an individual
+  void set_energy(double new_energy) {m_energy = new_energy;}
 
-     ///Sets the y of an individual
-     void set_y(double y) noexcept {m_y = y;}
+  ///Sets the x of an individual
+  void set_x(double x) noexcept {m_x = x;}
 
-     ///Splits the excess energy not required for division in two9to be then
-     ///(to be then assigned to the two daughter cells by
-     /// simulation::reproduce/cells_divide)
-     double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
+  ///Sets the y of an individual
+  void set_y(double y) noexcept {m_y = y;}
+
+  ///Splits the excess energy not required for division in two9to be then
+  ///(to be then assigned to the two daughter cells by
+  /// simulation::reproduce/cells_divide)
+  double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
 
 private:
 
-     double m_x;
-     double m_y;
-     double m_size;
-     double m_energy;
-     double m_treshold_energy;
-     double m_uptake_rate;
-     double m_metab_rate;
+  double m_x;
+  double m_y;
+  double m_size;
+  double m_energy;
+  double m_treshold_energy;
+  double m_uptake_rate;
+  double m_metab_rate;
+  individual_type m_individual_type;
 
 };
 

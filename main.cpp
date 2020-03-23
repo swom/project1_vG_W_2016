@@ -1,9 +1,7 @@
 #include <cassert>
 #include <string>
-#include "environment.h"
 #include "simulation.h"
-#include "individual.h"
-#include "individual_type.h"
+
 void test() {
     test_env_grid_cell();
     test_environment();

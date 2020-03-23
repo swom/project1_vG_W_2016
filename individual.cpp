@@ -4,14 +4,16 @@
 
 individual::individual(double x_pos, double y_pos,
                        double size, double energy,
-                       double treshold_energy, double uptake_rate, double metabolic_rate):
+                       double treshold_energy, double uptake_rate, double metabolic_rate,
+                       individual_type individual_type):
   m_x(x_pos),
   m_y(y_pos),
   m_size(size),
   m_energy(energy),
   m_treshold_energy(treshold_energy),
   m_uptake_rate(uptake_rate),
-  m_metab_rate(metabolic_rate)
+  m_metab_rate(metabolic_rate),
+  m_individual_type(individual_type)
 {
 
 }
@@ -362,6 +364,17 @@ void test_individual()//!OCLINT tests may be many
     metabolism(i);
     assert(i.get_energy() < 0.000001
            && i.get_energy() > -0.0000001);
+  }
+
+  //An individual is initialized with a individual_type(living, sporulating, spore)
+  //By default it is initialized with  individual_type::living
+  {
+    individual i;
+    assert(to_str(i.get_type()) == "living");
+    i = individual (0,0,0,0,0,0,0,individual_type::spore);
+    assert(to_str(i.get_type()) == "spore");
+    i = individual (0,0,0,0,0,0,0,individual_type::sporulating);
+    assert(to_str(i.get_type()) == "sporulating");
   }
 
 }
