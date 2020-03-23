@@ -22,7 +22,7 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
       if(population[i].get_energy() >= population[i].get_treshold_energy()
-         && population[i].get_type() != individual_type::spore)
+         && population[i].get_type() == individual_type::living)
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -727,6 +727,27 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_ind_en(0) - init_en_ind0 < 0.000001
            && s.get_ind_en(0) - init_en_ind0 > -0.000001);
   }
+
+  //Sporulating individuals do not get detected when looking for dividing individual
+  {
+    simulation s;
+    s.set_ind_en(0,s.get_ind_tr_en(0));
+    assert(s.get_dividing_individuals()[0] == 0);
+    s.get_ind(0).set_type(individual_type::sporulating);
+    assert(s.get_dividing_individuals().empty());
+  }
+
+  //Sporulating individuals cannot reproduce
+  {
+    simulation s;
+    s.get_ind(0).set_type(individual_type::sporulating);
+    s.set_ind_en(0,s.get_ind_tr_en(0));
+    auto init_pop_size = s.get_pop_size();
+    s.set_ind_en(0,s.get_ind_tr_en(0));
+    tick(s);
+    assert(init_pop_size == s.get_pop_size());
+  }
+
   //Sporulating individuals do not feed but they lose energy
   {
     simulation s;
