@@ -4,12 +4,14 @@ HEADERS += \
     env_grid_cell.h \
     environment.h \
     individual.h \
+    individual_type.h \
     simulation.h
 
 SOURCES += \
     env_grid_cell.cpp \
     environment.cpp \
     individual.cpp \
+    individual_type.cpp \
     main.cpp \
     simulation.cpp
 
