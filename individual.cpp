@@ -384,8 +384,6 @@ void test_individual()//!OCLINT tests may be many
     i.set_type(individual_type::spore);
     assert(to_str(i.get_type()) == "spore");
     assert(to_str(i.get_type()) != "living");
-
-
   }
 
 }

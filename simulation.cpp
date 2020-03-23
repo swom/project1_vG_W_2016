@@ -21,7 +21,8 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   std::vector<int> dividing_individuals;
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
-      if(population[i].get_energy() >= population[i].get_treshold_energy())
+      if(population[i].get_energy() >= population[i].get_treshold_energy()
+         && population[i].get_type() != individual_type::spore)
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -57,7 +58,9 @@ void feeding(simulation& s)
   for(auto& ind : s.get_pop())
     {
       auto index_grid = find_grid_index(ind,s.get_env().get_grid_side());
-      if(index_grid == -100){continue;}
+      if(index_grid == -100 ||
+         ind.get_type() == individual_type::spore)
+        {continue;}
       feed(ind,s.get_env().get_cell(index_grid));
     }
 }
@@ -675,6 +678,7 @@ void test_simulation()//!OCLINT tests may be many
         tick(s);
       }
   }
+
   //A simulation can be run for a certain amount of ticks
   {
     simulation s;
@@ -682,6 +686,37 @@ void test_simulation()//!OCLINT tests may be many
     exec(s, n_ticks);
     assert(s.get_tick() - n_ticks == 0);
   }
+
+  //Spores do not get detected when looking for dividing individual
+  {
+    simulation s;
+    s.set_ind_en(0,s.get_ind_tr_en(0));
+    assert(s.get_dividing_individuals()[0] == 0);
+    s.get_ind(0).set_type(individual_type::spore);
+    assert(s.get_dividing_individuals().empty());
+  }
+
+  //Spores do not reproduce
+  {
+    simulation s;
+    s.get_ind(0).set_type(individual_type::spore);
+    auto init_pop_size = s.get_pop_size();
+    s.set_ind_en(0,s.get_ind_tr_en(0));
+    tick(s);
+    assert(init_pop_size == s.get_pop_size());
+  }
+
+  //Spores do not feed
+  {
+    simulation s;
+    auto init_food = s.get_env().get_cell(0).get_food();
+    s.get_ind(0).set_type(individual_type::spore);
+    feeding(s);
+    assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
+           && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
+  }
+
+
 }
 
 
