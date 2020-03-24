@@ -23,10 +23,10 @@ public:
   std::vector<std::vector<double> >& get_H2O() noexcept {return m_ConH2O;}
 
   ///Gets const reference to input layer states
-  const std::vector<double>& get_input_states() const noexcept {return  m_ExInput;}
+  const std::vector<double>& get_input_nodes() const noexcept {return  m_ExInput;}
 
   ///Gets const reference to input layer states
-  std::vector<double>& get_input_states() noexcept {return  m_ExInput;}
+  std::vector<double>& get_input_nodes() noexcept {return  m_ExInput;}
 
   ///Gets const reference hidden layer states
   const std::vector<bool>& get_hidden_nodes() const noexcept {return  m_ExHidden;}
@@ -53,10 +53,10 @@ public:
   std::vector<double>& get_out_tresh() noexcept {return m_TOutput;}
 
   ///Sets all weights of H2O to a given value
-  void set_H2O(double value) noexcept;
+  void set_all_H2O(double value) noexcept;
 
   ///Sets all weights of I2H to a given value
-  void set_I2H(double value) noexcept;
+  void set_all_I2H(double value) noexcept;
 
   ///Sets an output node to true or false
   void set_hid_node(int index_node, bool state);
@@ -98,7 +98,7 @@ void hid_updates_out(GRN& g) noexcept;
 
 ///The GRN reads inputs and gives back the outputs
 ///!!!!****Implemented as in Jordi's model***!!! I do not like it
-void jordi_response(GRN& g);
+void jordi_response_mech(GRN& g);
 
 void test_GRN();
 #endif // GRN_H

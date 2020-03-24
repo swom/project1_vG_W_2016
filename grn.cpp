@@ -18,7 +18,7 @@ GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output):
 void GRN::set_hid_node(int index_node, bool state)
 {m_ExHidden[static_cast<unsigned int>(index_node)] = state;}
 
-void GRN::set_H2O(double value) noexcept
+void GRN::set_all_H2O(double value) noexcept
 {
   for (auto& node : get_H2O())
     {
@@ -27,7 +27,7 @@ void GRN::set_H2O(double value) noexcept
     }
 }
 
-void GRN::set_I2H(double value) noexcept
+void GRN::set_all_I2H(double value) noexcept
 {
   for (auto& node : get_I2H())
     {
@@ -63,8 +63,8 @@ void GRN::set_all_out_tresh(double value)
 
 void GRN::set_inputs(std::vector<double> inputs)
 {
-  assert(inputs.size() == get_input_states().size());
-  get_input_states().swap(inputs);
+  assert(inputs.size() == get_input_nodes().size());
+  get_input_nodes().swap(inputs);
 }
 
 void GRN::set_out_node(int index_node, bool state)
@@ -75,9 +75,9 @@ void inp_updates_hid(GRN& g) noexcept
   for(unsigned int i = 0; i != g.get_hidden_nodes().size(); i++)
     {
       double signal_hid = 0;
-      for (unsigned int j = 0 ; j != g.get_input_states().size(); j++)
+      for (unsigned int j = 0 ; j != g.get_input_nodes().size(); j++)
         {
-          signal_hid += g.get_input_states()[i] * g.get_I2H()[j][i];
+          signal_hid += g.get_input_nodes()[i] * g.get_I2H()[j][i];
         }
       if(signal_hid > g.get_hid_tresh()[i]){g.set_hid_node(static_cast<int>(i),signal_hid);}
     }
@@ -97,7 +97,7 @@ void hid_updates_out(GRN& g) noexcept
     }
 }
 
-void jordi_response(GRN& g) //Jordi style
+void jordi_response_mech(GRN& g) //Jordi style
 {
   //First he updates output from hidden (is not the first thing he does
   //in the code but is the first thing that actually changes something in the
@@ -148,7 +148,7 @@ void test_GRN()//!OCLINT , tests may be long
   //It is possible to get the values of the nodes states
   {
     GRN g;
-    for(auto input : g.get_input_states())
+    for(auto input : g.get_input_nodes())
       assert(input < 0.00001 && input > -0.00001);
     for(auto hidden : g.get_hidden_nodes())
       assert(hidden < 0.00001 && hidden > -0.00001);
@@ -160,7 +160,7 @@ void test_GRN()//!OCLINT , tests may be long
   {
     GRN g;
     double weight_value = 3.14;
-    g.set_H2O(weight_value);
+    g.set_all_H2O(weight_value);
     for(const auto& node : g.get_H2O())
       for(const auto& weight : node)
         assert(weight - weight_value < 0.00001 &&
@@ -203,7 +203,7 @@ void test_GRN()//!OCLINT , tests may be long
     g.set_all_hid_nodes(hidden_nodes_value);
     //all weight H20 are
     //hidden_nodes_value / number_of_output_nodes / number_of_connections
-    g.set_H2O(hidden_nodes_value /
+    g.set_all_H2O(hidden_nodes_value /
               g.get_output_nodes().size() /
               (g.get_H2O().size() * g.get_H2O()[0].size()));
     //Therefore each output node will receive a signal of hidden_nodes_value
@@ -217,12 +217,12 @@ void test_GRN()//!OCLINT , tests may be long
   {
     GRN g;
     double inputs_value = 3.14; //in this case all inputs are the same
-    auto inputs = std::vector<double>(g.get_input_states().size(),inputs_value);
+    auto inputs = std::vector<double>(g.get_input_nodes().size(),inputs_value);
     g.set_inputs(inputs);
     g.set_all_hid_tresh(inputs_value - 0.00001);
     //all weight I2H are
     //inputs_value / number_of_output_nodes / number_of_connections
-    g.set_I2H( inputs_value /
+    g.set_all_I2H( inputs_value /
           g.get_hidden_nodes().size() /
              g.get_I2H().size() * g.get_I2H()[0].size());
     inp_updates_hid(g);
@@ -236,7 +236,7 @@ void test_GRN()//!OCLINT , tests may be long
     GRN g;//the weights and connection and nodes are all to 0, so output should be 0
     std::vector<double> inputs{100,100,100};
     g.set_inputs(inputs);
-    jordi_response(g);
+    jordi_response_mech(g);
     for(auto output : g.get_output_nodes())
       {
         assert(output < 0.00001

@@ -90,19 +90,6 @@ const std::pair<double, double> get_pos(individual& i)  noexcept
   return pos;
 }
 
-
-
-double overlap(const individual& lhs, const individual& rhs) noexcept
-{
-  return (distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
-}
-
-void set_pos(individual& i, std::pair<double, double> pos)  noexcept
-{
-  i.set_x(pos.first);
-  i.set_y(pos.second);
-}
-
 std::pair<double, double> get_displacement(const individual& lhs, const individual& rhs) noexcept
 {
   std::pair<double, double> displ_x_y;
@@ -141,11 +128,31 @@ void metabolism(individual& i) noexcept
 
 }
 
+double overlap(const individual& lhs, const individual& rhs) noexcept
+{
+  return (distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
+}
+
 void revert(individual& i) noexcept
 {
   assert(i.get_type() == individual_type::sporulating);
   i.set_type(individual_type::living);
   i.reset_spo_timer();
+}
+
+void sense(individual& i, const env_grid_cell& c)
+{
+  auto& inputs = i.get_grn().get_input_nodes();
+  inputs[0] = c.get_food();
+  inputs[1] = c.get_metabolite();
+  inputs[2] = i.get_energy();
+}
+
+
+void set_pos(individual& i, std::pair<double, double> pos)  noexcept
+{
+  i.set_x(pos.first);
+  i.set_y(pos.second);
 }
 
 void sporulation(individual& i) noexcept
@@ -515,5 +522,34 @@ void test_individual()//!OCLINT tests may be many
     assert(!is_dead(i));
   }
 
+  //An individual is initialized with a GRN
+  //The get_input_nodes()..... etc part is irrelevant
+  //Just get the function to run
 
+  {
+    individual i;
+    assert(i.get_grn().get_input_nodes().size() == 3);
+  }
+
+  //An individual can sense food, metabolite and energy amounts
+  //and use them as inputs to its GRN
+  {
+    individual i;
+    env_grid_cell g;
+    sense(i, g);
+    for(const auto& input : i.get_grn().get_input_nodes())
+    assert(input < 0.0001 && input > -0.0001);
+  }
+  //An individual can respond to internal and external signals
+  {
+    individual i;
+//    double food_amount = 3.14;
+//    double metabolite_amount = 3.14;
+//    double internal_energy_amount = 3.14;
+    //let's set all the weights of the network to 1
+    //in this case we expect that the outputs will be one
+    i.get_grn().set_all_I2H(1);
+    i.get_grn().set_all_H2O(1);
+
+  }
 }

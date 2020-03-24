@@ -823,7 +823,6 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_pop().empty() && s.get_pop_size() == 0);
   }
 
-
 }
 
 

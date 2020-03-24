@@ -26,14 +26,20 @@ public:
   ///Changes the energy level of an individual
   void change_en(double en_change) noexcept {m_energy += en_change;}
 
-  ///gets size of individual
-  double get_size() const noexcept {return m_size;}
-
   ///gets energy of individual
   double get_energy() const noexcept {return m_energy;}
 
+  ///Gets the const ref to the m_grn
+  const GRN& get_grn() const noexcept {return m_grn;}
+
+  ///Gets the ref to the m_grn
+  GRN& get_grn() noexcept {return m_grn;}
+
   ///gets the metabolic rate of an individual
   double get_metab_rate() const noexcept {return m_metab_rate;}
+
+  ///gets size of individual
+  double get_size() const noexcept {return m_size;}
 
   ///Gets the type of the individual
   individual_type get_type() const noexcept {return m_individual_type;}
@@ -90,11 +96,10 @@ private:
   double m_metab_rate;
   individual_type m_individual_type;
   int m_sporulation_timer;
-
-  //number of time steps the individual needs
-  //to go through to sporulate, if it is alive at
-  //m_transformation time + 1 it will become a spore
-  int m_transformation_time;
+  int m_transformation_time; //number of time steps the individual needs
+                             //to go through to sporulate, if it is alive at
+                             //m_transformation time + 1 it will become a spore
+  GRN m_grn;
 
 };
 
@@ -136,8 +141,13 @@ bool is_dead(const individual &i) noexcept;
 void metabolism(individual& i) noexcept;
 
 ///Mutates the GRN of an individual
+void mutate(individual& i, double mu_rate, double mu_step);
 ///Reverts a sporulating individual back to living (and resets the timer)
 void revert(individual& i) noexcept;
+
+///Takes food, metabolite from the grid cell and energy from individual
+/// and sets them as inputs of the grn
+void sense(individual& i, const env_grid_cell& c);
 
 ///Checks and updates the timer of sporulating individuals
 /// and changes them into spores if they have sporulated long enough
