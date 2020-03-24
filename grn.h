@@ -25,6 +25,9 @@ public:
   ///Gets const reference to input layer states
   const std::vector<double>& get_input_states() const noexcept {return  m_ExInput;}
 
+  ///Gets const reference to input layer states
+  std::vector<double>& get_input_states() noexcept {return  m_ExInput;}
+
   ///Gets const reference hidden layer states
   const std::vector<bool>& get_hidden_nodes() const noexcept {return  m_ExHidden;}
 
@@ -53,7 +56,7 @@ public:
   void set_H2O(double value) noexcept;
 
   ///Sets all weights of I2H to a given value
-  void set_I2H(bool value) noexcept;
+  void set_I2H(double value) noexcept;
 
   ///Sets an output node to true or false
   void set_hid_node(int index_node, bool state);
@@ -73,6 +76,10 @@ public:
   ///Sets all the tresholds of the hidden nodes to a certain value
   void set_all_hid_tresh(double value);
 
+  ///Sets inputs to the values given by a vector
+  ///(that is created in individual in working circumstances)
+  void set_inputs(std::vector<double> inputs);
+
 private:
   std::vector<std::vector<double> > m_ConI2H;	// Connections from Input to Hidden layer
   std::vector<std::vector<double> > m_ConH2H;	// Connections from Hidden to Hidden layer
@@ -91,7 +98,7 @@ void hid_updates_out(GRN& g) noexcept;
 
 ///The GRN reads inputs and gives back the outputs
 ///!!!!****Implemented as in Jordi's model***!!! I do not like it
-void jordi_response(GRN& g, std::vector<double> inputs);
+void jordi_response(GRN& g);
 
 void test_GRN();
 #endif // GRN_H

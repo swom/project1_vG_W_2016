@@ -135,7 +135,7 @@ bool is_dead(const individual &i) noexcept;
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;
 
-
+///Mutates the GRN of an individual
 ///Reverts a sporulating individual back to living (and resets the timer)
 void revert(individual& i) noexcept;
 
