@@ -108,7 +108,7 @@ void jordi_response(GRN& g) //Jordi style
 }
 
 
-void test_GRN()//!OClint, tests may be long
+void test_GRN()//!OCLINT , tests may be long
 {
   //A grn is initialized with connection weights
   //all to 0
