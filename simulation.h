@@ -8,7 +8,8 @@
 class simulation
 {
 public:
-  simulation(int pop_size = 1, int grid_side = 1, double min_dist = 0.1, double starting_food = 1);
+  simulation(int pop_size = 1, int grid_side = 1, double min_dist = 0.1, double starting_food = 1,
+             double mutation_prob = 0.01, double mutation_step = 0.1);
 
   ///finds the indexes of the individuals ready to divide
   std::vector<int> get_dividing_individuals() const noexcept;
@@ -87,12 +88,18 @@ public:
   ///Individuals with enough energy divide and redistribute energy
   void do_reprduction() noexcept;
 
+  ///Gives back the mutation size based on initialization parameters
+  double mut_step() noexcept {return m_mutation_step(m_rng);}
+
+  ///Calculates if a mutation happens or not
+  bool mut_happens() noexcept {return m_mutation_prob(m_rng);}
+
   /// Places cells in an hexagonal grid
   /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
   void place_start_cells() noexcept;
 
   ///Returns a random repr angle
-  double rnd_repr_angle() noexcept { return m_reproduction_angle(m_rng);}
+  double rnd_repr_angle() noexcept {return m_reproduction_angle(m_rng);}
 
   ///Places an individual of index i at position x,y
   void set_ind_pos(individual& i, double x, double y);
@@ -121,6 +128,8 @@ private:
   int m_sim_timer = 0;
   std::minstd_rand m_rng;
   std::uniform_real_distribution<double> m_reproduction_angle;
+  std::bernoulli_distribution m_mutation_prob;
+  std::normal_distribution<double> m_mutation_step;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern

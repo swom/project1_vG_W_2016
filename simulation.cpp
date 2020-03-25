@@ -7,11 +7,13 @@
 simulation::simulation(int pop_size,
                        int grid_side,
                        double min_dist,
-                       double starting_food):
+                       double starting_food, double mutation_prob, double mutation_step):
   m_population(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_min_init_dist_btw_cells(min_dist),
   m_e(grid_side,0.1,starting_food),
-  m_reproduction_angle(0, 2 * M_PI)
+  m_reproduction_angle(0, 2 * M_PI),
+  m_mutation_prob(mutation_prob),
+  m_mutation_step(0,mutation_step)
 {
   place_start_cells();
 }
@@ -243,8 +245,8 @@ int count_hex_layers(int pop_size)  noexcept
 }
 
 double calc_angle_3_pos(std::pair<double, double> P1,
-                       std::pair<double, double> P2,
-                       std::pair<double, double> P3)
+                        std::pair<double, double> P2,
+                        std::pair<double, double> P3)
 {
   auto angle1 = std::atan2(P3.second - P1.second, P3.first - P1.first);
   auto angle2 = std::atan2(P2.second - P1.second, P2.first - P1.first);
@@ -888,6 +890,28 @@ void test_simulation()//!OCLINT tests may be many
     assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );
   }
 
+  //A simulation is initialized with a normal distribution for mutation step
+  //with mean 0 and variance 0.1 by default
+  {
+    simulation s;
+    double mean = 0;
+    int sampling_size = 10000;
+    for(int i = 0 ; i != sampling_size; i++ )
+      mean += s.mut_step();
+    mean /= sampling_size;
+    assert(mean < 0.01 && mean > -0.01);
+  }
+  //A simulation is initialized with a binomial distribution to see if mutation happens or not
+  //0.01 by default
+  {
+    simulation s;
+    double mean = 0;
+    int sampling_size = 100000;
+    for(int i = 0 ; i != sampling_size; i++ )
+      mean += s.mut_happens();
+    mean /= sampling_size;
+    assert(mean < 0.011 && mean > 0.009);
+  }
 
 }
 
