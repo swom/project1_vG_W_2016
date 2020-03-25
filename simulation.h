@@ -1,6 +1,7 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
-#include "vector"
+#include <vector>
+#include <random>
 #include "individual.h"
 #include "environment.h"
 
@@ -21,13 +22,13 @@ public:
   ///Gets an inidividual at a certain index in the vector
   const individual get_ind(int i) const
   {
-    return population[static_cast<unsigned int>(i)];
+    return m_population[static_cast<unsigned int>(i)];
   }
 
   ///Gets an inidividual at a certain index in the vector and allows to change it
   individual& get_ind(int i)
   {
-    return population[static_cast<unsigned int>(i)];
+    return m_population[static_cast<unsigned int>(i)];
   }
 
   ///Gets the excess energy from a referenced vector of index of individuals in population vector
@@ -39,13 +40,13 @@ public:
   ///Gets an individual's energy
   double get_ind_en(int i) const
   {
-    return population[static_cast<unsigned int>(i)].get_energy();
+    return m_population[static_cast<unsigned int>(i)].get_energy();
   }
 
   ///Gets an individual's treshold energy
   double get_ind_tr_en(int i) const
   {
-    return population[static_cast<unsigned int>(i)].get_treshold_energy();
+    return m_population[static_cast<unsigned int>(i)].get_treshold_energy();
   }
 
   ///Gets the position of an individual as a vector x,y
@@ -55,13 +56,16 @@ public:
   double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
 
   ///Gets the size of the population
-  int get_pop_size() const noexcept {return static_cast<int>(population.size());}
+  int get_pop_size() const noexcept {return static_cast<int>(m_population.size());}
 
   ///Gets the vector containing all the individuals of the population
-  const std::vector<individual>& get_pop() const noexcept {return population;}
+  const std::vector<individual>& get_pop() const noexcept {return m_population;}
 
   ///Gets the vector containing all the individuals of the population
-  std::vector<individual>& get_pop() noexcept {return population;}
+  std::vector<individual>& get_pop() noexcept {return m_population;}
+
+  ///Gets the reference to m_rng
+  std::minstd_rand& get_rng() noexcept {return  m_rng;}
 
   ///Gets distance in vector elements between two duaghters of same mother cell
   std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
@@ -93,7 +97,7 @@ public:
   ///Sets and individual's energy
   void set_ind_en(int i, double en)
   {
-    population[static_cast<unsigned int>(i)].set_energy(en);
+    m_population[static_cast<unsigned int>(i)].set_energy(en);
   }
 
   ///Updates tick counter by one
@@ -101,10 +105,11 @@ public:
 
 
 private:
-  std::vector<individual> population;
+  std::vector<individual> m_population;
   double m_min_init_dist_btw_cells;
   environment m_e;
   int m_sim_timer = 0;
+  std::minstd_rand m_rng;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern

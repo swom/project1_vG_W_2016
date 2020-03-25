@@ -8,7 +8,7 @@ simulation::simulation(int pop_size,
                        int grid_side,
                        double min_dist,
                        double starting_food):
-  population(static_cast<unsigned int>(pop_size),individual(0,0)),
+  m_population(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_min_init_dist_btw_cells(min_dist),
   m_e(grid_side,0.1,starting_food)
 {
@@ -21,8 +21,8 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   std::vector<int> dividing_individuals;
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
-      if(population[i].get_energy() >= population[i].get_treshold_energy()
-         && population[i].get_type() == phenotype::active)
+      if(m_population[i].get_energy() >= m_population[i].get_treshold_energy()
+         && m_population[i].get_type() == phenotype::active)
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -34,8 +34,8 @@ void simulation::divide_ind(individual& i)
   double offs_init_en = i.split_excess_energy();
   i.set_energy(offs_init_en);
   individual d2 = i;
-  population.push_back(d2);
-  set_ind_pos(population.back(),get_d2_pos(d2));
+  m_population.push_back(d2);
+  set_ind_pos(m_population.back(),get_d2_pos(d2));
 }
 
 void simulation::do_division(std::vector<int> dividing_individuals)
@@ -163,7 +163,7 @@ void simulation::place_start_cells() noexcept
   unsigned int placed_ind = 0;
 
   // d is the distance between 2 individuals's centers
-  double d = 2 * (population[0].get_size() + m_min_init_dist_btw_cells);
+  double d = 2 * (m_population[0].get_size() + m_min_init_dist_btw_cells);
 
   for(int i=0; i != n; i++)
     {
@@ -173,15 +173,15 @@ void simulation::place_start_cells() noexcept
         {
           double x = (-(2 * n - i - 2) * d) / 2.0 + j * d;
 
-          population[placed_ind].set_x(x);
-          population[placed_ind].set_y(y);
+          m_population[placed_ind].set_x(x);
+          m_population[placed_ind].set_y(y);
           placed_ind++;
           if(placed_ind == get_pop().size()) return;
 
           if (y > 0.000001 || y < -0.000001)
             {
-              population[placed_ind].set_x(x);
-              population[placed_ind].set_y(-y);
+              m_population[placed_ind].set_x(x);
+              m_population[placed_ind].set_y(-y);
               placed_ind++;
               if(placed_ind == get_pop().size()) return;
 
@@ -821,6 +821,21 @@ void test_simulation()//!OCLINT tests may be many
     //then at the second tick the only individual left dies
     tick(s);
     assert(s.get_pop().empty() && s.get_pop_size() == 0);
+  }
+
+  //A simulation is initialized with a random number generator
+  {
+    simulation s;
+    std::uniform_int_distribution u_d(0,2);
+    double mean = 0;
+    //Draw a thousands times from a uniform dist between 0 and 2
+    for(int i = 0; i != 1000; i++)
+      {
+      mean += u_d(s.get_rng());
+      }
+    //calculate mean of the drawn values
+    mean /= 1000;
+    assert(mean < 1.01 && mean > 0.99 );
   }
 
 }
