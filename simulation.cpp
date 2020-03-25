@@ -913,6 +913,10 @@ void test_simulation()//!OCLINT tests may be many
     assert(mean < 0.011 && mean > 0.009);
   }
 
+  //The sum of weight of an individual after many rounds of mutation
+  //Should have the same mean as in the beginning, but its variance should
+  //be the same as the mutation_step distribution
+
 }
 
 
