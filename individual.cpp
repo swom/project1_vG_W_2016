@@ -107,10 +107,12 @@ void determine_phen(individual& i) noexcept
   if(will_sporulate(i) && !is_sporulating(i))
     {
       starts_sporulation(i);
+      assert(i.get_spo_timer() == 0);
     }
   else if(!will_sporulate(i) && is_sporulating(i))
     {
       reverts(i);
+      assert(i.get_spo_timer() == 0);
     }
 }
 
