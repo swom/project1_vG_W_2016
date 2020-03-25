@@ -241,13 +241,19 @@ int count_hex_layers(int pop_size)  noexcept
   else {return 0;}
   return n;
 }
-double calculate_angle(std::pair<double, double> P1,
+
+double calc_angle_3_pos(std::pair<double, double> P1,
                        std::pair<double, double> P2,
                        std::pair<double, double> P3)
 {
-  return std::atan2(P3.second - P1.second, P3.first - P1.first) -
-      atan2(P2.second - P1.second, P2.first - P1.first);
+  auto angle1 = std::atan2(P3.second - P1.second, P3.first - P1.first);
+  auto angle2 = std::atan2(P2.second - P1.second, P2.first - P1.first);
+  if(angle1 >= angle2)
+    return angle1 - angle2;
+  else
+    return M_PI + std::abs(angle1 -angle2);
 }
+
 std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 {
   std::vector<double> v_modulus;
@@ -258,7 +264,7 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
           auto P1 = get_pos(s.get_ind(i));
           auto P2 = get_pos(s.get_ind(j));
           auto P3 = get_pos(s.get_ind(k));
-          v_modulus.push_back((abs(fmod(calculate_angle(P1,P2,P3),ang_rad))));
+          v_modulus.push_back((abs(fmod(calc_angle_3_pos(P1,P2,P3),ang_rad))));
         }
   return v_modulus;
 }
@@ -864,7 +870,8 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     //to calculate angle we will use three point
     //the center of the mother(0,0)
-    auto mother = get_pos(s.get_ind(0));
+    std::pair<double, double> mother (0,0);
+    set_pos(s.get_ind(0),mother);
     //a reference point on the same axis as the mother (0,1)
     //and the center of the daughter -> get_daughter_pos()
     std::pair<double, double> reference(1,0);
@@ -874,8 +881,8 @@ void test_simulation()//!OCLINT tests may be many
     int sampling_size = 1000;
     for(int i = 0; i != sampling_size; i++)
       {
-        mean += calculate_angle(mother,reference,
-                                get_daughter_pos(s.get_ind(0),s.rnd_repr_angle()));
+        auto daughter = get_daughter_pos(s.get_ind(0),s.rnd_repr_angle());
+        mean += calc_angle_3_pos(mother,daughter,reference);
       }
     mean /= sampling_size;
     assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );

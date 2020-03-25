@@ -69,6 +69,7 @@ public:
 
   ///Gets reference to m_reproduction_angle
   std::uniform_real_distribution<double>& get_repr_angle() noexcept {return m_reproduction_angle;}
+
   ///Gets distance in vector elements between two duaghters of same mother cell
   std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
 
@@ -127,6 +128,16 @@ int count_hex_layers(int pop_size)  noexcept ;
 
 ///Calculate the distance between two cells given their positions
 double calculate_distance(std::pair<double, double> lhs, std::pair<double, double> rhs) noexcept;
+
+///Calculates angle between 3 positions(first position is the vertex of the angle)
+///returns an angle in radiants betweem 0 and 2PI
+double calc_angle_3_pos(std::pair<double, double> P1,
+                       std::pair<double, double> P2,
+                       std::pair<double, double> P3);
+
+///Calculates the modulus of the angles between all the individuals of a population
+///and a given angle in radiants
+std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
