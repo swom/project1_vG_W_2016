@@ -90,6 +90,9 @@ public:
   /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
   void place_start_cells() noexcept;
 
+  ///Returns a random repr angle
+  double rnd_repr_angle() noexcept { return m_reproduction_angle(m_rng);}
+
   ///Places an individual of index i at position x,y
   void set_ind_pos(individual& i, double x, double y);
 
@@ -107,6 +110,10 @@ public:
 
 
 private:
+///Made public for testing reasons
+//  ///Returns a random angle
+//  double rnd_angle() noexcept { return m_reproduction_angle(m_rng);}
+
   std::vector<individual> m_population;
   double m_min_init_dist_btw_cells;
   environment m_e;

@@ -104,7 +104,7 @@ private:
 };
 
 ///returns the position of the second daughter cell just outside the mother
-const std::pair<double,double> get_d2_pos(individual& i) noexcept;
+const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept;
 
 ///Gets the x,y coordinates as a pair
 const std::pair<double,double> get_pos(individual& i) noexcept;

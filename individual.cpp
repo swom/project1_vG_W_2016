@@ -73,11 +73,11 @@ int find_grid_index( individual& i, double grid_side)
   return x_index_offset + y_index_offset * static_cast<int>(grid_side);
 }
 
-const std::pair<double,double> get_d2_pos(individual& i) noexcept
+const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept
 {
   std::pair<double, double> pos;
-  pos.first = i.get_x() + cos(0)*2*i.get_size();
-  pos.second += i.get_y() + sin(0)*2*i.get_size();
+  pos.first = i.get_x() + cos(rnd_angle)*2*i.get_size();
+  pos.second += i.get_y() + sin(rnd_angle)*2*i.get_size();
   return pos;
 }
 
@@ -176,6 +176,7 @@ void reverts(individual& i) noexcept
   i.set_type(phenotype::active);
   i.reset_spo_timer();
 }
+
 
 void sense(individual& i, const env_grid_cell& c)
 {
@@ -335,7 +336,7 @@ void test_individual()//!OCLINT tests may be many
   //The position of the second daughter cell is just outside the mother cell
   {
     individual mom(0,0);
-    auto daughter_pos = get_d2_pos(mom);
+    auto daughter_pos = get_daughter_pos(mom,0);
     individual daughter2(daughter_pos.first, daughter_pos.second);
     assert(!are_colliding(mom,daughter2));
   }

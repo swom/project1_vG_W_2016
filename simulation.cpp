@@ -34,9 +34,9 @@ void simulation::divide_ind(individual& i)
 {
   double offs_init_en = i.split_excess_energy();
   i.set_energy(offs_init_en);
-  individual d2 = i;
-  m_population.push_back(d2);
-  set_ind_pos(m_population.back(),get_d2_pos(d2));
+  individual daughter = i;
+  m_population.push_back(daughter);
+  set_ind_pos(m_population.back(),get_daughter_pos(daughter, rnd_repr_angle()));
 }
 
 void simulation::do_division(std::vector<int> dividing_individuals)
@@ -241,7 +241,13 @@ int count_hex_layers(int pop_size)  noexcept
   else {return 0;}
   return n;
 }
-
+double calculate_angle(std::pair<double, double> P1,
+                       std::pair<double, double> P2,
+                       std::pair<double, double> P3)
+{
+  return std::atan2(P3.second - P1.second, P3.first - P1.first) -
+      atan2(P2.second - P1.second, P2.first - P1.first);
+}
 std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 {
   std::vector<double> v_modulus;
@@ -249,13 +255,10 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
     for(int j = i+1; j != s.get_pop_size(); j++)
       for(int k = j+1; k != s.get_pop_size(); k++)
         {
-          individual P1 = s.get_ind(i);
-          individual P2 = s.get_ind(j);
-          individual P3 = s.get_ind(k);
-          double angle =
-              std::atan2(P3.get_y() - P1.get_y(), P3.get_x() - P1.get_x()) -
-              atan2(P2.get_y() - P1.get_y(), P2.get_x() - P1.get_x());
-          v_modulus.push_back((abs(fmod(angle,ang_rad))));
+          auto P1 = get_pos(s.get_ind(i));
+          auto P2 = get_pos(s.get_ind(j));
+          auto P3 = get_pos(s.get_ind(k));
+          v_modulus.push_back((abs(fmod(calculate_angle(P1,P2,P3),ang_rad))));
         }
   return v_modulus;
 }
@@ -470,8 +473,9 @@ void test_simulation()//!OCLINT tests may be many
     //without offspring having negative enrgies
     s.set_ind_en(0,s.get_ind_tr_en(0));
     s.divide_ind(s.get_ind(0));
-    //The first daughter cell is at the same index of the mother cell
     assert(!has_collision(s));
+    assert(distance(s.get_ind(0), s.get_ind(1)) -
+           (s.get_ind(0).get_size() + s.get_ind(1).get_size()) < 0.1);
   }
 
   //If there are collisions individuals are displaced
@@ -832,7 +836,7 @@ void test_simulation()//!OCLINT tests may be many
     //Draw a thousands times from a uniform dist between 0 and 2
     for(int i = 0; i != 1000; i++)
       {
-      mean += u_d(s.get_rng());
+        mean += u_d(s.get_rng());
       }
     //calculate mean of the drawn values
     mean /= 1000;
@@ -845,14 +849,39 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     double mean = 0;
     //Draw a thousands times from a uniform dist between 0 and 2
-    for(int i = 0; i != 1000; i++)
+    int sampling_size = 1000;
+    for(int i = 0; i != sampling_size; i++)
       {
-      mean += s.get_repr_angle()(s.get_rng());
+        mean += s.rnd_repr_angle();
       }
     //calculate mean of the drawn values
     mean /= 1000;
     assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );
   }
+
+  //Daughter cells are placed at a random angle after reproduction
+  {
+    simulation s;
+    //to calculate angle we will use three point
+    //the center of the mother(0,0)
+    auto mother = get_pos(s.get_ind(0));
+    //a reference point on the same axis as the mother (0,1)
+    //and the center of the daughter -> get_daughter_pos()
+    std::pair<double, double> reference(1,0);
+
+    //Draw a thousands times from a uniform dist between 0 and 2
+    double mean = 0;
+    int sampling_size = 1000;
+    for(int i = 0; i != sampling_size; i++)
+      {
+        mean += calculate_angle(mother,reference,
+                                get_daughter_pos(s.get_ind(0),s.rnd_repr_angle()));
+      }
+    mean /= sampling_size;
+    assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );
+  }
+
+
 }
 
 
