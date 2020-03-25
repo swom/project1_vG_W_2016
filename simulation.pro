@@ -5,7 +5,7 @@ HEADERS += \
     environment.h \
     grn.h \
     individual.h \
-    individual_type.h \
+    phenotype.h \
     simulation.h
 
 SOURCES += \

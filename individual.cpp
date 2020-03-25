@@ -5,7 +5,7 @@
 individual::individual(double x_pos, double y_pos,
                        double size, double energy,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
-                       ind_type individual_type, int sporulation_timer,
+                       phenotype individual_type, int sporulation_timer,
                        int transformation_time):
   m_x(x_pos),
   m_y(y_pos),
@@ -124,10 +124,26 @@ void displace(individual& lhs, individual& rhs) noexcept
 }
 
 bool is_dead(individual const&  i) noexcept
-{ if(i.get_type() == ind_type::spore)
+{ if(i.get_type() == phenotype::spore)
     {return false;}
   return i.get_energy() <= 0;
 }
+
+bool is_active(const individual& i) noexcept
+{
+  return i.get_type() == phenotype::active;
+}
+
+bool is_sporulating(const individual& i) noexcept
+{
+  return i.get_type() == phenotype::sporulating;
+}
+
+bool is_spore(const individual& i) noexcept
+{
+  return i.get_type() == phenotype::spore;
+}
+
 
 void metabolism(individual& i) noexcept
 {
@@ -149,12 +165,13 @@ void responds(individual& i, const env_grid_cell& c)
 {
   sense(i,c);
   jordi_response_mech(i.get_grn());
+  determine_phen(i);
 }
 
 void reverts(individual& i) noexcept
 {
-  assert(i.get_type() == ind_type::sporulating);
-  i.set_type(ind_type::active);
+  assert(i.get_type() == phenotype::sporulating);
+  i.set_type(phenotype::active);
   i.reset_spo_timer();
 }
 
@@ -177,20 +194,26 @@ void starts_sporulation(individual& i)
 {
   assert(is_active(i));
   assert(i.get_spo_timer() == 0);
-  i.set_type(ind_type::sporulating);
+  i.set_type(phenotype::sporulating);
 }
+
 void sporulation(individual& i) noexcept
 {
-  if(i.get_type() == ind_type::sporulating )
+  if(i.get_type() == phenotype::sporulating )
     {
       i.tick_spo_timer();
       assert(i.get_spo_timer() <= i.get_transformation_time());
       if(i.get_spo_timer() == i.get_transformation_time())
         {
-          i.set_type(ind_type::spore);
+          i.set_type(phenotype::spore);
           i.reset_spo_timer();
         }
     }
+}
+
+bool will_sporulate(individual& i) noexcept
+{
+  return i.get_grn().get_output_spo() == 0;
 }
 
 void test_individual()//!OCLINT tests may be many
@@ -436,9 +459,9 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(to_str(i.get_type()) == "living");
-    individual i2(0,0,0,0,0,0,0,ind_type::spore);
+    individual i2(0,0,0,0,0,0,0,phenotype::spore);
     assert(to_str(i2.get_type()) == "spore");
-    individual i3(0,0,0,0,0,0,0,ind_type::sporulating);
+    individual i3(0,0,0,0,0,0,0,phenotype::sporulating);
     assert(to_str(i3.get_type()) == "sporulating");
   }
 
@@ -446,7 +469,7 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(to_str(i.get_type()) == "living");
-    i.set_type(ind_type::spore);
+    i.set_type(phenotype::spore);
     assert(to_str(i.get_type()) == "spore");
     assert(to_str(i.get_type()) != "living");
   }
@@ -483,7 +506,7 @@ void test_individual()//!OCLINT tests may be many
     individual i;
     assert(i.get_transformation_time() == 5);
     auto transformation_time = 42;
-    individual i2(0,0,0,0,0,0,0,ind_type::sporulating,0,transformation_time);
+    individual i2(0,0,0,0,0,0,0,phenotype::sporulating,0,transformation_time);
     assert(i2.get_transformation_time() == transformation_time);
   }
 
@@ -491,21 +514,21 @@ void test_individual()//!OCLINT tests may be many
   //The sporulating individual will turn into a spore
   {
     individual i;
-    i.set_type(ind_type::sporulating);
+    i.set_type(phenotype::sporulating);
     i.set_energy(i.get_metab_rate() * i.get_transformation_time());
     for(int j = 0; j != i.get_transformation_time(); j++)
       {
-        assert(i.get_type() == ind_type::sporulating);
+        assert(i.get_type() == phenotype::sporulating);
         sporulation(i);
       }
-    assert(i.get_type() == ind_type::spore);
+    assert(i.get_type() == phenotype::spore);
   }
 
   //Sporulating individuals that revert back to living
   //get their timer reset
   {
     individual i;
-    i.set_type(ind_type::sporulating);
+    i.set_type(phenotype::sporulating);
     int time = 42;
     for(int j = 0; j != time; j++)
       {
@@ -513,14 +536,14 @@ void test_individual()//!OCLINT tests may be many
       }
     assert(i.get_spo_timer() == time);
     reverts(i);
-    assert(i.get_spo_timer() == 0 && i.get_type() == ind_type::active);
+    assert(i.get_spo_timer() == 0 && i.get_type() == phenotype::active);
   }
 
   //It is possible to determine if an individual is sporulating
   {
     individual i;
     assert(!is_sporulating(i));
-    i.set_type(ind_type::sporulating);
+    i.set_type(phenotype::sporulating);
     assert(is_sporulating(i));
   }
 
@@ -528,26 +551,26 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(is_active(i));
-    i.set_type(ind_type::sporulating);
-    assert(is_active(i));
+    i.set_type(phenotype::sporulating);
+    assert(!is_active(i));
   }
 
   //It is possible to determine if an individual is a spore
   {
     individual i;
     assert(!is_spore(i));
-    i.set_type(ind_type::spore);
+    i.set_type(phenotype::spore);
     assert(is_spore(i));
   }
 
   //An individual can start sporulating
   {
     individual i;
-    assert(i.get_type() != ind_type::sporulating);
-    assert(i.get_type() == ind_type::active);
+    assert(i.get_type() != phenotype::sporulating);
+    assert(i.get_type() == phenotype::active);
     starts_sporulation(i);
-    assert(i.get_type() == ind_type::sporulating);
-    assert(i.get_type() != ind_type::active);
+    assert(i.get_type() == phenotype::sporulating);
+    assert(i.get_type() != phenotype::active);
 
   }
   //An individual with 0 energy is signaled to be destroyed
@@ -573,9 +596,9 @@ void test_individual()//!OCLINT tests may be many
   //Spores do not die even if their energy is 0
   {
     individual i;
-    assert(i.get_type() != ind_type::spore);
+    assert(i.get_type() != phenotype::spore);
     assert(is_dead(i));
-    i.set_type(ind_type::spore);
+    i.set_type(phenotype::spore);
     assert(!is_dead(i));
   }
 
@@ -624,45 +647,47 @@ void test_individual()//!OCLINT tests may be many
   //if output[0] == true then it is living
   {
     individual i;
-    assert(i.get_type() == ind_type::active);
+    assert(is_active(i));
     i.get_grn().set_all_out_nodes(false);
     determine_phen(i);
-    assert(i.get_type() != ind_type::active);
-    assert(i.get_type() == ind_type::sporulating);
+    assert(!is_active(i));
+    assert(is_sporulating(i));
 
     i.get_grn().set_all_out_nodes(true);
     determine_phen(i);
-    assert(i.get_type() == ind_type::active);
-    assert(i.get_type() != ind_type::sporulating);
-
+    assert(is_active(i));
+    assert(!is_sporulating(i));
   }
-
+  // An individual can read cues and respond by switching phenotype
   {
-//    double food_amount = 3.14;
-//    double metabolite_amount = 3.14;
-//    double internal_energy_amount = 3.14;
-//    individual i(0,0,0,internal_energy_amount);
-//    env_grid_cell c(metabolite_amount, food_amount);
-//    //let's set all the weights of the network to 1
-//    //in this case we expect that the outputs will be one
-//    i.get_grn().set_all_I2H(1);
-//    i.get_grn().set_all_H2O(1);
-//    //Since the network reacts to input of timestpe t
-//    //at timestep t+1 I will run responds(i) 2 times
-//    //so we can read the output
-//    responds(i, c);
-//    //The values of food and metabolite in the grid_cell as well as the energy in the individual
-//    //are changed so that all signals are 0 the network should therefore give outputs == 0/false
-//    //after responds(i) is called 2 more times
-//    c.set_food(0);
-//    c.set_metabolite(0);
-//    i.set_energy(0);
-//    //1st responds(i)
-//    responds(i, c);
-//    assert(i.get_type() == individual_type::living);
-//    //2nd responds(i)
-//    responds(i, c);
-//    assert(i.get_type() == individual_type::sporulating);
-//    assert(i.get_type() != individual_type::living);
+    double food_amount = 3.14;
+    double metabolite_amount = 3.14;
+    double internal_energy_amount = 3.14;
+    individual i(0,0,0,internal_energy_amount);
+    env_grid_cell c(metabolite_amount, food_amount);
+    //let's set all the weights of the network to 1
+    //in this case we expect that the outputs will be one
+    i.get_grn().set_all_I2H(1);
+    i.get_grn().set_all_H2O(1);
+    //Since the network reacts to input of timestpe t
+    //at timestep t+1 I will run responds(i) 2 times
+    //so we can read the output
+    responds(i, c);
+    //The values of food and metabolite in the grid_cell as well as the energy in the individual
+    //are changed so that all inputs are -1, the network should therefore give outputs == 0/false
+    //since the outputs node will recieve a signal that is negative(below the treshold)
+    //after responds(i) is called 2 more times
+    c.set_food(-1);
+    c.set_metabolite(-1);
+    i.set_energy(-1);
+    //1st responds(i), the individual responds to the initial parameter
+    //expected output value == 1
+    responds(i, c);
+    assert(is_active(i));
+    //2nd responds(i), the individual responds to the changed parameter(all 0s)
+    //expected output value == 0
+    responds(i, c);
+    assert(!is_active(i));
+    assert(is_sporulating(i));
   }
 }

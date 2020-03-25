@@ -1,7 +1,7 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
 #include "env_grid_cell.h"
-#include "individual_type.h"
+#include "phenotype.h"
 #include "grn.h"
 #include <vector>
 #include <utility>
@@ -14,7 +14,7 @@ public:
   individual(double x_pos = 0, double y_pos = 0, double size  = 1,
              double energy = 0, double treshold_energy = 2,
              double uptake_rate = 0.1, double metabolic_rate = 0.01,
-             ind_type ind_type = ind_type::active,
+             phenotype phenotype = phenotype::active,
              int sporulation_timer = 0, int transformation_time = 5);
 
   ///Changes x of an individual
@@ -42,7 +42,7 @@ public:
   double get_size() const noexcept {return m_size;}
 
   ///Gets the type of the individual
-  ind_type get_type() const noexcept {return m_individual_type;}
+  phenotype get_type() const noexcept {return m_individual_type;}
 
   ///Gets the time it takes to transform into a spore
   int get_transformation_time() const noexcept {return m_transformation_time;}
@@ -69,7 +69,7 @@ public:
   void set_energy(double new_energy) {m_energy = new_energy;}
 
   ///Sets the type of an individual
-  void set_type(ind_type type) {m_individual_type = type;}
+  void set_type(phenotype type) {m_individual_type = type;}
 
   ///Sets the x of an individual
   void set_x(double x) noexcept {m_x = x;}
@@ -94,7 +94,7 @@ private:
   double m_treshold_energy;
   double m_uptake_rate;
   double m_metab_rate;
-  ind_type m_individual_type;
+  phenotype m_individual_type;
   int m_sporulation_timer;
   int m_transformation_time; //number of time steps the individual needs
                              //to go through to sporulate, if it is alive at
@@ -141,13 +141,13 @@ void feed(individual& i, env_grid_cell& food) noexcept;
 bool is_dead(const individual &i) noexcept;
 
 ///Checks if an individual is active
-bool is_active(const individual& i) noexcept {return i.get_type() == ind_type::active;}
+bool is_active(const individual& i) noexcept;
 
 ///Checks if an individual is sporulating
-bool is_sporulating(const individual& i) noexcept {return i.get_type() == ind_type::sporulating;}
+bool is_sporulating(const individual& i) noexcept;
 
 ///Checks if an individual is a spore
-bool is_spore(const individual& i) noexcept {return i.get_type() == ind_type::spore;}
+bool is_spore(const individual& i) noexcept;
 
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;
@@ -175,7 +175,7 @@ void sporulation(individual& i) noexcept;
 
 ///Determines if the output of the network will make the individual
 /// become of ind_type::sporulating
-bool will_sporulate(individual& i) noexcept {return i.get_grn().get_output_spo() == 0;}
+bool will_sporulate(individual& i) noexcept;
 
 void test_individual();
 

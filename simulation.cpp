@@ -22,7 +22,7 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
       if(population[i].get_energy() >= population[i].get_treshold_energy()
-         && population[i].get_type() == individual_type::living)
+         && population[i].get_type() == phenotype::active)
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -59,7 +59,7 @@ void feeding(simulation& s)
     {
       auto index_grid = find_grid_index(ind,s.get_env().get_grid_side());
       if(index_grid == -100 ||
-         ind.get_type() != individual_type::living)
+         ind.get_type() != phenotype::active)
         {continue;}
       feed(ind,s.get_env().get_cell(index_grid));
     }
@@ -124,7 +124,7 @@ void metabolism_pop(simulation& s)
 {
   for(auto& ind : s.get_pop())
     {
-      if(ind.get_type() != individual_type::spore)
+      if(ind.get_type() != phenotype::spore)
         metabolism(ind);
     }
 }
@@ -704,14 +704,14 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     s.set_ind_en(0,s.get_ind_tr_en(0));
     assert(s.get_dividing_individuals()[0] == 0);
-    s.get_ind(0).set_type(individual_type::spore);
+    s.get_ind(0).set_type(phenotype::spore);
     assert(s.get_dividing_individuals().empty());
   }
 
   //Spores do not reproduce
   {
     simulation s;
-    s.get_ind(0).set_type(individual_type::spore);
+    s.get_ind(0).set_type(phenotype::spore);
     s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_pop_size = s.get_pop_size();
     s.set_ind_en(0,s.get_ind_tr_en(0));
@@ -723,7 +723,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     auto init_food = s.get_env().get_cell(0).get_food();
-    s.get_ind(0).set_type(individual_type::spore);
+    s.get_ind(0).set_type(phenotype::spore);
     feeding(s);
     assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
            && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
@@ -731,7 +731,7 @@ void test_simulation()//!OCLINT tests may be many
   //Spores do not lose energy
   {
     simulation s;
-    s.get_ind(0).set_type(individual_type::spore);
+    s.get_ind(0).set_type(phenotype::spore);
     s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_en_ind0 = s.get_ind_en(0);
     tick(s);
@@ -744,14 +744,14 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     s.set_ind_en(0,s.get_ind_tr_en(0));
     assert(s.get_dividing_individuals()[0] == 0);
-    s.get_ind(0).set_type(individual_type::sporulating);
+    s.get_ind(0).set_type(phenotype::sporulating);
     assert(s.get_dividing_individuals().empty());
   }
 
   //Sporulating individuals cannot reproduce
   {
     simulation s;
-    s.get_ind(0).set_type(individual_type::sporulating);
+    s.get_ind(0).set_type(phenotype::sporulating);
     s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_pop_size = s.get_pop_size();
     s.set_ind_en(0,s.get_ind_tr_en(0));
@@ -762,7 +762,7 @@ void test_simulation()//!OCLINT tests may be many
   //Sporulating individuals do not feed but they lose energy
   {
     simulation s;
-    s.get_ind(0).set_type(individual_type::sporulating);
+    s.get_ind(0).set_type(phenotype::sporulating);
     s.set_ind_en(0,1);
     auto init_en_ind0 = s.get_ind_en(0);
     auto init_food = s.get_env().get_cell(0).get_food();
@@ -778,7 +778,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     auto init_timer = s.get_ind(0).get_spo_timer();
-    s.get_ind(0).set_type(individual_type::sporulating);
+    s.get_ind(0).set_type(phenotype::sporulating);
     tick(s);
     assert(init_timer != s.get_ind(0).get_spo_timer());
     assert(s.get_ind(0).get_spo_timer() == init_timer + 1);
@@ -786,7 +786,7 @@ void test_simulation()//!OCLINT tests may be many
 
     s.get_ind(0).reset_spo_timer();
     init_timer = s.get_ind(0).get_spo_timer();
-    s.get_ind(0).set_type(individual_type::spore);
+    s.get_ind(0).set_type(phenotype::spore);
     tick(s);
     assert(s.get_ind(0).get_spo_timer() == init_timer);
     assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
@@ -794,7 +794,7 @@ void test_simulation()//!OCLINT tests may be many
 
     s.get_ind(0).reset_spo_timer();
     init_timer = s.get_ind(0).get_spo_timer();
-    s.get_ind(0).set_type(individual_type::living);
+    s.get_ind(0).set_type(phenotype::active);
     tick(s);
     assert(s.get_ind(0).get_spo_timer() == init_timer);
     assert(s.get_ind(0).get_spo_timer() != init_timer + 1);

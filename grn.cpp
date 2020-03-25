@@ -79,7 +79,8 @@ void inp_updates_hid(GRN& g) noexcept
         {
           signal_hid += g.get_input_nodes()[i] * g.get_I2H()[j][i];
         }
-      if(signal_hid > g.get_hid_tresh()[i]){g.set_hid_node(static_cast<int>(i),signal_hid);}
+      if(signal_hid > g.get_hid_tresh()[i]) {g.set_hid_node(static_cast<int>(i),true);}
+      else {g.set_hid_node(static_cast<int>(i),false);}
     }
 }
 
@@ -93,7 +94,8 @@ void hid_updates_out(GRN& g) noexcept
           signal_out  += g.get_hidden_nodes()[j] * g.get_H2O()[j][i];
 
         }
-      if(signal_out > g.get_out_tresh()[i]){g.set_out_node(static_cast<int>(i),signal_out);}
+      if(signal_out > g.get_out_tresh()[i]) {g.set_out_node(static_cast<int>(i),true);}
+      else {g.set_out_node(static_cast<int>(i),false);}
     }
 }
 
