@@ -627,8 +627,8 @@ void test_individual()//!OCLINT tests may be many
   {
     double food_amount = 3.14;
     double metabolite_amount = 3.14;
-    double internal_energy_amount = 3.14;
-    individual i(0,0,0,internal_energy_amount);
+    double energy_amount = 3.14;
+    individual i(0,0,0,energy_amount);
     env_grid_cell c(metabolite_amount, food_amount);
     //let's set all the weights of the network to 1
     //in this case we expect that the outputs will be one
@@ -664,8 +664,8 @@ void test_individual()//!OCLINT tests may be many
   {
     double food_amount = 3.14;
     double metabolite_amount = 3.14;
-    double internal_energy_amount = 3.14;
-    individual i(0,0,0,internal_energy_amount);
+    double energy_amount = 3.14;
+    individual i(0,0,0,energy_amount);
     env_grid_cell c(metabolite_amount, food_amount);
     //let's set all the weights of the network to 1
     //in this case we expect that the outputs will be one
