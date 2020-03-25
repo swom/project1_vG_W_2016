@@ -14,7 +14,7 @@ public:
   individual(double x_pos = 0, double y_pos = 0, double size  = 1,
              double energy = 0, double treshold_energy = 2,
              double uptake_rate = 0.1, double metabolic_rate = 0.01,
-             individual_type individual_type = individual_type::living,
+             ind_type ind_type = ind_type::active,
              int sporulation_timer = 0, int transformation_time = 5);
 
   ///Changes x of an individual
@@ -42,7 +42,7 @@ public:
   double get_size() const noexcept {return m_size;}
 
   ///Gets the type of the individual
-  individual_type get_type() const noexcept {return m_individual_type;}
+  ind_type get_type() const noexcept {return m_individual_type;}
 
   ///Gets the time it takes to transform into a spore
   int get_transformation_time() const noexcept {return m_transformation_time;}
@@ -69,7 +69,7 @@ public:
   void set_energy(double new_energy) {m_energy = new_energy;}
 
   ///Sets the type of an individual
-  void set_type(individual_type type) {m_individual_type = type;}
+  void set_type(ind_type type) {m_individual_type = type;}
 
   ///Sets the x of an individual
   void set_x(double x) noexcept {m_x = x;}
@@ -94,7 +94,7 @@ private:
   double m_treshold_energy;
   double m_uptake_rate;
   double m_metab_rate;
-  individual_type m_individual_type;
+  ind_type m_individual_type;
   int m_sporulation_timer;
   int m_transformation_time; //number of time steps the individual needs
                              //to go through to sporulate, if it is alive at
@@ -127,6 +127,9 @@ std::pair<double, double> get_displacement(const individual &lhs, const individu
 ///Dislpaces two individuals so that they do not overlap
 void displace(individual& lhs, individual& rhs) noexcept;
 
+///Sets the type of the individual accordingly to its GRN's outputs
+void determine_phen(individual& i) noexcept;
+
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
 int find_grid_index( individual& i, double grid_side) ;
@@ -137,21 +140,42 @@ void feed(individual& i, env_grid_cell& food) noexcept;
 ///Signals if an individual has to be destroyed
 bool is_dead(const individual &i) noexcept;
 
+///Checks if an individual is active
+bool is_active(const individual& i) noexcept {return i.get_type() == ind_type::active;}
+
+///Checks if an individual is sporulating
+bool is_sporulating(const individual& i) noexcept {return i.get_type() == ind_type::sporulating;}
+
+///Checks if an individual is a spore
+bool is_spore(const individual& i) noexcept {return i.get_type() == ind_type::spore;}
+
 ///Individuals lose energry due to metabolism
 void metabolism(individual& i) noexcept;
 
 ///Mutates the GRN of an individual
 void mutate(individual& i, double mu_rate, double mu_step);
+
 ///Reverts a sporulating individual back to living (and resets the timer)
-void revert(individual& i) noexcept;
+void reverts(individual& i) noexcept;
+
+///An individual senses cues, internal and on its grid_cell
+///  and responds to them
+void responds(individual& i, const env_grid_cell& c);
 
 ///Takes food, metabolite from the grid cell and energy from individual
 /// and sets them as inputs of the grn
 void sense(individual& i, const env_grid_cell& c);
 
+///Changes an ind_type of an individual from living to sporulating
+void starts_sporulation(individual& i);
+
 ///Checks and updates the timer of sporulating individuals
 /// and changes them into spores if they have sporulated long enough
 void sporulation(individual& i) noexcept;
+
+///Determines if the output of the network will make the individual
+/// become of ind_type::sporulating
+bool will_sporulate(individual& i) noexcept {return i.get_grn().get_output_spo() == 0;}
 
 void test_individual();
 

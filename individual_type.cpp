@@ -1,15 +1,15 @@
 #include "individual_type.h"
 #include <cassert>
 
-std::string to_str(individual_type this_ind_type)
+std::string to_str(ind_type this_ind_type)
 {
   switch (this_ind_type)
     {
-    case individual_type::spore:
+    case ind_type::spore:
       return "spore";
-    case individual_type::sporulating:
+    case ind_type::sporulating:
       return "sporulating";
-    case individual_type::living:
+    case ind_type::active:
       return "living";
     }
   return "[Unknown environment_type]";
@@ -19,11 +19,11 @@ void test_individual_type()
 {
   // Conversion to string
   {
-    assert(to_str(individual_type::spore) == "spore");
-    assert(to_str(individual_type::sporulating) == "sporulating");
-    assert(to_str(individual_type::living) == "living");
-    assert(to_str(individual_type::living) != "spore");
-    assert(to_str(individual_type::spore) != "sporulating");
-    assert(to_str(individual_type::sporulating) != "living");
+    assert(to_str(ind_type::spore) == "spore");
+    assert(to_str(ind_type::sporulating) == "sporulating");
+    assert(to_str(ind_type::active) == "living");
+    assert(to_str(ind_type::active) != "spore");
+    assert(to_str(ind_type::spore) != "sporulating");
+    assert(to_str(ind_type::sporulating) != "living");
   }
 }

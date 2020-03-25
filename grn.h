@@ -46,6 +46,9 @@ public:
   ///Gets reference output layer states
   std::vector<bool>& get_output_nodes() noexcept {return  m_ExOutput;}
 
+  ///Gets const reference to sporulation output (m_ExOutput[0])
+  bool get_output_spo() const noexcept {return m_ExOutput[0];}
+
   ///Gets const ref to tresholds of output nodes
   const std::vector<double>& get_out_tresh() const noexcept {return m_TOutput;}
 
@@ -95,6 +98,9 @@ private:
 
 ///Hidden nodes update the states of output nodes
 void hid_updates_out(GRN& g) noexcept;
+
+///Input nodes update the states of output nodes
+void inp_updates_hid(GRN& g) noexcept;
 
 ///The GRN reads inputs and gives back the outputs
 ///!!!!****Implemented as in Jordi's model***!!! I do not like it
