@@ -10,7 +10,8 @@ simulation::simulation(int pop_size,
                        double starting_food):
   m_population(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_min_init_dist_btw_cells(min_dist),
-  m_e(grid_side,0.1,starting_food)
+  m_e(grid_side,0.1,starting_food),
+  m_reproduction_angle(0, 2 * M_PI)
 {
   place_start_cells();
 }
@@ -838,6 +839,20 @@ void test_simulation()//!OCLINT tests may be many
     assert(mean < 1.01 && mean > 0.99 );
   }
 
+  //A simulation is initialized with a uniform distribution
+  //between 0 and 2PI
+  {
+    simulation s;
+    double mean = 0;
+    //Draw a thousands times from a uniform dist between 0 and 2
+    for(int i = 0; i != 1000; i++)
+      {
+      mean += s.get_repr_angle()(s.get_rng());
+      }
+    //calculate mean of the drawn values
+    mean /= 1000;
+    assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );
+  }
 }
 
 

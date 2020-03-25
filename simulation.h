@@ -67,6 +67,8 @@ public:
   ///Gets the reference to m_rng
   std::minstd_rand& get_rng() noexcept {return  m_rng;}
 
+  ///Gets reference to m_reproduction_angle
+  std::uniform_real_distribution<double>& get_repr_angle() noexcept {return m_reproduction_angle;}
   ///Gets distance in vector elements between two duaghters of same mother cell
   std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
 
@@ -110,6 +112,7 @@ private:
   environment m_e;
   int m_sim_timer = 0;
   std::minstd_rand m_rng;
+  std::uniform_real_distribution<double> m_reproduction_angle;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
