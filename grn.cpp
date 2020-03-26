@@ -80,18 +80,21 @@ void GRN::set_inputs(std::vector<double> inputs)
 void GRN::set_out_node(int index_node, bool state)
 {m_ExOutput[static_cast<unsigned int>(index_node)] = state;}
 
-void inp_updates_hid(GRN& g) noexcept
+
+
+std::vector<double> hid_updates_hid(GRN& g) noexcept
 {
+  std::vector<double> signal_from_hid;
   for(unsigned int i = 0; i != g.get_hidden_nodes().size(); i++)
     {
       double signal_hid = 0;
-      for (unsigned int j = 0 ; j != g.get_input_nodes().size(); j++)
+      for (unsigned int j = 0 ; j != g.get_hidden_nodes().size(); j++)
         {
-          signal_hid += g.get_input_nodes()[i] * g.get_I2H()[j][i];
+          signal_hid += g.get_hidden_nodes()[i] * g.get_H2H()[j][i];
         }
-      if(signal_hid > g.get_hid_tresh()[i]) {g.set_hid_node(static_cast<int>(i),true);}
-      else {g.set_hid_node(static_cast<int>(i),false);}
+    signal_from_hid.push_back(signal_hid);
     }
+  return signal_from_hid;
 }
 
 void hid_updates_out(GRN& g) noexcept
@@ -109,6 +112,21 @@ void hid_updates_out(GRN& g) noexcept
     }
 }
 
+std::vector<double> inp_updates_hid(GRN& g) noexcept
+{
+  std::vector<double> signal_from_input;
+  for(unsigned int i = 0; i != g.get_hidden_nodes().size(); i++)
+    {
+      double signal_hid = 0;
+      for (unsigned int j = 0 ; j != g.get_input_nodes().size(); j++)
+        {
+          signal_hid += g.get_input_nodes()[i] * g.get_I2H()[j][i];
+        }
+    signal_from_input.push_back(signal_hid);
+    }
+  return signal_from_input;
+}
+
 void jordi_response_mech(GRN& g) //Jordi style
 {
   //First he updates output from hidden (is not the first thing he does
@@ -116,7 +134,7 @@ void jordi_response_mech(GRN& g) //Jordi style
   //GRN
   hid_updates_out(g);
   //Update the state of the hidden nodes
-  inp_updates_hid(g);
+  update_hid(g);
 }
 
 
@@ -192,6 +210,10 @@ int n_connections(const GRN& g) noexcept
       g.get_I2H().size() * g.get_I2H()[0].size());
 }
 
+//void store_hid_val(GRN& g) noexcept
+//{
+//  g.set_prev_hid_val(g.get_hidden_nodes())
+//}
 
 double sum_I2H(const GRN& g) noexcept
 {
@@ -218,6 +240,18 @@ double sum_H2O(const GRN& g) noexcept
       sum_H2O += std::accumulate(node.begin(), node.end(), 0.0);
     }
   return sum_H2O;
+}
+
+void update_hid(GRN& g) noexcept
+{
+  auto signal_in = inp_updates_hid(g);
+  auto signal_hid = hid_updates_hid(g);
+  assert(signal_in.size() == signal_hid.size());
+  for(size_t i = 0; i != signal_in.size(); i++)
+    {
+      if((signal_in[i] + signal_hid[i]) > g.get_hid_tresh()[i]) {g.set_hid_node(static_cast<int>(i),true);}
+      else {g.set_hid_node(static_cast<int>(i),false);}
+    }
 }
 
 double weights_sum (const GRN& g) noexcept
@@ -369,7 +403,7 @@ void test_GRN()//!OCLINT , tests may be long
       assert(g.get_output_nodes()[i]);
   }
 
-  //Given the initial inputs the hidden nodes can be updated
+  //Given the initial inputs the hidden nodes will recieve a signal
   {
     GRN g;
     double inputs_value = 3.14; //in this case all inputs are the same
@@ -377,16 +411,49 @@ void test_GRN()//!OCLINT , tests may be long
     g.set_inputs(inputs);
     g.set_all_hid_tresh(inputs_value - 0.00001);
     //all weight I2H are
-    //inputs_value / number_of_output_nodes / number_of_connections
-    g.set_all_I2H( inputs_value /
-                   g.get_hidden_nodes().size() /
-                   g.get_I2H().size() * g.get_I2H()[0].size());
-    inp_updates_hid(g);
-    //Therefore each output node will receive a signal of hidden_nodes_value
-    for (size_t i = 0; i != g.get_hidden_nodes().size(); i++)
-      assert(g.get_hidden_nodes()[i]);
+    //1 / number_of_connections_of each_hidden_to_input
+    g.set_all_I2H( 1.0 / g.get_I2H().size() );
+    auto inp_signals = inp_updates_hid(g);
+    //Therefore each hidden node will receive a signal of hidden_nodes_value
+    for (size_t i = 0; i != inp_signals.size(); i++)
+      assert(inp_signals[i] - inputs_value < 0.00001 &&
+             inp_signals[i] - inputs_value > -0.00001);
 
   }
+
+//  //The values of the hidden nodes are stored in a vector to be used in
+//  //the successive timestep to auto-update the hidden nodes
+////At initialization the values in this vector are all 0
+//  {
+//    GRN g;
+//    for (const auto& value : g.get_past_hid_val())
+//      {
+//        assert(value < 0.000001 && value > -0.000001)
+//      }
+//    assert(store_hid_values(g) != g.set_all_hid_nodes(1));
+//  }
+  //The hidden nodes updated themselves toghether with input
+  {
+    GRN g;
+    bool hidden_value = true; //in this case all nodes are the same
+    g.set_all_hid_nodes(hidden_value);
+    //all weight H2H are
+    //1 / number_of_connection_to_each_hidden_node
+    g.set_all_H2H( 1.0 / g.get_H2H().size());
+    auto hid_signals = hid_updates_hid(g);
+    //Therefore each hidden node will receive a signal == hidden_value
+    for (size_t i = 0; i != hid_signals.size(); i++)
+      assert(hid_signals[i] - static_cast<double>(hidden_value) < 0.00001 &&
+             hid_signals[i] - static_cast<double>(hidden_value) > -0.00001);
+  //if instead the weights are smaller signal != hidden_value
+    g.set_all_H2H(1.0 / g.get_H2H().size() * 2);
+    hid_signals = hid_updates_hid(g);
+    for (size_t i = 0; i != hid_signals.size(); i++)
+      assert(hid_signals[i] - static_cast<double>(hidden_value) > 0.00001 ||
+             hid_signals[i] - static_cast<double>(hidden_value) < -0.00001);
+
+  }
+
   //Given three initial input a GRN gives back an output
   {
     GRN g;//the weights and connection and nodes are all to 0, so output should be 0

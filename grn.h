@@ -90,6 +90,9 @@ public:
   ///(that is created in individual in working circumstances)
   void set_inputs(std::vector<double> inputs);
 
+//  ///Sets the values of the m_prev_hid_val vector
+//  void set_prev_hid_val(std::vector<bool> hid_val);
+
 private:
   std::vector<std::vector<double> > m_ConI2H;	// Connections from Input to Hidden layer
   std::vector<std::vector<double> > m_ConH2H;	// Connections from Hidden to Hidden layer
@@ -103,20 +106,14 @@ private:
   std::vector<bool> m_ExOutput;			// Expression during 'development'
 };
 
+///Input nodes update the states of output nodes
+std::vector<double> hid_updates_hid(GRN& g) noexcept;
+
 ///Hidden nodes update the states of output nodes
 void hid_updates_out(GRN& g) noexcept;
 
-///Sums the weights of hidden to hidden connections
-double sum_I2H(const GRN& g) noexcept;
-
-///Sums the weights of hidden to hidden connections
-double sum_H2H(const GRN& g) noexcept;
-
-///Sums the weights of hidden to ouput connections
-double sum_H2O(const GRN& g) noexcept;
-
 ///Input nodes update the states of output nodes
-void inp_updates_hid(GRN& g) noexcept;
+std::vector<double> inp_updates_hid(GRN& g) noexcept;
 
 ///The GRN reads inputs and gives back the outputs
 ///!!!!****Implemented as in Jordi's model***!!! I do not like it
@@ -165,6 +162,21 @@ void mutation(GRN& g, std::minstd_rand& rng,
 
 ///Counts the number of connections in a network
 int n_connections(const GRN& g) noexcept;
+
+// ///Stores the values of hidden layer in m_prev_hid_val vector
+// void store_hid_val(GRN& g) noexcept;
+
+///Sums the weights of hidden to hidden connections
+double sum_I2H(const GRN& g) noexcept;
+
+///Sums the weights of hidden to hidden connections
+double sum_H2H(const GRN& g) noexcept;
+
+///Sums the weights of hidden to ouput connections
+double sum_H2O(const GRN& g) noexcept;
+
+///Updates hidden nodes states based on inut and hidden nodes themselves
+void update_hid(GRN& g) noexcept;
 
 ///Calculates the sum of all weights
 double weights_sum (const GRN& g) noexcept;
