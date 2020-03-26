@@ -32,28 +32,16 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
     }
   return dividing_individuals;
 }
-void simulation::divide_ind(individual& i)
-{
-  double offs_init_en = i.split_excess_energy();
-  i.set_energy(offs_init_en);
-  individual daughter = i;
-  m_population.push_back(daughter);
-  set_ind_pos(m_population.back(),get_daughter_pos(daughter, rnd_repr_angle()));
-}
 
-void simulation::do_division(std::vector<int> dividing_individuals)
+void division(simulation &s) noexcept
 {
-
-  for(size_t i = 0; i != dividing_individuals.size(); i++)
+  auto  div_inds  = s.get_dividing_individuals();
+  for(size_t i = 0; i != div_inds.size(); i++)
     {
-      int div_ind = dividing_individuals[i];
-      divide_ind(get_ind(div_ind));
+      int div_ind = div_inds[i];
+      divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
+              s.get_rng(),s.get_mu_p(),s.get_mu_st());
     }
-}
-
-void simulation::do_reprduction() noexcept
-{
-  do_division(get_dividing_individuals());
 }
 
 void feeding(simulation& s)
@@ -155,11 +143,12 @@ void tick(simulation& s)
   feeding(s);
   metabolism_pop(s);
   death(s);
-  s.do_reprduction();
+  division(s);
   manage_static_collisions(s);
   diffusion(s.get_env());
   s.update_sim_timer();
 }
+
 void simulation::place_start_cells() noexcept
 {
   int n = count_hex_layers(get_pop_size());
@@ -371,10 +360,11 @@ void test_simulation()//!OCLINT tests may be many
     double lhs = s.get_pop_size();
     //let's allow all individuals in the population to reproduce,
     //to facilitate the testing conditions
-    std::vector<int> dividing_pop(s.get_pop().size()) ;
-    std::iota (std::begin(dividing_pop), std::end(dividing_pop), 0);
-
-    s.do_division(dividing_pop);
+    for(auto& ind : s.get_pop())
+      {
+        ind.set_energy(ind.get_treshold_energy());
+      }
+    division(s);
 
     double rhs = s.get_pop_size();
     assert(lhs * 2 - rhs < 0.0000001);
@@ -447,7 +437,7 @@ void test_simulation()//!OCLINT tests may be many
 
     auto mother_excess_energy = s.get_excess_energies(s.get_dividing_individuals());
     auto sister_cells_vector = s.get_sisters_index_offset();
-    s.do_reprduction();
+    division(s);
     for(unsigned int i = 0; i < s.get_sisters_index_offset().size(); i++)
       {
         assert(s.get_ind_en(sister_cells_vector[i].first)
@@ -468,7 +458,8 @@ void test_simulation()//!OCLINT tests may be many
     //to reproduce without offspring having negative enrgies
     s.set_ind_en(0,s.get_ind_tr_en(0));
 
-    s.divide_ind(s.get_ind(0));
+    divides(s.get_ind(0),s.get_pop(),s.repr_angle(),
+            s.get_rng(), s.get_mu_p(), s.get_mu_st());
     //The first daughter cell is at the same index of the mother cell
     assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
   }
@@ -480,7 +471,8 @@ void test_simulation()//!OCLINT tests may be many
     //setting energy high enough for the individual to reproduce
     //without offspring having negative enrgies
     s.set_ind_en(0,s.get_ind_tr_en(0));
-    s.divide_ind(s.get_ind(0));
+    divides(s.get_ind(0), s.get_pop(), s.repr_angle(),
+            s.get_rng(), s.get_mu_p(), s.get_mu_st());
     assert(!has_collision(s));
     assert(distance(s.get_ind(0), s.get_ind(1)) -
            (s.get_ind(0).get_size() + s.get_ind(1).get_size()) < 0.1);
@@ -682,7 +674,7 @@ void test_simulation()//!OCLINT tests may be many
                             - s.get_ind(1).get_uptake_rate());
     feeding(s);
     metabolism_pop(s);
-    s.do_reprduction();
+    division(s);
     manage_static_collisions(s);
 
     assert(s.get_pop().size() == init_pop_size + 1);
@@ -860,7 +852,7 @@ void test_simulation()//!OCLINT tests may be many
     int sampling_size = 1000;
     for(int i = 0; i != sampling_size; i++)
       {
-        mean += s.rnd_repr_angle();
+        mean += s.repr_angle();
       }
     //calculate mean of the drawn values
     mean /= 1000;
@@ -883,7 +875,7 @@ void test_simulation()//!OCLINT tests may be many
     int sampling_size = 1000;
     for(int i = 0; i != sampling_size; i++)
       {
-        auto daughter = get_daughter_pos(s.get_ind(0),s.rnd_repr_angle());
+        auto daughter = get_daughter_pos(s.get_ind(0),s.repr_angle());
         mean += calc_angle_3_pos(mother,daughter,reference);
       }
     mean /= sampling_size;
@@ -918,22 +910,33 @@ void test_simulation()//!OCLINT tests may be many
   //be the same as the mutation_step distribution
   {
     simulation s;
-//   double init_mean = weights_mean(s.get_ind(0).get_grn());
+    //   double init_mean = weights_mean(s.get_ind(0).get_grn());
     double init_variance = weights_var(s.get_ind(0).get_grn());
     assert(init_variance < 0.0001 && init_variance > -0.000001);
 
     int sampling_size = 10000;
 
-      for (int i = 0; i != sampling_size; i++)
-        {
-          mutates(s.get_ind(0),s.get_rng(),
-                  s.get_mu_p(), s.get_mu_st());
-        }
+    for (int i = 0; i != sampling_size; i++)
+      {
+        mutates(s.get_ind(0),s.get_rng(),
+                s.get_mu_p(), s.get_mu_st());
+      }
     //This first assert does not pass, the mean is much more variable than
     //I thought, but I do not see any bug. I will comment this out
-//    assert(mean - init_mean > -0.1 && mean - init_mean < 0.1);
+    //    assert(mean - init_mean > -0.1 && mean - init_mean < 0.1);
     assert(init_variance - weights_var(s.get_ind(0).get_grn()) > 0.01 ||
            init_variance - weights_var(s.get_ind(0).get_grn()) < -0.01);
+  }
+  //After dividing the two daughter individuals mutate
+  {
+    double mutation_probability = 1; //all weights will be mutated in this simulation
+    simulation s(1,0,0,0,mutation_probability);
+    auto init_var = weights_var(s.get_ind(0).get_grn());
+    assert(init_var < 0.00001 && init_var > -0.0001);
+    divides(s.get_ind(0),s.get_pop(),s.repr_angle(),s.get_rng(),
+            s.get_mu_p(),s.get_mu_st());
+    auto post_var = weights_var(s.get_ind(0).get_grn());
+    assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
   }
 
 }

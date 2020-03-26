@@ -128,6 +128,11 @@ std::pair<double, double> get_displacement(const individual &lhs, const individu
 ///Dislpaces two individuals so that they do not overlap
 void displace(individual& lhs, individual& rhs) noexcept;
 
+///Divides an individual at a given index
+void divides(individual &i, std::vector<individual> &pop, double repr_angle,
+             std::minstd_rand& rng, std::bernoulli_distribution& mu_p,
+             std::normal_distribution<double> mu_st);
+
 ///Sets the type of the individual accordingly to its GRN's outputs
 void determine_phen(individual& i) noexcept;
 

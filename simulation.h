@@ -83,16 +83,6 @@ public:
   ///Gets the number of ticks in the simulation
   const int& get_tick() const noexcept {return m_sim_timer;}
 
-  ///Divides an individual at a given index
-  void divide_ind(individual &i);
-
-  ///The individuals in the vector are copied at the end of the pop vector
-  // To be chaged to take vec of references as an argument
-  void do_division(std::vector<int> dividing_individuals);
-
-  ///Individuals with enough energy divide and redistribute energy
-  void do_reprduction() noexcept;
-
   ///Gives back the mutation size based on initialization parameters
   double mut_step() noexcept {return m_mutation_step(m_rng);}
 
@@ -104,7 +94,7 @@ public:
   void place_start_cells() noexcept;
 
   ///Returns a random repr angle
-  double rnd_repr_angle() noexcept {return m_reproduction_angle(m_rng);}
+  double repr_angle() noexcept {return m_reproduction_angle(m_rng);}
 
   ///Places an individual of index i at position x,y
   void set_ind_pos(individual& i, double x, double y);
@@ -155,6 +145,9 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
+
+///The individuals in the vector are copied at the end of the pop vector
+void division(simulation& s) noexcept;
 
 /// All the individuals feed
 void feeding(simulation& s);

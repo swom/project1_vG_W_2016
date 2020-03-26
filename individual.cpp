@@ -125,6 +125,19 @@ void displace(individual& lhs, individual& rhs) noexcept
   rhs.change_y(-displacement.second);
 }
 
+void divides(individual& i, std::vector<individual>& pop, double repr_angle,
+             std::minstd_rand& rng, std::bernoulli_distribution& mu_p,
+             std::normal_distribution<double> mu_st)
+{
+  double offs_init_en = i.split_excess_energy();
+  i.set_energy(offs_init_en);
+  individual daughter = i;
+  mutates(i, rng, mu_p, mu_st);
+  mutates(daughter, rng, mu_p, mu_st);
+  pop.push_back(daughter);
+  set_pos(pop.back(),get_daughter_pos(daughter, repr_angle));
+}
+
 bool is_dead(individual const&  i) noexcept
 { if(i.get_type() == phenotype::spore)
     {return false;}
