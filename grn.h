@@ -1,6 +1,7 @@
 #ifndef GRN_H
 #define GRN_H
 #include <vector>
+#include <random>
 
 class GRN
 {
@@ -13,8 +14,11 @@ public:
   ///Gets the reference to connection from input to hidden layer
   std::vector<std::vector<double> >& get_I2H() noexcept {return m_ConI2H;}
 
-  ///Gets the connection from hidden to hidden layer
+  ///Gets the const reference to connection from hidden to hidden layer
   const std::vector<std::vector<double> >& get_H2H() const noexcept {return m_ConH2H;}
+
+  ///Gets the reference to connection from hidden to hidden layer
+  std::vector<std::vector<double> >& get_H2H() noexcept {return m_ConH2H;}
 
   ///Gets the const ref to connection from hidden to output layer
   const std::vector<std::vector<double> >& get_H2O() const noexcept {return m_ConH2O;}
@@ -54,6 +58,9 @@ public:
 
   ///Gets ref to tresholds of output nodes
   std::vector<double>& get_out_tresh() noexcept {return m_TOutput;}
+
+  ///Sets all weights of H2O to a given value
+  void set_all_H2H(double value) noexcept;
 
   ///Sets all weights of H2O to a given value
   void set_all_H2O(double value) noexcept;
@@ -99,12 +106,76 @@ private:
 ///Hidden nodes update the states of output nodes
 void hid_updates_out(GRN& g) noexcept;
 
+///Sums the weights of hidden to hidden connections
+double sum_I2H(const GRN& g) noexcept;
+
+///Sums the weights of hidden to hidden connections
+double sum_H2H(const GRN& g) noexcept;
+
+///Sums the weights of hidden to ouput connections
+double sum_H2O(const GRN& g) noexcept;
+
 ///Input nodes update the states of output nodes
 void inp_updates_hid(GRN& g) noexcept;
 
 ///The GRN reads inputs and gives back the outputs
 ///!!!!****Implemented as in Jordi's model***!!! I do not like it
 void jordi_response_mech(GRN& g);
+
+///Mutates weights of connections between input and hidden layer
+///For now requires to get distribution and rng from somewhere else
+/// (simulation)
+void mutation_I2H(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept;
+
+///Mutates weights of connections between input and hidden layer
+///For now requires to get distribution and rng from somewhere else
+/// (simulation)
+void mutation_H2H(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept;
+
+///Mutates weights of connections between input and hidden layer
+///For now requires to get distribution and rng from somewhere else
+/// (simulation)
+void mutation_H2O(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept;
+
+///Mutates weights of thresholds of hidden layer
+///For now requires to get distribution and rng from somewhere else
+/// (simulation)
+void mutation_hid_tr(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept;
+
+///Mutates weights of thresholds of output layer
+///For now requires to get distribution and rng from somewhere else
+/// (simulation)
+void mutation_hid_tr(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept;
+
+
+///Applies random mutation to weights and thresholds of an individual
+void mutation(GRN& g, std::minstd_rand& rng,
+              std::bernoulli_distribution& mu_p,
+              std::normal_distribution<double> mu_st) noexcept;
+
+///Counts the number of connections in a network
+int n_connections(const GRN& g) noexcept;
+
+///Calculates the sum of all weights
+double weights_sum (const GRN& g) noexcept;
+
+///Calculates the mean value of all weights
+double weights_mean (const GRN& g) noexcept;
+
+///Calculates the variance of weights in a GRN
+double weights_var(const GRN& g) noexcept;
+
+
 
 void test_GRN();
 #endif // GRN_H

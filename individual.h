@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <random>
 
 class individual
 {
@@ -153,7 +154,11 @@ bool is_spore(const individual& i) noexcept;
 void metabolism(individual& i) noexcept;
 
 ///Mutates the GRN of an individual
-void mutate(individual& i, double mu_rate, double mu_step);
+/// ///For now requires to get distribution and rng from somewhere else
+/// (simulation)
+void mutates(individual& i, std::minstd_rand& rng,
+            std::bernoulli_distribution& mu_p,
+            std::normal_distribution<double> mu_st) noexcept;
 
 ///Reverts a sporulating individual back to living (and resets the timer)
 void reverts(individual& i) noexcept;

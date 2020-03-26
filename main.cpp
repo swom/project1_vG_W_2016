@@ -8,6 +8,7 @@ void test() {
     test_individual_type();
     test_simulation();
     test_individual();
+    test_GRN();
 }
 
 

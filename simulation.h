@@ -56,6 +56,12 @@ public:
   ///Get minimum distance between individuals at the start of the simulation
   double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
 
+  ///Gets the reference to the mutation probability distribution
+  std::bernoulli_distribution& get_mu_p() noexcept {return m_mutation_prob;}
+
+  ///Gets the reference to the mutation step distribution
+  std::normal_distribution<double>& get_mu_st() noexcept {return m_mutation_step;}
+
   ///Gets the size of the population
   int get_pop_size() const noexcept {return static_cast<int>(m_population.size());}
 
@@ -79,7 +85,6 @@ public:
 
   ///Divides an individual at a given index
   void divide_ind(individual &i);
-
 
   ///The individuals in the vector are copied at the end of the pop vector
   // To be chaged to take vec of references as an argument

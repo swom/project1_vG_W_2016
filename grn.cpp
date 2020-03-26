@@ -1,5 +1,6 @@
 #include "grn.h"
-#include<cassert>
+#include <cassert>
+#include <numeric>
 
 
 GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output):
@@ -18,12 +19,21 @@ GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output):
 void GRN::set_hid_node(int index_node, bool state)
 {m_ExHidden[static_cast<unsigned int>(index_node)] = state;}
 
+void GRN::set_all_H2H(double value) noexcept
+{
+  for (auto& node : get_H2H())
+    {
+      for(auto& connection_weight : node)
+        connection_weight = value;
+    }
+}
+
 void GRN::set_all_H2O(double value) noexcept
 {
   for (auto& node : get_H2O())
     {
       for(auto& connection_weight : node)
-      connection_weight = value;
+        connection_weight = value;
     }
 }
 
@@ -32,7 +42,7 @@ void GRN::set_all_I2H(double value) noexcept
   for (auto& node : get_I2H())
     {
       for(auto& connection_weight : node)
-      connection_weight = value;
+        connection_weight = value;
     }
 }
 
@@ -52,13 +62,13 @@ void GRN::set_all_hid_nodes(bool state)
 void GRN::set_all_hid_tresh(double value)
 {
   for(auto& treshold : get_hid_tresh())
-     treshold = value;
+    treshold = value;
 }
 
 void GRN::set_all_out_tresh(double value)
 {
   for(auto& treshold : get_out_tresh())
-     treshold = value;
+    treshold = value;
 }
 
 void GRN::set_inputs(std::vector<double> inputs)
@@ -109,6 +119,138 @@ void jordi_response_mech(GRN& g) //Jordi style
   inp_updates_hid(g);
 }
 
+
+void mutation_I2H(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept
+{
+  for(auto & node : g.get_I2H())
+    for(auto & weight : node)
+      {
+        if(mu_p(rng)){weight += mu_st(rng);}
+      }
+}
+
+void mutation_H2H(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept
+{
+  for(auto & node : g.get_H2H())
+    for(auto & weight : node)
+      {
+        if(mu_p(rng)){weight += mu_st(rng);}
+      }
+}
+
+void mutation_H2O(GRN& g, std::minstd_rand& rng,
+                  std::bernoulli_distribution& mu_p,
+                  std::normal_distribution<double> mu_st) noexcept
+{
+  for(auto & node : g.get_H2O())
+    for(auto & weight : node)
+      {
+        if(mu_p(rng)){weight += mu_st(rng);}
+      }
+}
+
+void mutation_hid_tr(GRN& g, std::minstd_rand& rng,
+                   std::bernoulli_distribution& mu_p,
+                   std::normal_distribution<double> mu_st) noexcept
+{
+  for(auto & treshold : g.get_hid_tresh())
+    {
+      if(mu_p(rng)){treshold += mu_st(rng);}
+    }
+}
+
+void mutation_out_tr(GRN& g, std::minstd_rand& rng,
+                    std::bernoulli_distribution& mu_p,
+                    std::normal_distribution<double> mu_st) noexcept
+ {
+   for(auto & treshold : g.get_out_tresh())
+     {
+       if(mu_p(rng)){treshold += mu_st(rng);}
+     }
+ }
+
+void mutation(GRN& g, std::minstd_rand& rng,
+              std::bernoulli_distribution& mu_p,
+              std::normal_distribution<double> mu_st) noexcept
+{
+  mutation_I2H(g,rng,mu_p,mu_st);
+  mutation_H2H(g,rng,mu_p,mu_st);
+  mutation_H2O(g,rng,mu_p,mu_st);
+  mutation_hid_tr(g,rng,mu_p,mu_st);
+  mutation_out_tr(g,rng,mu_p,mu_st);
+}
+
+int n_connections(const GRN& g) noexcept
+{
+  return static_cast<int> (
+        g.get_H2H().size() * g.get_H2H()[0].size() +
+      g.get_H2O().size() * g.get_H2O()[0].size() +
+      g.get_I2H().size() * g.get_I2H()[0].size());
+}
+
+
+double sum_I2H(const GRN& g) noexcept
+{
+  double sum_I2H = 0;
+  for (const auto& node : g.get_I2H()) {
+      sum_I2H += std::accumulate(node.begin(), node.end(), 0.0);
+    }
+  return sum_I2H;
+}
+
+double sum_H2H(const GRN& g) noexcept
+{
+  double sum_H2H = 0;
+  for (const auto& node : g.get_H2H()) {
+      sum_H2H += std::accumulate(node.begin(), node.end(), 0.0);
+    }
+  return sum_H2H;
+}
+
+double sum_H2O(const GRN& g) noexcept
+{
+  double sum_H2O = 0;
+  for (const auto& node : g.get_H2O()) {
+      sum_H2O += std::accumulate(node.begin(), node.end(), 0.0);
+    }
+  return sum_H2O;
+}
+
+double weights_sum (const GRN& g) noexcept
+{
+  return sum_H2H(g) + sum_H2O(g) + sum_I2H(g);
+}
+
+double weights_mean (const GRN& g) noexcept
+{
+  return weights_sum(g)/n_connections(g);
+}
+
+double weights_var(const GRN& g) noexcept
+{
+  double var = 0;
+  double mean = weights_mean(g);
+  for(const auto& node : g.get_H2H())
+    for(const auto& weight : node)
+      {
+        var += (weight - mean) * (weight - mean);
+      }
+  for(const auto& node : g.get_H2O())
+    for(const auto& weight : node)
+      {
+        var += (weight - mean) * (weight - mean);
+      }
+  for(const auto& node : g.get_I2H())
+    for(const auto& weight : node)
+      {
+        var += (weight - mean) * (weight - mean);
+      }
+  return var /= n_connections(g);
+}
 
 void test_GRN()//!OCLINT , tests may be long
 {
@@ -169,6 +311,17 @@ void test_GRN()//!OCLINT , tests may be long
                weight - weight_value > -0.00001);
   }
 
+  //All weights in H2H connection can be set to a value
+  {
+    GRN g;
+    double weight_value = 3.14;
+    g.set_all_H2H(weight_value);
+    for(const auto& node : g.get_H2H())
+      for(const auto& weight : node)
+        assert(weight - weight_value < 0.00001 &&
+               weight - weight_value > -0.00001);
+  }
+
   //All output nodes can be set to true or false
   {
     GRN g;
@@ -203,16 +356,17 @@ void test_GRN()//!OCLINT , tests may be long
     bool hidden_nodes_value = 1;
     //all hidden nodes are 1
     g.set_all_hid_nodes(hidden_nodes_value);
-    //all weight H20 are
-    //hidden_nodes_value / number_of_output_nodes / number_of_connections
-    g.set_all_H2O(hidden_nodes_value /
-              g.get_output_nodes().size() /
-              (g.get_H2O().size() * g.get_H2O()[0].size()));
+    //all weights H20 are
+    //hidden_nodes_value / number_of_connections_per_output_node
+    double weight_value = hidden_nodes_value;
+    weight_value /= g.get_H2O().size();
+
+    g.set_all_H2O(weight_value);
     //Therefore each output node will receive a signal of hidden_nodes_value
     g.set_all_out_tresh(hidden_nodes_value - 0.00001);
     hid_updates_out(g);
     for (size_t i = 0; i != g.get_output_nodes().size(); i++)
-    assert(g.get_output_nodes()[i]);
+      assert(g.get_output_nodes()[i]);
   }
 
   //Given the initial inputs the hidden nodes can be updated
@@ -225,12 +379,12 @@ void test_GRN()//!OCLINT , tests may be long
     //all weight I2H are
     //inputs_value / number_of_output_nodes / number_of_connections
     g.set_all_I2H( inputs_value /
-          g.get_hidden_nodes().size() /
-             g.get_I2H().size() * g.get_I2H()[0].size());
+                   g.get_hidden_nodes().size() /
+                   g.get_I2H().size() * g.get_I2H()[0].size());
     inp_updates_hid(g);
     //Therefore each output node will receive a signal of hidden_nodes_value
     for (size_t i = 0; i != g.get_hidden_nodes().size(); i++)
-    assert(g.get_hidden_nodes()[i]);
+      assert(g.get_hidden_nodes()[i]);
 
   }
   //Given three initial input a GRN gives back an output
@@ -246,4 +400,50 @@ void test_GRN()//!OCLINT , tests may be long
       }
   }
 
+  //The number of connections of a network can be counted
+  {
+    GRN g;
+    assert(n_connections(g) == static_cast<int> (
+             g.get_H2H().size() * g.get_H2H()[0].size() +
+           g.get_H2O().size() * g.get_H2O()[0].size() +
+        g.get_I2H().size() * g.get_I2H()[0].size()
+        )
+        );
+
+  }
+
+  //The weights of a network can be summed toghether
+  {
+    GRN g;
+    g.set_all_H2O(1);
+    g.set_all_I2H(1);
+    g.set_all_H2H(1);
+    auto sum = weights_sum(g);
+    auto n_con = static_cast<double>(n_connections(g));
+    assert(sum - n_con < 0.00001 &&
+           sum - n_con > -0.00001);
+  }
+
+  //The mean of the weights of the network can be calculated
+  {
+    GRN g;
+    double weights_value = 1;
+    g.set_all_H2O(weights_value);
+    g.set_all_I2H(weights_value);
+    g.set_all_H2H(weights_value);
+    assert(weights_mean(g) - weights_value < 0.00001 &&
+           weights_mean(g) - weights_value > -0.00001);
+  }
+
+  //The variance of weights of a network can be calculated
+  {
+    GRN g;
+    double weights_value = 1;
+    //All weights are the same so variance should be 0
+    g.set_all_H2O(weights_value);
+    g.set_all_I2H(weights_value);
+    g.set_all_H2H(weights_value);
+    assert(weights_var(g) < 0.00001 &&
+           weights_var(g) > -0.00001);
+  }
 }

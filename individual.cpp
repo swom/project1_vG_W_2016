@@ -158,6 +158,13 @@ void metabolism(individual& i) noexcept
 
 }
 
+void mutates(individual& i, std::minstd_rand& rng,
+            std::bernoulli_distribution& mu_p,
+            std::normal_distribution<double> mu_st) noexcept
+{
+  mutation(i.get_grn(), rng, mu_p, mu_st);
+}
+
 double overlap(const individual& lhs, const individual& rhs) noexcept
 {
   return (distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;

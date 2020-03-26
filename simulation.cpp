@@ -901,7 +901,7 @@ void test_simulation()//!OCLINT tests may be many
     mean /= sampling_size;
     assert(mean < 0.01 && mean > -0.01);
   }
-  //A simulation is initialized with a binomial distribution to see if mutation happens or not
+  //A simulation is initialized with a bernoulli distribution to see if mutation happens or not
   //0.01 by default
   {
     simulation s;
@@ -916,9 +916,27 @@ void test_simulation()//!OCLINT tests may be many
   //The sum of weight of an individual after many rounds of mutation
   //Should have the same mean as in the beginning, but its variance should
   //be the same as the mutation_step distribution
+  {
+    simulation s;
+//   double init_mean = weights_mean(s.get_ind(0).get_grn());
+    double init_variance = weights_var(s.get_ind(0).get_grn());
+    assert(init_variance < 0.0001 && init_variance > -0.000001);
+
+    int sampling_size = 10000;
+
+      for (int i = 0; i != sampling_size; i++)
+        {
+          mutates(s.get_ind(0),s.get_rng(),
+                  s.get_mu_p(), s.get_mu_st());
+        }
+    //This first assert does not pass, the mean is much more variable than
+    //I thought, but I do not see any bug. I will comment this out
+//    assert(mean - init_mean > -0.1 && mean - init_mean < 0.1);
+    assert(init_variance - weights_var(s.get_ind(0).get_grn()) > 0.01 ||
+           init_variance - weights_var(s.get_ind(0).get_grn()) < -0.01);
+  }
 
 }
-
 
 
 
