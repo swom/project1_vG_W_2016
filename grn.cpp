@@ -449,7 +449,7 @@ void test_GRN()//!OCLINT , tests may be long
     g.set_all_H2H(1.0 / g.get_H2H().size() * 2);
     hid_signals = hid_updates_hid(g);
     for (size_t i = 0; i != hid_signals.size(); i++)
-      assert(hid_signals[i] - static_cast<double>(hidden_value) > 0.00001 ||
+      assert( hid_signals[i] - static_cast<double>(hidden_value) > 0.00001 ||
              hid_signals[i] - static_cast<double>(hidden_value) < -0.00001);
 
   }
