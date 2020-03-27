@@ -24,6 +24,9 @@ public:
   ///Changes y of an individual
   void change_y(double y) noexcept {m_y += y;}
 
+  ///Gets the flag that signal if the individual has been drawn to be member of the new pop
+  bool get_drawn_flag() const noexcept {return m_is_drawn;}
+
   ///Changes the energy level of an individual
   void change_en(double en_change) noexcept {m_energy += en_change;}
 
@@ -66,6 +69,9 @@ public:
   ///Resets the sporulation timer
   void reset_spo_timer() noexcept {m_sporulation_timer = 0;}
 
+  ///Sets the m_is_drawn flag to a bool value
+  void set_drawn_flag(bool b) noexcept {m_is_drawn = b;}
+
   ///sets the energy of an individual
   void set_energy(double new_energy) {m_energy = new_energy;}
 
@@ -101,7 +107,7 @@ private:
                              //to go through to sporulate, if it is alive at
                              //m_transformation time + 1 it will become a spore
   GRN m_grn;
-
+  bool m_is_drawn = false;
 };
 
 ///returns the position of the second daughter cell just outside the mother
@@ -136,6 +142,12 @@ void divides(individual &i, std::vector<individual> &pop, double repr_angle,
 ///Sets the type of the individual accordingly to its GRN's outputs
 void determine_phen(individual& i) noexcept;
 
+///Signal that an individual has been drawn to be a funder of the new population
+void draw(individual& i);
+
+///Resets the flag of a drawn individual to 0
+void draw_flag_reset(individual& i);
+
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
 int find_grid_index( individual& i, double grid_side) ;
@@ -145,6 +157,9 @@ void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///Signals if an individual has to be destroyed
 bool is_dead(const individual &i) noexcept;
+
+///Checks if an individual has been drawn for becoming part of the new population
+bool is_drawn(const individual& i) noexcept;
 
 ///Checks if an individual is active
 bool is_active(const individual& i) noexcept;

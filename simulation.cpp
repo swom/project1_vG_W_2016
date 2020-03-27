@@ -39,17 +39,22 @@ void dispersal(simulation& s)
   std::uniform_real_distribution<double> p_draw (0,1);
   auto pop_size = s.get_pop_size();
   auto new_pop_size = s.get_pop_size();
-  while( (s.get_new_pop_size() != 100) && (s.get_pop_size() != 0))
+  while( (new_pop_size != 100/*to be changed to member var*/) && (pop_size != 0))
     {
       for(auto& ind : s.get_pop())
         {
-          auto fit_ind = ind.get_type() == phenotype::spore ? 0.1 : 0.01;
-          if(p_draw(s.get_rng()) < fit_ind)
+          auto fit_ind = ind.get_type() == phenotype::spore ? 0.1 : 0.01/*to be changed to member vars*/;
+          if(p_draw(s.get_rng()) < fit_ind && !is_drawn(ind))
             {
+            draw(ind);
             s.get_new_pop().push_back(ind);
+            pop_size--;
+            new_pop_size ++;
             }
           if(s.get_new_pop_size() == 100 || s.get_pop_size() == 0)
-            return;
+            {
+               return;
+            }
         }
     }
 }
@@ -966,19 +971,21 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_new_pop_size() == 100);
     s = simulation(10);
     dispersal(s);
-    assert(s.get_pop_size() == 0);
+    assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
+                         [](const individual& i) {return is_drawn(i);}) ==
+           s.get_pop_size());
   }
 
-  //During dispersal the individuals selected for the new_pop are removed from pop
+  //During dispersal the individuals selected for the new_pop cannot be drawn again from pop
   {
     simulation s(1000);
-    auto init_pop_size = s.get_pop_size();
     dispersal(s);
-    assert(s.get_pop_size() == init_pop_size - 100);
+    assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
+                         [](const individual& i) {return is_drawn(i);}) == 100);
   }
 
   //Individuals are selected based on their phenotype
-  //A spore is 10* more likely to be selected than a living
+  //A spore is more likely to be selected than a living
   {
     simulation s(1000);
     for(int i = s.get_pop_size() / 2; i != s.get_pop_size(); i++)

@@ -42,6 +42,18 @@ double distance(const individual& lhs, const individual& rhs) noexcept
               + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
 }
 
+void draw(individual& i)
+{
+  assert(!is_drawn(i));
+  i.set_drawn_flag(true);
+}
+
+void draw_flag_reset(individual& i)
+{
+  assert(is_drawn(i));
+  i.set_drawn_flag(false);
+}
+
 void feed(individual& i, env_grid_cell& c) noexcept
 {
   if(c.get_food() > i.get_uptake_rate())
@@ -144,6 +156,11 @@ bool is_dead(individual const&  i) noexcept
   return i.get_energy() <= 0;
 }
 
+bool is_drawn(const individual& i) noexcept
+{
+  return i.get_drawn_flag();
+}
+
 bool is_active(const individual& i) noexcept
 {
   return i.get_type() == phenotype::active;
@@ -172,8 +189,8 @@ void metabolism(individual& i) noexcept
 }
 
 void mutates(individual& i, std::minstd_rand& rng,
-            std::bernoulli_distribution& mu_p,
-            std::normal_distribution<double> mu_st) noexcept
+             std::bernoulli_distribution& mu_p,
+             std::normal_distribution<double> mu_st) noexcept
 {
   mutation(i.get_grn(), rng, mu_p, mu_st);
 }
@@ -712,5 +729,29 @@ void test_individual()//!OCLINT tests may be many
     responds(i, c);
     assert(!is_active(i));
     assert(is_sporulating(i));
+  }
+
+  //An individual is initialized with a m_is_drawn member
+  //0 by default
+  {
+    individual i;
+    assert(!is_drawn(i));
+  }
+
+  //And individual can be drawn to fund the new population
+  {
+    individual i;
+    assert(!is_drawn(i));
+    draw(i);
+    assert(is_drawn(i));
+  }
+
+  //A drawn individual can be reset to be drwan again
+  {
+    individual i;
+    draw(i);
+    assert(is_drawn(i));
+    draw_flag_reset(i);
+    assert(!is_drawn(i));
   }
 }
