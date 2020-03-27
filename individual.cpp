@@ -93,6 +93,12 @@ const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle)
   return pos;
 }
 
+double get_fitness(const individual& i, double disp_prob, double spore_advantage) noexcept
+{
+  if(i.get_phen() == phenotype::spore)
+    return disp_prob * spore_advantage;
+  return disp_prob;
+}
 
 const std::pair<double, double> get_pos(individual& i)  noexcept
 {
@@ -151,7 +157,7 @@ void divides(individual& i, std::vector<individual>& pop, double repr_angle,
 }
 
 bool is_dead(individual const&  i) noexcept
-{ if(i.get_type() == phenotype::spore)
+{ if(i.get_phen() == phenotype::spore)
     {return false;}
   return i.get_energy() <= 0;
 }
@@ -163,17 +169,17 @@ bool is_drawn(const individual& i) noexcept
 
 bool is_active(const individual& i) noexcept
 {
-  return i.get_type() == phenotype::active;
+  return i.get_phen() == phenotype::active;
 }
 
 bool is_sporulating(const individual& i) noexcept
 {
-  return i.get_type() == phenotype::sporulating;
+  return i.get_phen() == phenotype::sporulating;
 }
 
 bool is_spore(const individual& i) noexcept
 {
-  return i.get_type() == phenotype::spore;
+  return i.get_phen() == phenotype::spore;
 }
 
 
@@ -209,7 +215,7 @@ void responds(individual& i, const env_grid_cell& c)
 
 void reverts(individual& i) noexcept
 {
-  assert(i.get_type() == phenotype::sporulating);
+  assert(i.get_phen() == phenotype::sporulating);
   i.set_phen(phenotype::active);
   i.reset_spo_timer();
 }
@@ -239,7 +245,7 @@ void starts_sporulation(individual& i)
 
 void sporulation(individual& i) noexcept
 {
-  if(i.get_type() == phenotype::sporulating )
+  if(i.get_phen() == phenotype::sporulating )
     {
       i.tick_spo_timer();
       assert(i.get_spo_timer() <= i.get_transformation_time());
@@ -498,20 +504,20 @@ void test_individual()//!OCLINT tests may be many
   //By default it is initialized with  individual_type::living
   {
     individual i;
-    assert(to_str(i.get_type()) == "living");
+    assert(to_str(i.get_phen()) == "living");
     individual i2(0,0,0,0,0,0,0,phenotype::spore);
-    assert(to_str(i2.get_type()) == "spore");
+    assert(to_str(i2.get_phen()) == "spore");
     individual i3(0,0,0,0,0,0,0,phenotype::sporulating);
-    assert(to_str(i3.get_type()) == "sporulating");
+    assert(to_str(i3.get_phen()) == "sporulating");
   }
 
   //An individuals type can be changed after initialization
   {
     individual i;
-    assert(to_str(i.get_type()) == "living");
+    assert(to_str(i.get_phen()) == "living");
     i.set_phen(phenotype::spore);
-    assert(to_str(i.get_type()) == "spore");
-    assert(to_str(i.get_type()) != "living");
+    assert(to_str(i.get_phen()) == "spore");
+    assert(to_str(i.get_phen()) != "living");
   }
 
   //Individuals are initialized with a sporulating timer
@@ -558,10 +564,10 @@ void test_individual()//!OCLINT tests may be many
     i.set_energy(i.get_metab_rate() * i.get_transformation_time());
     for(int j = 0; j != i.get_transformation_time(); j++)
       {
-        assert(i.get_type() == phenotype::sporulating);
+        assert(i.get_phen() == phenotype::sporulating);
         sporulation(i);
       }
-    assert(i.get_type() == phenotype::spore);
+    assert(i.get_phen() == phenotype::spore);
   }
 
   //Sporulating individuals that revert back to living
@@ -576,7 +582,7 @@ void test_individual()//!OCLINT tests may be many
       }
     assert(i.get_spo_timer() == time);
     reverts(i);
-    assert(i.get_spo_timer() == 0 && i.get_type() == phenotype::active);
+    assert(i.get_spo_timer() == 0 && i.get_phen() == phenotype::active);
   }
 
   //It is possible to determine if an individual is sporulating
@@ -606,11 +612,11 @@ void test_individual()//!OCLINT tests may be many
   //An individual can start sporulating
   {
     individual i;
-    assert(i.get_type() != phenotype::sporulating);
-    assert(i.get_type() == phenotype::active);
+    assert(i.get_phen() != phenotype::sporulating);
+    assert(i.get_phen() == phenotype::active);
     starts_sporulation(i);
-    assert(i.get_type() == phenotype::sporulating);
-    assert(i.get_type() != phenotype::active);
+    assert(i.get_phen() == phenotype::sporulating);
+    assert(i.get_phen() != phenotype::active);
 
   }
   //An individual with 0 energy is signaled to be destroyed
@@ -636,12 +642,28 @@ void test_individual()//!OCLINT tests may be many
   //Spores do not die even if their energy is 0
   {
     individual i;
-    assert(i.get_type() != phenotype::spore);
+    assert(i.get_phen() != phenotype::spore);
     assert(is_dead(i));
     i.set_phen(phenotype::spore);
     assert(!is_dead(i));
   }
 
+  //The fitness of an individual is determined by its phenotype
+  //Spores dispersal probability == Living dispersal probability * spore_advantage
+  {
+    individual i;
+    double base_disp_prob = 0.1;
+    double spore_advantage = 10;
+    assert(get_fitness(i, base_disp_prob, spore_advantage) - base_disp_prob < 0.0001 &&
+           get_fitness(i, base_disp_prob, spore_advantage) - base_disp_prob > -0.0001);
+    individual i2;
+    i2.set_phen(phenotype::spore);
+    assert(get_fitness(i2, base_disp_prob, spore_advantage) -
+           get_fitness(i,base_disp_prob, spore_advantage) < 0.0001 &&
+           get_fitness(i2, base_disp_prob, spore_advantage) -
+           get_fitness(i,base_disp_prob, spore_advantage)  > -0.0001);
+
+  }
   //An individual is initialized with a GRN
   //The get_input_nodes()..... etc part is irrelevant
   //Just get the function to run

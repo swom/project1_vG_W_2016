@@ -46,7 +46,7 @@ public:
   double get_size() const noexcept {return m_size;}
 
   ///Gets the type of the individual
-  phenotype get_type() const noexcept {return m_individual_type;}
+  phenotype get_phen() const noexcept {return m_individual_type;}
 
   ///Gets the time it takes to transform into a spore
   int get_transformation_time() const noexcept {return m_transformation_time;}
@@ -110,20 +110,6 @@ private:
   bool m_is_drawn = false;
 };
 
-///returns the position of the second daughter cell just outside the mother
-const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept;
-
-///Gets the x,y coordinates as a pair
-const std::pair<double,double> get_pos(individual& i) noexcept;
-
-///Sets x,y given a pair of doubles(x,y)
-void set_pos(individual& i, std::pair<double, double> pos)  noexcept;
-
-/// Finds the distance between two individuals
-double distance(const individual& lhs, const individual& rhs) noexcept;
-
-///Finds the overlap between two individuals
-double overlap(const individual& lhs, const individual& rhs) noexcept;
 
 ///Checks if two individuals are colliding
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
@@ -133,6 +119,9 @@ std::pair<double, double> get_displacement(const individual &lhs, const individu
 
 ///Dislpaces two individuals so that they do not overlap
 void displace(individual& lhs, individual& rhs) noexcept;
+
+/// Finds the distance between two individuals
+double distance(const individual& lhs, const individual& rhs) noexcept;
 
 ///Divides an individual at a given index
 void divides(individual &i, std::vector<individual> &pop, double repr_angle,
@@ -154,6 +143,16 @@ int find_grid_index( individual& i, double grid_side) ;
 
 ///An individual increases its energy depleting food
 void feed(individual& i, env_grid_cell& food) noexcept;
+
+///returns the position of the second daughter cell just outside the mother
+const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept;
+
+///Returns the fitness of an individual based on its phenotype
+///And the base_fitness declared in simulation
+double get_fitness(const individual& i, double base_disp_prob, double spore_advantage) noexcept;
+
+///Gets the x,y coordinates as a pair
+const std::pair<double,double> get_pos(individual& i) noexcept;
 
 ///Signals if an individual has to be destroyed
 bool is_dead(const individual &i) noexcept;
@@ -180,6 +179,9 @@ void mutates(individual& i, std::minstd_rand& rng,
             std::bernoulli_distribution& mu_p,
             std::normal_distribution<double> mu_st) noexcept;
 
+///Finds the overlap between two individuals
+double overlap(const individual& lhs, const individual& rhs) noexcept;
+
 ///Reverts a sporulating individual back to living (and resets the timer)
 void reverts(individual& i) noexcept;
 
@@ -190,6 +192,9 @@ void responds(individual& i, const env_grid_cell& c);
 ///Takes food, metabolite from the grid cell and energy from individual
 /// and sets them as inputs of the grn
 void sense(individual& i, const env_grid_cell& c);
+
+///Sets x,y given a pair of doubles(x,y)
+void set_pos(individual& i, std::pair<double, double> pos)  noexcept;
 
 ///Changes an ind_type of an individual from living to sporulating
 void starts_sporulation(individual& i);

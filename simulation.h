@@ -8,11 +8,24 @@
 class simulation
 {
 public:
-  simulation(int pop_size = 1, int grid_side = 1, double min_dist = 0.1, double starting_food = 1,
-             double mutation_prob = 0.01, double mutation_step = 0.1);
+  simulation(int pop_size = 1, int exp_new_pop_size = 1, int grid_side = 1, double min_dist = 0.1,
+             double starting_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
+             double base_disp_prob = 0.01, double spore_advantage = 10);
+
+  ///Returns the value of the variable m_base_fitness that indicates
+  /// the basal fitness/dispersal probability of an individual
+  double get_base_disp_prob() const noexcept {return m_base_disp_prob;}
+
+  ///Returns the variable m_spore_advantage that indicates
+  ///how many times a spore is more likely to get dispersed
+  ///than the other phenotypes
+  double get_spo_adv() const noexcept {return m_spore_advantage;}
 
   ///finds the indexes of the individuals ready to divide
   std::vector<int> get_dividing_individuals() const noexcept;
+
+  ///Returns the reference to the uniform distribution m_disp_dist
+  std::uniform_real_distribution<double> get_disp_dist() const noexcept {return m_disp_dist;}
 
   ///Gets the environment of a simulation
   const environment& get_env() const noexcept {return m_e;}
@@ -71,6 +84,9 @@ public:
   ///Gets the size of the population
   int get_new_pop_size() const noexcept {return static_cast<int>(m_new_pop.size());}
 
+  ///Gets the expected size of the new population
+  int get_exp_new_pop_size() const noexcept {return m_exp_new_pop_size;}
+
   ///Gets the size of the population
   int get_pop_size() const noexcept {return static_cast<int>(m_pop.size());}
 
@@ -127,6 +143,7 @@ private:
 //  double rnd_angle() noexcept { return m_reproduction_angle(m_rng);}
 
   std::vector<individual> m_pop;
+  int m_exp_new_pop_size;
   std::vector<individual> m_new_pop;
   double m_min_init_dist_btw_cells;
   environment m_e;
@@ -135,6 +152,9 @@ private:
   std::uniform_real_distribution<double> m_reproduction_angle;
   std::bernoulli_distribution m_mutation_prob;
   std::normal_distribution<double> m_mutation_step;
+  std::uniform_real_distribution<double> m_disp_dist;
+  double m_base_disp_prob;
+  double m_spore_advantage;
 };
 
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern

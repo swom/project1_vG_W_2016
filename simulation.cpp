@@ -4,17 +4,29 @@
 #include <algorithm>
 #include <math.h>
 
-simulation::simulation(int pop_size,
-                       int grid_side,
-                       double min_dist,
-                       double starting_food, double mutation_prob, double mutation_step):
+simulation::simulation(int pop_size, int exp_new_pop_size,
+                       int grid_side, double min_dist,
+                       double starting_food, double mutation_prob,
+                       double mutation_step, double base_disp_prob, double spore_advantage):
+
   m_pop(static_cast<unsigned int>(pop_size),individual(0,0)),
+  m_exp_new_pop_size(exp_new_pop_size),
   m_min_init_dist_btw_cells(min_dist),
   m_e(grid_side,0.1,starting_food),
   m_reproduction_angle(0, 2 * M_PI),
   m_mutation_prob(mutation_prob),
-  m_mutation_step(0,mutation_step)
+  m_mutation_step(0,mutation_step),
+  m_disp_dist(0,1),
+  m_base_disp_prob(base_disp_prob),
+  m_spore_advantage(spore_advantage)
 {
+  try {
+    if(base_disp_prob * spore_advantage > 1)
+      {throw "base dispersal probability * spore advantage too high!";}
+  }
+  catch (std::string e) {
+    std::cout << e;
+  }
   place_start_cells();
 }
 
@@ -25,7 +37,7 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
       if(m_pop[i].get_energy() >= m_pop[i].get_treshold_energy()
-         && m_pop[i].get_type() == phenotype::active)
+         && m_pop[i].get_phen() == phenotype::active)
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -39,21 +51,21 @@ void dispersal(simulation& s)
   std::uniform_real_distribution<double> p_draw (0,1);
   auto pop_size = s.get_pop_size();
   auto new_pop_size = s.get_pop_size();
-  while( (new_pop_size != 100/*to be changed to member var*/) && (pop_size != 0))
+  while( (new_pop_size != s.get_exp_new_pop_size()) && (pop_size != 0))
     {
       for(auto& ind : s.get_pop())
         {
-          auto fit_ind = ind.get_type() == phenotype::spore ? 0.1 : 0.01/*to be changed to member vars*/;
+          auto fit_ind = get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv());
           if(p_draw(s.get_rng()) < fit_ind && !is_drawn(ind))
             {
-            draw(ind);
-            s.get_new_pop().push_back(ind);
-            pop_size--;
-            new_pop_size ++;
+              draw(ind);
+              s.get_new_pop().push_back(ind);
+              pop_size--;
+              new_pop_size ++;
             }
           if(s.get_new_pop_size() == 100 || s.get_pop_size() == 0)
             {
-               return;
+              return;
             }
         }
     }
@@ -75,7 +87,7 @@ void feeding(simulation& s)
     {
       auto index_grid = find_grid_index(ind,s.get_env().get_grid_side());
       if(index_grid == -100 ||
-         ind.get_type() != phenotype::active)
+         ind.get_phen() != phenotype::active)
         {continue;}
       feed(ind,s.get_env().get_cell(index_grid));
     }
@@ -140,7 +152,7 @@ void metabolism_pop(simulation& s)
 {
   for(auto& ind : s.get_pop())
     {
-      if(ind.get_type() != phenotype::spore)
+      if(ind.get_phen() != phenotype::spore)
         metabolism(ind);
     }
 }
@@ -550,7 +562,7 @@ void test_simulation()//!OCLINT tests may be many
       }
 
     double starting_food = 3.14;
-    s = simulation(1, 1, 0.1, starting_food);
+    s = simulation(1, 1, 1, 0.1, starting_food);
     for( auto& grid_cell : s.get_env().get_grid())
       {
         assert(grid_cell.get_food() - starting_food < 0.000001
@@ -666,7 +678,7 @@ void test_simulation()//!OCLINT tests may be many
   //In one tick/timestep individuals first feed,
   //than reproduce, than substances diffuse
   {
-    simulation s(1,3);
+    simulation s(1,1,3);
 
     //The single individual in this population
     //after a tick should reproduce
@@ -841,7 +853,7 @@ void test_simulation()//!OCLINT tests may be many
     int pop_size = 5;
     //The simulation does not have a grid with food,
     //so organisms cannot feed
-    s = simulation(pop_size,0);
+    s = simulation(pop_size,1,0);
     //Only the first individual has enough energy to survive
     //for 1 tick
     s.set_ind_en(0,s.get_ind(0).get_metab_rate() + 0.001);
@@ -955,7 +967,7 @@ void test_simulation()//!OCLINT tests may be many
   //After dividing the two daughter individuals mutate
   {
     double mutation_probability = 1; //all weights will be mutated in this simulation
-    simulation s(1,0,0,0,mutation_probability);
+    simulation s(1, 1, 0, 0, 0, mutation_probability);
     auto init_var = weights_var(s.get_ind(0).get_grn());
     assert(init_var < 0.00001 && init_var > -0.0001);
     divides(s.get_ind(0),s.get_pop(),s.repr_angle(),s.get_rng(),
@@ -964,17 +976,23 @@ void test_simulation()//!OCLINT tests may be many
     assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
   }
 
-  //At dispersal max 100 individuals are selected to fund the new population
+  //A simulation has a member variable m_new_pop_size that states the max number of
+  //individuals that will start a new population
+  //by default = to pop.size()
+  //If at dispersal m_new_pop_size > pop.size()
+  //Then the number of funding individuals == pop.size()
+
   {
     simulation s(1000);
     dispersal(s);
-    assert(s.get_new_pop_size() == 100);
+    assert(s.get_new_pop_size() == s.get_exp_new_pop_size());
     s = simulation(10);
     dispersal(s);
     assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
                          [](const individual& i) {return is_drawn(i);}) ==
            s.get_pop_size());
   }
+
 
   //During dispersal the individuals selected for the new_pop cannot be drawn again from pop
   {
@@ -983,6 +1001,41 @@ void test_simulation()//!OCLINT tests may be many
     assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
                          [](const individual& i) {return is_drawn(i);}) == 100);
   }
+
+  //A simulation is initialized with a variable m_base_fitness
+  //by default = 0.01
+  {
+    double base_disp_prob = 0.1;
+    simulation s(0,0,0,0,0,0,0,base_disp_prob);
+    assert(s.get_base_disp_prob() - base_disp_prob < 0.00001 &&
+           s.get_base_disp_prob() - base_disp_prob > -0.000001);
+  }
+
+  //A simulation is initialized with a variable m_spore_advantage
+  //by default = 10
+  {
+    double spore_advantage = 10;
+    simulation s(0,0,0,0,0,0,0,spore_advantage);
+    assert(s.get_spo_adv() - spore_advantage < 0.00001 &&
+           s.get_spo_adv() - spore_advantage > -0.000001);
+  }
+
+  //A simulation is initialized with a uniform distribution between 0 and 1
+  //used to see which ind is drawn at dispersal
+  {
+    simulation s;
+    int sample_size = 100000;
+    double mean = 0;
+    for(int i = 0; i != sample_size; i++)
+      {
+        mean += s.get_disp_dist()(s.get_rng());
+      }
+    mean /= sample_size;
+    assert(mean - 0.5 < 0.01 &&
+           mean - 0.5 > -0.01);
+  }
+  //At initialization a simulation checks that base_disp_dist * 10 is not > 1
+  //--------> constructor throws exception. Tested directly in constructor
 
   //Individuals are selected based on their phenotype
   //A spore is more likely to be selected than a living
@@ -995,7 +1048,7 @@ void test_simulation()//!OCLINT tests may be many
         std::accumulate(s.get_new_pop().begin(),s.get_new_pop().end(),0.0,
                         [](const int sum, const individual& ind){return sum + is_spore(ind);}) /
         s.get_new_pop_size();
-        assert(spore_ratio > 0.5);
+    assert(spore_ratio > 0.5);
   }
 }
 
