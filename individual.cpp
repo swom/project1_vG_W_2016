@@ -193,7 +193,7 @@ void responds(individual& i, const env_grid_cell& c)
 void reverts(individual& i) noexcept
 {
   assert(i.get_type() == phenotype::sporulating);
-  i.set_type(phenotype::active);
+  i.set_phen(phenotype::active);
   i.reset_spo_timer();
 }
 
@@ -217,7 +217,7 @@ void starts_sporulation(individual& i)
 {
   assert(is_active(i));
   assert(i.get_spo_timer() == 0);
-  i.set_type(phenotype::sporulating);
+  i.set_phen(phenotype::sporulating);
 }
 
 void sporulation(individual& i) noexcept
@@ -228,7 +228,7 @@ void sporulation(individual& i) noexcept
       assert(i.get_spo_timer() <= i.get_transformation_time());
       if(i.get_spo_timer() == i.get_transformation_time())
         {
-          i.set_type(phenotype::spore);
+          i.set_phen(phenotype::spore);
           i.reset_spo_timer();
         }
     }
@@ -492,7 +492,7 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(to_str(i.get_type()) == "living");
-    i.set_type(phenotype::spore);
+    i.set_phen(phenotype::spore);
     assert(to_str(i.get_type()) == "spore");
     assert(to_str(i.get_type()) != "living");
   }
@@ -537,7 +537,7 @@ void test_individual()//!OCLINT tests may be many
   //The sporulating individual will turn into a spore
   {
     individual i;
-    i.set_type(phenotype::sporulating);
+    i.set_phen(phenotype::sporulating);
     i.set_energy(i.get_metab_rate() * i.get_transformation_time());
     for(int j = 0; j != i.get_transformation_time(); j++)
       {
@@ -551,7 +551,7 @@ void test_individual()//!OCLINT tests may be many
   //get their timer reset
   {
     individual i;
-    i.set_type(phenotype::sporulating);
+    i.set_phen(phenotype::sporulating);
     int time = 42;
     for(int j = 0; j != time; j++)
       {
@@ -566,7 +566,7 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(!is_sporulating(i));
-    i.set_type(phenotype::sporulating);
+    i.set_phen(phenotype::sporulating);
     assert(is_sporulating(i));
   }
 
@@ -574,7 +574,7 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(is_active(i));
-    i.set_type(phenotype::sporulating);
+    i.set_phen(phenotype::sporulating);
     assert(!is_active(i));
   }
 
@@ -582,7 +582,7 @@ void test_individual()//!OCLINT tests may be many
   {
     individual i;
     assert(!is_spore(i));
-    i.set_type(phenotype::spore);
+    i.set_phen(phenotype::spore);
     assert(is_spore(i));
   }
 
@@ -621,7 +621,7 @@ void test_individual()//!OCLINT tests may be many
     individual i;
     assert(i.get_type() != phenotype::spore);
     assert(is_dead(i));
-    i.set_type(phenotype::spore);
+    i.set_phen(phenotype::spore);
     assert(!is_dead(i));
   }
 

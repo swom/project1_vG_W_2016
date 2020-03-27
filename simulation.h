@@ -23,13 +23,13 @@ public:
   ///Gets an inidividual at a certain index in the vector
   const individual get_ind(int i) const
   {
-    return m_population[static_cast<unsigned int>(i)];
+    return m_pop[static_cast<unsigned int>(i)];
   }
 
   ///Gets an inidividual at a certain index in the vector and allows to change it
   individual& get_ind(int i)
   {
-    return m_population[static_cast<unsigned int>(i)];
+    return m_pop[static_cast<unsigned int>(i)];
   }
 
   ///Gets the excess energy from a referenced vector of index of individuals in population vector
@@ -41,13 +41,13 @@ public:
   ///Gets an individual's energy
   double get_ind_en(int i) const
   {
-    return m_population[static_cast<unsigned int>(i)].get_energy();
+    return m_pop[static_cast<unsigned int>(i)].get_energy();
   }
 
   ///Gets an individual's treshold energy
   double get_ind_tr_en(int i) const
   {
-    return m_population[static_cast<unsigned int>(i)].get_treshold_energy();
+    return m_pop[static_cast<unsigned int>(i)].get_treshold_energy();
   }
 
   ///Gets the position of an individual as a vector x,y
@@ -62,14 +62,23 @@ public:
   ///Gets the reference to the mutation step distribution
   std::normal_distribution<double>& get_mu_st() noexcept {return m_mutation_step;}
 
+  ///Gets the vector containing all the individuals of the population
+  const std::vector<individual>& get_new_pop() const noexcept {return m_new_pop;}
+
+  ///Gets the vector containing all the individuals of the population
+  std::vector<individual>& get_new_pop() noexcept {return m_new_pop;}
+
   ///Gets the size of the population
-  int get_pop_size() const noexcept {return static_cast<int>(m_population.size());}
+  int get_new_pop_size() const noexcept {return static_cast<int>(m_new_pop.size());}
+
+  ///Gets the size of the population
+  int get_pop_size() const noexcept {return static_cast<int>(m_pop.size());}
 
   ///Gets the vector containing all the individuals of the population
-  const std::vector<individual>& get_pop() const noexcept {return m_population;}
+  const std::vector<individual>& get_pop() const noexcept {return m_pop;}
 
   ///Gets the vector containing all the individuals of the population
-  std::vector<individual>& get_pop() noexcept {return m_population;}
+  std::vector<individual>& get_pop() noexcept {return m_pop;}
 
   ///Gets the reference to m_rng
   std::minstd_rand& get_rng() noexcept {return  m_rng;}
@@ -105,7 +114,7 @@ public:
   ///Sets and individual's energy
   void set_ind_en(int i, double en)
   {
-    m_population[static_cast<unsigned int>(i)].set_energy(en);
+    m_pop[static_cast<unsigned int>(i)].set_energy(en);
   }
 
   ///Updates tick counter by one
@@ -117,7 +126,8 @@ private:
 //  ///Returns a random angle
 //  double rnd_angle() noexcept { return m_reproduction_angle(m_rng);}
 
-  std::vector<individual> m_population;
+  std::vector<individual> m_pop;
+  std::vector<individual> m_new_pop;
   double m_min_init_dist_btw_cells;
   environment m_e;
   int m_sim_timer = 0;
@@ -145,6 +155,9 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
+
+///Draws a 100 individual to fund the new population and puts them in m_new_pop
+void dispersal(simulation& s);
 
 ///The individuals in the vector are copied at the end of the pop vector
 void division(simulation& s) noexcept;

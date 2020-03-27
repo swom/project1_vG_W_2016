@@ -8,7 +8,7 @@ simulation::simulation(int pop_size,
                        int grid_side,
                        double min_dist,
                        double starting_food, double mutation_prob, double mutation_step):
-  m_population(static_cast<unsigned int>(pop_size),individual(0,0)),
+  m_pop(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_min_init_dist_btw_cells(min_dist),
   m_e(grid_side,0.1,starting_food),
   m_reproduction_angle(0, 2 * M_PI),
@@ -24,8 +24,8 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   std::vector<int> dividing_individuals;
   for(unsigned int i = 0; i != get_pop().size(); i++)
     {
-      if(m_population[i].get_energy() >= m_population[i].get_treshold_energy()
-         && m_population[i].get_type() == phenotype::active)
+      if(m_pop[i].get_energy() >= m_pop[i].get_treshold_energy()
+         && m_pop[i].get_type() == phenotype::active)
         {
           dividing_individuals.push_back(static_cast<int>(i));
         }
@@ -33,6 +33,26 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
   return dividing_individuals;
 }
 
+void dispersal(simulation& s)
+{
+  assert(s.get_new_pop_size() == 0);
+  std::uniform_real_distribution<double> p_draw (0,1);
+  auto pop_size = s.get_pop_size();
+  auto new_pop_size = s.get_pop_size();
+  while( (s.get_new_pop_size() != 100) && (s.get_pop_size() != 0))
+    {
+      for(auto& ind : s.get_pop())
+        {
+          auto fit_ind = ind.get_type() == phenotype::spore ? 0.1 : 0.01;
+          if(p_draw(s.get_rng()) < fit_ind)
+            {
+            s.get_new_pop().push_back(ind);
+            }
+          if(s.get_new_pop_size() == 100 || s.get_pop_size() == 0)
+            return;
+        }
+    }
+}
 void division(simulation &s) noexcept
 {
   auto  div_inds  = s.get_dividing_individuals();
@@ -155,7 +175,7 @@ void simulation::place_start_cells() noexcept
   unsigned int placed_ind = 0;
 
   // d is the distance between 2 individuals's centers
-  double d = 2 * (m_population[0].get_size() + m_min_init_dist_btw_cells);
+  double d = 2 * (m_pop[0].get_size() + m_min_init_dist_btw_cells);
 
   for(int i=0; i != n; i++)
     {
@@ -165,15 +185,15 @@ void simulation::place_start_cells() noexcept
         {
           double x = (-(2 * n - i - 2) * d) / 2.0 + j * d;
 
-          m_population[placed_ind].set_x(x);
-          m_population[placed_ind].set_y(y);
+          m_pop[placed_ind].set_x(x);
+          m_pop[placed_ind].set_y(y);
           placed_ind++;
           if(placed_ind == get_pop().size()) return;
 
           if (y > 0.000001 || y < -0.000001)
             {
-              m_population[placed_ind].set_x(x);
-              m_population[placed_ind].set_y(-y);
+              m_pop[placed_ind].set_x(x);
+              m_pop[placed_ind].set_y(-y);
               placed_ind++;
               if(placed_ind == get_pop().size()) return;
 
@@ -709,14 +729,14 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     s.set_ind_en(0,s.get_ind_tr_en(0));
     assert(s.get_dividing_individuals()[0] == 0);
-    s.get_ind(0).set_type(phenotype::spore);
+    s.get_ind(0).set_phen(phenotype::spore);
     assert(s.get_dividing_individuals().empty());
   }
 
   //Spores do not reproduce
   {
     simulation s;
-    s.get_ind(0).set_type(phenotype::spore);
+    s.get_ind(0).set_phen(phenotype::spore);
     s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_pop_size = s.get_pop_size();
     s.set_ind_en(0,s.get_ind_tr_en(0));
@@ -728,7 +748,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     auto init_food = s.get_env().get_cell(0).get_food();
-    s.get_ind(0).set_type(phenotype::spore);
+    s.get_ind(0).set_phen(phenotype::spore);
     feeding(s);
     assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
            && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
@@ -736,7 +756,7 @@ void test_simulation()//!OCLINT tests may be many
   //Spores do not lose energy
   {
     simulation s;
-    s.get_ind(0).set_type(phenotype::spore);
+    s.get_ind(0).set_phen(phenotype::spore);
     s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_en_ind0 = s.get_ind_en(0);
     tick(s);
@@ -749,14 +769,14 @@ void test_simulation()//!OCLINT tests may be many
     simulation s;
     s.set_ind_en(0,s.get_ind_tr_en(0));
     assert(s.get_dividing_individuals()[0] == 0);
-    s.get_ind(0).set_type(phenotype::sporulating);
+    s.get_ind(0).set_phen(phenotype::sporulating);
     assert(s.get_dividing_individuals().empty());
   }
 
   //Sporulating individuals cannot reproduce
   {
     simulation s;
-    s.get_ind(0).set_type(phenotype::sporulating);
+    s.get_ind(0).set_phen(phenotype::sporulating);
     s.set_ind_en(0,s.get_ind_tr_en(0));
     auto init_pop_size = s.get_pop_size();
     s.set_ind_en(0,s.get_ind_tr_en(0));
@@ -767,7 +787,7 @@ void test_simulation()//!OCLINT tests may be many
   //Sporulating individuals do not feed but they lose energy
   {
     simulation s;
-    s.get_ind(0).set_type(phenotype::sporulating);
+    s.get_ind(0).set_phen(phenotype::sporulating);
     s.set_ind_en(0,1);
     auto init_en_ind0 = s.get_ind_en(0);
     auto init_food = s.get_env().get_cell(0).get_food();
@@ -783,7 +803,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     auto init_timer = s.get_ind(0).get_spo_timer();
-    s.get_ind(0).set_type(phenotype::sporulating);
+    s.get_ind(0).set_phen(phenotype::sporulating);
     tick(s);
     assert(init_timer != s.get_ind(0).get_spo_timer());
     assert(s.get_ind(0).get_spo_timer() == init_timer + 1);
@@ -791,7 +811,7 @@ void test_simulation()//!OCLINT tests may be many
 
     s.get_ind(0).reset_spo_timer();
     init_timer = s.get_ind(0).get_spo_timer();
-    s.get_ind(0).set_type(phenotype::spore);
+    s.get_ind(0).set_phen(phenotype::spore);
     tick(s);
     assert(s.get_ind(0).get_spo_timer() == init_timer);
     assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
@@ -799,7 +819,7 @@ void test_simulation()//!OCLINT tests may be many
 
     s.get_ind(0).reset_spo_timer();
     init_timer = s.get_ind(0).get_spo_timer();
-    s.get_ind(0).set_type(phenotype::active);
+    s.get_ind(0).set_phen(phenotype::active);
     tick(s);
     assert(s.get_ind(0).get_spo_timer() == init_timer);
     assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
@@ -939,6 +959,37 @@ void test_simulation()//!OCLINT tests may be many
     assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
   }
 
+  //At dispersal max 100 individuals are selected to fund the new population
+  {
+    simulation s(1000);
+    dispersal(s);
+    assert(s.get_new_pop_size() == 100);
+    s = simulation(10);
+    dispersal(s);
+    assert(s.get_pop_size() == 0);
+  }
+
+  //During dispersal the individuals selected for the new_pop are removed from pop
+  {
+    simulation s(1000);
+    auto init_pop_size = s.get_pop_size();
+    dispersal(s);
+    assert(s.get_pop_size() == init_pop_size - 100);
+  }
+
+  //Individuals are selected based on their phenotype
+  //A spore is 10* more likely to be selected than a living
+  {
+    simulation s(1000);
+    for(int i = s.get_pop_size() / 2; i != s.get_pop_size(); i++)
+      s.get_ind(i).set_phen(phenotype::spore);
+    dispersal(s);
+    auto spore_ratio =
+        std::accumulate(s.get_new_pop().begin(),s.get_new_pop().end(),0.0,
+                        [](const int sum, const individual& ind){return sum + is_spore(ind);}) /
+        s.get_new_pop_size();
+        assert(spore_ratio > 0.5);
+  }
 }
 
 

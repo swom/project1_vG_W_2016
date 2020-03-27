@@ -70,7 +70,7 @@ public:
   void set_energy(double new_energy) {m_energy = new_energy;}
 
   ///Sets the type of an individual
-  void set_type(phenotype type) {m_individual_type = type;}
+  void set_phen(phenotype type) {m_individual_type = type;}
 
   ///Sets the x of an individual
   void set_x(double x) noexcept {m_x = x;}

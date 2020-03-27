@@ -249,8 +249,10 @@ void update_hid(GRN& g) noexcept
   assert(signal_in.size() == signal_hid.size());
   for(size_t i = 0; i != signal_in.size(); i++)
     {
-      if((signal_in[i] + signal_hid[i]) > g.get_hid_tresh()[i]) {g.set_hid_node(static_cast<int>(i),true);}
-      else {g.set_hid_node(static_cast<int>(i),false);}
+      if((signal_in[i] + signal_hid[i]) > g.get_hid_tresh()[i])
+        {g.set_hid_node(static_cast<int>(i),true);}
+      else
+        {g.set_hid_node(static_cast<int>(i),false);}
     }
 }
 
@@ -513,4 +515,5 @@ void test_GRN()//!OCLINT , tests may be long
     assert(weights_var(g) < 0.00001 &&
            weights_var(g) > -0.00001);
   }
+
 }
