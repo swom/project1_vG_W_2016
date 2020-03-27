@@ -27,7 +27,11 @@ simulation::simulation(int pop_size, int exp_new_pop_size,
   catch (std::string e) {
     std::cout << e;
   }
-  place_start_cells();
+
+  if(!m_pop.empty())
+    {
+      place_start_cells();
+    }
 }
 
 std::vector<int> simulation::get_dividing_individuals() const noexcept
@@ -47,16 +51,16 @@ std::vector<int> simulation::get_dividing_individuals() const noexcept
 
 void dispersal(simulation& s)
 {
-  assert(s.get_new_pop_size() == 0);
-  std::uniform_real_distribution<double> p_draw (0,1);
+  assert(s.get_new_pop().empty());
   auto pop_size = s.get_pop_size();
   auto new_pop_size = s.get_pop_size();
   while( (new_pop_size != s.get_exp_new_pop_size()) && (pop_size != 0))
     {
       for(auto& ind : s.get_pop())
         {
-          auto fit_ind = get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv());
-          if(p_draw(s.get_rng()) < fit_ind && !is_drawn(ind))
+          if(s.get_disp_distr()(s.get_rng())
+             < get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv())
+             && !is_drawn(ind))
             {
               draw(ind);
               s.get_new_pop().push_back(ind);
@@ -983,7 +987,7 @@ void test_simulation()//!OCLINT tests may be many
   //Then the number of funding individuals == pop.size()
 
   {
-    simulation s(1000);
+    simulation s(1000, 100);
     dispersal(s);
     assert(s.get_new_pop_size() == s.get_exp_new_pop_size());
     s = simulation(10);
@@ -1015,7 +1019,7 @@ void test_simulation()//!OCLINT tests may be many
   //by default = 10
   {
     double spore_advantage = 10;
-    simulation s(0,0,0,0,0,0,0,spore_advantage);
+    simulation s(0,0,0,0,0,0,0,0,spore_advantage);
     assert(s.get_spo_adv() - spore_advantage < 0.00001 &&
            s.get_spo_adv() - spore_advantage > -0.000001);
   }
@@ -1028,7 +1032,7 @@ void test_simulation()//!OCLINT tests may be many
     double mean = 0;
     for(int i = 0; i != sample_size; i++)
       {
-        mean += s.get_disp_dist()(s.get_rng());
+        mean += s.get_disp_distr()(s.get_rng());
       }
     mean /= sample_size;
     assert(mean - 0.5 < 0.01 &&

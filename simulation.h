@@ -25,7 +25,7 @@ public:
   std::vector<int> get_dividing_individuals() const noexcept;
 
   ///Returns the reference to the uniform distribution m_disp_dist
-  std::uniform_real_distribution<double> get_disp_dist() const noexcept {return m_disp_dist;}
+  std::uniform_real_distribution<double> get_disp_distr() const noexcept {return m_disp_dist;}
 
   ///Gets the environment of a simulation
   const environment& get_env() const noexcept {return m_e;}

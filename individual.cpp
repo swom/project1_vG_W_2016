@@ -659,15 +659,13 @@ void test_individual()//!OCLINT tests may be many
     individual i2;
     i2.set_phen(phenotype::spore);
     assert(get_fitness(i2, base_disp_prob, spore_advantage) -
-           get_fitness(i,base_disp_prob, spore_advantage) < 0.0001 &&
+           get_fitness(i,base_disp_prob, spore_advantage) > 0.0001 ||
            get_fitness(i2, base_disp_prob, spore_advantage) -
-           get_fitness(i,base_disp_prob, spore_advantage)  > -0.0001);
-
+           get_fitness(i,base_disp_prob, spore_advantage)  < -0.0001);
   }
   //An individual is initialized with a GRN
   //The get_input_nodes()..... etc part is irrelevant
   //Just get the function to run
-
   {
     individual i;
     assert(i.get_grn().get_input_nodes().size() == 3);
