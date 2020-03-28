@@ -61,6 +61,10 @@ private:
     double m_food_change;
 };
 
+bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
+
+bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
+
 double food_diff(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 
 double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;

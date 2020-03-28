@@ -1,4 +1,5 @@
 #include "environment.h"
+#include <algorithm>
 #include <cassert>
 #include <numeric>
 
@@ -6,9 +7,25 @@ environment::environment(int grid_side, double diff_coeff, double food):
   m_grid(static_cast<unsigned int>(grid_side * grid_side),env_grid_cell(0,food)),
   m_side(grid_side),
   m_diffusion_coefficient(diff_coeff)
-
 {
   find_neighbors_all_grid(*this);
+}
+
+
+bool operator == (const environment& lhs, const environment& rhs) noexcept
+{
+
+  return lhs.get_env_size() == rhs.get_env_size() &&
+      lhs.get_diff_coeff() - rhs.get_diff_coeff() < 0.00001 &&
+      lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.00001 &&
+      std::equal(lhs.get_grid().begin(),lhs.get_grid().end(),
+                 rhs.get_grid().begin(),rhs.get_grid().end(),
+                 [](const env_grid_cell& l, const env_grid_cell& r) {return l == r;});
+}
+
+bool operator != (const environment& lhs, const environment& rhs) noexcept
+{
+  return !(lhs == rhs);
 }
 
 void diffusion(environment& e) noexcept
@@ -24,7 +41,7 @@ void diffusion_food(environment& e) noexcept
       std::vector<double> v_food_diff;
       for(const auto& neighbor : cell.get_v_neighbors())
         {
-         v_food_diff.push_back(food_diff(cell, e.get_cell(neighbor)));
+          v_food_diff.push_back(food_diff(cell, e.get_cell(neighbor)));
         }
 
       auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0.0);
@@ -299,4 +316,36 @@ void test_environment()//!OCLINT tests may be many
       }
   }
 
+  //environment has a boolean operator (it checks if two grids have all
+  //the same cells)
+  {
+    environment e;
+    auto e1 = e;
+    environment e2(10);
+    environment e3(1,0.2);
+    assert(e == e1 );
+    assert(e != e2 && e != e3 && e2 != e3);
+    e1.get_cell(0).set_food(42);
+    assert(e != e1);
+  }
+
+  //The environment can be reset
+  //by default to default values of env,
+  //but the amount of food and diffusion coefficent
+  //can also be adapted
+  {
+//    auto init_grid_side = 2;
+//    auto init_diff_coeff = 2;
+//    auto init_food = 2;
+//    environment e(init_grid_side, init_diff_coeff, init_food);
+//    environment e2 = e;
+
+//    auto grid_side = 42;
+//    auto diff_coeff = 42;
+//    auto food = 42;
+//    reset(e2, grid_side, diff_coeff, food);
+
+//    assert( e != e2);
+
+  }
 }

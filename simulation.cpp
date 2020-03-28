@@ -22,67 +22,73 @@ simulation::simulation(int pop_size, int exp_new_pop_size,
 {
   try {
     if(base_disp_prob * spore_advantage > 1)
-      {throw "base dispersal probability * spore advantage too high!";}
+      {throw std::string{"base dispersal probability * spore advantage too high!\n"};}
   }
   catch (std::string e) {
     std::cout << e;
+    abort();
   }
 
   if(!m_pop.empty())
     {
-      place_start_cells();
+      place_start_cells(*this);
     }
 }
 
-std::vector<int> simulation::get_dividing_individuals() const noexcept
+const std::pair<double,double> simulation::get_ind_pos(int i)
 {
-
-  std::vector<int> dividing_individuals;
-  for(unsigned int i = 0; i != get_pop().size(); i++)
-    {
-      if(m_pop[i].get_energy() >= m_pop[i].get_treshold_energy()
-         && m_pop[i].get_phen() == phenotype::active)
-        {
-          dividing_individuals.push_back(static_cast<int>(i));
-        }
-    }
-  return dividing_individuals;
+  std::pair<double, double> pos = get_pos(get_ind(i));
+  return pos;
 }
 
-void dispersal(simulation& s)
+bool all_ind_are_drawn(const simulation& s) noexcept
 {
-  assert(s.get_new_pop().empty());
-  auto pop_size = s.get_pop_size();
-  auto new_pop_size = s.get_pop_size();
-  while( (new_pop_size != s.get_exp_new_pop_size()) && (pop_size != 0))
-    {
-      for(auto& ind : s.get_pop())
-        {
-          if(s.get_disp_distr()(s.get_rng())
-             < get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv())
-             && !is_drawn(ind))
-            {
-              draw(ind);
-              s.get_new_pop().push_back(ind);
-              pop_size--;
-              new_pop_size ++;
-            }
-          if(s.get_new_pop_size() == 100 || s.get_pop_size() == 0)
-            {
-              return;
-            }
-        }
-    }
+  return std::all_of(s.get_pop().begin(), s.get_pop().end(),
+                     [](const individual& i) {return is_drawn(i);});
 }
+
+int count_hex_layers(int pop_size)  noexcept
+{
+  int n = 1;
+  if(pop_size>0){while(3*n*(n-1)+1 < pop_size) n++;}
+  else {return 0;}
+  return n;
+}
+
+double calc_angle_3_pos(std::pair<double, double> P1,
+                        std::pair<double, double> P2,
+                        std::pair<double, double> P3)
+{
+  auto angle1 = std::atan2(P3.second - P1.second, P3.first - P1.first);
+  auto angle2 = std::atan2(P2.second - P1.second, P2.first - P1.first);
+  if(angle1 >= angle2)
+    return angle1 - angle2;
+  else
+    return M_PI + std::abs(angle1 -angle2);
+}
+
+//not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
+void death(simulation& s) noexcept
+{
+  s.get_pop().erase(std::remove_if(s.get_pop().begin(),s.get_pop().end(),
+                                   [](individual const &i){ return is_dead(i);})
+      ,s.get_pop().end());
+}
+
 void division(simulation &s) noexcept
 {
-  auto  div_inds  = s.get_dividing_individuals();
+  auto  div_inds  = get_dividing_individuals(s);
   for(size_t i = 0; i != div_inds.size(); i++)
     {
       int div_ind = div_inds[i];
       divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
               s.get_rng(),s.get_mu_p(),s.get_mu_st());
     }
+}
+
+void exec(simulation& s, int n_tick) noexcept
+{
+  while(s.get_tick() != n_tick){tick(s);}
 }
 
 void feeding(simulation& s)
@@ -97,131 +103,56 @@ void feeding(simulation& s)
     }
 }
 
-void exec(simulation& s, int n_tick) noexcept
+void fund_pop(simulation& s) noexcept
 {
-  while(s.get_tick() != n_tick){tick(s);}
+  s.get_pop().swap(s.get_new_pop());
+  s.get_new_pop().clear();
 }
 
-std::vector<double> simulation::get_excess_energies(std::vector<int> v_ind) const noexcept
+std::vector<int> get_dividing_individuals(const simulation& s) noexcept
+{
+
+  std::vector<int> dividing_individuals;
+  for(unsigned int i = 0; i != s.get_pop().size(); i++)
+    {
+      if(s.get_pop()[i].get_energy() >= s.get_pop()[i].get_treshold_energy()
+         && s.get_pop()[i].get_phen() == phenotype::active)
+        {
+          dividing_individuals.push_back(static_cast<int>(i));
+        }
+    }
+  return dividing_individuals;
+}
+
+std::vector<double> get_excess_energies(const simulation& s) noexcept
 {
   std::vector<double> excess_energy;
+  auto v_ind{get_dividing_individuals(s)};
   for(unsigned int i=0; i != v_ind.size(); i++)
     {
       int ind_index = v_ind[i];
       excess_energy.push_back(
-            get_ind_en(ind_index) - get_ind_tr_en(ind_index)
+            s.get_ind_en(ind_index) - s.get_ind_tr_en(ind_index)
             );
     }
   return excess_energy;
 }
 
-std::vector<double> simulation::get_excess_energies(std::vector<int>& v_ind) const noexcept
-{
-  std::vector<double> excess_energy;
-  for(unsigned int i=0; i != v_ind.size(); i++)
-    {
-      int ind_index = v_ind[i];
-      excess_energy.push_back(
-            get_ind_en(ind_index) - get_ind_tr_en(ind_index)
-            );
-    }
-  return excess_energy;
-}
-
-const std::pair<double,double> simulation::get_ind_pos(int i)
-{
-  std::pair<double, double> pos = get_pos(get_ind(i));
-  return pos;
-}
-
-std::vector<std::pair<int,int>> simulation::get_sisters_index_offset() const noexcept
+std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  noexcept
 {
   std::vector<std::pair<int,int>> sis_indexes;
   std::pair<int,int> daughters;
   int sis_dist;
-  auto div_ind = get_dividing_individuals();
+  auto div_ind = get_dividing_individuals(s);
 
   for (int ind_index = 0; ind_index < static_cast<int>(div_ind.size()); ind_index++)
     {
-      sis_dist = get_pop_size() - div_ind[static_cast<unsigned int>(ind_index)];
+      sis_dist = s.get_pop_size() - div_ind[static_cast<unsigned int>(ind_index)];
       daughters.first = ind_index;
       daughters.second = ind_index + sis_dist;
       sis_indexes.push_back(daughters);
     }
   return sis_indexes;
-}
-
-
-void metabolism_pop(simulation& s)
-{
-  for(auto& ind : s.get_pop())
-    {
-      if(ind.get_phen() != phenotype::spore)
-        metabolism(ind);
-    }
-}
-void simulation::set_ind_pos(individual& i, double x, double y)
-{
-  i.set_x(x);
-  i.set_y(y);
-}
-
-void simulation::set_ind_pos(individual& i, const std::pair<double, double> pos)
-{
-  set_pos(i, pos);
-}
-
-//not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
-void death(simulation& s) noexcept
-{
-  s.get_pop().erase(std::remove_if(s.get_pop().begin(),s.get_pop().end(),
-                                   [](individual const &i){ return is_dead(i);})
-      ,s.get_pop().end());
-}
-
-void tick(simulation& s)
-{
-  feeding(s);
-  metabolism_pop(s);
-  death(s);
-  division(s);
-  manage_static_collisions(s);
-  diffusion(s.get_env());
-  s.update_sim_timer();
-}
-
-void simulation::place_start_cells() noexcept
-{
-  int n = count_hex_layers(get_pop_size());
-  unsigned int placed_ind = 0;
-
-  // d is the distance between 2 individuals's centers
-  double d = 2 * (m_pop[0].get_size() + m_min_init_dist_btw_cells);
-
-  for(int i=0; i != n; i++)
-    {
-      double y = (sqrt(3) * i * d) / 2.0;
-
-      for (int j = 0; j < (2 * n - 1 - i); j++)
-        {
-          double x = (-(2 * n - i - 2) * d) / 2.0 + j * d;
-
-          m_pop[placed_ind].set_x(x);
-          m_pop[placed_ind].set_y(y);
-          placed_ind++;
-          if(placed_ind == get_pop().size()) return;
-
-          if (y > 0.000001 || y < -0.000001)
-            {
-              m_pop[placed_ind].set_x(x);
-              m_pop[placed_ind].set_y(-y);
-              placed_ind++;
-              if(placed_ind == get_pop().size()) return;
-
-            }
-        }
-
-    }
 }
 
 bool has_collision(const simulation& s)
@@ -266,24 +197,13 @@ void manage_static_collisions(simulation& s)
     }
 }
 
-int count_hex_layers(int pop_size)  noexcept
+void metabolism_pop(simulation& s)
 {
-  int n = 1;
-  if(pop_size>0){while(3*n*(n-1)+1 < pop_size) n++;}
-  else {return 0;}
-  return n;
-}
-
-double calc_angle_3_pos(std::pair<double, double> P1,
-                        std::pair<double, double> P2,
-                        std::pair<double, double> P3)
-{
-  auto angle1 = std::atan2(P3.second - P1.second, P3.first - P1.first);
-  auto angle2 = std::atan2(P2.second - P1.second, P2.first - P1.first);
-  if(angle1 >= angle2)
-    return angle1 - angle2;
-  else
-    return M_PI + std::abs(angle1 -angle2);
+  for(auto& ind : s.get_pop())
+    {
+      if(ind.get_phen() != phenotype::spore)
+        metabolism(ind);
+    }
 }
 
 std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
@@ -299,6 +219,80 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
           v_modulus.push_back((abs(fmod(calc_angle_3_pos(P1,P2,P3),ang_rad))));
         }
   return v_modulus;
+}
+
+void place_start_cells(simulation& s) noexcept
+{
+  int n = count_hex_layers(s.get_pop_size());
+  unsigned int placed_ind = 0;
+
+  // d is the distance between 2 individuals's centers
+  double d = 2 * (s.get_pop()[0].get_size() + s.get_min_dist());
+
+  for(int i=0; i != n; i++)
+    {
+      double y = (sqrt(3) * i * d) / 2.0;
+
+      for (int j = 0; j < (2 * n - 1 - i); j++)
+        {
+          double x = (-(2 * n - i - 2) * d) / 2.0 + j * d;
+
+          s.get_pop()[placed_ind].set_x(x);
+          s.get_pop()[placed_ind].set_y(y);
+          placed_ind++;
+          if(placed_ind == s.get_pop().size()) return;
+
+          if (y > 0.000001 || y < -0.000001)
+            {
+              s.get_pop()[placed_ind].set_x(x);
+              s.get_pop()[placed_ind].set_y(-y);
+              placed_ind++;
+              if(placed_ind == s.get_pop().size()) return;
+            }
+        }
+
+    }
+}
+
+void reset_drawn_fl_new_pop(simulation& s) noexcept
+{
+  std::for_each(s.get_new_pop().begin(),s.get_new_pop().end(),
+                [](individual& i){draw_flag_reset(i);});
+}
+
+void select_new_pop(simulation& s)
+{
+  assert(s.get_new_pop().empty());
+  while(true)
+    {
+      for(auto& ind : s.get_pop())
+        {
+          if(s.get_disp_distr()(s.get_rng()) <
+             get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv())
+             && !is_drawn(ind))
+            {
+              draw(ind);
+              s.get_new_pop().push_back(ind);
+            }
+          if(s.get_new_pop_size() == s.get_exp_new_pop_size() ||
+             all_ind_are_drawn(s))
+            {
+              reset_drawn_fl_new_pop(s);
+              return;
+            }
+        }
+    }
+}
+
+void tick(simulation& s)
+{
+  feeding(s);
+  metabolism_pop(s);
+  death(s);
+  division(s);
+  manage_static_collisions(s);
+  diffusion(s.get_env());
+  s.update_sim_timer();
 }
 
 void test_simulation()//!OCLINT tests may be many
@@ -327,7 +321,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     //initiate empty vector and leave it empty
     simulation s(3);
-    assert(static_cast<int>(s.get_dividing_individuals().size()) < 0.00000000001);
+    assert(static_cast<int>(get_dividing_individuals(s).size()) < 0.00000000001);
   }
 
 
@@ -380,7 +374,7 @@ void test_simulation()//!OCLINT tests may be many
     simulation s(2);
     for(int i = 0; i < s.get_pop_size(); i++)
       {
-        s.set_ind_pos(s.get_ind(i),i,i);
+        set_pos(s.get_ind(i),std::pair<double,double>(i,i));
       }
 
     for (int i = 0; i < s.get_pop_size() - 1; i++)
@@ -423,7 +417,7 @@ void test_simulation()//!OCLINT tests may be many
     //This ind will reproduce with extra energy
     s.get_ind(2).set_energy(s.get_ind(2).get_treshold_energy()+1);
 
-    std::vector<int> div_ind = s.get_dividing_individuals();
+    std::vector<int> div_ind = get_dividing_individuals(s);
     assert(div_ind.size() > 0);
 
     for(unsigned int i = 0; i != div_ind.size(); i++)
@@ -439,7 +433,7 @@ void test_simulation()//!OCLINT tests may be many
     double energy = s.get_ind_tr_en(0);
     s.set_ind_en(0,energy);
     s.set_ind_en(1,energy*2);
-    auto v_ex_en = s.get_excess_energies(s.get_dividing_individuals());
+    auto v_ex_en = get_excess_energies(s);
     for(int i =0; i != static_cast<int>(v_ex_en.size()); i++){
         assert(v_ex_en[static_cast<unsigned int>(i)]
             - (s.get_ind_en(i) - s.get_ind_tr_en(i)) < 0.00000001);
@@ -454,7 +448,7 @@ void test_simulation()//!OCLINT tests may be many
     simulation s(1);
     //First individual reproduces
     s.set_ind_en(0,s.get_ind_tr_en(0)*2);
-    auto daughters = s.get_sisters_index_offset();
+    auto daughters = get_sisters_index_offset(s);
     // In this case the distance between the two offspring
     //will be 1 element of the vector in next gen
     auto sister_distances = 1;
@@ -476,10 +470,10 @@ void test_simulation()//!OCLINT tests may be many
     //This ind will reproduce with extra energy
     s.set_ind_en(2,s.get_ind_tr_en(2) + 1);
 
-    auto mother_excess_energy = s.get_excess_energies(s.get_dividing_individuals());
-    auto sister_cells_vector = s.get_sisters_index_offset();
+    auto mother_excess_energy = get_excess_energies(s);
+    auto sister_cells_vector = get_sisters_index_offset(s);
     division(s);
-    for(unsigned int i = 0; i < s.get_sisters_index_offset().size(); i++)
+    for(unsigned int i = 0; i < get_sisters_index_offset(s).size(); i++)
       {
         assert(s.get_ind_en(sister_cells_vector[i].first)
                - mother_excess_energy[i]/2 < 0.00001);
@@ -524,7 +518,7 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s(2);
     assert(!has_collision(s));
-    s.set_ind_pos(s.get_ind(1),s.get_ind_pos(0));
+    set_pos(s.get_ind(1),s.get_ind_pos(0));
     assert(has_collision(s));
     manage_static_collisions(s);
     assert(!has_collision(s));
@@ -749,9 +743,9 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     s.set_ind_en(0,s.get_ind_tr_en(0));
-    assert(s.get_dividing_individuals()[0] == 0);
+    assert(get_dividing_individuals(s)[0] == 0);
     s.get_ind(0).set_phen(phenotype::spore);
-    assert(s.get_dividing_individuals().empty());
+    assert(get_dividing_individuals(s).empty());
   }
 
   //Spores do not reproduce
@@ -789,9 +783,9 @@ void test_simulation()//!OCLINT tests may be many
   {
     simulation s;
     s.set_ind_en(0,s.get_ind_tr_en(0));
-    assert(s.get_dividing_individuals()[0] == 0);
+    assert(get_dividing_individuals(s)[0] == 0);
     s.get_ind(0).set_phen(phenotype::sporulating);
-    assert(s.get_dividing_individuals().empty());
+    assert(get_dividing_individuals(s).empty());
   }
 
   //Sporulating individuals cannot reproduce
@@ -988,20 +982,20 @@ void test_simulation()//!OCLINT tests may be many
 
   {
     simulation s(1000, 100);
-    dispersal(s);
+    select_new_pop(s);
     assert(s.get_new_pop_size() == s.get_exp_new_pop_size());
-    s = simulation(10);
-    dispersal(s);
-    assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
-                         [](const individual& i) {return is_drawn(i);}) ==
-           s.get_pop_size());
+    s = simulation(10, 100);
+    select_new_pop(s);
+    auto n_drawn_ind = std::count_if(s.get_pop().begin(),s.get_pop().end(),
+                                     [](const individual& i) {return is_drawn(i);});
+    assert( n_drawn_ind == s.get_pop_size());
   }
 
 
   //During dispersal the individuals selected for the new_pop cannot be drawn again from pop
   {
-    simulation s(1000);
-    dispersal(s);
+    simulation s(1000, 100);
+    select_new_pop(s);
     assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
                          [](const individual& i) {return is_drawn(i);}) == 100);
   }
@@ -1040,20 +1034,51 @@ void test_simulation()//!OCLINT tests may be many
   }
   //At initialization a simulation checks that base_disp_dist * 10 is not > 1
   //--------> constructor throws exception. Tested directly in constructor
+  {
+    //    try {
+    //      simulation(0,0,0,0,0,0,0,1);
+    //    } catch (std::string e) {
+    //      assert(e == "base dispersal probability * spore advantage too high!" );
+    //    }
+  }
 
   //Individuals are selected based on their phenotype
   //A spore is more likely to be selected than a living
   {
-    simulation s(1000);
+    simulation s(1000,100);
     for(int i = s.get_pop_size() / 2; i != s.get_pop_size(); i++)
       s.get_ind(i).set_phen(phenotype::spore);
-    dispersal(s);
+    select_new_pop(s);
     auto spore_ratio =
         std::accumulate(s.get_new_pop().begin(),s.get_new_pop().end(),0.0,
                         [](const int sum, const individual& ind){return sum + is_spore(ind);}) /
         s.get_new_pop_size();
     assert(spore_ratio > 0.5);
   }
+
+  //After being selected in new population individuals flag is_drawn is resetted
+  {
+    simulation s;
+    select_new_pop(s);
+    for(const auto& ind :s.get_new_pop())
+      assert(!is_drawn(ind));
+  }
+
+  //After a new population is selected it swapped with the old population
+  //And the old population is cancelled
+  {
+    int pop_size = 1000;
+    int new_pop_size = 100;
+    simulation s(pop_size,new_pop_size);
+    select_new_pop(s);
+    assert(s.get_new_pop_size() == new_pop_size);
+    assert(s.get_pop_size() == pop_size);
+    fund_pop(s);
+    assert(s.get_new_pop_size() == 0);
+    assert(s.get_pop_size() == new_pop_size);
+  }
+
+  //
 }
 
 

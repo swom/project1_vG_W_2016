@@ -21,9 +21,6 @@ public:
   ///than the other phenotypes
   double get_spo_adv() const noexcept {return m_spore_advantage;}
 
-  ///finds the indexes of the individuals ready to divide
-  std::vector<int> get_dividing_individuals() const noexcept;
-
   ///Returns the reference to the uniform distribution m_disp_dist
   std::uniform_real_distribution<double> get_disp_distr() const noexcept {return m_disp_dist;}
 
@@ -44,12 +41,6 @@ public:
   {
     return m_pop[static_cast<unsigned int>(i)];
   }
-
-  ///Gets the excess energy from a referenced vector of index of individuals in population vector
-  std::vector<double> get_excess_energies(std::vector<int> &v_ind) const noexcept;
-
-  ///Gets the excess energy for a vector of index of individuals in population vector
-  std::vector<double> get_excess_energies(std::vector<int> v_ind) const noexcept;
 
   ///Gets an individual's energy
   double get_ind_en(int i) const
@@ -102,9 +93,6 @@ public:
   ///Gets reference to m_reproduction_angle
   std::uniform_real_distribution<double>& get_repr_angle() noexcept {return m_reproduction_angle;}
 
-  ///Gets distance in vector elements between two duaghters of same mother cell
-  std::vector<std::pair<int, int> > get_sisters_index_offset() const noexcept;
-
   ///Gets the number of ticks in the simulation
   const int& get_tick() const noexcept {return m_sim_timer;}
 
@@ -113,10 +101,6 @@ public:
 
   ///Calculates if a mutation happens or not
   bool mut_happens() noexcept {return m_mutation_prob(m_rng);}
-
-  /// Places cells in an hexagonal grid
-  /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
-  void place_start_cells() noexcept;
 
   ///Returns a random repr angle
   double repr_angle() noexcept {return m_reproduction_angle(m_rng);}
@@ -157,6 +141,9 @@ private:
   double m_spore_advantage;
 };
 
+///Checks if the entire population has been already drawn for funding the new population
+bool all_ind_are_drawn(const simulation& s) noexcept;
+
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
 int count_hex_layers(int pop_size)  noexcept ;
 
@@ -176,14 +163,23 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
 
-///Draws a 100 individual to fund the new population and puts them in m_new_pop
-void dispersal(simulation& s);
-
 ///The individuals in the vector are copied at the end of the pop vector
 void division(simulation& s) noexcept;
 
 /// All the individuals feed
 void feeding(simulation& s);
+
+///The new population becomes the actual population, the old population is cancelled
+void fund_pop(simulation& s) noexcept;
+
+///finds the indexes of the individuals ready to divide
+std::vector<int> get_dividing_individuals(const simulation& s) noexcept;
+
+///Gets the excess energy from a referenced vector of index of individuals in population vector
+std::vector<double> get_excess_energies(const simulation& s) noexcept;
+
+///Gets distance in vector elements between two duaghters of same mother cell
+std::vector<std::pair<int, int> > get_sisters_index_offset(const simulation& s) noexcept;
 
 ///Checks if any two cells are colliding
 bool has_collision(const simulation& s);
@@ -193,6 +189,16 @@ void manage_static_collisions(simulation& s);
 
 ///All inidviduals lose energy due to metabolism
 void metabolism_pop(simulation& s);
+
+/// Places cells in an hexagonal grid
+/// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
+void place_start_cells(simulation& s) noexcept;
+
+///Resets the drawn flag for all individuals in the new_population vector
+void reset_drawn_fl_new_pop(simulation& s) noexcept;
+
+///Draws a 100 individual to fund the new population and puts them in m_new_pop
+void select_new_pop(simulation& s);
 
 ///Runs all the necessary actions for a timestep to happen
 void tick(simulation& s);

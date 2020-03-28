@@ -67,6 +67,9 @@ bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept;
 ///Checks cells do not look for neighbors at their own coordinates
 bool is_same_cell(int column, int row) noexcept;
 
+///Resets the environment to new parameters
+void reset(environment& e, int grid_side, double diff_coeff, double food);
+
 void test_environment();
 
 #endif // ENVIRONMENT_H
