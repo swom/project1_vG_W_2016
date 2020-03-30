@@ -8,18 +8,16 @@
 class simulation
 {
 public:
-  simulation(int pop_size = 1, int exp_new_pop_size = 1, int grid_side = 1, double min_dist = 0.1,
-             double starting_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
+  simulation(int pop_size = 1, int exp_new_pop_size = 1,double min_dist = 0.1, int grid_side = 1,
+             double diff_coeff = 0.1, double starting_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
              double base_disp_prob = 0.01, double spore_advantage = 10);
 
   ///Returns the value of the variable m_base_fitness that indicates
   /// the basal fitness/dispersal probability of an individual
   double get_base_disp_prob() const noexcept {return m_base_disp_prob;}
 
-  ///Returns the variable m_spore_advantage that indicates
-  ///how many times a spore is more likely to get dispersed
-  ///than the other phenotypes
-  double get_spo_adv() const noexcept {return m_spore_advantage;}
+  ///Returns the diffusion coefficent of the environment that will be built in this simulation
+  double get_diff_coeff() const noexcept {return m_diff_coeff;}
 
   ///Returns the reference to the uniform distribution m_disp_dist
   std::uniform_real_distribution<double> get_disp_distr() const noexcept {return m_disp_dist;}
@@ -29,6 +27,10 @@ public:
 
   ///Gets the reference to environment of a simulation
   environment& get_env() noexcept {return m_e;}
+
+  ///Gets the dimension of the side of the env_grid that is built
+  /// in this simulation
+  int get_grid_side() const noexcept {return m_grid_side;}
 
   ///Gets an inidividual at a certain index in the vector
   const individual get_ind(int i) const
@@ -56,6 +58,9 @@ public:
 
   ///Gets the position of an individual as a vector x,y
   const std::pair<double,double> get_ind_pos(int i);
+
+  ///Gets the initial food that will be provided in each grid_cell of the environment
+  double get_init_food() const noexcept {return m_init_food;}
 
   ///Get minimum distance between individuals at the start of the simulation
   double get_min_dist() const noexcept {return m_min_init_dist_btw_cells;}
@@ -92,6 +97,11 @@ public:
 
   ///Gets reference to m_reproduction_angle
   std::uniform_real_distribution<double>& get_repr_angle() noexcept {return m_reproduction_angle;}
+
+  ///Returns the variable m_spore_advantage that indicates
+  ///how many times a spore is more likely to get dispersed
+  ///than the other phenotypes
+  double get_spo_adv() const noexcept {return m_spore_advantage;}
 
   ///Gets the number of ticks in the simulation
   const int& get_tick() const noexcept {return m_sim_timer;}
@@ -130,6 +140,9 @@ private:
   int m_exp_new_pop_size;
   std::vector<individual> m_new_pop;
   double m_min_init_dist_btw_cells;
+  int m_grid_side; //possibly useless, think of taking out
+  double m_diff_coeff; //possibly useless, think of taking out
+  double m_init_food; //possibly useless, think of taking out
   environment m_e;
   int m_sim_timer = 0;
   std::minstd_rand m_rng;
@@ -196,6 +209,9 @@ void place_start_cells(simulation& s) noexcept;
 
 ///Resets the drawn flag for all individuals in the new_population vector
 void reset_drawn_fl_new_pop(simulation& s) noexcept;
+
+///Resets the environment in the simulation to be identical to the previous one at the start
+void reset_env(simulation& s);
 
 ///Draws a 100 individual to fund the new population and puts them in m_new_pop
 void select_new_pop(simulation& s);

@@ -3,10 +3,11 @@
 #include <cassert>
 #include <numeric>
 
-environment::environment(int grid_side, double diff_coeff, double food):
-  m_grid(static_cast<unsigned int>(grid_side * grid_side),env_grid_cell(0,food)),
+environment::environment(int grid_side, double diff_coeff, double init_food):
   m_side(grid_side),
-  m_diffusion_coefficient(diff_coeff)
+  m_diffusion_coefficient(diff_coeff),
+  m_init_food(init_food),
+  m_grid(static_cast<unsigned int>(m_side * m_side),env_grid_cell(0,m_init_food))
 {
   find_neighbors_all_grid(*this);
 }
@@ -140,6 +141,16 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
         }
     }
   return n_indexes;
+}
+
+void reset_env(environment& e)
+{
+  e = environment(e.get_grid_side(), e.get_diff_coeff(), e.get_init_food());
+}
+
+void reset_env(environment& e, int grid_side, double diff_coeff, double food)
+{
+  e = environment(grid_side, diff_coeff, food);
 }
 
 void test_environment()//!OCLINT tests may be many
@@ -329,23 +340,48 @@ void test_environment()//!OCLINT tests may be many
     assert(e != e1);
   }
 
-  //The environment can be reset
-  //by default to default values of env,
-  //but the amount of food and diffusion coefficent
-  //can also be adapted
+  // The environment can be reset to its initial state
   {
-//    auto init_grid_side = 2;
-//    auto init_diff_coeff = 2;
-//    auto init_food = 2;
-//    environment e(init_grid_side, init_diff_coeff, init_food);
-//    environment e2 = e;
+    environment e;
+    double food_quantity = 3.14;
+    double metabolite_quantity = 3.14;
+    for(auto& grid_cell : e.get_grid())
+      {
+        grid_cell.set_food(food_quantity);
+        grid_cell.set_metabolite(metabolite_quantity);
+      }
+    auto e2 = e;
+    reset_env(e2);
+    assert(e2 != e);
+    assert(e2.get_grid_side() == e.get_grid_side());
+    assert(e2.get_diff_coeff() - e.get_diff_coeff() < 0.00001 &&
+           e2.get_diff_coeff() - e.get_diff_coeff() > -0.000001);
+    for (const auto& grid_cell : e2.get_grid())
+      {
+        assert(grid_cell.get_food() - e.get_init_food() < 0.00001 &&
+               grid_cell.get_food() - e.get_init_food() > -0.00001 );
+        assert(grid_cell.get_metabolite() < 0.000001 && grid_cell.get_metabolite() > -0.000001);
+      }
+  }
 
-//    auto grid_side = 42;
-//    auto diff_coeff = 42;
-//    auto food = 42;
-//    reset(e2, grid_side, diff_coeff, food);
+  //The environment can be reset to a new env ( no metabolite)
+  //with set size, diffusion coefficent and food
+  {
+    auto init_grid_side = 2;
+    auto init_diff_coeff = 2;
+    auto init_food = 2;
+    environment e(init_grid_side, init_diff_coeff, init_food);
+    environment e2 = e;
 
-//    assert( e != e2);
-
+    auto grid_side = 42;
+    auto diff_coeff = 42;
+    auto food = 42;
+    reset_env(e2, grid_side, diff_coeff, food);
+    assert( e != e2);
+    assert(e2.get_grid_side() == grid_side);
+    assert(e2.get_diff_coeff() - diff_coeff < 0.00001 &&
+           e2.get_diff_coeff() - diff_coeff > -0.000001);
+    assert(e2.get_init_food() - food < 0.00001 &&
+           e2.get_init_food() - food > -0.000001);
   }
 }

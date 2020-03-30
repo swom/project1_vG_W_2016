@@ -6,19 +6,7 @@
 class environment
 {
 public:
-    environment(int grid_side = 1, double diff_coeff = 0, double food = 1);
-
-    ///Gets the size of the grid of cells(number of grid cells)
-    int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
-
-    ///Gets the size of the grid of cells(number of grid cells)
-    int get_grid_side() const noexcept {return m_side;}
-
-    ///Gets the entire grid by const reference
-    const std::vector<env_grid_cell>& get_grid() const noexcept {return m_grid;}
-
-    ///Gets the entire grid by reference
-    std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
+    environment(int grid_side = 1, double diff_coeff = 0, double init_food = 1);
 
     ///Gets const reference of cell at a certain index
     const env_grid_cell& get_cell(int i) const noexcept
@@ -35,11 +23,28 @@ public:
     ///Get the diffusion coefficent of the environment
     const double& get_diff_coeff() const noexcept {return m_diffusion_coefficient;}
 
+    ///Gets the size of the grid of cells(number of grid cells)
+    int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
+
+    ///Gets the size of the grid of cells(number of grid cells)
+    int get_grid_side() const noexcept {return m_side;}
+
+    ///Gets the entire grid by const reference
+    const std::vector<env_grid_cell>& get_grid() const noexcept {return m_grid;}
+
+    ///Gets the entire grid by reference
+    std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
+
+    ///Gets the amount of initial food in the grid
+    double get_init_food() const noexcept {return  m_init_food;}
+
+
 private:
-    std::vector<env_grid_cell> m_grid;
     int m_side;
     //Always needs to be between 0 and 1!!!
     double m_diffusion_coefficient;
+    double m_init_food;
+    std::vector<env_grid_cell> m_grid;
 };
 
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
@@ -68,7 +73,10 @@ bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept;
 bool is_same_cell(int column, int row) noexcept;
 
 ///Resets the environment to new parameters
-void reset(environment& e, int grid_side, double diff_coeff, double food);
+void reset_env(environment& e, int grid_side, double diff_coeff, double food);
+
+///Resets the environment to new parameters
+void reset_env(environment& e);
 
 void test_environment();
 

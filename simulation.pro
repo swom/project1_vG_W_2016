@@ -13,8 +13,8 @@ SOURCES += \
     environment.cpp \
     grn.cpp \
     individual.cpp \
-    individual_type.cpp \
     main.cpp \
+    phenotype.cpp \
     simulation.cpp
 
 CONFIG += c++17

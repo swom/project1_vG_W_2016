@@ -4,15 +4,18 @@
 #include <algorithm>
 #include <math.h>
 
-simulation::simulation(int pop_size, int exp_new_pop_size,
-                       int grid_side, double min_dist,
-                       double starting_food, double mutation_prob,
+simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
+                       int grid_side, double diff_coeff,
+                       double init_food, double mutation_prob,
                        double mutation_step, double base_disp_prob, double spore_advantage):
 
   m_pop(static_cast<unsigned int>(pop_size),individual(0,0)),
   m_exp_new_pop_size(exp_new_pop_size),
   m_min_init_dist_btw_cells(min_dist),
-  m_e(grid_side,0.1,starting_food),
+  m_grid_side(grid_side),
+  m_diff_coeff(diff_coeff),
+  m_init_food(init_food),
+  m_e(m_grid_side, m_diff_coeff, m_init_food),
   m_reproduction_angle(0, 2 * M_PI),
   m_mutation_prob(mutation_prob),
   m_mutation_step(0,mutation_step),
@@ -560,7 +563,7 @@ void test_simulation()//!OCLINT tests may be many
       }
 
     double starting_food = 3.14;
-    s = simulation(1, 1, 1, 0.1, starting_food);
+    s = simulation(1, 1, 1, 1, 0.1, starting_food);
     for( auto& grid_cell : s.get_env().get_grid())
       {
         assert(grid_cell.get_food() - starting_food < 0.000001
@@ -676,7 +679,7 @@ void test_simulation()//!OCLINT tests may be many
   //In one tick/timestep individuals first feed,
   //than reproduce, than substances diffuse
   {
-    simulation s(1,1,3);
+    simulation s(1,1,0.1,3,1,1,0);
 
     //The single individual in this population
     //after a tick should reproduce
@@ -851,7 +854,7 @@ void test_simulation()//!OCLINT tests may be many
     int pop_size = 5;
     //The simulation does not have a grid with food,
     //so organisms cannot feed
-    s = simulation(pop_size,1,0);
+    s = simulation(pop_size,1,0.1,0);
     //Only the first individual has enough energy to survive
     //for 1 tick
     s.set_ind_en(0,s.get_ind(0).get_metab_rate() + 0.001);
@@ -965,7 +968,7 @@ void test_simulation()//!OCLINT tests may be many
   //After dividing the two daughter individuals mutate
   {
     double mutation_probability = 1; //all weights will be mutated in this simulation
-    simulation s(1, 1, 0, 0, 0, mutation_probability);
+    simulation s(1, 1, 0, 0, 0, 0, mutation_probability);
     auto init_var = weights_var(s.get_ind(0).get_grn());
     assert(init_var < 0.00001 && init_var > -0.0001);
     divides(s.get_ind(0),s.get_pop(),s.repr_angle(),s.get_rng(),
@@ -1004,7 +1007,7 @@ void test_simulation()//!OCLINT tests may be many
   //by default = 0.01
   {
     double base_disp_prob = 0.1;
-    simulation s(0,0,0,0,0,0,0,base_disp_prob);
+    simulation s(0,0,0,0,0,0,0,0,base_disp_prob);
     assert(s.get_base_disp_prob() - base_disp_prob < 0.00001 &&
            s.get_base_disp_prob() - base_disp_prob > -0.000001);
   }
@@ -1013,7 +1016,7 @@ void test_simulation()//!OCLINT tests may be many
   //by default = 10
   {
     double spore_advantage = 10;
-    simulation s(0,0,0,0,0,0,0,0,spore_advantage);
+    simulation s(0,0,0,0,0,0,0,0,0,spore_advantage);
     assert(s.get_spo_adv() - spore_advantage < 0.00001 &&
            s.get_spo_adv() - spore_advantage > -0.000001);
   }
@@ -1036,7 +1039,7 @@ void test_simulation()//!OCLINT tests may be many
   //--------> constructor throws exception. Tested directly in constructor
   {
     //    try {
-    //      simulation(0,0,0,0,0,0,0,1);
+    //      simulation(0,0,0,0,0,0,0,0,1);
     //    } catch (std::string e) {
     //      assert(e == "base dispersal probability * spore advantage too high!" );
     //    }
@@ -1078,8 +1081,7 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_pop_size() == new_pop_size);
   }
 
-  //
-}
+ }
 
 
 
