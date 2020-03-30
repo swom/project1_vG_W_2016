@@ -89,6 +89,14 @@ void division(simulation &s) noexcept
     }
 }
 
+void dispersal(simulation& s)
+{
+  select_new_pop(s);
+  fund_pop(s);
+  place_start_cells(s);
+  reset_env(s.get_env());
+}
+
 void exec(simulation& s, int n_tick) noexcept
 {
   while(s.get_tick() != n_tick){tick(s);}
@@ -212,8 +220,8 @@ void metabolism_pop(simulation& s)
 std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 {
   std::vector<double> v_modulus;
-  for(int i = 0; i != s.get_pop_size()-2; i++)
-    for(int j = i+1; j != s.get_pop_size(); j++)
+  for(int i = 0; i != s.get_pop_size() - 2; i++)
+    for(int j = i+1; j != s.get_pop_size() - 1; j++)
       for(int k = j+1; k != s.get_pop_size(); k++)
         {
           auto P1 = get_pos(s.get_ind(i));
@@ -232,7 +240,7 @@ void place_start_cells(simulation& s) noexcept
   // d is the distance between 2 individuals's centers
   double d = 2 * (s.get_pop()[0].get_size() + s.get_min_dist());
 
-  for(int i=0; i != n; i++)
+  for(int i = 0; i != n; i++)
     {
       double y = (sqrt(3) * i * d) / 2.0;
 
@@ -347,9 +355,14 @@ void test_simulation()//!OCLINT tests may be many
     //The angle formed by any 3 individual_centers is a multiple of PI/6*number_of_hex_layers
     //This is true in an hex_patt but i do not know if it is sufficient
 
-    auto v_modulus = modulus_of_btw_ind_angles(s,M_PI/12);
+    double n_hex_l = count_hex_layers(s.get_pop_size());
+    auto minimal_angle = M_PI / (6 * n_hex_l);
+    auto angle = M_PI  / 12.0;
+    assert(minimal_angle - angle < 0.00001 &&
+           minimal_angle - angle  / 12.0 > -0.00001 );
+    auto v_modulus = modulus_of_btw_ind_angles(s,minimal_angle);
     for(auto ind_modulus : v_modulus)
-      assert( ind_modulus < 0.0000000001 || ind_modulus > M_PI/12 - 0.000001);
+      assert( ind_modulus < 0.0000000001 || (ind_modulus > minimal_angle - 0.000001 && ind_modulus <= minimal_angle));
 
   }
 
@@ -1081,7 +1094,59 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_pop_size() == new_pop_size);
   }
 
- }
+  //Individuals after funding the new population are set in an hexagonal pattern
+  {
+    int pop_size = 1000;
+    int new_pop_size = 100;
+    simulation s(pop_size,new_pop_size);
+    select_new_pop(s);
+    fund_pop(s);
+    place_start_cells(s);
+    auto n_hex_l = count_hex_layers(s.get_pop_size());
+    auto v_modulus = modulus_of_btw_ind_angles(s, M_PI/ (6 * n_hex_l));
+    for(auto ind_modulus : v_modulus)
+      assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
+    assert(!has_collision(s));
+  }
+
+
+  //Max 100 ind, selected based on phenotype, are placed in a hex pattern, in a new env after dispersal
+  //Tests all of the above
+  {
+    int pop_size = 1000;
+    int new_pop_size = 100;
+    auto food = 42.1;
+    auto metabolite = 42.1;
+    simulation s(pop_size,new_pop_size);
+    for(auto& grid_cell : s.get_env().get_grid())
+      {
+        grid_cell.set_food(food);
+        grid_cell.set_metabolite(metabolite);
+      }
+    environment ref_env = s.get_env();
+    dispersal(s);
+    //Max 100 ind
+    assert(s.get_pop_size() == new_pop_size);
+    //Hex pattern
+    auto n_hex_l = count_hex_layers(s.get_pop_size());
+    auto v_modulus = modulus_of_btw_ind_angles(s, M_PI/ (6 * n_hex_l));
+    for(auto ind_modulus : v_modulus)
+      {
+        assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
+      }
+    assert(!has_collision(s));
+    //Reset env
+    assert( s.get_env() != ref_env );
+    auto init_food = s.get_env().get_init_food();
+    for(const auto& grid_cell : s.get_env().get_grid())
+      {
+        assert(grid_cell.get_food() - init_food <  0.000001 &&
+               grid_cell.get_food() - init_food >  -0.000001);
+        assert(grid_cell.get_metabolite() <  0.000001 &&
+               grid_cell.get_metabolite() >  -0.000001);
+      }
+  }
+}
 
 
 

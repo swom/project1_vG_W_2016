@@ -46,6 +46,11 @@ private:
     double m_init_food;
     std::vector<env_grid_cell> m_grid;
 };
+///Checks if two environment have the same grid_size and the the same amount of food and metabolite in each cell
+bool operator == (const environment& lhs, const environment& rhs) noexcept;
+
+///Checks if two environment have the same grid_size and the the same amount of food and metabolite in each cell
+bool operator != (const environment& lhs, const environment& rhs) noexcept;
 
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
 ///Assumes that the grid is a square

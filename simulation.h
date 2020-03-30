@@ -179,6 +179,9 @@ void death(simulation& s) noexcept;
 ///The individuals in the vector are copied at the end of the pop vector
 void division(simulation& s) noexcept;
 
+///Selects a new population and places it in a new environment
+void dispersal(simulation& s);
+
 /// All the individuals feed
 void feeding(simulation& s);
 
