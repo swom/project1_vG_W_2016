@@ -39,6 +39,8 @@ double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
 
 void test_env_grid_cell()//!OCLINT tests may be many
 {
+#ifndef NDEBUG
+
   //A grid cell has a metabolite value,
   //The value -123456789 is irrelevant
   //is just to make sure that get_metabolite()
@@ -178,6 +180,7 @@ void test_env_grid_cell()//!OCLINT tests may be many
     c1.set_food(42);
     assert(c != c1);
   }
-}
 
+#endif
+}
 

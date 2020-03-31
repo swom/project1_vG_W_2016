@@ -155,6 +155,7 @@ void reset_env(environment& e, int grid_side, double diff_coeff, double food)
 
 void test_environment()//!OCLINT tests may be many
 {
+#ifndef NDEBUG
 
   //An enevironment has a grid of cells
   //The .size() call and the -123456789
@@ -384,4 +385,6 @@ void test_environment()//!OCLINT tests may be many
     assert(e2.get_init_food() - food < 0.00001 &&
            e2.get_init_food() - food > -0.000001);
   }
+
+#endif
 }

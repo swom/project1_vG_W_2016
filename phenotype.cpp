@@ -17,6 +17,7 @@ std::string to_str(phenotype this_ind_type)
 
 void test_individual_type()
 {
+#ifndef NDEBUG
   // Conversion to string
   {
     assert(to_str(phenotype::spore) == "spore");
@@ -26,4 +27,5 @@ void test_individual_type()
     assert(to_str(phenotype::spore) != "sporulating");
     assert(to_str(phenotype::sporulating) != "living");
   }
+#endif
 }

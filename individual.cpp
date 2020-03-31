@@ -9,7 +9,7 @@ individual::individual(double x_pos, double y_pos,
                        int transformation_time):
   m_x(x_pos),
   m_y(y_pos),
-  m_size(size),
+  m_radius(size),
   m_energy(energy),
   m_treshold_energy(treshold_energy),
   m_uptake_rate(uptake_rate),
@@ -32,7 +32,7 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept
   const double dx = lhs.get_x() - rhs.get_x();
   const double dy = lhs.get_y() - rhs.get_y();
   const double actual_distance = (dx * dx) + (dy * dy) ;
-  const double collision_distance = lhs.get_size() + rhs.get_size();
+  const double collision_distance = lhs.get_radius() + rhs.get_radius();
   return actual_distance < collision_distance;
 }
 
@@ -88,8 +88,8 @@ int find_grid_index( individual& i, double grid_side)
 const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept
 {
   std::pair<double, double> pos;
-  pos.first = i.get_x() + cos(rnd_angle)*2*i.get_size();
-  pos.second += i.get_y() + sin(rnd_angle)*2*i.get_size();
+  pos.first = i.get_x() + cos(rnd_angle)*2*i.get_radius();
+  pos.second += i.get_y() + sin(rnd_angle)*2*i.get_radius();
   return pos;
 }
 
@@ -113,10 +113,10 @@ std::pair<double, double> get_displacement(const individual& lhs, const individu
   std::pair<double, double> displ_x_y;
   displ_x_y.first = overlap(lhs,rhs) *
       (distance(lhs, rhs) > 0 ? (lhs.get_x() - rhs.get_x()) / distance(lhs, rhs) :
-                                (lhs.get_size() + rhs.get_size())/(2*sqrt(2)));
+                                (lhs.get_radius() + rhs.get_radius())/(2*sqrt(2)));
   displ_x_y.second = overlap(lhs,rhs) *
       (distance(lhs, rhs) > 0 ? (lhs.get_y() - rhs.get_y()) / distance(lhs, rhs) :
-                                (lhs.get_size() + rhs.get_size())/(2*sqrt(2)));
+                                (lhs.get_radius() + rhs.get_radius())/(2*sqrt(2)));
   return  displ_x_y;
 }
 
@@ -203,7 +203,7 @@ void mutates(individual& i, std::minstd_rand& rng,
 
 double overlap(const individual& lhs, const individual& rhs) noexcept
 {
-  return (distance(lhs,rhs) - lhs.get_size() - rhs.get_size())/2;
+  return (distance(lhs,rhs) - lhs.get_radius() - rhs.get_radius())/2;
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -262,14 +262,15 @@ bool will_sporulate(individual& i) noexcept
   return i.get_grn().get_output_spo() == 0;
 }
 
+
 void test_individual()//!OCLINT tests may be many
 {
-
+#ifndef NDEBUG
   //An individual should be initialized with the defined starting size
   {
     double starting_size = 14.0;
     individual i(0,0,starting_size);
-    assert(i.get_size() - starting_size < 0.0000001);
+    assert(i.get_radius() - starting_size < 0.0000001);
   }
 
   //An individual should be initialized at a certain position
@@ -388,8 +389,8 @@ void test_individual()//!OCLINT tests may be many
   {
     //Two individuals overlap by half their radius
     individual lhs(0,0);
-    individual rhs(0,lhs.get_size());
-    assert(overlap(lhs, rhs) - lhs.get_size() < 0.000001);
+    individual rhs(0,lhs.get_radius());
+    assert(overlap(lhs, rhs) - lhs.get_radius() < 0.000001);
   }
 
   //The necessary displacement along the x and y axis can be calculated
@@ -399,9 +400,9 @@ void test_individual()//!OCLINT tests may be many
     individual lhs(0,0);
     individual rhs(0,0);
     assert(get_displacement(lhs,rhs).first -
-           (lhs.get_size() + rhs.get_size())/2 < 0.00001);
+           (lhs.get_radius() + rhs.get_radius())/2 < 0.00001);
     assert(get_displacement(lhs,rhs).second -
-           (lhs.get_size() + rhs.get_size())/2 < 0.00001);
+           (lhs.get_radius() + rhs.get_radius())/2 < 0.00001);
   }
 
   //Two cells can be displaced so not to overlap anymore
@@ -409,8 +410,8 @@ void test_individual()//!OCLINT tests may be many
     individual lhs(0,0);
     individual rhs(0,0);
     displace(lhs, rhs);
-    assert(distance(lhs,rhs) - (lhs.get_size() + rhs.get_size()) < 0.00001
-           && distance(lhs,rhs) - (lhs.get_size() + rhs.get_size()) > -0.00001);
+    assert(distance(lhs,rhs) - (lhs.get_radius() + rhs.get_radius()) < 0.00001
+           && distance(lhs,rhs) - (lhs.get_radius() + rhs.get_radius()) > -0.00001);
   }
 
   //The grid cell where an individual should be
@@ -774,4 +775,6 @@ void test_individual()//!OCLINT tests may be many
     draw_flag_reset(i);
     assert(!is_drawn(i));
   }
+
+#endif
 }

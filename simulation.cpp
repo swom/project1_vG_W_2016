@@ -238,7 +238,7 @@ void place_start_cells(simulation& s) noexcept
   unsigned int placed_ind = 0;
 
   // d is the distance between 2 individuals's centers
-  double d = 2 * (s.get_pop()[0].get_size() + s.get_min_dist());
+  double d = 2 * (s.get_pop()[0].get_radius() + s.get_min_dist());
 
   for(int i = 0; i != n; i++)
     {
@@ -306,8 +306,12 @@ void tick(simulation& s)
   s.update_sim_timer();
 }
 
+
 void test_simulation()//!OCLINT tests may be many
 {
+#ifndef NDEBUG
+
+
   //Simulation is initialized with a certain number of individuals
   // The value 1234567890 is irrelevant: just get this to compile
 
@@ -526,7 +530,7 @@ void test_simulation()//!OCLINT tests may be many
             s.get_rng(), s.get_mu_p(), s.get_mu_st());
     assert(!has_collision(s));
     assert(distance(s.get_ind(0), s.get_ind(1)) -
-           (s.get_ind(0).get_size() + s.get_ind(1).get_size()) < 0.1);
+           (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
   }
 
   //If there are collisions individuals are displaced
@@ -1146,6 +1150,8 @@ void test_simulation()//!OCLINT tests may be many
                grid_cell.get_metabolite() >  -0.000001);
       }
   }
+
+#endif
 }
 
 

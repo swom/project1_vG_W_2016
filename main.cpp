@@ -1,33 +1,47 @@
 #include <cassert>
 #include <string>
-#include "simulation.h"
+#include "sim_view.h"
 
 void test() {
-    test_env_grid_cell();
-    test_environment();
-    test_individual_type();
-    test_simulation();
-    test_individual();
-    test_GRN();
+  test_env_grid_cell();
+  test_environment();
+  test_GRN();
+  test_individual();
+  test_individual_type();
+  test_simulation();
+  test_sim_view();
 }
 
 
 int main(int argc, char ** argv) //!OCLINT tests may be long
 {
+  const std::vector<std::string> args(argv, argv + argc);
 #ifndef NDEBUG
-    test();
+  if (args.size() > 1 && args[1] == "--test")
+    {
+      test();
+      // We've already tested, so the program is done
+      return 0;
+    }
 #else
-    // In release mode, all asserts are removed from the code
-    assert(1 == 2);
+  // In release mode, all asserts are removed from the code
+  assert(1 == 2);
 #endif
-    const std::vector<std::string> args(argv, argv + argc);
 
-    //We've already tested, so the program is done
-    if (args.size() > 1 && args[1] == "--test") return 0;
 
-//    simulation s(19,200);
-//    auto time = 10;
-//    exec(s, time);
-    return 0;
+  simulation s(20);
+  if (args.size() > 1 && args[1] == "--visual")
+    {
+      sim_view v(s);
+      while (v.get_window().isOpen())
+        {
+          bool must_quit{v.process_events()};
+          if (must_quit)
+            return 0;
+          v.show();
+        }
+
+    }
+  return 0;
 }
 

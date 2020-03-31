@@ -288,8 +288,10 @@ double weights_var(const GRN& g) noexcept
   return var /= n_connections(g);
 }
 
+
 void test_GRN()//!OCLINT , tests may be long
 {
+#ifndef NDEBUG
   //A grn is initialized with connection weights
   //all to 0
   {
@@ -515,5 +517,5 @@ void test_GRN()//!OCLINT , tests may be long
     assert(weights_var(g) < 0.00001 &&
            weights_var(g) > -0.00001);
   }
-
+#endif
 }

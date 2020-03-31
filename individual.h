@@ -42,8 +42,8 @@ public:
   ///gets the metabolic rate of an individual
   double get_metab_rate() const noexcept {return m_metab_rate;}
 
-  ///gets size of individual
-  double get_size() const noexcept {return m_size;}
+  ///gets radius of individual
+  double get_radius() const noexcept {return m_radius;}
 
   ///Gets the type of the individual
   phenotype get_phen() const noexcept {return m_individual_type;}
@@ -96,7 +96,7 @@ private:
 
   double m_x;
   double m_y;
-  double m_size;
+  double m_radius;
   double m_energy;
   double m_treshold_energy;
   double m_uptake_rate;
