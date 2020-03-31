@@ -29,7 +29,9 @@ simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
   }
   catch (std::string e) {
     std::cout << e;
+#ifdef NDEBUG
     abort();
+#endif
   }
 
   if(!m_pop.empty())
@@ -1055,11 +1057,11 @@ void test_simulation()//!OCLINT tests may be many
   //At initialization a simulation checks that base_disp_dist * 10 is not > 1
   //--------> constructor throws exception. Tested directly in constructor
   {
-    //    try {
-    //      simulation(0,0,0,0,0,0,0,0,1);
-    //    } catch (std::string e) {
-    //      assert(e == "base dispersal probability * spore advantage too high!" );
-    //    }
+        try {
+          simulation(0,0,0,0,0,0,0,0,1);
+        } catch (std::string e) {
+          assert(e == "base dispersal probability * spore advantage too high!" );
+        }
   }
 
   //Individuals are selected based on their phenotype
