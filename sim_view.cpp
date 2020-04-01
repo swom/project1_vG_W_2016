@@ -4,7 +4,7 @@
 #include <cassert>
 
 
-sim_view::sim_view(simulation start_simulation, float start_zoom, float zoom_step, double scale) :
+sim_view::sim_view(simulation start_simulation, float start_zoom, float zoom_step, float pan_step, double scale) :
   m_sim(start_simulation),
   m_window{sf::VideoMode(1280, 720), "Sim_W_V_G_2016"},
   m_max_zoom{start_zoom},
@@ -14,6 +14,7 @@ sim_view::sim_view(simulation start_simulation, float start_zoom, float zoom_ste
     sf::Vector2f(m_window.getSize().x / m_max_zoom,
                  m_window.getSize().y / m_max_zoom)
     },
+  m_pan_step{pan_step},
   m_zoom_step{zoom_step}
 {
   try {
@@ -87,13 +88,25 @@ bool sim_view::process_events()
   sf::Event event;
   while (m_window.pollEvent(event))
     {
-      if (event.type == sf::Event::Closed)
-        {
+      switch (event.type) {
+        case sf::Event::Closed:
           m_window.close();
           return true; // Sim is done
+        case sf::Event::KeyPressed:
+          zoom_k_input_starts(event);
+          pan_k_input_starts(event);
+          break;
+        case sf::Event::KeyReleased:
+          zoom_k_input_ends(event);
+          pan_k_input_ends(event);
+          break;
+        default:
+          break;
         }
-      zoom_input(event);
     }
+  //Once all inputs are processed apply changes
+  k_zoom();
+  k_pan();
   return false; // if no events proceed with tick
 }
 
@@ -101,9 +114,6 @@ void sim_view::show() noexcept
 {
   // Start drawing the new frame, by clearing the screen
   m_window.clear();
-
-  if(m_zoom_dir < 0 || m_zoom_dir >0)
-    m_view.zoom(1 + m_zoom_step * m_zoom_dir);
   m_window.setView(m_view);
 
   draw_background();
@@ -116,40 +126,84 @@ void sim_view::show() noexcept
   m_window.display();
 }
 
-void sim_view::set_zoom_dir(float dir) noexcept
+void sim_view::k_pan() noexcept
 {
-  if(dir > 0)
-    {
-      m_zoom_dir = 1;
-    }
-  else if(dir < 0)
-    {
-      m_zoom_dir = -1;
-    }
-  else
-    {
-      m_zoom_dir = 0;
+  m_view.move(0,m_pan_step * m_pan_up);
+  m_view.move(0,- m_pan_step * m_pan_down);
+  m_view.move(-m_pan_step * m_pan_left,0);
+  m_view.move(m_pan_step * m_pan_right,0);
+}
+
+void sim_view::k_zoom() noexcept
+{
+  m_view.zoom( 1 - m_zoom_step * m_zoom_in);
+  m_view.zoom(1 + m_zoom_step * m_zoom_out);
+}
+
+void sim_view::pan_k_input_starts(const sf::Event &event) noexcept
+{
+  switch (event.key.code) {
+    case sf::Keyboard::Up:
+      m_pan_up = true;
+      break;
+    case sf::Keyboard::Down:
+      m_pan_down = true;
+      break;
+    case sf::Keyboard::Left:
+      m_pan_left = true;
+      break;
+    case sf::Keyboard::Right:
+      m_pan_right = true;
+      break;
+    default:
+      break;
     }
 }
 
-void sim_view::zoom_input(const sf::Event& event) noexcept
+void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
 {
-  if(event.type == sf::Event::MouseWheelScrolled)
-    {
+  switch (event.key.code) {
+    case sf::Keyboard::Up:
+      m_pan_up = false;
+      break;
+    case sf::Keyboard::Down:
+      m_pan_down = false;
+      break;
+    case sf::Keyboard::Left:
+      m_pan_left = false;
+      break;
+    case sf::Keyboard::Right:
+      m_pan_right = false;
+      break;
+    default:
+      break;
+    }
+}
 
-      set_zoom_dir(event.mouseWheel.delta);
+void sim_view::zoom_k_input_ends(const sf::Event &event) noexcept
+{
+  switch (event.key.code) {
+    case sf::Keyboard::Add:
+      m_zoom_in = false;
+      break;
+    case sf::Keyboard::Subtract:
+      m_zoom_out = false;
+      break;
+    default:
+      break;
     }
-  else if(event.key.code == sf::Keyboard::Add)
-    {
-      set_zoom_dir(1);
-    }
-  else if(event.key.code == sf::Keyboard::Hyphen)
-    {
-      set_zoom_dir(-1);
-    }
-  else
-    {
-      set_zoom_dir(0);
+}
+void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
+{
+  switch (event.key.code) {
+    case sf::Keyboard::Add:
+      m_zoom_in = true;
+      break;
+    case sf::Keyboard::Subtract:
+      m_zoom_out = true;
+      break;
+    default:
+      break;
     }
 }
 void test_sim_view()
@@ -159,9 +213,11 @@ void test_sim_view()
   {
     // Show the game for one frame
     // (there will be a member function 'exec' for running the game)
+#ifndef IS_ON_TRAVIS
     simulation s(20);
     sim_view v(s);
     v.show();
+#endif
   }
 
   //A window starts showing simulation from tick 0
@@ -183,7 +239,7 @@ void test_sim_view()
            v.get_view().getSize().y - static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() > -0.00001f);
   }
   //A sim_view is initialized with a m_zoom_step_variable, that will determine how fast you will zoom in and out
-  //0.2 by default,(increase/decrease size of view by 1/5th)
+  //0.1 by default,(increase/decrease size of view by 1/5th)
   //An error will be thrown if the zoom_step is more than 1!
   {
     float zoom_step = 0.314f;
@@ -198,14 +254,14 @@ void test_sim_view()
     }
   }
 
-  //It is possible to zoom out and in
-  //By default the zoom starts from 0
+  //A sim_view is initialized with 2 boolean variables zoom_in and zoom_out
+  //Both initialized at false
   {
     sim_view v;
-    auto init_view_size = v.get_view().getSize();
-    v.set_zoom_dir(1);
-    v.show();
-    assert(v.get_view().getSize() != init_view_size);
+    assert(v.get_zoom_in() + v.get_zoom_out() == 0);
   }
+
+  //It is possible to zoom in or out pressing the keys + or  -
+  //----------> tested graphically
 #endif
 }

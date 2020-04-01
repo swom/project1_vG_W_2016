@@ -10,7 +10,7 @@ class sim_view
 {
 public:
 
-  sim_view(simulation start_simulation = simulation(), float start_zoom = 10, float zoom_step = 0.002f, double scale = 10);
+  sim_view(simulation start_simulation = simulation(), float start_zoom = 10, float zoom_step = 0.01f, float pan_step = 2.f, double scale = 10);
   ~sim_view();
 
   /// Show one frame
@@ -41,12 +41,30 @@ public:
   ///Get zoom step
   float get_zoom_step() const noexcept {return m_zoom_step;}
 
+  ///Gets the state of the flag that signals if it is requested to zoom in
+  bool get_zoom_in() const noexcept {return m_zoom_in;}
 
-  ///Sets the sign of the zoom
-  void set_zoom_dir(float dir) noexcept;
+  ///Gets the state of the flag that signals if it is requested to zoom out
+  bool get_zoom_out() const noexcept {return m_zoom_out;}
 
-  ///Processes input for zooming
-  void zoom_input(const sf::Event& event) noexcept;
+  ///Processe when keyboard input for panning is given
+  void pan_k_input_starts(const sf::Event& event) noexcept;
+
+  ///Processe when keyboard input for panning is stopped
+  void pan_k_input_ends(const sf::Event& event) noexcept;
+
+  ///Pans camera following input from keyboard
+  void k_pan() noexcept;
+
+  ///Zooms following input from keyboard
+  void k_zoom() noexcept;
+
+  ///Processes when keyboard input for zooming is given
+  void zoom_k_input_starts(const sf::Event& event) noexcept;
+
+  ///Processes when keyboard input for zooming is stopped
+  void zoom_k_input_ends(const sf::Event& event) noexcept;
+
 
 
 private:
@@ -67,8 +85,26 @@ private:
   ///The view of the simulation
   sf::View m_view;
 
-  ///The direction towards which the view will zoom (+)in or (-)out
-  int m_zoom_dir = 0;
+  ///Boolean that signals if it is requested to zoom out
+  bool m_zoom_out = false;
+
+  ///Boolean that signals if it is requested to zoom out
+  bool m_zoom_in = false;
+
+  ///Boolean that signals if it is requested to pan the camera up
+  bool m_pan_up = false;
+
+  ///Boolean that signals if it is requested to pan the camera down
+  bool m_pan_down = false;
+
+  ///Boolean that signals if it is requested to pan the camera left
+  bool m_pan_left = false;
+
+  ///Boolean that signals if it is requested to pan the camera right
+  bool m_pan_right = false;
+
+  ///The step at which it is possible to move around the camera
+  float m_pan_step;
 
   ///The step at which it is possible to zoom in or our
   float m_zoom_step;
