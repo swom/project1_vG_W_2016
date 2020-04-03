@@ -258,7 +258,7 @@ void test_sim_view()//!OCLINT tests may be many
            v.get_zoom_step() - zoom_step > -0.0001f);
     zoom_step = 5;
     try {
-      sim_view v1(simulation(), 10, zoom_step);
+      sim_view v1(simulation(), 10, zoom_step);//!OCLINT
     }
     catch (std::string e) {
       assert(e == "zoom_step > 1... too high!\n" );
