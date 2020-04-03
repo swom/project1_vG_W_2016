@@ -4,7 +4,8 @@
 #include <cassert>
 
 
-sim_view::sim_view(simulation start_simulation, float start_zoom, float zoom_step, float pan_step, float scale) :
+sim_view::sim_view(simulation start_simulation, float start_zoom,
+                   float zoom_step, float pan_step, float scale) :
   m_sim{start_simulation},//!!!Initialize this first!!!
   m_grid_view{scale},
   m_max_zoom{start_zoom},
@@ -239,13 +240,18 @@ void test_sim_view()//!OCLINT tests may be many
   {
     const sim_view v;
     assert((v.get_view().getCenter() == sf::Vector2f{0.f,0.f}));
-    assert(v.get_view().getSize().x - static_cast<float>(v.get_window().getSize().x) / v.get_max_zoom() < 0.00001f &&
-           v.get_view().getSize().x - static_cast<float>(v.get_window().getSize().x) / v.get_max_zoom() > -0.00001f);
+    assert(v.get_view().getSize().x -
+           static_cast<float>(v.get_window().getSize().x) / v.get_max_zoom() < 0.00001f &&
+           v.get_view().getSize().x -
+           static_cast<float>(v.get_window().getSize().x) / v.get_max_zoom() > -0.00001f);
 
-    assert(v.get_view().getSize().y - static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() < 0.00001f &&
-           v.get_view().getSize().y - static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() > -0.00001f);
+    assert(v.get_view().getSize().y -
+           static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() < 0.00001f &&
+           v.get_view().getSize().y -
+           static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() > -0.00001f);
   }
-  //A sim_view is initialized with a m_zoom_step_variable, that will determine how fast you will zoom in and out
+  //A sim_view is initialized with a m_zoom_step_variable,
+  //that will determine how fast you will zoom in and out
   //0.1 by default,(increase/decrease size of view by 1/5th)
   //An error will be thrown if the zoom_step is more than 1!
 #ifndef IS_ON_TRAVIS
@@ -273,7 +279,8 @@ void test_sim_view()//!OCLINT tests may be many
   //It is possible to zoom in or out pressing the keys + or  -
   //----------> tested graphically
 
-  //A sim_view is initialized with a grid_view object containing a vector of vertices of size == to m_sim.get_env().get_grid_size() * 4
+  //A sim_view is initialized with a grid_view object containing a vector of vertices
+  //of size == to m_sim.get_env().get_grid_size() * 4
   {
     sim_view v;
     assert(v.get_grid_view().get_grid_vert_size() == v.get_sim().get_env().get_grid_size() * 4);
