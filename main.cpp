@@ -5,6 +5,7 @@
 void test() {
   test_env_grid_cell();
   test_environment();
+  test_grid_view();
   test_GRN();
   test_individual();
   test_individual_type();
@@ -29,7 +30,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
 
-  simulation s(20);
+  simulation s(7,20,0.1,3,0.1,20);
   if (args.size() > 1 && args[1] == "--visual")
     {
       sim_view v(s);

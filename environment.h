@@ -24,7 +24,7 @@ public:
     const double& get_diff_coeff() const noexcept {return m_diffusion_coefficient;}
 
     ///Gets the size of the grid of cells(number of grid cells)
-    int get_env_size() const noexcept {return static_cast<int>(m_grid.size());}
+    int get_grid_size() const noexcept {return static_cast<int>(m_grid.size());}
 
     ///Gets the size of the grid of cells(number of grid cells)
     int get_grid_side() const noexcept {return m_side;}

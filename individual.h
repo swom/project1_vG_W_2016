@@ -12,7 +12,7 @@ class individual
 {
 public:
 
-  individual(double x_pos = 0, double y_pos = 0, double size  = 1,
+  individual(double x_pos = 0, double y_pos = 0, double radius  = 0.5,
              double energy = 0, double treshold_energy = 2,
              double uptake_rate = 0.1, double metabolic_rate = 0.01,
              phenotype phenotype = phenotype::active,
@@ -139,6 +139,7 @@ void draw_flag_reset(individual& i);
 
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
+///the grid_cell at grid[0] is at position(x,y) = (-grid_side/2, -grid_side/2)
 int find_grid_index( individual& i, double grid_side) ;
 
 ///An individual increases its energy depleting food

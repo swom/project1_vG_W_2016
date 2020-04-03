@@ -3,6 +3,7 @@
 HEADERS += \
     env_grid_cell.h \
     environment.h \
+    grid_view.h \
     grn.h \
     individual.h \
     phenotype.h \
@@ -12,6 +13,7 @@ HEADERS += \
 SOURCES += \
     env_grid_cell.cpp \
     environment.cpp \
+    grid_view.cpp \
     grn.cpp \
     individual.cpp \
     main.cpp \

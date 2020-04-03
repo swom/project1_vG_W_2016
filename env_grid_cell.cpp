@@ -3,12 +3,12 @@
 #include <cmath>
 
 
-env_grid_cell::env_grid_cell(double metabolite, double food):
+env_grid_cell::env_grid_cell(double metabolite, double food, double max_food):
   m_metabolite(metabolite),
   m_metabolite_change(0),//this will always be 0 at initialization
   m_food(food),
-  m_food_change(0)//this will always be 0 at initialization
-
+  m_food_change(0),//this will always be 0 at initialization
+  m_max_food(max_food)
 {
 
 }

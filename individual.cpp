@@ -3,13 +3,13 @@
 #include <math.h>
 
 individual::individual(double x_pos, double y_pos,
-                       double size, double energy,
+                       double radius, double energy,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
                        phenotype individual_type, int sporulation_timer,
                        int transformation_time):
   m_x(x_pos),
   m_y(y_pos),
-  m_radius(size),
+  m_radius(radius),
   m_energy(energy),
   m_treshold_energy(treshold_energy),
   m_uptake_rate(uptake_rate),
@@ -29,9 +29,7 @@ bool operator == (const individual& lhs, const individual& rhs) noexcept {
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept
 {
-  const double dx = lhs.get_x() - rhs.get_x();
-  const double dy = lhs.get_y() - rhs.get_y();
-  const double actual_distance = (dx * dx) + (dy * dy) ;
+  const double actual_distance = distance(lhs,rhs) ;
   const double collision_distance = lhs.get_radius() + rhs.get_radius();
   return actual_distance < collision_distance;
 }
@@ -111,12 +109,20 @@ const std::pair<double, double> get_pos(individual& i)  noexcept
 std::pair<double, double> get_displacement(const individual& lhs, const individual& rhs) noexcept
 {
   std::pair<double, double> displ_x_y;
-  displ_x_y.first = overlap(lhs,rhs) *
-      (distance(lhs, rhs) > 0 ? (lhs.get_x() - rhs.get_x()) / distance(lhs, rhs) :
-                                (lhs.get_radius() + rhs.get_radius())/(2*sqrt(2)));
-  displ_x_y.second = overlap(lhs,rhs) *
-      (distance(lhs, rhs) > 0 ? (lhs.get_y() - rhs.get_y()) / distance(lhs, rhs) :
-                                (lhs.get_radius() + rhs.get_radius())/(2*sqrt(2)));
+  auto dist = distance(lhs, rhs);
+
+  auto overlapping = overlap(lhs,rhs);
+
+  if(dist < 0.0000001 && dist > -0.0000001)
+    {
+      displ_x_y.first =  overlapping / sqrt(2);
+      displ_x_y.second = overlapping / sqrt(2);
+    }
+  else
+    {
+  displ_x_y.first = overlapping * (lhs.get_x() - rhs.get_x()) / dist;
+  displ_x_y.second = overlapping * (lhs.get_y() - rhs.get_y()) / dist;
+    }
   return  displ_x_y;
 }
 
@@ -203,7 +209,18 @@ void mutates(individual& i, std::minstd_rand& rng,
 
 double overlap(const individual& lhs, const individual& rhs) noexcept
 {
-  return (distance(lhs,rhs) - lhs.get_radius() - rhs.get_radius())/2;
+  auto dist = distance(lhs,rhs);
+  auto sum_of_radiuses = lhs.get_radius() + rhs.get_radius();
+
+  //if circles are one into the other
+  if (dist < std::max(lhs.get_radius(),rhs.get_radius()))
+    return (std::max(lhs.get_radius(),rhs.get_radius()) - dist + std::min(lhs.get_radius(),rhs.get_radius())) / 2;
+
+  //if circles partially overlap or
+  //their dist is equal to sum of radiuses
+  //(in which case they should not pass through this function)
+  else
+    return (sum_of_radiuses - dist)/2;
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -390,19 +407,8 @@ void test_individual()//!OCLINT tests may be many
     //Two individuals overlap by half their radius
     individual lhs(0,0);
     individual rhs(0,lhs.get_radius());
-    assert(overlap(lhs, rhs) - lhs.get_radius() < 0.000001);
-  }
-
-  //The necessary displacement along the x and y axis can be calculated
-  //for two individuals to not overlap
-  //This is used to manage static_collisions in simulation.cpp
-  {
-    individual lhs(0,0);
-    individual rhs(0,0);
-    assert(get_displacement(lhs,rhs).first -
-           (lhs.get_radius() + rhs.get_radius())/2 < 0.00001);
-    assert(get_displacement(lhs,rhs).second -
-           (lhs.get_radius() + rhs.get_radius())/2 < 0.00001);
+    assert(overlap(lhs, rhs) - lhs.get_radius() / 2 < 0.000001 &&
+           overlap(lhs, rhs) - lhs.get_radius() / 2 > -0.000001 );
   }
 
   //Two cells can be displaced so not to overlap anymore
@@ -410,8 +416,9 @@ void test_individual()//!OCLINT tests may be many
     individual lhs(0,0);
     individual rhs(0,0);
     displace(lhs, rhs);
-    assert(distance(lhs,rhs) - (lhs.get_radius() + rhs.get_radius()) < 0.00001
-           && distance(lhs,rhs) - (lhs.get_radius() + rhs.get_radius()) > -0.00001);
+    auto dist = distance(lhs,rhs);
+    assert(dist - (lhs.get_radius() + rhs.get_radius()) < 0.00001
+           && dist - (lhs.get_radius() + rhs.get_radius()) > -0.00001);
   }
 
   //The grid cell where an individual should be

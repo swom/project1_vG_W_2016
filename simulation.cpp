@@ -1057,11 +1057,13 @@ void test_simulation()//!OCLINT tests may be many
   //At initialization a simulation checks that base_disp_dist * 10 is not > 1
   //--------> constructor throws exception. Tested directly in constructor
   {
+#ifndef IS_ON_TRAVIS
         try {
           simulation(0,0,0,0,0,0,0,0,1);
         } catch (std::string e) {
           assert(e == "base dispersal probability * spore advantage too high!" );
         }
+#endif
   }
 
   //Individuals are selected based on their phenotype

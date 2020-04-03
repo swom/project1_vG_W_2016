@@ -16,7 +16,7 @@ environment::environment(int grid_side, double diff_coeff, double init_food):
 bool operator == (const environment& lhs, const environment& rhs) noexcept
 {
 
-  return lhs.get_env_size() == rhs.get_env_size() &&
+  return lhs.get_grid_size() == rhs.get_grid_size() &&
       lhs.get_diff_coeff() - rhs.get_diff_coeff() < 0.00001 &&
       lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.00001 &&
       std::equal(lhs.get_grid().begin(),lhs.get_grid().end(),
@@ -99,9 +99,9 @@ void diffusion_metabolite(environment& e) noexcept
 
 void find_neighbors_all_grid(environment& e) noexcept
 {
-  for (int i = 0; i != e.get_env_size(); i++)
+  for (int i = 0; i != e.get_grid_size(); i++)
     {
-      e.get_cell(i).set_v_neighbors(find_neighbors(e.get_env_size(), e.get_grid_side(), i));
+      e.get_cell(i).set_v_neighbors(find_neighbors(e.get_grid_size(), e.get_grid_side(), i));
     }
 }
 
@@ -173,7 +173,7 @@ void test_environment()//!OCLINT tests may be many
   {
     int n = 2;
     environment e(n);
-    assert(e.get_env_size() == 2 * 2);
+    assert(e.get_grid_size() == 2 * 2);
   }
 
   //One can get the gride side's size
@@ -237,7 +237,7 @@ void test_environment()//!OCLINT tests may be many
     auto env_side = 3;
     auto env_size = 3 * 3;
     environment e3x3(3);//3x3 env just to have some actual neighbours
-    for(int i = 0; i != e3x3.get_env_size(); i++)
+    for(int i = 0; i != e3x3.get_grid_size(); i++)
       {
         assert(e3x3.get_cell(i).get_v_neighbors()
                == find_neighbors(env_size, env_side, i));
@@ -271,7 +271,7 @@ void test_environment()//!OCLINT tests may be many
     environment e;
     //the focal cell in this case is the first and only cell of the grid
     auto focal_cell_index = 0;
-    assert(find_neighbors(e.get_env_size(),e.get_grid_side(),focal_cell_index).size() == 0);
+    assert(find_neighbors(e.get_grid_size(),e.get_grid_side(),focal_cell_index).size() == 0);
 
     //the central grid_cell in a 3x3 grid (index = 4) should have 8 neighbors
     environment e3x3(3);
@@ -279,7 +279,7 @@ void test_environment()//!OCLINT tests may be many
     assert(
           find_neighbors
           (
-            e3x3.get_env_size(),
+            e3x3.get_grid_size(),
             e3x3.get_grid_side(),
             focal_cell_index
             ).size()

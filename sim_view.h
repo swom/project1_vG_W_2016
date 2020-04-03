@@ -1,5 +1,6 @@
 #ifndef SIM_VIEW_H
 #define SIM_VIEW_H
+#include "grid_view.h"
 #include "simulation.h"
 #include <SFML/Graphics.hpp>
 
@@ -10,18 +11,14 @@ class sim_view
 {
 public:
 
-  sim_view(simulation start_simulation = simulation(), float start_zoom = 10, float zoom_step = 0.01f, float pan_step = 2.f, double scale = 10);
+  sim_view(simulation start_simulation = simulation(), float start_zoom = 10, float zoom_step = 0.01f, float pan_step = 2.f, float scale = 10);
   ~sim_view();
-
-  /// Show one frame
-  void show() noexcept;
 
   /// Run the game until the window is closed
   void exec() noexcept;
 
-  /// Processes events in game and ouputs false if quit
-  /// is inputted
-  bool process_events();
+  ///Returns const ref to m_grid_view
+  const  grid_view& get_grid_view() const noexcept {return m_grid_view;}
 
   ///Gets the value of the zoom
   float get_max_zoom() const noexcept {return m_max_zoom;}
@@ -47,17 +44,24 @@ public:
   ///Gets the state of the flag that signals if it is requested to zoom out
   bool get_zoom_out() const noexcept {return m_zoom_out;}
 
+  ///Pans camera following input from keyboard
+  void k_pan() noexcept;
+
+  ///Zooms following input from keyboard
+  void k_zoom() noexcept;
+
   ///Processe when keyboard input for panning is given
   void pan_k_input_starts(const sf::Event& event) noexcept;
 
   ///Processe when keyboard input for panning is stopped
   void pan_k_input_ends(const sf::Event& event) noexcept;
 
-  ///Pans camera following input from keyboard
-  void k_pan() noexcept;
+  /// Processes events in game and ouputs false if quit
+  /// is inputted
+  bool process_events();
 
-  ///Zooms following input from keyboard
-  void k_zoom() noexcept;
+  /// Show one frame
+  void show() noexcept;
 
   ///Processes when keyboard input for zooming is given
   void zoom_k_input_starts(const sf::Event& event) noexcept;
@@ -68,22 +72,17 @@ public:
 
 
 private:
-  /// The simulation logic
+
+  /// The simulation logic,
+  ///!!!on top of all because it needs to be initialized first!!!
   simulation m_sim;
 
-  /// The window to draw to
-  sf::RenderWindow m_window;
+  ///The class that defines the drawable object representing the environment grid
+  grid_view m_grid_view;
 
   ///The zoom at which the simulation is shown
   /// in the beginning and the max level of zoom
   float m_max_zoom;
-
-  ///The times the size of individuals and their coordinates are increased
-  /// This is necessary to not show fractions of pixels, default 10
-  double m_scale;
-
-  ///The view of the simulation
-  sf::View m_view;
 
   ///Boolean that signals if it is requested to zoom out
   bool m_zoom_out = false;
@@ -105,6 +104,16 @@ private:
 
   ///The step at which it is possible to move around the camera
   float m_pan_step;
+
+  ///The times the size of individuals and their coordinates are increased
+  /// This is necessary to not show fractions of pixels, default 10
+  float m_scale;
+
+  /// The window to draw to
+  sf::RenderWindow m_window;
+
+  ///The view of the simulation
+  sf::View m_view;
 
   ///The step at which it is possible to zoom in or our
   float m_zoom_step;
