@@ -189,28 +189,25 @@ void sim_view::show() noexcept
 
 void sim_view::zoom_k_input_ends(const sf::Event &event) noexcept
 {
-  switch (event.key.code) {
-    case sf::Keyboard::Add:
+  if (event.key.code == sf::Keyboard::Add)
+    {
       m_zoom_in = false;
-      break;
-    case sf::Keyboard::Subtract:
+    }
+  else if(event.key.code == sf::Keyboard::Subtract)
+    {
       m_zoom_out = false;
-      break;
-    default:
-      break;
     }
 }
+
 void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
 {
-  switch (event.key.code) {
-    case sf::Keyboard::Add:
+  if (event.key.code == sf::Keyboard::Add)
+    {
       m_zoom_in = true;
-      break;
-    case sf::Keyboard::Subtract:
+    }
+  else if(event.key.code == sf::Keyboard::Subtract)
+    {
       m_zoom_out = true;
-      break;
-    default:
-      break;
     }
 }
 
@@ -250,6 +247,8 @@ void test_sim_view()//!OCLINT tests may be many
            v.get_view().getSize().y -
            static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() > -0.00001f);
   }
+
+
   //A sim_view is initialized with a m_zoom_step_variable,
   //that will determine how fast you will zoom in and out
   //0.1 by default,(increase/decrease size of view by 1/5th)
@@ -263,7 +262,8 @@ void test_sim_view()//!OCLINT tests may be many
     zoom_step = 5;
     try {
       sim_view v1(simulation(),10,zoom_step);
-    } catch (std::string e) {
+    }
+    catch (std::string e) {
       assert(e == "zoom_step > 1... too high!\n" );
     }
   }

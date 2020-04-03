@@ -18,9 +18,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 {
   const std::vector<std::string> args(argv, argv + argc);
 #ifndef NDEBUG
+  test();
   if (args.size() > 1 && args[1] == "--test")
     {
-      test();
       // We've already tested, so the program is done
       return 0;
     }
@@ -41,8 +41,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
             return 0;
           v.show();
         }
-
     }
+
   return 0;
 }
 
