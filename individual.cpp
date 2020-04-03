@@ -214,13 +214,13 @@ double overlap(const individual& lhs, const individual& rhs) noexcept
 
   //if circles are one into the other
   if (dist < std::max(lhs.get_radius(),rhs.get_radius()))
-    return (std::max(lhs.get_radius(),rhs.get_radius()) - dist + std::min(lhs.get_radius(),rhs.get_radius())) / 2;
+    return (std::max(lhs.get_radius(),rhs.get_radius()) -
+            dist + std::min(lhs.get_radius(),rhs.get_radius())) / 2;
 
   //if circles partially overlap or
   //their dist is equal to sum of radiuses
   //(in which case they should not pass through this function)
-  else
-    return (sum_of_radiuses - dist)/2;
+  return (sum_of_radiuses - dist)/2;
 }
 
 void responds(individual& i, const env_grid_cell& c)

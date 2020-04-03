@@ -212,19 +212,20 @@ void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
       break;
     }
 }
-void test_sim_view()
+
+void test_sim_view()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
 
+#ifndef IS_ON_TRAVIS
   {
     // Show the game for one frame
     // (there will be a member function 'exec' for running the game)
-#ifndef IS_ON_TRAVIS
     simulation s(20);
     sim_view v(s);
     v.show();
-#endif
   }
+#endif
 
   //A window starts showing simulation from tick 0
   {
