@@ -30,7 +30,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
 
-  simulation s(7,20,0.1,3,0.1,20);
+  simulation s(7,20,0.1,200,0.1,1);
   if (args.size() > 1 && args[1] == "--visual")
     {
       sim_view v(s);

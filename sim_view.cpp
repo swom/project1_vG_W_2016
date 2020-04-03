@@ -18,6 +18,7 @@ sim_view::sim_view(simulation start_simulation, float start_zoom, float zoom_ste
     },
   m_zoom_step{zoom_step}
 {
+#ifndef IS_ON_TRAVIS
   try {
     if(zoom_step > 1)
       {throw std::string{"zoom_step > 1... too high!\n"};}
@@ -28,6 +29,7 @@ sim_view::sim_view(simulation start_simulation, float start_zoom, float zoom_ste
     abort();
 #endif
   }
+#endif
 
   m_grid_view.prepare_grid(m_sim.get_env().get_grid());
 }

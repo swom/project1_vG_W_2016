@@ -30,7 +30,7 @@ services:
 
 script: 
   # Build the project, then:
-  - qmake -qt=qt5 simulation.pro
+  - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation.pro
   - make --silent debug
   - ./simulation --test
   # OCLint, failed OCLint does not break the build

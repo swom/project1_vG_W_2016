@@ -23,9 +23,10 @@ simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
   m_base_disp_prob(base_disp_prob),
   m_spore_advantage(spore_advantage)
 {
+ #ifndef IS_ON_TRAVIS
   try {
     if(base_disp_prob * spore_advantage > 1)
-      {throw std::string{"base dispersal probability * spore advantage too high!\n"};}
+      {throw std::string{"base dispersal probability * spore advantage > 1, too high!\n"};}
   }
   catch (std::string e) {
     std::cout << e;
@@ -33,7 +34,7 @@ simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
     abort();
 #endif
   }
-
+#endif
   if(!m_pop.empty())
     {
       place_start_cells(*this);
@@ -1061,7 +1062,7 @@ void test_simulation()//!OCLINT tests may be many
         try {
           simulation(0,0,0,0,0,0,0,0,1);
         } catch (std::string e) {
-          assert(e == "base dispersal probability * spore advantage too high!" );
+          assert(e == "base dispersal probability * spore advantage > 1, too high!\n" );
         }
 #endif
   }
