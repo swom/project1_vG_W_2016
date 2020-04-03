@@ -213,8 +213,8 @@ void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
 
 void test_sim_view()//!OCLINT tests may be many
 {
-
 #ifndef IS_ON_TRAVIS
+
   {
     // Show the game for one frame
     // (there will be a member function 'exec' for running the game)
@@ -222,7 +222,6 @@ void test_sim_view()//!OCLINT tests may be many
     sim_view v(s);
     v.show();
   }
-#endif
 
   //A window starts showing simulation from tick 0
   {
@@ -252,7 +251,6 @@ void test_sim_view()//!OCLINT tests may be many
   //that will determine how fast you will zoom in and out
   //0.1 by default,(increase/decrease size of view by 1/5th)
   //An error will be thrown if the zoom_step is more than 1!
-#ifndef IS_ON_TRAVIS
   {
     float zoom_step = 0.314f;
     sim_view v(simulation(),10,zoom_step);
@@ -266,7 +264,6 @@ void test_sim_view()//!OCLINT tests may be many
       assert(e == "zoom_step > 1... too high!\n" );
     }
   }
-#endif
 
   //A sim_view is initialized with 2 boolean variables zoom_in and zoom_out
   //Both initialized at false
@@ -285,4 +282,5 @@ void test_sim_view()//!OCLINT tests may be many
     assert(v.get_grid_view().get_grid_vert_size() == v.get_sim().get_env().get_grid_size() * 4);
   }
 
+#endif
 }
