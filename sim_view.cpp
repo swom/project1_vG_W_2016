@@ -213,7 +213,6 @@ void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
 
 void test_sim_view()//!OCLINT tests may be many
 {
-#ifndef NDEBUG
 
 #ifndef IS_ON_TRAVIS
   {
@@ -261,7 +260,7 @@ void test_sim_view()//!OCLINT tests may be many
            v.get_zoom_step() - zoom_step > -0.0001f);
     zoom_step = 5;
     try {
-      sim_view v1(simulation(),10,zoom_step);
+      sim_view v1(simulation(), 10, zoom_step);
     }
     catch (std::string e) {
       assert(e == "zoom_step > 1... too high!\n" );
@@ -286,5 +285,4 @@ void test_sim_view()//!OCLINT tests may be many
     assert(v.get_grid_view().get_grid_vert_size() == v.get_sim().get_env().get_grid_size() * 4);
   }
 
-#endif
 }
