@@ -31,7 +31,7 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept
 {
   const double actual_distance = distance(lhs,rhs) ;
   const double collision_distance = lhs.get_radius() + rhs.get_radius();
-  return actual_distance < collision_distance;
+  return actual_distance + 0.001 < collision_distance;
 }
 
 double distance(const individual& lhs, const individual& rhs) noexcept

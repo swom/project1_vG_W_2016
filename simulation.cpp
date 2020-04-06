@@ -583,9 +583,10 @@ void test_simulation()//!OCLINT tests may be many
                && grid_cell.get_food() - starting_food > -0.0000001);
       }
   }
+
   //Individuals can take up energy from the environment
   {
-    simulation s;
+    simulation s(1,1,0.1,2);
     double total_food_init = std::accumulate
         (
           s.get_env().get_grid().begin(),
@@ -619,15 +620,19 @@ void test_simulation()//!OCLINT tests may be many
 
     assert(total_food_init > total_food_after);
     assert(total_en_init < total_en_after);
-    assert(total_en_after - s.get_pop_size() * s.get_ind(0).get_uptake_rate()
-           - total_en_init < 0.00000001
-           &&
-           total_en_after - s.get_pop_size() * s.get_ind(0).get_uptake_rate()
-           - total_en_init > -0.00000001);
+
+    auto total_uptake = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
+                                        [](double sum, const individual& i) {return sum + i.get_uptake_rate();});
+
+    assert(total_en_after - (total_uptake + total_en_init) < 0.00000001 &&
+           total_en_after - (total_uptake + total_en_init) > -0.00000001);
+    assert(total_food_init - (total_food_after + total_uptake) < 0.000001 &&
+           total_food_init - (total_food_after + total_uptake) > -0.000001);
   }
+
   //Individuals outside the grid do not feed
   {
-    simulation s;
+    simulation s(1,1,0.1,2);
 
     double total_food_init = std::accumulate
         (
@@ -670,7 +675,7 @@ void test_simulation()//!OCLINT tests may be many
 
   //Individuals lose energy through metabolism
   {
-    simulation s;
+    simulation s(1,1,0.1,2);
     feeding(s);
     double init_en_tot = std::accumulate
         (
@@ -704,16 +709,71 @@ void test_simulation()//!OCLINT tests may be many
     //and the grid_cell where it is should recieve
     //food nutrients
     auto grid_index_ind =  find_grid_index(s.get_ind(0),s.get_env().get_grid_side());
-    double food_after_feeding =
+    double predicted_food_after_feeding =
         s.get_env().get_cell(grid_index_ind).get_food() - s.get_ind(0).get_uptake_rate();
 
     tick(s);
 
-    assert(!(food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001
-             && food_after_feeding -s.get_env().get_cell(grid_index_ind).get_food() > -0.0001));
+    assert(!(predicted_food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001
+             && predicted_food_after_feeding -s.get_env().get_cell(grid_index_ind).get_food() > -0.0001));
     assert(s.get_pop().size() == 2 * init_pop_size);
     assert(!has_collision(s));
   }
+
+  //If nothing else happens, food should constantly decrease when cells are feeding
+  {
+    simulation s (1, 1, 0, 3, 0.1, 5);
+    auto food_begin = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                      [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+
+    //The simulation will last long enough  for the individuals to reproduce
+    auto sim_time = s.get_ind(0).get_treshold_energy() / s.get_ind(0).get_uptake_rate() + 5;
+
+    auto init_pop_size =  s.get_pop().size();
+
+    for( int i = 0; i != static_cast<int>(sim_time); i++)
+      {
+
+        auto food_before_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+        feeding(s);
+
+
+        auto food_after_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+
+        auto food_eaten = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
+                                          [] (double sum, const individual& ind){return sum + ind.get_uptake_rate();});
+
+        auto a = food_before_feed - (food_after_feed + food_eaten) ;
+        assert(a < 0.0001 && a > -0.0001);
+
+        metabolism_pop(s);
+        death(s);
+        division(s);
+        manage_static_collisions(s);
+
+        auto food_before_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+
+        diffusion(s.get_env());
+
+
+        auto food_after_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+        assert(food_before_diff - food_after_diff < 0.0001 &&
+               food_before_diff - food_after_diff > -0.0001);
+
+      }
+    auto food_end = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                       [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+    assert(food_end < food_begin);
+
+    auto final_pop_size =  s.get_pop().size();
+
+    assert(init_pop_size < final_pop_size);
+  }
+
   //every timestep/tick collisions are handled
   {
     simulation s(7,3);

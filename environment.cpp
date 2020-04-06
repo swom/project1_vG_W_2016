@@ -44,17 +44,12 @@ void calc_diffusion_food(environment& e) noexcept
       auto exiting_food = calc_exiting_food(cell, v_food_deltas, e.get_diff_coeff());
       cell.increment_food_change(- exiting_food);
 
-      std::vector<double> v_rec_food;
       for(unsigned int i = 0; i != cell.get_v_neighbors().size(); i++)
         {
           auto recieved_food = exiting_food *
               ( cell.get_tot_food_delta() > 0 ? v_food_deltas[i]/cell.get_tot_food_delta() : 0);
-          v_rec_food.push_back(recieved_food);
           e.get_cell(cell.get_v_neighbors()[i]).increment_food_change(recieved_food);
         }
-      auto tot_rec_food = std::accumulate(v_rec_food.begin(), v_rec_food.end(), 0.0);
-      assert(tot_rec_food - exiting_food < 0.000001 &&
-             tot_rec_food - exiting_food > -0.000001);
     }
 }
 
@@ -454,7 +449,8 @@ void test_environment()//!OCLINT tests may be many
       }
   }
 
-  //Diffusion does not change the total amount of substance present in a system
+  //The amount of substance exiting from cells is equal to the amount of food recieved from cells
+  //does not change the total amount of substance present in a system
   {
     //for food
     environment e(3, 0.1, 4);
@@ -462,7 +458,7 @@ void test_environment()//!OCLINT tests may be many
     e.get_cell(focal_cell_index).set_food(1);
     calc_diffusion_food(e);
     auto tot_food_change = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
-                                          [](double sum, const env_grid_cell & g){return sum + g.get_food_change();});
+                                           [](double sum, const env_grid_cell & g){return sum + g.get_food_change();});
     assert(tot_food_change < 0.000001 &&
            tot_food_change > -0.0000001);
 
@@ -470,11 +466,31 @@ void test_environment()//!OCLINT tests may be many
     e.get_cell(focal_cell_index).set_metabolite(1);
     calc_diffusion_metab(e);
     auto tot_metab_change = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
-                                          [](double sum, const env_grid_cell & g){return sum + g.get_metabolite_change();});
+                                            [](double sum, const env_grid_cell & g){return sum + g.get_metabolite_change();});
     assert(tot_metab_change < 0.000001 &&
            tot_metab_change > -0.0000001);
   }
 
+  //Diffusion does not change the total amount of substance present in a system
+  {
+    //for food
+    environment e(3, 0.1, 4);
+    auto focal_cell_index = 4;
+    e.get_cell(focal_cell_index).set_food(1);
+    diffusion(e);
+    auto tot_food_change = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
+                                           [](double sum, const env_grid_cell & g){return sum + g.get_food_change();});
+    assert(tot_food_change < 0.000001 &&
+           tot_food_change > -0.0000001);
+
+    //for metabolite
+    e.get_cell(focal_cell_index).set_metabolite(1);
+    diffusion(e);
+    auto tot_metab_change = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
+                                            [](double sum, const env_grid_cell & g){return sum + g.get_metabolite_change();});
+    assert(tot_metab_change < 0.000001 &&
+           tot_metab_change > -0.0000001);
+  }
 
   //environment has a boolean operator (it checks if two grids have all
   //the same cells)
