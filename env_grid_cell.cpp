@@ -1,6 +1,7 @@
 #include "env_grid_cell.h"
 #include <cassert>
 #include <cmath>
+#include <numeric>
 
 
 env_grid_cell::env_grid_cell(double metabolite, double food, double max_food):
@@ -26,12 +27,40 @@ bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept
   return !(lhs == rhs);
 }
 
-double food_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
+double calc_exiting_food(env_grid_cell& cell, std::vector<double> v_food_diff, double diffusion_coeff) noexcept
+{
+  auto total_difference = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0.0);
+  return total_difference * diffusion_coeff >= 1 ?
+        cell.get_food() :
+        cell.get_food() * total_difference * diffusion_coeff;
+}
+
+
+double calc_exiting_metabolite(env_grid_cell& cell, std::vector<double> v_metabolite_diff, double diffusion_coeff) noexcept
+{
+  auto total_difference = std::accumulate(v_metabolite_diff.begin(), v_metabolite_diff.end(), 0.0);
+  return total_difference * diffusion_coeff >= 1 ?
+        cell.get_metabolite() :
+        cell.get_metabolite() * total_difference * diffusion_coeff;
+}
+
+
+double food_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
 {
   return lhs.get_food() - rhs.get_food() > 0 ? lhs.get_food() - rhs.get_food() : 0;
 }
 
-double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
+std::vector<double> get_neighhbors_food_deltas( const env_grid_cell& c, const std::vector<env_grid_cell>& neighbors) noexcept
+{
+  std::vector<double> v_food_diff;
+  for(auto neighbor : neighbors)
+    {
+      v_food_diff.push_back(food_difference(c, neighbor));
+    }
+  return  v_food_diff;
+}
+
+double metab_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
 {
   return lhs.get_metabolite() - rhs.get_metabolite() > 0 ?
         lhs.get_metabolite() - rhs.get_metabolite() : 0;
@@ -164,14 +193,60 @@ void test_env_grid_cell()//!OCLINT tests may be many
     env_grid_cell lhs(1,0);
     env_grid_cell rhs(0,1);
 
-    assert(food_diff(lhs,rhs) < 0.0000001
-           && food_diff(lhs,rhs) > -0.0000001);
-    assert(food_diff(rhs,lhs) - 1 < 0.000001);
-    assert(metab_diff(lhs,rhs) - 1 < 0.000001);
-    assert(metab_diff(rhs,lhs)< 0.0000001
-           && metab_diff(lhs,rhs) > -0.0000001);
+    assert(food_difference(lhs,rhs) < 0.0000001
+           && food_difference(lhs,rhs) > -0.0000001);
+    assert(food_difference(rhs,lhs) - 1 < 0.000001);
+    assert(metab_difference(lhs,rhs) - 1 < 0.000001);
+    assert(metab_difference(rhs,lhs)< 0.0000001
+           && metab_difference(lhs,rhs) > -0.0000001);
   }
 
+  //A cell will lose due to diffusion an proportion of his food equal to
+  //The sum of differences in food with all its neighbors * the  diffusion coefficient
+  //If this proportion is bigger than 1 it will lose all its food
+  {
+    //Check for case in which exiting food >= cell_food
+    //And therefore exiting food = cell_food
+    double diffusion_coeff = 1;
+    std::vector<double> difference_vector{1,1,1};//Three neighbours each with 1 food less than focal cell
+    env_grid_cell c(0,1);
+    assert(calc_exiting_food(c,difference_vector,diffusion_coeff) - c.get_food() < 0.000001 &&
+           calc_exiting_food(c,difference_vector,diffusion_coeff) - c.get_food() > -0.000001);
+    //Check for case in which exiting food < cell_food
+    //-> exiting food = cell_food * tot_difference * diffusion_coeff
+    diffusion_coeff = 0.1;
+    auto tot_difference = std::accumulate(difference_vector.begin(),difference_vector.end(), 0.0);
+    assert(calc_exiting_food(c,difference_vector,diffusion_coeff) - tot_difference * diffusion_coeff < 0.000001 &&
+           calc_exiting_food(c,difference_vector,diffusion_coeff) - tot_difference * diffusion_coeff > -0.000001);
+  }
+
+  //A cell will lose due to diffusion an proportion of his metabolite equal to
+  //The sum of differences in metabolite with all its neighbors * the  diffusion coefficient
+  //If this proportion is bigger than 1 it will lose all its food
+  {
+    //Check for case in which exiting metabolite >= cell_metabolite
+    //And therefore exiting metabolite = cell_metabolite
+    double diffusion_coeff = 1;
+    std::vector<double> difference_vector{1,1,1};//Three neighbours each with 1 metabolite less than focal cell
+    env_grid_cell c(1,0);
+    assert(calc_exiting_metabolite(c,difference_vector,diffusion_coeff) - c.get_metabolite() < 0.000001 &&
+           calc_exiting_metabolite(c,difference_vector,diffusion_coeff) - c.get_metabolite() > -0.000001);
+    //Check for case in which exiting metabolite < cell_metabolite
+    //-> exiting food = cell_metabolite * tot_difference * diffusion_metabolite
+    diffusion_coeff = 0.1;
+    auto tot_difference = std::accumulate(difference_vector.begin(),difference_vector.end(), 0.0);
+    assert(calc_exiting_metabolite(c,difference_vector,diffusion_coeff) - tot_difference * diffusion_coeff < 0.000001 &&
+           calc_exiting_metabolite(c,difference_vector,diffusion_coeff) - tot_difference * diffusion_coeff > -0.000001);
+    assert (1==2);
+  }
+
+  //It is possible to return a vector containing the difference in food between a cell and its neighbors
+  //If difference is negative than it is equaled to 0
+  {
+
+    get_neighhbors_food_deltas();
+
+  }
   //Env_grid_cell has a boolean operator
   {
     env_grid_cell c;

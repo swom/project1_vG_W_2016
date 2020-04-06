@@ -92,7 +92,10 @@ void grid_view::update_grid_quads(const std::vector<env_grid_cell> &env_grid) no
       for( size_t j = 0; j != 4; j++)
         {
           auto food_ratio = env_grid[i].get_food() / env_grid[i].get_max_food();
-          quad[j].color.a = static_cast<sf::Uint8>(food_ratio * 255);
+          if(food_ratio > 1)
+            food_ratio = 1;
+          else
+            quad[j].color.a = static_cast<sf::Uint8>(food_ratio * 255);
         }
     }
 }

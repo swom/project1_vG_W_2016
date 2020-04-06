@@ -26,6 +26,9 @@ public:
   ///Gets a const ref to m_sim
   const simulation& get_sim() const noexcept {return m_sim; }
 
+  ///Gets a ref to m_sim
+  simulation& get_sim() noexcept {return m_sim; }
+
   ///Gets const ref to m_view
   const sf::View& get_view() const noexcept {return  m_view;}
 

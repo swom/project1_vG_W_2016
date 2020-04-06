@@ -68,9 +68,19 @@ bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
 bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
-double food_diff(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
+///Gets the difference in food between two cells
+double food_difference(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 
-double metab_diff(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
+///Given the vector of food differences with the neighbors and the diffusion coefficient
+/// Calculates how much food the cell will give away
+double calc_exiting_food(env_grid_cell& cell, std::vector<double> v_food_diff, double diffusion_coeff) noexcept;
+
+///Gets the difference in metabolite between two cells
+double metab_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
+
+///Given the vector of food differences with the neighbors and the diffusion coefficient
+/// Calculates how much metabolite the cell will give away
+double calc_exiting_metabolite(env_grid_cell& cell, std::vector<double> v_metabolite_diff, double diffusion_coeff) noexcept;
 
 void test_env_grid_cell();
 

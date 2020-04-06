@@ -31,23 +31,25 @@ bool operator != (const environment& lhs, const environment& rhs) noexcept
 
 void diffusion(environment& e) noexcept
 {
-  diffusion_food(e);
-  diffusion_metabolite(e);
+  calc_diffusion_food(e);
+  calc_diffusion_metab(e);
+  redistribute_substances(e);
 }
 
-void diffusion_food(environment& e) noexcept
+void calc_diffusion_food(environment& e) noexcept
 {
   for(auto& cell : e.get_grid())
     {
       std::vector<double> v_food_diff;
       for(const auto& neighbor : cell.get_v_neighbors())
         {
-          v_food_diff.push_back(food_diff(cell, e.get_cell(neighbor)));
+          v_food_diff.push_back(food_difference(cell, e.get_cell(neighbor)));
         }
 
       auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0.0);
-      auto exiting_food = total_diff * e.get_diff_coeff() >= cell.get_food() ?
-            cell.get_food() : cell.get_food() * total_diff * e.get_diff_coeff();
+      auto exiting_food = total_diff * e.get_diff_coeff() >= 1 ?
+            cell.get_food() :
+            cell.get_food() * total_diff * e.get_diff_coeff();
 
       cell.increment_food_change(exiting_food > 0 ? -exiting_food : 0);
 
@@ -57,27 +59,21 @@ void diffusion_food(environment& e) noexcept
           e.get_cell(cell.get_v_neighbors()[i]).increment_food_change(recieved_food);
         }
     }
-
-  for(auto& cell : e.get_grid())
-    {
-      cell.increment_food(cell.get_food_change());
-      cell.reset_food_change();
-    }
-
 }
 
-void diffusion_metabolite(environment& e) noexcept
+void calc_diffusion_metab(environment& e) noexcept
 {
   for(auto& cell : e.get_grid())
     {
       std::vector<double> v_metabolite_diff;
       for(auto neighbor : cell.get_v_neighbors())
         {
-          v_metabolite_diff.push_back(metab_diff(cell, e.get_cell(neighbor)));
+          v_metabolite_diff.push_back(metab_difference(cell, e.get_cell(neighbor)));
         }
       auto total_diff = std::accumulate(v_metabolite_diff.begin(), v_metabolite_diff.end(), 0);
-      auto exiting_metabolite = total_diff * e.get_diff_coeff() >= cell.get_metabolite() ?
-            cell.get_metabolite() : cell.get_metabolite() * total_diff * e.get_diff_coeff();
+      auto exiting_metabolite = total_diff * e.get_diff_coeff() >= 1 ?
+            cell.get_metabolite() :
+            cell.get_metabolite() * total_diff * e.get_diff_coeff();
 
       cell.increment_metabolite_change(exiting_metabolite > 0 ? -exiting_metabolite : 0);
 
@@ -88,13 +84,16 @@ void diffusion_metabolite(environment& e) noexcept
           e.get_cell(cell.get_v_neighbors()[i]).increment_metabolite_change(recieved_metabolite);
         }
     }
+}
 
-  for(auto& cell : e.get_grid())
+std::vector<double> get_neighhbors_food_deltas( const env_grid_cell& c, const environment& e) noexcept
+{
+  std::vector<double> v_food_diff;
+  for(auto neighbor : c.get_v_neighbors())
     {
-      cell.increment_metabolite(cell.get_metabolite_change());
-      cell.reset_metabolite_change();
+      v_food_diff.push_back(food_difference(c, e.get_cell(neighbor)));
     }
-
+  return  v_food_diff;
 }
 
 void find_neighbors_all_grid(environment& e) noexcept
@@ -143,6 +142,17 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
   return n_indexes;
 }
 
+void redistribute_substances(environment& e) noexcept
+{
+  for(auto& cell : e.get_grid())
+    {
+      cell.increment_food(cell.get_food_change());
+      cell.reset_food_change();
+
+      cell.increment_metabolite(cell.get_metabolite_change());
+      cell.reset_metabolite_change();
+    }
+}
 void reset_env(environment& e)
 {
   e = environment(e.get_grid_side(), e.get_diff_coeff(), e.get_init_food());
@@ -287,6 +297,14 @@ void test_environment()//!OCLINT tests may be many
           );
   }
 
+  //It is possible to return a vector containing the difference in food between a cell and its neighbors
+  //If difference is negative than it is equaled to 0
+  {
+    environment e(3);
+    auto focal_cell_index = 4;
+    e.get_cell(focal_cell_index).set_food(0);
+
+  }
   //A cell with more substance than its neighbours diffuses food to them
   {
     environment e(3, 0.1, 0);
@@ -327,6 +345,50 @@ void test_environment()//!OCLINT tests may be many
         else {assert(v_new_metab_val[i] > v_orig_metab_val[i]);}
       }
   }
+
+  //A cell with less substance than its neighbours  receives substances
+  {
+    environment e(3, 0.1, 4);
+    auto focal_cell_index = 4;
+    e.get_cell(focal_cell_index).set_food(1);
+
+    //register strting values
+    std::vector<double> v_orig_food_val;
+    for(auto cell : e.get_grid()) {v_orig_food_val.push_back(cell.get_food());}
+
+    calc_diffusion_food(e);
+
+    //register new values
+    std::vector<double> v_new_food_values;
+    for(auto cell : e.get_grid()) {v_new_food_values.push_back(cell.get_food());}
+
+    //Check they are different
+    assert(v_orig_food_val != v_new_food_values);
+
+    //Check they diminish or augment as expected
+    for(unsigned int i = 0; i != e.get_grid().size(); i++)
+      {
+        if(static_cast<int>(i) == focal_cell_index)
+          {assert(v_new_food_values[i] > v_orig_food_val[i]);}
+        else {assert(v_new_food_values[i] < v_orig_food_val[i]);}
+      }
+  }
+
+  //Diffusion does not change the total amount of substanec present in a system
+  {
+    environment e(3, 0.1, 4);
+    auto focal_cell_index = 4;
+    e.get_cell(focal_cell_index).set_food(1);
+    auto before_tot_food = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
+                                           [](int sum, const env_grid_cell & g){return sum + g.get_food();});
+    calc_diffusion_food(e);
+
+    auto after_tot_food = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
+                                          [](int sum, const env_grid_cell & g){return sum + g.get_food();});
+     assert(before_tot_food - after_tot_food < 0.000001 &&
+           before_tot_food - after_tot_food > 0.0000001);
+  }
+
 
   //environment has a boolean operator (it checks if two grids have all
   //the same cells)

@@ -181,8 +181,6 @@ void sim_view::show() noexcept
 
   draw_inds();
 
-  draw_food();
-
   // Display all shapes
   m_window.display();
 }

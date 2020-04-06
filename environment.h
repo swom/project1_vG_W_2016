@@ -52,6 +52,13 @@ bool operator == (const environment& lhs, const environment& rhs) noexcept;
 ///Checks if two environment have the same grid_size and the the same amount of food and metabolite in each cell
 bool operator != (const environment& lhs, const environment& rhs) noexcept;
 
+
+///Calculates the amount of metabolite that needs to diffuse
+void calc_diffusion_metab(environment& e) noexcept;
+
+///Calculates the amount of food that needs to diffuse
+void calc_diffusion_food(environment& e) noexcept;
+
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
 ///Assumes that the grid is a square
 const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept;
@@ -62,12 +69,6 @@ void find_neighbors_all_grid(environment& e) noexcept;
 ///Diffuses substances in environment
 void diffusion(environment& e) noexcept;
 
-///diffuses metabolite in grid
-void diffusion_metabolite(environment& e) noexcept;
-
-///diffuses food in grid
-void diffusion_food(environment& e) noexcept;
-
 ///Checks that cells do not check for neighbors over the side of the grid
 bool is_over_sides(int index, int grid_side, int column)  noexcept;
 
@@ -76,6 +77,9 @@ bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept;
 
 ///Checks cells do not look for neighbors at their own coordinates
 bool is_same_cell(int column, int row) noexcept;
+
+///Redistributes substances in grid_cells according to diffusion calculations
+void redistribute_substances(environment& e) noexcept;
 
 ///Resets the environment to new parameters
 void reset_env(environment& e, int grid_side, double diff_coeff, double food);
