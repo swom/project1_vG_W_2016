@@ -44,17 +44,17 @@ void calc_diffusion_food(environment& e) noexcept
       auto exiting_food = calc_exiting_food(cell, v_food_deltas, e.get_diff_coeff());
       cell.increment_food_change(- exiting_food);
 
-      std::vector<double> v_recieved_foods;
+      std::vector<double> v_rec_food;
       for(unsigned int i = 0; i != cell.get_v_neighbors().size(); i++)
         {
-          auto total_diff = cell.get_tot_food_delta();
-          auto recieved_food = exiting_food * ( total_diff > 0 ? v_food_deltas[i]/total_diff : 0);
-          v_recieved_foods.push_back(recieved_food);
+          auto recieved_food = exiting_food *
+              ( cell.get_tot_food_delta() > 0 ? v_food_deltas[i]/cell.get_tot_food_delta() : 0);
+          v_rec_food.push_back(recieved_food);
           e.get_cell(cell.get_v_neighbors()[i]).increment_food_change(recieved_food);
         }
-      auto tot_recieved_food = std::accumulate(v_recieved_foods.begin(), v_recieved_foods.end(), 0.0);
-      assert(tot_recieved_food - exiting_food < 0.000001 &&
-             tot_recieved_food - exiting_food > -0.000001);
+      auto tot_rec_food = std::accumulate(v_rec_food.begin(), v_rec_food.end(), 0.0);
+      assert(tot_rec_food - exiting_food < 0.000001 &&
+             tot_rec_food - exiting_food > -0.000001);
     }
 }
 
@@ -62,22 +62,13 @@ void calc_diffusion_metab(environment& e) noexcept
 {
   for(auto& cell : e.get_grid())
     {
-      std::vector<double> v_metabolite_diff;
-      for(auto neighbor : cell.get_v_neighbors())
-        {
-          v_metabolite_diff.push_back(metab_difference(cell, e.get_cell(neighbor)));
-        }
-      auto total_diff = std::accumulate(v_metabolite_diff.begin(), v_metabolite_diff.end(), 0);
-      auto exiting_metabolite = total_diff * e.get_diff_coeff() >= 1 ?
-            cell.get_metabolite() :
-            cell.get_metabolite() * total_diff * e.get_diff_coeff();
-
-      cell.increment_metabolite_change(exiting_metabolite > 0 ? -exiting_metabolite : 0);
-
-      for(unsigned int i = 0; i != v_metabolite_diff.size(); i++)
+      auto v_metab_deltas = get_neighbors_metab_deltas(cell, e);
+      auto exiting_metabolite = calc_exiting_metabolite(cell, v_metab_deltas, e.get_diff_coeff());
+      cell.increment_metabolite_change(- exiting_metabolite);
+      for(unsigned int i = 0; i != v_metab_deltas.size(); i++)
         {
           auto recieved_metabolite = exiting_metabolite *
-              (total_diff > 0 ? v_metabolite_diff[i]/total_diff : 0);
+              (cell.get_tot_metab_delta() > 0 ? v_metab_deltas[i]/cell.get_tot_metab_delta() : 0);
           e.get_cell(cell.get_v_neighbors()[i]).increment_metabolite_change(recieved_metabolite);
         }
     }
@@ -463,19 +454,25 @@ void test_environment()//!OCLINT tests may be many
       }
   }
 
-  //Diffusion does not change the total amount of substanec present in a system
+  //Diffusion does not change the total amount of substance present in a system
   {
+    //for food
     environment e(3, 0.1, 4);
     auto focal_cell_index = 4;
     e.get_cell(focal_cell_index).set_food(1);
-    auto before_tot_food = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
-                                           [](int sum, const env_grid_cell & g){return sum + g.get_food();});
     calc_diffusion_food(e);
+    auto tot_food_change = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
+                                          [](double sum, const env_grid_cell & g){return sum + g.get_food_change();});
+    assert(tot_food_change < 0.000001 &&
+           tot_food_change > -0.0000001);
 
-    auto after_tot_food = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
-                                          [](int sum, const env_grid_cell & g){return sum + g.get_food();});
-    assert(before_tot_food - after_tot_food < 0.000001 &&
-           before_tot_food - after_tot_food > 0.0000001);
+    //for metabolite
+    e.get_cell(focal_cell_index).set_metabolite(1);
+    calc_diffusion_metab(e);
+    auto tot_metab_change = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
+                                          [](double sum, const env_grid_cell & g){return sum + g.get_metabolite_change();});
+    assert(tot_metab_change < 0.000001 &&
+           tot_metab_change > -0.0000001);
   }
 
 

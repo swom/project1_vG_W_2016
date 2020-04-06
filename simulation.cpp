@@ -23,7 +23,7 @@ simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
   m_base_disp_prob(base_disp_prob),
   m_spore_advantage(spore_advantage)
 {
- #ifndef IS_ON_TRAVIS
+#ifndef IS_ON_TRAVIS
   try {
     if(base_disp_prob * spore_advantage > 1)
       {throw std::string{"base dispersal probability * spore advantage > 1, too high!\n"};}
@@ -159,11 +159,11 @@ std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  n
   int sis_dist;
   auto div_ind = get_dividing_individuals(s);
 
-  for (int ind_index = 0; ind_index < static_cast<int>(div_ind.size()); ind_index++)
+  for (size_t i = 0; i < div_ind.size(); i++)
     {
-      sis_dist = s.get_pop_size() - div_ind[static_cast<unsigned int>(ind_index)];
-      daughters.first = ind_index;
-      daughters.second = ind_index + sis_dist;
+      sis_dist = static_cast<int>(s.get_pop_size()) - div_ind[i];
+      daughters.first = div_ind[i];
+      daughters.second = daughters.first + sis_dist;
       sis_indexes.push_back(daughters);
     }
   return sis_indexes;
@@ -485,26 +485,19 @@ void test_simulation()//!OCLINT tests may be many
   //After a reproduction round individuals with enough energy will divide
   //and redistribute their remaining energy to their daughter cells
   {
-    simulation s(3);
-    //This individual will not reproduce
-    s.set_ind_en(0,s.get_ind_tr_en(0) - 1);
-    //This individual will reproduce with no extra energy
-    s.set_ind_en(1,s.get_ind_tr_en(1));
+    simulation s;
+    auto repr_excess_en = 3;
     //This ind will reproduce with extra energy
-    s.set_ind_en(2,s.get_ind_tr_en(2) + 1);
+    s.set_ind_en(0,repr_excess_en);
 
     auto mother_excess_energy = get_excess_energies(s);
-    auto sister_cells_vector = get_sisters_index_offset(s);
     division(s);
-    for(unsigned int i = 0; i < get_sisters_index_offset(s).size(); i++)
-      {
-        assert(s.get_ind_en(sister_cells_vector[i].first)
-               - mother_excess_energy[i]/2 < 0.00001);
-        assert(s.get_ind_en(sister_cells_vector[i].second)
-               - mother_excess_energy[i]/2 < 0.00001);
-        assert(s.get_ind_en(sister_cells_vector[i].first)
-               - s.get_ind_en(sister_cells_vector[i].second) < 0.00001);
-      }
+    assert(s.get_ind_en(0) - mother_excess_energy[0]/2 < 0.00001 &&
+        s.get_ind_en(0) - mother_excess_energy[0]/2 > -0.00001);
+    assert(s.get_ind_en(1) - mother_excess_energy[0]/2 < 0.00001 &&
+        s.get_ind_en(1) - mother_excess_energy[0]/2 > -0.00001);
+    assert(s.get_ind_en(0) - s.get_ind_en(1) < 0.00001 &&
+        s.get_ind_en(0) - s.get_ind_en(1) > -0.00001);
   }
 
 
@@ -1059,11 +1052,11 @@ void test_simulation()//!OCLINT tests may be many
   //--------> constructor throws exception. Tested directly in constructor
   {
 #ifndef IS_ON_TRAVIS
-        try {
-          simulation(0,0,0,0,0,0,0,0,1);
-        } catch (std::string e) {
-          assert(e == "base dispersal probability * spore advantage > 1, too high!\n" );
-        }
+    try {
+      simulation(0,0,0,0,0,0,0,0,1);
+    } catch (std::string e) {
+      assert(e == "base dispersal probability * spore advantage > 1, too high!\n" );
+    }
 #endif
   }
 
