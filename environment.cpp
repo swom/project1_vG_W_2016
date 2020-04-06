@@ -40,24 +40,21 @@ void calc_diffusion_food(environment& e) noexcept
 {
   for(auto& cell : e.get_grid())
     {
-      std::vector<double> v_food_diff;
-      for(const auto& neighbor : cell.get_v_neighbors())
+      auto v_food_deltas = get_neighbors_food_deltas(cell, e);
+      auto exiting_food = calc_exiting_food(cell, v_food_deltas, e.get_diff_coeff());
+      cell.increment_food_change(- exiting_food);
+
+      std::vector<double> v_recieved_foods;
+      for(unsigned int i = 0; i != cell.get_v_neighbors().size(); i++)
         {
-          v_food_diff.push_back(food_difference(cell, e.get_cell(neighbor)));
-        }
-
-      auto total_diff = std::accumulate(v_food_diff.begin(), v_food_diff.end(), 0.0);
-      auto exiting_food = total_diff * e.get_diff_coeff() >= 1 ?
-            cell.get_food() :
-            cell.get_food() * total_diff * e.get_diff_coeff();
-
-      cell.increment_food_change(exiting_food > 0 ? -exiting_food : 0);
-
-      for(unsigned int i = 0; i != v_food_diff.size(); i++)
-        {
-          auto recieved_food = exiting_food * (total_diff > 0 ? v_food_diff[i]/total_diff : 0);
+          auto total_diff = cell.get_tot_food_delta();
+          auto recieved_food = exiting_food * ( total_diff > 0 ? v_food_deltas[i]/total_diff : 0);
+          v_recieved_foods.push_back(recieved_food);
           e.get_cell(cell.get_v_neighbors()[i]).increment_food_change(recieved_food);
         }
+      auto tot_recieved_food = std::accumulate(v_recieved_foods.begin(), v_recieved_foods.end(), 0.0);
+      assert(tot_recieved_food - exiting_food < 0.000001 &&
+             tot_recieved_food - exiting_food > -0.000001);
     }
 }
 
@@ -92,6 +89,26 @@ void find_neighbors_all_grid(environment& e) noexcept
     {
       e.get_cell(i).set_v_neighbors(find_neighbors(e.get_grid_size(), e.get_grid_side(), i));
     }
+}
+
+std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const environment &e) noexcept
+{
+  std::vector<double> v_food_deltas;
+  for(auto neighbor : c.get_v_neighbors())
+    {
+      v_food_deltas.push_back(food_difference(c, e.get_cell(neighbor)));
+    }
+  return v_food_deltas;
+}
+
+std::vector<double> get_neighbors_metab_deltas(const env_grid_cell& c, const environment &e) noexcept
+{
+  std::vector<double> v_metab_deltas;
+  for(auto neighbor : c.get_v_neighbors())
+    {
+      v_metab_deltas.push_back(metab_difference(c, e.get_cell(neighbor)));
+    }
+  return v_metab_deltas;
 }
 
 bool is_over_sides(int index, int grid_side, int column) noexcept
@@ -287,6 +304,95 @@ void test_environment()//!OCLINT tests may be many
           );
   }
 
+
+  //It is possible to return a vector containing the difference in food between a cell and its neighbors
+  //If difference is negative than it is equaled to 0
+  {
+
+    //Case where all neighbors have more food
+    double init_food = 1;
+    auto cell_food = 0;
+    environment e{3, 0, init_food};
+    auto c = &e.get_cell(0);
+    c->set_food(cell_food);
+    auto v_food_deltas = get_neighbors_food_deltas(e.get_cell(0), e);
+    for(size_t i = 0; i != v_food_deltas.size(); i++)
+      assert(v_food_deltas[i] < 0.00001 &&
+             v_food_deltas[i] > -0.00001);
+
+    //Case where all neighbors have less food
+    init_food = 0;
+    cell_food = 1;
+    e = environment{3, 0, init_food};
+    c = &e.get_cell(0);
+    c->set_food(cell_food);
+    v_food_deltas = get_neighbors_food_deltas(*c, e);
+    for(size_t i = 0; i != v_food_deltas.size(); i++)
+      assert(v_food_deltas[i] - food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
+             v_food_deltas[i] - food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
+
+    //Case where some neighbors have less food and some more
+    double more_food = 2;
+    e = environment{3, 0, init_food};
+    c = &e.get_cell(0);
+    c->set_food(cell_food);
+    auto c_more_food = c + 1;
+    c_more_food->set_food(more_food);
+    assert(c->get_food() < c_more_food->get_food());
+    v_food_deltas = get_neighbors_food_deltas(*c, e);
+    for(size_t i = 0; i != v_food_deltas.size(); i++)
+      {
+        auto food_diff = food_difference(*c,e.get_cell(c->get_v_neighbors()[i]));
+        assert(v_food_deltas[i] - food_diff < 0.00001 &&
+               v_food_deltas[i] - food_diff > -0.00001);
+
+      }
+  }
+
+  //It is possible to return a vector containing the difference in metabolite between a cell and its neighbors
+  //If difference is negative than it is equaled to 0
+  {
+
+    //Case where all neighbors have more metabolite
+    double init_metabolite = 1;
+    auto cell_metabolite = 0;
+    environment e{3, init_metabolite, 0};
+    auto c = &e.get_cell(0);
+    c->set_metabolite(cell_metabolite);
+    auto v_metabolite_deltas = get_neighbors_metab_deltas(e.get_cell(0), e);
+    for(size_t i = 0; i != v_metabolite_deltas.size(); i++)
+      assert(v_metabolite_deltas[i] < 0.00001 &&
+             v_metabolite_deltas[i] > -0.00001);
+
+    //Case where all neighbors have less metabolite
+    init_metabolite = 0;
+    cell_metabolite = 1;
+    e = environment{3, init_metabolite, 0};
+    c = &e.get_cell(0);
+    c->set_metabolite(cell_metabolite);
+    v_metabolite_deltas = get_neighbors_metab_deltas(*c, e);
+    for(size_t i = 0; i != v_metabolite_deltas.size(); i++)
+      assert(v_metabolite_deltas[i] - metab_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
+             v_metabolite_deltas[i] - metab_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
+
+    //Case where some neighbors have less metabolite and some more
+    double more_metabolite = 2;
+    e = environment{3, init_metabolite, 0};
+    c = &e.get_cell(0);
+    c->set_metabolite(cell_metabolite);
+    auto c_more_metabolite = c + 1;
+    c_more_metabolite->set_metabolite(more_metabolite);
+    assert(c->get_metabolite() < c_more_metabolite->get_metabolite());
+    v_metabolite_deltas = get_neighbors_metab_deltas(*c, e);
+    for(size_t i = 0; i != v_metabolite_deltas.size(); i++)
+      {
+        auto metabolite_diff = metab_difference(*c,e.get_cell(c->get_v_neighbors()[i]));
+        assert(v_metabolite_deltas[i] - metabolite_diff < 0.00001 &&
+               v_metabolite_deltas[i] - metabolite_diff > -0.00001);
+
+      }
+  }
+
   //A cell with more substance than its neighbours diffuses food to them
   {
     environment e(3, 0.1, 0);
@@ -339,6 +445,7 @@ void test_environment()//!OCLINT tests may be many
     for(auto cell : e.get_grid()) {v_orig_food_val.push_back(cell.get_food());}
 
     calc_diffusion_food(e);
+    redistribute_substances(e);
 
     //register new values
     std::vector<double> v_new_food_values;
@@ -367,7 +474,7 @@ void test_environment()//!OCLINT tests may be many
 
     auto after_tot_food = std::accumulate(e.get_grid().begin(),e.get_grid().end(),0.0,
                                           [](int sum, const env_grid_cell & g){return sum + g.get_food();});
-     assert(before_tot_food - after_tot_food < 0.000001 &&
+    assert(before_tot_food - after_tot_food < 0.000001 &&
            before_tot_food - after_tot_food > 0.0000001);
   }
 

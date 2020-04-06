@@ -1,6 +1,7 @@
 #ifndef ENVIRONMENT_GRID_CELL_H
 #define ENVIRONMENT_GRID_CELL_H
-#include "vector"
+#include <vector>
+#include <numeric>
 
 class env_grid_cell
 {
@@ -24,6 +25,13 @@ public:
 
     ///Gets the reference to the amount of food in the cell
     const double& get_max_food() const noexcept {return m_max_food;}
+
+    ///Gets the total_food_delta
+    const double& get_tot_food_delta() const noexcept {return  m_tot_food_delta;}
+
+    ///Gets the total_food_delta
+    const double& get_tot_metab_delta() const noexcept {return  m_tot_metab_delta;}
+
     ///Sets the amount of food
     void set_food(double f) noexcept {m_food = f;}
 
@@ -51,6 +59,18 @@ public:
     ///resets the change in the amount of metabolite in the next tick of the simulation
     void reset_metabolite_change() noexcept {m_metabolite_change = 0;}
 
+    ///Sets total food delta given all deltas from neigbors
+    void set_tot_food_delta(std::vector<double> v_food_deltas)
+    {
+      m_tot_food_delta = std::accumulate(v_food_deltas.begin(), v_food_deltas.end(), 0.0);
+    }
+
+    ///Sets total metabolite delta given all deltas from neigbors
+    void set_tot_metab_delta(std::vector<double> v_metab_deltas)
+    {
+      m_tot_metab_delta = std::accumulate(v_metab_deltas.begin(), v_metab_deltas.end(), 0.0);
+    }
+
     ///Sets the vector of neigbors to a vector of integers
     void set_v_neighbors(std::vector<int> neighbors) noexcept {m_v_neighbors = neighbors;}
 
@@ -58,8 +78,10 @@ public:
 private:
     std::vector<int> m_v_neighbors;
     double m_metabolite;
+    double m_tot_metab_delta;
     double m_metabolite_change;
     double m_food;
+    double m_tot_food_delta;
     double m_food_change;
     double m_max_food;
 };
@@ -68,22 +90,19 @@ bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
 bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
-///Finds the difference in food between one focal cell and other cells(normally intended to be its neighbors)
-std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const std::vector<env_grid_cell>& neighbors) noexcept;
-
 ///Gets the difference in food between two cells
 double food_difference(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 
 ///Given the vector of food differences with the neighbors and the diffusion coefficient
 /// Calculates how much food the cell will give away
-double calc_exiting_food(env_grid_cell& cell, std::vector<double> v_food_diff, double diffusion_coeff) noexcept;
+double calc_exiting_food(env_grid_cell& cell, std::vector<double> v_food_deltas, double diffusion_coeff) noexcept;
 
 ///Gets the difference in metabolite between two cells
 double metab_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
 
 ///Given the vector of food differences with the neighbors and the diffusion coefficient
 /// Calculates how much metabolite the cell will give away
-double calc_exiting_metabolite(env_grid_cell& cell, std::vector<double> v_metabolite_diff, double diffusion_coeff) noexcept;
+double calc_exiting_metabolite(env_grid_cell& cell, std::vector<double> v_metab_delta, double diffusion_coeff) noexcept;
 
 void test_env_grid_cell();
 
