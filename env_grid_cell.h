@@ -68,6 +68,9 @@ bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
 bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
+///Finds the difference in food between one focal cell and other cells(normally intended to be its neighbors)
+std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const std::vector<env_grid_cell>& neighbors) noexcept;
+
 ///Gets the difference in food between two cells
 double food_difference(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 

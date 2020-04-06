@@ -86,16 +86,6 @@ void calc_diffusion_metab(environment& e) noexcept
     }
 }
 
-std::vector<double> get_neighhbors_food_deltas( const env_grid_cell& c, const environment& e) noexcept
-{
-  std::vector<double> v_food_diff;
-  for(auto neighbor : c.get_v_neighbors())
-    {
-      v_food_diff.push_back(food_difference(c, e.get_cell(neighbor)));
-    }
-  return  v_food_diff;
-}
-
 void find_neighbors_all_grid(environment& e) noexcept
 {
   for (int i = 0; i != e.get_grid_size(); i++)
@@ -297,14 +287,6 @@ void test_environment()//!OCLINT tests may be many
           );
   }
 
-  //It is possible to return a vector containing the difference in food between a cell and its neighbors
-  //If difference is negative than it is equaled to 0
-  {
-    environment e(3);
-    auto focal_cell_index = 4;
-    e.get_cell(focal_cell_index).set_food(0);
-
-  }
   //A cell with more substance than its neighbours diffuses food to them
   {
     environment e(3, 0.1, 0);
