@@ -25,7 +25,8 @@ bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept
   return !(lhs == rhs);
 }
 
-double calc_exiting_food( const env_grid_cell& cell, double tot_food_delta, double diffusion_coeff) noexcept
+double calc_exiting_food( const env_grid_cell& cell, double tot_food_delta,
+                          double diffusion_coeff) noexcept
 {
   return tot_food_delta * diffusion_coeff >= 1 ?
         cell.get_food() :
@@ -33,7 +34,8 @@ double calc_exiting_food( const env_grid_cell& cell, double tot_food_delta, doub
 }
 
 
-double calc_exiting_metabolite(const env_grid_cell& cell, double tot_metab_delta, double diffusion_coeff) noexcept
+double calc_exiting_metabolite(const env_grid_cell& cell, double tot_metab_delta,
+                               double diffusion_coeff) noexcept
 {
   return tot_metab_delta * diffusion_coeff >= 1 ?
         cell.get_metabolite() :
@@ -45,7 +47,9 @@ double food_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexc
   return lhs.get_food() - rhs.get_food() > 0 ? lhs.get_food() - rhs.get_food() : 0;
 }
 
-std::vector<double> get_neighhbors_food_deltas( const env_grid_cell& c, const std::vector<env_grid_cell>& neighbors) noexcept
+std::vector<double> get_neighhbors_food_deltas(const env_grid_cell& c,
+                                               const std::vector<env_grid_cell>& neighbors)
+noexcept
 {
   std::vector<double> v_food_diff;
   for(auto neighbor : neighbors)
@@ -196,8 +200,10 @@ void test_env_grid_cell()//!OCLINT tests may be many
     //Check for case in which exiting food < cell_food
     //-> exiting food = cell_food * tot_difference * diffusion_coeff
     diffusion_coeff = 0.1;
-    assert(calc_exiting_food(c,tot_delta,diffusion_coeff) - tot_delta * diffusion_coeff < 0.000001 &&
-           calc_exiting_food(c,tot_delta,diffusion_coeff) - tot_delta * diffusion_coeff > -0.000001);
+    assert(calc_exiting_food(c,tot_delta,diffusion_coeff) -
+           tot_delta * diffusion_coeff < 0.000001 &&
+           calc_exiting_food(c,tot_delta,diffusion_coeff) -
+           tot_delta * diffusion_coeff > -0.000001);
   }
 
   //A cell will lose due to diffusion an proportion of his metabolite equal to
@@ -214,8 +220,10 @@ void test_env_grid_cell()//!OCLINT tests may be many
     //Check for case in which exiting metabolite < cell_metabolite
     //-> exiting food = cell_metabolite * tot_difference * diffusion_metabolite
     diffusion_coeff = 0.1;
-    assert(calc_exiting_metabolite(c,tot_delta,diffusion_coeff) - tot_delta * diffusion_coeff < 0.000001 &&
-           calc_exiting_metabolite(c,tot_delta,diffusion_coeff) - tot_delta * diffusion_coeff > -0.000001);
+    assert(calc_exiting_metabolite(c,tot_delta,diffusion_coeff)
+           - tot_delta * diffusion_coeff < 0.000001 &&
+           calc_exiting_metabolite(c,tot_delta,diffusion_coeff)
+           - tot_delta * diffusion_coeff > -0.000001);
   }
 
   //Env_grid_cell has a boolean operator

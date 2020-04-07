@@ -38,8 +38,11 @@ double food_balance(const std::vector<env_grid_cell>& lhs, const std::vector<env
 {
   auto grid_food = std::accumulate(lhs.begin(),lhs.end(),0.0,
                                    [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
-  auto grid_new_food = std::accumulate(rhs.begin(), rhs.end(),0.0,
-                                       [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+  auto grid_new_food = std::accumulate(
+        rhs.begin(), rhs.end(),0.0,
+        [](double sum, const env_grid_cell& c) {return sum + c.get_food();}
+  );
+
   return grid_food - grid_new_food;
 }
 
@@ -76,7 +79,9 @@ std::vector<env_grid_cell> calc_diffusion_metab(const environment& e) noexcept
     {
       auto v_metab_deltas = get_neighbors_metab_deltas(e.get_grid()[i], e);
       auto tot_metab_delta = std::accumulate(v_metab_deltas.begin(),v_metab_deltas.end(),0.0);
-      auto exiting_metab = calc_exiting_metabolite(e.get_grid()[i], tot_metab_delta, e.get_diff_coeff());
+      auto exiting_metab = calc_exiting_metabolite(e.get_grid()[i],
+                                                   tot_metab_delta,
+                                                   e.get_diff_coeff());
 
       grid_new[i].increment_metabolite(-exiting_metab);
       for(size_t j = 0; j != e.get_grid()[i].get_v_neighbors().size(); j++)
@@ -108,7 +113,8 @@ std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const envi
   return v_food_deltas;
 }
 
-std::vector<double> get_neighbors_metab_deltas(const env_grid_cell& c, const environment &e) noexcept
+std::vector<double> get_neighbors_metab_deltas(const env_grid_cell& c,
+                                               const environment &e) noexcept
 {
   std::vector<double> v_metab_deltas;
   for(auto neighbor : c.get_v_neighbors())
@@ -301,8 +307,9 @@ void test_environment()//!OCLINT tests may be many
   }
 
 
-  //It is possible to return a vector containing the difference in food between a cell and its neighbors
-  //If difference is negative than it is equaled to 0
+  //It is possible to return a vector containing the difference in food
+  //between a cell and its neighbors if difference is negative than it
+  //is equaled to 0
   {
 
     //Case where all neighbors have more food
@@ -324,8 +331,10 @@ void test_environment()//!OCLINT tests may be many
     c->set_food(cell_food);
     v_food_deltas = get_neighbors_food_deltas(*c, e);
     for(size_t i = 0; i != v_food_deltas.size(); i++)
-      assert(v_food_deltas[i] - food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
-             v_food_deltas[i] - food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
+      assert(v_food_deltas[i] -
+             food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
+             v_food_deltas[i] -
+             food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
 
     //Case where some neighbors have less food and some more
     double more_food = 2;
@@ -345,8 +354,9 @@ void test_environment()//!OCLINT tests may be many
       }
   }
 
-  //It is possible to return a vector containing the difference in metabolite between a cell and its neighbors
-  //If difference is negative than it is equaled to 0
+  //It is possible to return a vector containing the difference
+  //in metabolite between a cell and its neighbors if difference
+  //is negative than it is equaled to 0
   {
 
     //Case where all neighbors have more metabolite
@@ -368,8 +378,10 @@ void test_environment()//!OCLINT tests may be many
     c->set_metabolite(cell_metabolite);
     v_metabolite_deltas = get_neighbors_metab_deltas(*c, e);
     for(size_t i = 0; i != v_metabolite_deltas.size(); i++)
-      assert(v_metabolite_deltas[i] - metab_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
-             v_metabolite_deltas[i] - metab_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
+      assert(v_metabolite_deltas[i] -
+             metab_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
+             v_metabolite_deltas[i] -
+             metab_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
 
     //Case where some neighbors have less metabolite and some more
     double more_metabolite = 2;
@@ -507,16 +519,27 @@ void test_environment()//!OCLINT tests may be many
     auto focal_cell_index = 4;
     e.get_cell(focal_cell_index).set_food(1);
     e.get_cell(focal_cell_index).set_metabolite(1);
-    auto tot_food_bef = std::accumulate(e.get_grid().begin(), e.get_grid().end(), 0.0,
-                                        [](double sum, const env_grid_cell& c){return sum + c.get_food();});
-    auto tot_metab_bef = std::accumulate(e.get_grid().begin(), e.get_grid().end(), 0.0,
-                                         [](double sum, const env_grid_cell& c){return sum + c.get_metabolite();});
+
+    auto tot_food_bef = std::accumulate(
+          e.get_grid().begin(), e.get_grid().end(), 0.0,
+          [](double sum, const env_grid_cell& c){return sum + c.get_food();}
+    );
+
+    auto tot_metab_bef = std::accumulate(
+          e.get_grid().begin(), e.get_grid().end(), 0.0,
+          [](double sum, const env_grid_cell& c){return sum + c.get_metabolite();}
+    );
     diffusion(e);
 
-    auto tot_food_after = std::accumulate(e.get_grid().begin(), e.get_grid().end(), 0.0,
-                                          [](double sum, const env_grid_cell& c){return sum + c.get_food();});
-    auto tot_metab_after = std::accumulate(e.get_grid().begin(), e.get_grid().end(), 0.0,
-                                           [](double sum, const env_grid_cell& c){return sum + c.get_metabolite();});
+    auto tot_food_after = std::accumulate(
+          e.get_grid().begin(), e.get_grid().end(), 0.0,
+          [](double sum, const env_grid_cell& c){return sum + c.get_food();}
+    );
+
+    auto tot_metab_after = std::accumulate(
+          e.get_grid().begin(), e.get_grid().end(), 0.0,
+          [](double sum, const env_grid_cell& c){return sum + c.get_metabolite();}
+    );
 
     assert(tot_food_bef - tot_food_after < 0.0001 &&
            tot_food_bef - tot_food_after > -0.0001);

@@ -14,9 +14,6 @@ public:
     ///Sets the amount of metabolite
     void set_metabolite(double m) noexcept {m_metabolite = m;}
 
-    ///Sets the amount of metabolite
-    void increment_metabolite(double m) noexcept {m_metabolite + m > 0 ? m_metabolite += m : 0;}
-
     ///Gets the amount of food in the cell
     const double& get_food() const noexcept {return m_food;}
 
@@ -31,6 +28,9 @@ public:
 
     ///Sets the amount of food
     void increment_food(double f) noexcept {m_food + f > -0.0000001 ? m_food += f : m_food = 0;}
+
+    ///Sets the amount of metabolite
+    void increment_metabolite(double m) noexcept {m_metabolite + m > -0.0000000001 ? m_metabolite += m : m_metabolite = 0;}
 
     ///Gets the const reference to the vector of the neighbors
     const std::vector<int>& get_v_neighbors() const noexcept {return m_v_neighbors;}
