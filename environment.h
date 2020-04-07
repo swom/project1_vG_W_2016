@@ -67,7 +67,7 @@ const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) n
 void find_neighbors_all_grid(environment& e) noexcept;
 
 ///Finds the difference in food between one focal cell and other cells(normally intended to be its neighbors)
-std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const environment& e) noexcept;
+std::vector<double> get_neighbors_food_fluxes(const env_grid_cell& c, const environment& e) noexcept;
 
 ///Finds the difference in metabolite between one focal cell and other cells(normally intended to be its neighbors)
 std::vector<double> get_neighbors_metab_deltas(const env_grid_cell& c, const environment& e) noexcept;

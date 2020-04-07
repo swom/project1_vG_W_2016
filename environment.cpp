@@ -52,18 +52,13 @@ std::vector<env_grid_cell> calc_diffusion_food(const environment& e) noexcept
   std::vector<env_grid_cell> grid_new = e.get_grid();
   for(size_t i = 0; i != e.get_grid().size(); i++)
     {
-      auto v_food_deltas = get_neighbors_food_deltas(e.get_grid()[i], e);
-      auto tot_food_delta = std::accumulate(v_food_deltas.begin(),v_food_deltas.end(),0.0);
-      auto exiting_food = calc_exiting_food(e.get_grid()[i], tot_food_delta, e.get_diff_coeff());
+      auto v_food_fluxes = get_neighbors_food_fluxes(e.get_grid()[i], e);
+      auto av_food_flux =
+          std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
+          (v_food_fluxes.size() > 0 ? v_food_fluxes.size() : 1);
 
-      grid_new[i].increment_food(- exiting_food);
-      for(size_t j = 0; j != e.get_grid()[i].get_v_neighbors().size(); j++)
-        {
-          auto recieved_food = exiting_food *
-              ( tot_food_delta > 0 ? v_food_deltas[j] / tot_food_delta : 0);
-          size_t neighbor_index =  static_cast<size_t>(e.get_grid()[i].get_v_neighbors()[j]);
-          grid_new[neighbor_index].increment_food(recieved_food);
-        }
+      auto in_out_flux_food = calc_in_out_flux(e.get_grid()[i], av_food_flux, e.get_diff_coeff());
+      grid_new[i].increment_food(in_out_flux_food);
     }
   return grid_new;
 }
@@ -99,12 +94,12 @@ void find_neighbors_all_grid(environment& e) noexcept
     }
 }
 
-std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const environment &e) noexcept
+std::vector<double> get_neighbors_food_fluxes(const env_grid_cell& c, const environment &e) noexcept
 {
   std::vector<double> v_food_deltas;
   for(auto neighbor : c.get_v_neighbors())
     {
-      v_food_deltas.push_back(food_difference(c, e.get_cell(neighbor)));
+      v_food_deltas.push_back(food_flux(c, e.get_cell(neighbor)));
     }
   return v_food_deltas;
 }
@@ -302,52 +297,25 @@ void test_environment()//!OCLINT tests may be many
           );
   }
 
-
-  //It is possible to return a vector containing the difference in food
-  //between a cell and its neighbors if difference is negative than it
-  //is equaled to 0
+  //A cell will lose due to diffusion a proportion of his food equal to
+  //The average delta_food with its neighbors * the  diffusion coefficient *
+  //the number of neighbors
+  //If this proportion is bigger than 1 it will lose all its food
   {
-
-    //Case where all neighbors have more food
-    double init_food = 1;
-    auto cell_food = 0;
-    environment e{3, 0, init_food};
-    auto c = &e.get_cell(0);
-    c->set_food(cell_food);
-    auto v_food_deltas = get_neighbors_food_deltas(e.get_cell(0), e);
-    for(size_t i = 0; i != v_food_deltas.size(); i++)
-      assert(v_food_deltas[i] < 0.00001 &&
-             v_food_deltas[i] > -0.00001);
-
-    //Case where all neighbors have less food
-    init_food = 0;
-    cell_food = 1;
-    e = environment{3, 0, init_food};
-    c = &e.get_cell(0);
-    c->set_food(cell_food);
-    v_food_deltas = get_neighbors_food_deltas(*c, e);
-    for(size_t i = 0; i != v_food_deltas.size(); i++)
-      assert(v_food_deltas[i] -
-             food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) < 0.00001 &&
-             v_food_deltas[i] -
-             food_difference(*c, e.get_cell(c->get_v_neighbors()[i])) > -0.00001);
-
-    //Case where some neighbors have less food and some more
-    double more_food = 2;
-    e = environment{3, 0, init_food};
-    c = &e.get_cell(0);
-    c->set_food(cell_food);
-    auto c_more_food = c + 1;
-    c_more_food->set_food(more_food);
-    assert(c->get_food() < c_more_food->get_food());
-    v_food_deltas = get_neighbors_food_deltas(*c, e);
-    for(size_t i = 0; i != v_food_deltas.size(); i++)
-      {
-        auto food_diff = food_difference(*c,e.get_cell(c->get_v_neighbors()[i]));
-        assert(v_food_deltas[i] - food_diff < 0.00001 &&
-               v_food_deltas[i] - food_diff > -0.00001);
-
-      }
+    //Check for case in which exiting food >= cell_food
+    //And therefore exiting food = cell_food
+    double diffusion_coeff = 1;
+    double av_diff = - 1;//Three neighbours each with 1 food less than focal cell
+    environment e(2,diffusion_coeff);
+    auto c = e.get_cell(0);
+    //Check for case in which exiting food < cell_food
+    //-> exiting food = cell_food * av_difference * diffusion_coeff * neighbors_
+    diffusion_coeff = 0.1;
+    auto predicted_flux = av_diff * diffusion_coeff * c.get_food() * c.get_v_neighbors().size();
+    assert(calc_in_out_flux(c,av_diff,diffusion_coeff) -
+           predicted_flux < 0.000001 &&
+           calc_in_out_flux(c,av_diff,diffusion_coeff) -
+           predicted_flux > -0.000001);
   }
 
   //It is possible to return a vector containing the difference

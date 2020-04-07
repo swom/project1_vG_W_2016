@@ -50,12 +50,12 @@ bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
 bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;
 
-///Gets the difference in food between two cells
-double food_difference(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
+///Gets the flux in food between two cells, negative if food goes out from lhs positive it goes in
+double food_flux(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 
 ///Given the vector of food differences with the neighbors and the diffusion coefficient
 /// Calculates how much food the cell will give away
-double calc_exiting_food(const env_grid_cell& cell, double tot_food_delta, double diffusion_coeff) noexcept;
+double calc_in_out_flux(const env_grid_cell& cell, double av_food_flux, double diffusion_coeff) noexcept;
 
 ///Gets the difference in metabolite between two cells
 double metab_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
