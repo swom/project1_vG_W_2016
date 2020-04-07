@@ -36,8 +36,9 @@ void diffusion(environment& e) noexcept
 }
 double food_balance(const std::vector<env_grid_cell>& lhs, const std::vector<env_grid_cell>& rhs)
 {
-  auto grid_food = std::accumulate(lhs.begin(),lhs.end(),0.0,
-                                   [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+  auto grid_food = std::accumulate(
+        lhs.begin(),lhs.end(),0.0,
+        [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
   auto grid_new_food = std::accumulate(
         rhs.begin(), rhs.end(),0.0,
         [](double sum, const env_grid_cell& c) {return sum + c.get_food();}

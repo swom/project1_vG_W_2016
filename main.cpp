@@ -30,8 +30,11 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
 #ifndef LOGIC_ONLY
-  simulation s(7,0,0.1,30,0.01,20);
-
+  simulation s(0,0,0.1,3,0.01,20);
+  for(int i = 0; i != s.get_env().get_grid_size()/2; i++)
+    {
+      s.get_env().get_cell(i).set_food(0);
+    }
   if (args.size() > 1 && args[1] == "--visual")
     {
       sim_view v(s);
