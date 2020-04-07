@@ -67,7 +67,7 @@ void feed(individual& i, env_grid_cell& c) noexcept
 }
 
 
-int find_grid_index( individual& i, double grid_side)
+int find_grid_index(const individual& i, double grid_side)
 {
   auto x_offset = i.get_x() + grid_side/2;
   auto y_offset = i.get_y() + grid_side/2;

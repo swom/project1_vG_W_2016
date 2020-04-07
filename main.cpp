@@ -40,12 +40,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
           bool must_quit{v.process_events()};
           if (must_quit)
             return 0;
-          if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+          if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             {
               tick(v.get_sim());
               v.show();
             }
-           else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+           else if(!sf::Keyboard::isKeyPressed(sf::Keyboard::A))
             {
               v.show();
             }

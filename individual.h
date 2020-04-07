@@ -140,7 +140,7 @@ void draw_flag_reset(individual& i);
 ///Finds the grid cell where an individual is on,
 ///given the side of the environment grid
 ///the grid_cell at grid[0] is at position(x,y) = (-grid_side/2, -grid_side/2)
-int find_grid_index( individual& i, double grid_side) ;
+int find_grid_index(const individual &i, double grid_side) ;
 
 ///An individual increases its energy depleting food
 void feed(individual& i, env_grid_cell& food) noexcept;

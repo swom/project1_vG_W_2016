@@ -722,7 +722,7 @@ void test_simulation()//!OCLINT tests may be many
 
   //If nothing else happens, food should constantly decrease when cells are feeding
   {
-    simulation s (1, 1, 0, 3, 0.1, 5);
+    simulation s (2, 1, 0, 3, 0.1, 5);
     auto food_begin = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
                                       [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
@@ -738,15 +738,21 @@ void test_simulation()//!OCLINT tests may be many
                                            [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
         feeding(s);
 
-
         auto food_after_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
                                            [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
-        auto food_eaten = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
-                                          [] (double sum, const individual& ind){return sum + ind.get_uptake_rate();});
+        double food_eaten = 0.0;
+        for(const auto& ind : s.get_pop())
+          {
+            auto grid_cell_ind = find_grid_index(ind, s.get_grid_side());
+            if( grid_cell_ind != -100 && s.get_env().get_cell(grid_cell_ind).get_food() > 0)
+              {
+                food_eaten += ind.get_uptake_rate();
+              }
+          }
 
-        auto a = food_before_feed - (food_after_feed + food_eaten) ;
-        assert(a < 0.0001 && a > -0.0001);
+        auto balance_uptake = food_before_feed - (food_after_feed + food_eaten) ;
+        assert(balance_uptake < 0.0001 && balance_uptake > -0.0001);
 
         metabolism_pop(s);
         death(s);
@@ -756,13 +762,15 @@ void test_simulation()//!OCLINT tests may be many
         auto food_before_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
                                            [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
-        diffusion(s.get_env());
+        auto new_grid = calc_diffusion_food(s.get_env());
 
-
-        auto food_after_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+        auto food_after_diff = std::accumulate(new_grid.begin(), new_grid.end(), 0.0,
                                            [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
-        assert(food_before_diff - food_after_diff < 0.0001 &&
-               food_before_diff - food_after_diff > -0.0001);
+
+        auto balance_diffusion = food_before_diff - food_after_diff;
+        assert(balance_diffusion < 0.0001 && balance_diffusion > -0.0001);
+
+        new_grid.swap(s.get_env().get_grid());
 
       }
     auto food_end = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
