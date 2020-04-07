@@ -56,9 +56,6 @@ std::vector<env_grid_cell> calc_diffusion_food(const environment& e) noexcept
       auto exiting_food = calc_exiting_food(e.get_grid()[i], tot_food_delta, e.get_diff_coeff());
 
       grid_new[i].increment_food(- exiting_food);
-      auto balance1 = food_balance(e.get_grid(),grid_new);
-      assert( balance1 > -0.0000001);
-
       for(size_t j = 0; j != e.get_grid()[i].get_v_neighbors().size(); j++)
         {
           auto recieved_food = exiting_food *
@@ -66,8 +63,6 @@ std::vector<env_grid_cell> calc_diffusion_food(const environment& e) noexcept
           size_t neighbor_index =  static_cast<size_t>(e.get_grid()[i].get_v_neighbors()[j]);
           grid_new[neighbor_index].increment_food(recieved_food);
         }
-      auto balance2 = food_balance(e.get_grid(),grid_new);
-      assert(balance2 < 0.0001 && balance2 > -0.0001);
     }
   return grid_new;
 }
