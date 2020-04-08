@@ -106,26 +106,6 @@ const std::pair<double, double> get_pos(individual& i)  noexcept
   return pos;
 }
 
-std::pair<double, double> get_displacement(const individual& lhs, const individual& rhs) noexcept
-{
-  std::pair<double, double> displ_x_y;
-  auto dist = distance(lhs, rhs);
-
-  auto overlapping = overlap(lhs,rhs);
-
-  if(dist < 0.0000001 && dist > -0.0000001)
-    {
-      displ_x_y.first =  overlapping / sqrt(2);
-      displ_x_y.second = overlapping / sqrt(2);
-    }
-  else
-    {
-  displ_x_y.first = overlapping * (lhs.get_x() - rhs.get_x()) / dist;
-  displ_x_y.second = overlapping * (lhs.get_y() - rhs.get_y()) / dist;
-    }
-  return  displ_x_y;
-}
-
 void determine_phen(individual& i) noexcept
 {
   if(will_sporulate(i) && !is_sporulating(i))
@@ -160,6 +140,26 @@ void divides(individual& i, std::vector<individual>& pop, double repr_angle,
   mutates(daughter, rng, mu_p, mu_st);
   pop.push_back(daughter);
   set_pos(pop.back(),get_daughter_pos(daughter, repr_angle));
+}
+
+std::pair<double, double> get_displacement(const individual& lhs, const individual& rhs) noexcept
+{
+  std::pair<double, double> displ_x_y;
+  auto dist = distance(lhs, rhs);
+
+  auto overlapping = overlap(lhs,rhs);
+
+  if(dist < 0.0000001 && dist > -0.0000001)
+    {
+      displ_x_y.first =  overlapping / sqrt(2);
+      displ_x_y.second = overlapping / sqrt(2);
+    }
+  else
+    {
+  displ_x_y.first = overlapping * (lhs.get_x() - rhs.get_x()) / dist;
+  displ_x_y.second = overlapping * (lhs.get_y() - rhs.get_y()) / dist;
+    }
+  return  displ_x_y;
 }
 
 bool is_dead(individual const&  i) noexcept
