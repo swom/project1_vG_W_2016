@@ -22,12 +22,6 @@ individual::individual(double x_pos, double y_pos,
 }
 
 
-void individual::displace() noexcept
-{
-  change_x(m_x_displacement);
-  change_y(m_y_displacement);
-}
-
 bool operator == (const individual& lhs, const individual& rhs) noexcept {
   //check that two individuals' centers are at the same coordinates
   return lhs.get_x() - rhs.get_x() < 0.00001
@@ -46,11 +40,11 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept
   return sqrd_actual_distance + 0.001 < radii_sum * radii_sum;
 }
 
-void calc_displacement(individual& lhs, individual& rhs) noexcept
+void add_displacement(individual& lhs, individual& rhs) noexcept
 {
   auto displacement = get_displacement(lhs,rhs);
-  rhs.change_x(displacement.first);
-  rhs.change_y(displacement.second);
+  lhs.x_displacement(displacement.first);
+  lhs.y_displacement(displacement.second);
 }
 
 double distance(const individual& lhs, const individual& rhs) noexcept
@@ -159,7 +153,7 @@ std::pair<double, double> get_displacement(const individual& lhs, const individu
   std::pair<double, double> displ_x_y;
   auto dist = distance(lhs, rhs);
 
-  auto overlapping = overlap(lhs,rhs);
+  auto overlapping = overlap(lhs,rhs) / 2;
 
   if(dist < 0.0000001 && dist > -0.0000001)
     {
@@ -430,11 +424,31 @@ void test_individual()//!OCLINT tests may be many
            overlap(lhs, rhs) - lhs.get_radius() > -0.000001 );
   }
 
+  //Given  2 overlapping individuals lhs and rhs:
+  //the displacement components that the lhs need to move away
+  //by half the overlap between lhs and rhs
+  //are the opposite of the ones needed by rhs to do the same
+  {
+    //2 overlapping individuals
+    double radius = 0.5;
+    individual lhs(0, 0, radius);
+    individual rhs(radius, 0, radius);
+    auto lhs_disp = get_displacement(lhs, rhs);
+    auto rhs_disp = get_displacement(rhs, lhs);
+    auto x_component = lhs_disp.first + rhs_disp.first;
+    auto y_component = lhs_disp.second + rhs_disp.second;
+    assert(x_component < 0.00001 && x_component > -0.00001);
+    assert(y_component < 0.00001 && y_component > -0.00001);
+  }
+
   //Two cells can be displaced so not to overlap anymore
   {
     individual lhs(0,0);
     individual rhs(0,0);
-    calc_displacement(lhs, rhs);
+    add_displacement(lhs, rhs);
+    add_displacement(rhs, lhs);
+    lhs.displace();
+    rhs.displace();
     auto dist = distance(lhs,rhs);
     auto radii_sum = lhs.get_radius() + rhs.get_radius();
     auto space_btw_circles = dist - radii_sum;

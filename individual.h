@@ -131,7 +131,7 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 ///Calculates how much individuals need to be displaced to not overlap
 std::pair<double, double> get_displacement(const individual &lhs, const individual &rhs) noexcept;
 
-///Adds a x and y displacement component to rhs displacement so that lhs and rhs do not overlap
+///Adds a x and y displacement component to lhs and rhs displacement so that lhs and rhs do not overlap
 void add_displacement(individual& lhs, individual& rhs) noexcept;
 
 /// Finds the distance between two individuals

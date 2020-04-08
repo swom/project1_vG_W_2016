@@ -169,6 +169,9 @@ double calc_angle_3_pos(std::pair<double, double> P1,
                        std::pair<double, double> P2,
                        std::pair<double, double> P3);
 
+///Calculates the total displacement of each individual in the population if there are collisions
+void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes);
+
 ///Calculates the modulus of the angles between all the individuals of a population
 ///and a given angle in radiants
 std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);

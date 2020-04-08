@@ -190,27 +190,57 @@ std::vector<int> has_collision(const simulation& s)
   return empty_v;
 }
 
+void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes)
+{
+  const auto n_ind = pop.size();
+  for ( size_t i = static_cast<size_t>(first_collisions_indexes[0]); i < n_ind; ++i)
+    {
+      for ( size_t j = 0 ; j < n_ind; ++j)
+        {
+          //Very likely useless, remove once you think about it a bit more
+          if (i == static_cast<size_t>(first_collisions_indexes[0]))
+            {
+              j = static_cast<size_t>(first_collisions_indexes[1]);
+            }
+          add_displacement(pop[i], pop[j]);
+        }
+    }
+}
+
+void no_complete_overlap(simulation& s) noexcept
+{
+  for(size_t i = 0; i != s.get_pop().size(); i++)
+    for(size_t j = 0; j != s.get_pop().size(); j++)
+      {
+        if(i == j ) continue;
+        if(distance(s.get_pop()[i], s.get_pop()[j]) < 0.0001 &&
+           distance(s.get_pop()[i], s.get_pop()[j]) > -0.0001)
+          {
+            s.get_pop()[i].change_x(0.00001);
+            s.get_pop()[j].change_x(-0.00001);
+          }
+      }
+}
 void manage_static_collisions(simulation& s)
 {
-  auto collision = has_collision(s);
-  while(!collision.empty())
+  auto first_collision_indexes = has_collision(s);
+  while(!first_collision_indexes.empty())
     {
       const auto n_ind = s.get_pop_size();
-      for ( int i = 0; i < n_ind; ++i)
+      for ( int i = first_collision_indexes[0]; i < n_ind; ++i)
         {
-          for ( int j = i ; j < n_ind; ++j)
+          for ( int j = 0 ; j < n_ind; ++j)
             {
-              if (i == j)
+              //Very likely useless, remove once you think about it a bit more
+              if (i == first_collision_indexes[0])
                 {
-                  continue;
+                  j = first_collision_indexes[1];
                 }
-              else if(are_colliding(s.get_ind(i), s.get_ind(j)))
-                {
-                  displace(s.get_ind(i), s.get_ind(j));
-                }
+              add_displacement(s.get_ind(i), s.get_ind(j));
             }
         }
-      collision = has_collision(s);
+
+      first_collision_indexes = has_collision(s);
     }
 }
 
@@ -500,7 +530,7 @@ void test_simulation()//!OCLINT tests may be many
     assert(s.get_ind_en(1) - mother_excess_energy[0]/2 < 0.00001 &&
         s.get_ind_en(1) - mother_excess_energy[0]/2 > -0.00001);
     assert(s.get_ind_en(0) - s.get_ind_en(1) < 0.00001 &&
-        s.get_ind_en(0) - s.get_ind_en(1) > -0.00001);
+           s.get_ind_en(0) - s.get_ind_en(1) > -0.00001);
   }
 
 
@@ -734,11 +764,11 @@ void test_simulation()//!OCLINT tests may be many
       {
 
         auto food_before_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+                                                [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
         feeding(s);
 
         auto food_after_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+                                               [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
         double food_eaten = 0.0;
         for(const auto& ind : s.get_pop())
@@ -759,12 +789,12 @@ void test_simulation()//!OCLINT tests may be many
         manage_static_collisions(s);
 
         auto food_before_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+                                                [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
         auto new_grid = calc_diffusion_food(s.get_env());
 
         auto food_after_diff = std::accumulate(new_grid.begin(), new_grid.end(), 0.0,
-                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+                                               [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
         auto balance_diffusion = food_before_diff - food_after_diff;
         assert(balance_diffusion < 0.0001 && balance_diffusion > -0.0001);
@@ -773,7 +803,7 @@ void test_simulation()//!OCLINT tests may be many
 
       }
     auto food_end = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                       [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+                                    [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
     assert(food_end < food_begin);
 
     auto final_pop_size =  s.get_pop().size();
