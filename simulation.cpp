@@ -169,7 +169,7 @@ std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  n
   return sis_indexes;
 }
 
-bool has_collision(const simulation& s)
+std::vector<int> has_collision(const simulation& s)
 {
   int n_ind = s.get_pop_size();
   for ( int i = 0; i < n_ind; ++i)
@@ -182,21 +182,23 @@ bool has_collision(const simulation& s)
             }
           else if (are_colliding(s.get_ind(i), s.get_ind(j)))
             {
-              return true;
+              return std::vector<int>{i,j};
             }
         }
     }
-  return false;
+  std::vector<int> empty_v;
+  return empty_v;
 }
 
 void manage_static_collisions(simulation& s)
 {
-  while(has_collision(s))
+  auto collision = has_collision(s);
+  while(!collision.empty())
     {
       const auto n_ind = s.get_pop_size();
       for ( int i = 0; i < n_ind; ++i)
         {
-          for ( int j = 0 ; j < n_ind; ++j)
+          for ( int j = i ; j < n_ind; ++j)
             {
               if (i == j)
                 {
@@ -208,6 +210,7 @@ void manage_static_collisions(simulation& s)
                 }
             }
         }
+      collision = has_collision(s);
     }
 }
 
@@ -377,7 +380,7 @@ void test_simulation()//!OCLINT tests may be many
   //No individuals are overlapping at the start of the simulation
   {
     simulation s(2);
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
   }
 
 
@@ -524,7 +527,7 @@ void test_simulation()//!OCLINT tests may be many
     s.set_ind_en(0,s.get_ind_tr_en(0));
     divides(s.get_ind(0), s.get_pop(), s.repr_angle(),
             s.get_rng(), s.get_mu_p(), s.get_mu_st());
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
     assert(distance(s.get_ind(0), s.get_ind(1)) -
            (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
   }
@@ -533,27 +536,23 @@ void test_simulation()//!OCLINT tests may be many
   //until there are no more collisions
   {
     simulation s(2);
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
     set_pos(s.get_ind(1),s.get_ind_pos(0));
-    assert(has_collision(s));
+    assert(!has_collision(s).empty());
     manage_static_collisions(s);
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
 
   }
   //After reproduction new collisions caused by new individuals
   //being placed where other individuals already are managed
   {
     simulation s(7);
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
     //add 1 individual overlapping with central individual
     s.get_pop().push_back(individual(0,0));
-    assert(has_collision(s));
-
-    while(has_collision(s))
-      {
-        manage_static_collisions(s);
-      }
-    assert(!has_collision(s));
+    assert(!has_collision(s).empty());
+    manage_static_collisions(s);
+    assert(has_collision(s).empty());
   }
 
   //A simulation has an environment
@@ -717,7 +716,7 @@ void test_simulation()//!OCLINT tests may be many
     assert(!(predicted_food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001
              && predicted_food_after_feeding -s.get_env().get_cell(grid_index_ind).get_food() > -0.0001));
     assert(s.get_pop().size() == 2 * init_pop_size);
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
   }
 
   //If nothing else happens, food should constantly decrease when cells are feeding
@@ -797,7 +796,7 @@ void test_simulation()//!OCLINT tests may be many
     manage_static_collisions(s);
 
     assert(s.get_pop().size() == init_pop_size + 1);
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
   }
   //A simulation is initialized with a m_tick = 0;
   {
@@ -1176,7 +1175,7 @@ void test_simulation()//!OCLINT tests may be many
     auto v_modulus = modulus_of_btw_ind_angles(s, M_PI/ (6 * n_hex_l));
     for(auto ind_modulus : v_modulus)
       assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
   }
 
 
@@ -1204,7 +1203,7 @@ void test_simulation()//!OCLINT tests may be many
       {
         assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
       }
-    assert(!has_collision(s));
+    assert(has_collision(s).empty());
     //Reset env
     assert( s.get_env() != ref_env );
     auto init_food = s.get_env().get_init_food();

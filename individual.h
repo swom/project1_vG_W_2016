@@ -24,6 +24,9 @@ public:
   ///Changes y of an individual
   void change_y(double y) noexcept {m_y += y;}
 
+  ///Displaces an individual based on its m_x_displacement and m_y_displacement values
+  void displace() noexcept { change_x(m_x_displacement); change_y(m_y_displacement); reset_displacement();}
+
   ///Gets the flag that signal if the individual has been drawn to be member of the new pop
   bool get_drawn_flag() const noexcept {return m_is_drawn;}
 
@@ -66,6 +69,9 @@ public:
   ///Gets the sporulation timer
   int get_spo_timer() const noexcept {return m_sporulation_timer;}
 
+  ///resets the values of m_x_displacement and m_y_displacement to 0;
+  void reset_displacement() {m_x_displacement = 0; m_y_displacement = 0;}
+
   ///Resets the sporulation timer
   void reset_spo_timer() noexcept {m_sporulation_timer = 0;}
 
@@ -92,10 +98,18 @@ public:
   /// simulation::reproduce/cells_divide)
   double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
 
+  ///Changes x of an individual
+  void x_displacement(double x_displacement) noexcept {m_x_displacement += x_displacement;}
+
+  ///Changes y of an individual
+  void y_displacement(double y_displacement) noexcept {m_y_displacement += y_displacement;}
+
 private:
 
   double m_x;
   double m_y;
+  double m_x_displacement = 0;
+  double m_y_displacement = 0;
   double m_radius;
   double m_energy;
   double m_treshold_energy;
@@ -117,11 +131,14 @@ bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
 ///Calculates how much individuals need to be displaced to not overlap
 std::pair<double, double> get_displacement(const individual &lhs, const individual &rhs) noexcept;
 
-///Dislpaces two individuals so that they do not overlap
-void displace(individual& lhs, individual& rhs) noexcept;
+///Adds a x and y displacement component to rhs displacement so that lhs and rhs do not overlap
+void add_displacement(individual& lhs, individual& rhs) noexcept;
 
 /// Finds the distance between two individuals
 double distance(const individual& lhs, const individual& rhs) noexcept;
+
+///Find the squared distance between 2 inds, faster than distance
+double squared_distance(const individual& lhs, const individual& rhs) noexcept;
 
 ///Divides an individual at a given index
 void divides(individual &i, std::vector<individual> &pop, double repr_angle,

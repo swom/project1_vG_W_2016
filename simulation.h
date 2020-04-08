@@ -197,8 +197,9 @@ std::vector<double> get_excess_energies(const simulation& s) noexcept;
 ///Gets distance in vector elements between two duaghters of same mother cell
 std::vector<std::pair<int, int> > get_sisters_index_offset(const simulation& s) noexcept;
 
-///Checks if any two cells are colliding
-bool has_collision(const simulation& s);
+///Checks if any two cells are colliding, return an empty vector in this case
+/// or a vecto of the indexes of the first two colliding cells
+std::vector<int> has_collision(const simulation& s);
 
 /// Displaces colliding cells so that they do not collide anymore
 void manage_static_collisions(simulation& s);

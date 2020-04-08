@@ -21,6 +21,13 @@ individual::individual(double x_pos, double y_pos,
 
 }
 
+
+void individual::displace() noexcept
+{
+  change_x(m_x_displacement);
+  change_y(m_y_displacement);
+}
+
 bool operator == (const individual& lhs, const individual& rhs) noexcept {
   //check that two individuals' centers are at the same coordinates
   return lhs.get_x() - rhs.get_x() < 0.00001
@@ -29,15 +36,56 @@ bool operator == (const individual& lhs, const individual& rhs) noexcept {
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept
 {
-  const double actual_distance = distance(lhs,rhs) ;
-  const double collision_distance = lhs.get_radius() + rhs.get_radius();
-  return actual_distance + 0.001 < collision_distance;
+  auto radii_sum = lhs.get_radius() + rhs.get_radius();
+  //Do not do all calculation for cellss to far away
+  if(std::abs(lhs.get_x() - rhs.get_x()) > radii_sum ||
+         std::abs(lhs.get_y() - rhs.get_y()) > radii_sum)
+    return false;
+
+  const double sqrd_actual_distance = squared_distance(lhs,rhs) ;
+  return sqrd_actual_distance + 0.001 < radii_sum * radii_sum;
+}
+
+void calc_displacement(individual& lhs, individual& rhs) noexcept
+{
+  auto displacement = get_displacement(lhs,rhs);
+  rhs.change_x(displacement.first);
+  rhs.change_y(displacement.second);
 }
 
 double distance(const individual& lhs, const individual& rhs) noexcept
 {
   return sqrt((lhs.get_x() - rhs.get_x()) * (lhs.get_x() - rhs.get_x())
               + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y()));
+}
+
+void determine_phen(individual& i) noexcept
+{
+  if(will_sporulate(i) && !is_sporulating(i))
+    {
+      starts_sporulation(i);
+      assert(i.get_spo_timer() == 0);
+    }
+  else if(!will_sporulate(i) && is_sporulating(i))
+    {
+      reverts(i);
+      assert(i.get_spo_timer() == 0);
+    }
+}
+
+
+
+void divides(individual& i, std::vector<individual>& pop, double repr_angle,
+             std::minstd_rand& rng, std::bernoulli_distribution& mu_p,
+             std::normal_distribution<double> mu_st)
+{
+  double offs_init_en = i.split_excess_energy();
+  i.set_energy(offs_init_en);
+  individual daughter = i;
+  mutates(i, rng, mu_p, mu_st);
+  mutates(daughter, rng, mu_p, mu_st);
+  pop.push_back(daughter);
+  set_pos(pop.back(),get_daughter_pos(daughter, repr_angle));
 }
 
 void draw(individual& i)
@@ -104,42 +152,6 @@ const std::pair<double, double> get_pos(individual& i)  noexcept
   pos.first = i.get_x();
   pos.second = i.get_y();
   return pos;
-}
-
-void determine_phen(individual& i) noexcept
-{
-  if(will_sporulate(i) && !is_sporulating(i))
-    {
-      starts_sporulation(i);
-      assert(i.get_spo_timer() == 0);
-    }
-  else if(!will_sporulate(i) && is_sporulating(i))
-    {
-      reverts(i);
-      assert(i.get_spo_timer() == 0);
-    }
-}
-
-void displace(individual& lhs, individual& rhs) noexcept
-{
-  auto displacement = get_displacement(lhs,rhs);
-  lhs.change_x(displacement.first);
-  lhs.change_y(displacement.second);
-  rhs.change_x(-displacement.first);
-  rhs.change_y(-displacement.second);
-}
-
-void divides(individual& i, std::vector<individual>& pop, double repr_angle,
-             std::minstd_rand& rng, std::bernoulli_distribution& mu_p,
-             std::normal_distribution<double> mu_st)
-{
-  double offs_init_en = i.split_excess_energy();
-  i.set_energy(offs_init_en);
-  individual daughter = i;
-  mutates(i, rng, mu_p, mu_st);
-  mutates(daughter, rng, mu_p, mu_st);
-  pop.push_back(daughter);
-  set_pos(pop.back(),get_daughter_pos(daughter, repr_angle));
 }
 
 std::pair<double, double> get_displacement(const individual& lhs, const individual& rhs) noexcept
@@ -215,12 +227,12 @@ double overlap(const individual& lhs, const individual& rhs) noexcept
   //if circles are one into the other
   if (dist < std::max(lhs.get_radius(),rhs.get_radius()))
     return (std::max(lhs.get_radius(),rhs.get_radius()) -
-            dist + std::min(lhs.get_radius(),rhs.get_radius())) / 2;
+            dist + std::min(lhs.get_radius(),rhs.get_radius()));
 
   //if circles partially overlap or
   //their dist is equal to sum of radiuses
   //(in which case they should not pass through this function)
-  return (sum_of_radiuses - dist)/2;
+  return (sum_of_radiuses - dist);
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -272,6 +284,13 @@ void sporulation(individual& i) noexcept
           i.reset_spo_timer();
         }
     }
+}
+
+
+double squared_distance(const individual& lhs, const individual& rhs) noexcept
+{
+  return (lhs.get_x() - rhs.get_x()) * (lhs.get_x() - rhs.get_x())
+              + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y());
 }
 
 bool will_sporulate(individual& i) noexcept
@@ -407,18 +426,20 @@ void test_individual()//!OCLINT tests may be many
     //Two individuals overlap by half their radius
     individual lhs(0,0);
     individual rhs(0,lhs.get_radius());
-    assert(overlap(lhs, rhs) - lhs.get_radius() / 2 < 0.000001 &&
-           overlap(lhs, rhs) - lhs.get_radius() / 2 > -0.000001 );
+    assert(overlap(lhs, rhs) - lhs.get_radius() < 0.000001 &&
+           overlap(lhs, rhs) - lhs.get_radius() > -0.000001 );
   }
 
   //Two cells can be displaced so not to overlap anymore
   {
     individual lhs(0,0);
     individual rhs(0,0);
-    displace(lhs, rhs);
+    calc_displacement(lhs, rhs);
     auto dist = distance(lhs,rhs);
-    assert(dist - (lhs.get_radius() + rhs.get_radius()) < 0.00001
-           && dist - (lhs.get_radius() + rhs.get_radius()) > -0.00001);
+    auto radii_sum = lhs.get_radius() + rhs.get_radius();
+    auto space_btw_circles = dist - radii_sum;
+    assert( space_btw_circles < 0.00001
+           && space_btw_circles > -0.00001);
   }
 
   //The grid cell where an individual should be
