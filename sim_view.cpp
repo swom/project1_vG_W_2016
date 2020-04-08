@@ -33,6 +33,7 @@ sim_view::sim_view(simulation start_simulation, float start_zoom,
 #endif
 
   m_grid_view.prepare_grid(m_sim.get_env().get_grid());
+  prepare_pop();
 }
 
 sim_view::~sim_view()
@@ -55,24 +56,10 @@ void sim_view::draw_food() noexcept
 
 void sim_view::draw_inds() noexcept
 {
-  for (const auto &ind : m_sim.get_pop())
+  update_pop();
+  for(const auto& ind : m_pop_shapes)
     {
-      // Type conversions that simplify notation
-      const float r{static_cast<float>(ind.get_radius()) * m_scale};
-      const float x{static_cast<float>(ind.get_x()) * m_scale};
-      const float y{static_cast<float>(ind.get_y()) * m_scale};
-
-      // Create the player sprite
-      sf::CircleShape circle;
-      circle.setRadius(r);
-      circle.setFillColor(sf::Color::Blue);
-      circle.setOutlineColor(sf::Color::Red);
-      circle.setOutlineThickness(0.1f);
-      circle.setOrigin(r, r);
-      circle.setPosition(x, y);
-
-      // Draw the player
-      m_window.draw(circle);
+      m_window.draw(ind);
     }
 }
 
@@ -142,6 +129,28 @@ void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
     }
 }
 
+void sim_view::prepare_pop() noexcept
+{
+  for (const auto &ind : m_sim.get_pop())
+    {
+      // Type conversions that simplify notation
+      const float r{static_cast<float>(ind.get_radius()) * m_scale};
+      const float x{static_cast<float>(ind.get_x()) * m_scale};
+      const float y{static_cast<float>(ind.get_y()) * m_scale};
+
+      // Create the player sprite
+      sf::CircleShape circle;
+      circle.setRadius(r);
+      circle.setFillColor(sf::Color::Blue);
+      circle.setOutlineColor(sf::Color::Red);
+      circle.setOutlineThickness(0.1f);
+      circle.setOrigin(r, r);
+      circle.setPosition(x, y);
+      circle.setPointCount(40);
+      m_pop_shapes.push_back(circle);
+    }
+}
+
 bool sim_view::process_events()
 {
 
@@ -185,6 +194,19 @@ void sim_view::show() noexcept
   m_window.display();
 }
 
+void sim_view::update_pop() noexcept
+{
+  if(m_pop_shapes.size() != m_sim.get_pop().size())
+    {
+      m_pop_shapes.resize(m_sim.get_pop().size(), m_pop_shapes[0]);
+      for( size_t i = 0; i != m_pop_shapes.size(); i++)
+        {
+          float x = m_scale * static_cast<float>(m_sim.get_ind(static_cast<int>(i)).get_x());
+          float y = m_scale * static_cast<float>(m_sim.get_ind(static_cast<int>(i)).get_y());
+          m_pop_shapes[i].setPosition(x, y);
+        }
+    }
+}
 void sim_view::zoom_k_input_ends(const sf::Event &event) noexcept
 {
   if (event.key.code == sf::Keyboard::Add)

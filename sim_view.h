@@ -59,9 +59,15 @@ public:
   ///Processe when keyboard input for panning is stopped
   void pan_k_input_ends(const sf::Event& event) noexcept;
 
+  ///Creates a vector of sf::CircleShape that will be used to draw the population
+  void prepare_pop() noexcept;
+
   /// Processes events in game and ouputs false if quit
   /// is inputted
   bool process_events();
+
+  ///Updates the vector of shapes representing individuals if new individuals are added
+  void update_pop() noexcept;
 
   /// Show one frame
   void show() noexcept;
@@ -107,6 +113,9 @@ private:
 
   ///The step at which it is possible to move around the camera
   float m_pan_step;
+
+  ///Vector containing the circle shapes representing each individual in the population
+  std::vector<sf::CircleShape> m_pop_shapes;
 
   ///The times the size of individuals and their coordinates are increased
   /// This is necessary to not show fractions of pixels, default 10
