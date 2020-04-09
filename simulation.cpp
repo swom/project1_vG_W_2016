@@ -89,6 +89,9 @@ void division(simulation &s) noexcept
       int div_ind = div_inds[i];
       divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
               s.get_rng(),s.get_mu_p(),s.get_mu_st());
+      auto dist = distance(s.get_ind(div_ind), s.get_pop().back());
+      auto radii_sum = s.get_ind(div_ind).get_radius() + s.get_pop().back().get_radius();
+      assert( dist - radii_sum > -0.00001 && dist - radii_sum  < 0.00001);
     }
 }
 
@@ -193,15 +196,17 @@ std::vector<int> has_collision(const simulation& s)
 void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes)
 {
   const auto n_ind = pop.size();
-  for ( size_t i = static_cast<size_t>(first_collisions_indexes[0]); i < n_ind; ++i)
+  for ( size_t i = static_cast<size_t>(first_collisions_indexes[0]); i != n_ind; ++i)
     {
-      for ( size_t j = 0 ; j < n_ind; ++j)
+      for ( size_t j = 0 ; j != n_ind; ++j)
         {
-          //Very likely useless, remove once you think about it a bit more
-          if (i == static_cast<size_t>(first_collisions_indexes[0]))
+          if (i == static_cast<size_t>(first_collisions_indexes[0]) &&
+              j < static_cast<size_t>(first_collisions_indexes[1]))
             {
               j = static_cast<size_t>(first_collisions_indexes[1]);
             }
+          else if(j == i) continue;
+          if(are_colliding(pop[i], pop[j]))
           add_displacement(pop[i], pop[j]);
         }
     }
@@ -213,35 +218,29 @@ void no_complete_overlap(simulation& s) noexcept
     for(size_t j = 0; j != s.get_pop().size(); j++)
       {
         if(i == j ) continue;
-        if(distance(s.get_pop()[i], s.get_pop()[j]) < 0.0001 &&
-           distance(s.get_pop()[i], s.get_pop()[j]) > -0.0001)
+        if(distance(s.get_pop()[i], s.get_pop()[j]) < 0.00001 &&
+           distance(s.get_pop()[i], s.get_pop()[j]) > -0.00001)
           {
-            s.get_pop()[i].change_x(0.00001);
-            s.get_pop()[j].change_x(-0.00001);
+            auto rnd_n_0_1 = s.get_unif_dist()(s.get_rng());
+            s.get_pop()[i].change_x(rnd_n_0_1 * 0.0001);
+            s.get_pop()[j].change_x(rnd_n_0_1 * -0.0001);
           }
       }
 }
+
 void manage_static_collisions(simulation& s)
 {
   auto first_collision_indexes = has_collision(s);
+  int time = 0;
   while(!first_collision_indexes.empty())
     {
-      const auto n_ind = s.get_pop_size();
-      for ( int i = first_collision_indexes[0]; i < n_ind; ++i)
-        {
-          for ( int j = 0 ; j < n_ind; ++j)
-            {
-              //Very likely useless, remove once you think about it a bit more
-              if (i == first_collision_indexes[0])
-                {
-                  j = first_collision_indexes[1];
-                }
-              add_displacement(s.get_ind(i), s.get_ind(j));
-            }
-        }
-
+      no_complete_overlap(s);
+      calc_tot_displ_pop(s.get_pop(), first_collision_indexes);
+      for(auto& ind : s.get_pop()){ind.displace();}
       first_collision_indexes = has_collision(s);
+      time ++;
     }
+
 }
 
 void metabolism_pop(simulation& s)
@@ -314,7 +313,7 @@ void select_new_pop(simulation& s)
     {
       for(auto& ind : s.get_pop())
         {
-          if(s.get_disp_distr()(s.get_rng()) <
+          if(s.get_unif_dist()(s.get_rng()) <
              get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv())
              && !is_drawn(ind))
             {
@@ -569,7 +568,11 @@ void test_simulation()//!OCLINT tests may be many
     assert(has_collision(s).empty());
     set_pos(s.get_ind(1),s.get_ind_pos(0));
     assert(!has_collision(s).empty());
-    manage_static_collisions(s);
+
+    no_complete_overlap(s);
+    calc_tot_displ_pop(s.get_pop(), has_collision(s));
+    for(auto& ind : s.get_pop()){ind.displace();}
+
     assert(has_collision(s).empty());
 
   }
@@ -1139,7 +1142,7 @@ void test_simulation()//!OCLINT tests may be many
     double mean = 0;
     for(int i = 0; i != sample_size; i++)
       {
-        mean += s.get_disp_distr()(s.get_rng());
+        mean += s.get_unif_dist()(s.get_rng());
       }
     mean /= sample_size;
     assert(mean - 0.5 < 0.01 &&

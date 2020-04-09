@@ -153,17 +153,17 @@ std::pair<double, double> get_displacement(const individual& lhs, const individu
   std::pair<double, double> displ_x_y;
   auto dist = distance(lhs, rhs);
 
-  auto overlapping = overlap(lhs,rhs) / 2;
+  auto half_overlapping = half_overlap(lhs,rhs);
 
   if(dist < 0.0000001 && dist > -0.0000001)
     {
-      displ_x_y.first =  overlapping / sqrt(2);
-      displ_x_y.second = overlapping / sqrt(2);
+      displ_x_y.first =  half_overlapping / sqrt(2);
+      displ_x_y.second = half_overlapping / sqrt(2);
     }
   else
     {
-  displ_x_y.first = overlapping * (lhs.get_x() - rhs.get_x()) / dist;
-  displ_x_y.second = overlapping * (lhs.get_y() - rhs.get_y()) / dist;
+  displ_x_y.first = half_overlapping * (lhs.get_x() - rhs.get_x()) / dist;
+  displ_x_y.second = half_overlapping * (lhs.get_y() - rhs.get_y()) / dist;
     }
   return  displ_x_y;
 }
@@ -213,20 +213,22 @@ void mutates(individual& i, std::minstd_rand& rng,
   mutation(i.get_grn(), rng, mu_p, mu_st);
 }
 
-double overlap(const individual& lhs, const individual& rhs) noexcept
+double half_overlap(const individual& lhs, const individual& rhs) noexcept
 {
   auto dist = distance(lhs,rhs);
   auto sum_of_radiuses = lhs.get_radius() + rhs.get_radius();
 
   //if circles are one into the other
   if (dist < std::max(lhs.get_radius(),rhs.get_radius()))
+    {
     return (std::max(lhs.get_radius(),rhs.get_radius()) -
-            dist + std::min(lhs.get_radius(),rhs.get_radius()));
+            dist + std::min(lhs.get_radius(),rhs.get_radius()))  / 2;
+    }
 
   //if circles partially overlap or
   //their dist is equal to sum of radiuses
   //(in which case they should not pass through this function)
-  return (sum_of_radiuses - dist);
+  return (sum_of_radiuses - dist)  / 2;
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -420,8 +422,8 @@ void test_individual()//!OCLINT tests may be many
     //Two individuals overlap by half their radius
     individual lhs(0,0);
     individual rhs(0,lhs.get_radius());
-    assert(overlap(lhs, rhs) - lhs.get_radius() < 0.000001 &&
-           overlap(lhs, rhs) - lhs.get_radius() > -0.000001 );
+    assert(half_overlap(lhs, rhs) - lhs.get_radius() / 2 < 0.000001 &&
+           half_overlap(lhs, rhs) - lhs.get_radius() / 2> -0.000001 );
   }
 
   //Given  2 overlapping individuals lhs and rhs:
@@ -443,10 +445,11 @@ void test_individual()//!OCLINT tests may be many
 
   //Two cells can be displaced so not to overlap anymore
   {
-    individual lhs(0,0);
+    individual lhs(0.0001,0);
     individual rhs(0,0);
     add_displacement(lhs, rhs);
     add_displacement(rhs, lhs);
+
     lhs.displace();
     rhs.displace();
     auto dist = distance(lhs,rhs);

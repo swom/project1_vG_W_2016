@@ -69,6 +69,9 @@ public:
   ///Updates the vector of shapes representing individuals if new individuals are added
   void update_pop() noexcept;
 
+  ///Updates the vector of indexes representing individuals if new individuals are added
+  void update_indexes() noexcept;
+
   /// Show one frame
   void show() noexcept;
 
@@ -117,6 +120,9 @@ private:
   ///Vector containing the circle shapes representing each individual in the population
   std::vector<sf::CircleShape> m_pop_shapes;
 
+  ///Vector containing the fonts representing each individual index
+  std::vector<sf::Text> m_pop_indexes;
+
   ///The times the size of individuals and their coordinates are increased
   /// This is necessary to not show fractions of pixels, default 10
   float m_scale;
@@ -130,8 +136,11 @@ private:
   ///The step at which it is possible to zoom in or our
   float m_zoom_step;
 
-  /// Draws players
+  /// Draws individuals
   void draw_inds() noexcept;
+
+  ///Draws indexes of individuals
+  void draw_ind_indexes() noexcept;
 
   ///Draws the background
   void draw_background() noexcept;

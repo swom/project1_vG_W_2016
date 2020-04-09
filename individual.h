@@ -198,7 +198,7 @@ void mutates(individual& i, std::minstd_rand& rng,
             std::normal_distribution<double> mu_st) noexcept;
 
 ///Finds the overlap between two individuals
-double overlap(const individual& lhs, const individual& rhs) noexcept;
+double half_overlap(const individual& lhs, const individual& rhs) noexcept;
 
 ///Reverts a sporulating individual back to living (and resets the timer)
 void reverts(individual& i) noexcept;

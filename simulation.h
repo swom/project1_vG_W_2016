@@ -20,7 +20,7 @@ public:
   double get_diff_coeff() const noexcept {return m_diff_coeff;}
 
   ///Returns the reference to the uniform distribution m_disp_dist
-  std::uniform_real_distribution<double> get_disp_distr() const noexcept {return m_disp_dist;}
+  std::uniform_real_distribution<double> get_unif_dist() const noexcept {return m_disp_dist;}
 
   ///Gets the environment of a simulation
   const environment& get_env() const noexcept {return m_e;}
@@ -206,6 +206,10 @@ std::vector<int> has_collision(const simulation& s);
 
 /// Displaces colliding cells so that they do not collide anymore
 void manage_static_collisions(simulation& s);
+
+///Moves individuals that are perfectly on top of each other a little bit
+///to allow correct displacement
+void no_complete_overlap(simulation& s) noexcept;
 
 ///All inidviduals lose energy due to metabolism
 void metabolism_pop(simulation& s);

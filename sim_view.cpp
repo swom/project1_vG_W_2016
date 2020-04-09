@@ -63,6 +63,15 @@ void sim_view::draw_inds() noexcept
     }
 }
 
+void sim_view::draw_ind_indexes() noexcept
+{
+  update_indexes();
+  for(auto index : m_pop_indexes)
+    {
+      m_window.draw(index);
+    }
+}
+
 void sim_view::exec() noexcept
 {
   while (m_window.isOpen())
@@ -131,8 +140,13 @@ void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
 
 void sim_view::prepare_pop() noexcept
 {
-  for (const auto &ind : m_sim.get_pop())
+  //Load font for showing indexes
+  sf::Font font;
+  if(!font.loadFromFile("C:/Users/Stefano/project1_vG_W_2016/Arial.ttf"))
+    assert(1 == 2);
+  for (size_t i = 0 ; i != m_sim.get_pop().size(); i++)
     {
+      const auto& ind = m_sim.get_pop()[i];
       // Type conversions that simplify notation
       const float r{static_cast<float>(ind.get_radius()) * m_scale};
       const float x{static_cast<float>(ind.get_x()) * m_scale};
@@ -148,6 +162,11 @@ void sim_view::prepare_pop() noexcept
       circle.setPosition(x, y);
       circle.setPointCount(40);
       m_pop_shapes.push_back(circle);
+      sf::Text index;
+      index.setFont(font);
+      index.setPosition(circle.getPosition());
+      index.setString(std::to_string(i));
+      m_pop_indexes.push_back(index);
     }
 }
 
@@ -190,6 +209,8 @@ void sim_view::show() noexcept
 
   draw_inds();
 
+  // draw_ind_indexes();
+
   // Display all shapes
   m_window.display();
 }
@@ -199,14 +220,32 @@ void sim_view::update_pop() noexcept
   if(m_pop_shapes.size() != m_sim.get_pop().size())
     {
       m_pop_shapes.resize(m_sim.get_pop().size(), m_pop_shapes[0]);
+      m_pop_indexes.resize(m_sim.get_pop().size(), m_pop_indexes[0]);
       for( size_t i = 0; i != m_pop_shapes.size(); i++)
         {
           float x = m_scale * static_cast<float>(m_sim.get_ind(static_cast<int>(i)).get_x());
           float y = m_scale * static_cast<float>(m_sim.get_ind(static_cast<int>(i)).get_y());
           m_pop_shapes[i].setPosition(x, y);
+//          m_pop_indexes[i].setPosition(x,y);
+//          m_pop_indexes[i].setString(std::to_string(i));
+
         }
     }
 }
+
+void sim_view::update_indexes() noexcept
+{
+  if(m_pop_shapes.size() != m_pop_indexes.size())
+    {
+      m_pop_indexes.resize(m_pop_shapes.size(), m_pop_indexes[0]);
+      for( size_t i = 0; i != m_pop_shapes.size(); i++)
+        {
+          m_pop_indexes[i].setPosition(m_pop_shapes[i].getPosition());
+          m_pop_indexes[i].setString(std::to_string(i));
+        }
+    }
+}
+
 void sim_view::zoom_k_input_ends(const sf::Event &event) noexcept
 {
   if (event.key.code == sf::Keyboard::Add)
