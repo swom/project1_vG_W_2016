@@ -33,6 +33,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
 #ifndef NDEBUG
 
+ else
 
 #endif
   if(args.size() > 1 && args[1] == "--visual")

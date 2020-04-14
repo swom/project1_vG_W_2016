@@ -55,7 +55,7 @@ std::vector<env_grid_cell> calc_diffusion_food(const environment& e) noexcept
       auto v_food_fluxes = get_neighbors_food_fluxes(e.get_grid()[i], e);
       auto av_food_flux =
           std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
-          (!v_food_fluxes.empty() ? v_food_fluxes.size() : 1);
+          (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
       auto in_out_flux_food = calc_in_out_flux(e.get_grid()[i], av_food_flux, e.get_diff_coeff());
       grid_new[i].increment_food(in_out_flux_food);
