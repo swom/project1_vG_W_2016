@@ -55,7 +55,7 @@ std::vector<env_grid_cell> calc_diffusion_food(const environment& e) noexcept
       auto v_food_fluxes = get_neighbors_food_fluxes(e.get_grid()[i], e);
       auto av_food_flux =
           std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
-          (v_food_fluxes.size() > 0 ? v_food_fluxes.size() : 1);
+          (!v_food_fluxes.empty() ? v_food_fluxes.size() : 1);
 
       auto in_out_flux_food = calc_in_out_flux(e.get_grid()[i], av_food_flux, e.get_diff_coeff());
       grid_new[i].increment_food(in_out_flux_food);
@@ -79,7 +79,7 @@ std::vector<env_grid_cell> calc_diffusion_metab(const environment& e) noexcept
         {
           auto recieved_metab = exiting_metab *
               ( tot_metab_delta > 0 ? v_metab_deltas[j] / tot_metab_delta : 0);
-          size_t neighbor_index =  static_cast<size_t>(e.get_grid()[i].get_v_neighbors()[j]);
+          auto neighbor_index =  static_cast<size_t>(e.get_grid()[i].get_v_neighbors()[j]);
           grid_new[neighbor_index].increment_metabolite(recieved_metab);
         }
     }
@@ -131,23 +131,20 @@ bool is_same_cell(int column, int row) noexcept
   return column == 0 && row == 0;
 }
 
-const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
+std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept
 {
   std::vector<int> n_indexes;
   for(int column = -1; column != 2; column++)
     {
       if(is_over_sides(index, grid_side, column)){continue;}
-      else {
-          for(int row = -1; row != 2; row++ )
-            {
-              if(is_past_limit(index, grid_side, grid_size, row)){continue;}
-              else if(is_same_cell(column, row)){continue;}
-              else
-                {
-                  int neighbor_index = index + grid_side * row + column;
-                  n_indexes.push_back(neighbor_index);
-                }
-            }
+      for(int row = -1; row != 2; row++ )
+        {
+          if(is_past_limit(index, grid_side, grid_size, row)){continue;}
+          else if(is_same_cell(column, row)){continue;}
+
+          int neighbor_index = index + grid_side * row + column;
+          n_indexes.push_back(neighbor_index);
+
         }
     }
   return n_indexes;
@@ -281,7 +278,7 @@ void test_environment()//!OCLINT tests may be many
     environment e;
     //the focal cell in this case is the first and only cell of the grid
     auto focal_cell_index = 0;
-    assert(find_neighbors(e.get_grid_size(),e.get_grid_side(),focal_cell_index).size() == 0);
+    assert(find_neighbors(e.get_grid_size(),e.get_grid_side(),focal_cell_index).empty());
 
     //the central grid_cell in a 3x3 grid (index = 4) should have 8 neighbors
     environment e3x3(3);
@@ -349,16 +346,17 @@ void test_environment()//!OCLINT tests may be many
 
     //Case where some neighbors have less metabolite and some more
     double more_metabolite = 2;
-    e = environment{3, init_metabolite, 0};
-    c = &e.get_cell(0);
-    c->set_metabolite(cell_metabolite);
-    auto c_more_metabolite = c + 1;
-    c_more_metabolite->set_metabolite(more_metabolite);
-    assert(c->get_metabolite() < c_more_metabolite->get_metabolite());
-    v_metabolite_deltas = get_neighbors_metab_deltas(*c, e);
+    e = environment{3, 0, 0};
+    auto focal_cell_index = 4;
+    e.get_cell(focal_cell_index).set_metabolite(init_metabolite);
+    e.get_cell(0).set_metabolite(more_metabolite);
+    assert(e.get_cell(focal_cell_index).get_metabolite() < e.get_cell(0).get_metabolite());
+    v_metabolite_deltas = get_neighbors_metab_deltas(e.get_cell(focal_cell_index), e);
     for(size_t i = 0; i != v_metabolite_deltas.size(); i++)
       {
-        auto metabolite_diff = metab_difference(*c,e.get_cell(c->get_v_neighbors()[i]));
+        auto metabolite_diff = metab_difference(
+              e.get_cell(focal_cell_index),
+              e.get_cell(e.get_cell(focal_cell_index).get_v_neighbors()[i]));
         assert(v_metabolite_deltas[i] - metabolite_diff < 0.00001 &&
                v_metabolite_deltas[i] - metabolite_diff > -0.00001);
 
@@ -376,16 +374,16 @@ void test_environment()//!OCLINT tests may be many
     std::vector<double> v_orig_food_val;
     for(auto cell : e.get_grid()) {v_orig_food_val.push_back(cell.get_food());}
     std::vector<double> v_orig_metab_val;
-    for(auto cell : e.get_grid())
+    for(const auto& cell : e.get_grid())
       {v_orig_metab_val.push_back(cell.get_metabolite());}
 
     diffusion(e);
 
     //register new values
     std::vector<double> v_new_food_values;
-    for(auto cell : e.get_grid()) {v_new_food_values.push_back(cell.get_food());}
+    for(const auto& cell : e.get_grid()) {v_new_food_values.push_back(cell.get_food());}
     std::vector<double> v_new_metab_val;
-    for(auto cell : e.get_grid()) {v_new_metab_val.push_back(cell.get_metabolite());}
+    for(const auto& cell : e.get_grid()) {v_new_metab_val.push_back(cell.get_metabolite());}
 
     //Check they are different
     assert(v_orig_food_val != v_new_food_values);
@@ -421,6 +419,7 @@ void test_environment()//!OCLINT tests may be many
 
     //register new values
     std::vector<double> v_new_food_values;
+    v_new_food_values.reserve(new_grid.size());
     for(auto cell : new_grid) {v_new_food_values.push_back(cell.get_food());}
     auto tot_food_new = std::accumulate(v_new_food_values.begin(), v_new_food_values.end(), 0.0);
 
@@ -451,14 +450,15 @@ void test_environment()//!OCLINT tests may be many
 
     //register starting values
     std::vector<double> v_orig_metab_val;
-    for(auto cell : e.get_grid()) {v_orig_metab_val.push_back(cell.get_metabolite());}
+    for(const auto& cell : e.get_grid()) {v_orig_metab_val.push_back(cell.get_metabolite());}
     auto tot_metab_init = std::accumulate(v_orig_metab_val.begin(), v_orig_metab_val.end(), 0.0);
 
     auto new_grid = calc_diffusion_metab(e);
 
     //register new values
     std::vector<double> v_new_metab_values;
-    for(auto cell : new_grid) {v_new_metab_values.push_back(cell.get_metabolite());}
+    v_new_metab_values.reserve(new_grid.size());
+    for(const auto& cell : new_grid) {v_new_metab_values.push_back(cell.get_metabolite());}
     auto tot_metab_new = std::accumulate(v_new_metab_values.begin(), v_new_metab_values.end(), 0.0);
 
     //Check they are different

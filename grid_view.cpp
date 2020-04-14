@@ -68,7 +68,7 @@ void grid_view::prepare_grid_quads(const std::vector<env_grid_cell> &env_grid) n
         }
 
       x += m_scale;
-      if( x - half_grid_side < 0.000001f && x - half_grid_side > -0.000001f )
+      if( x - half_grid_side < 0.000001f && x - half_grid_side > -0.000001F )
         {
           x = - half_grid_side;
           y += m_scale;

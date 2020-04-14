@@ -9,7 +9,7 @@ class simulation
 {
 public:
   simulation(int pop_size = 1, int exp_new_pop_size = 1,double min_dist = 0.1, int grid_side = 1,
-             double diff_coeff = 0.1, double starting_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
+             double diff_coeff = 0.1, double init_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
              double base_disp_prob = 0.01, double spore_advantage = 10);
 
   ///Returns the value of the variable m_base_fitness that indicates
@@ -57,7 +57,7 @@ public:
   }
 
   ///Gets the position of an individual as a vector x,y
-  const std::pair<double,double> get_ind_pos(int i);
+  std::pair<double, double> get_ind_pos(int i);
 
   ///Gets the initial food that will be provided in each grid_cell of the environment
   double get_init_food() const noexcept {return m_init_food;}
@@ -119,7 +119,7 @@ public:
   void set_ind_pos(individual& i, double x, double y);
 
   ///Places an individual of index i at position x,y
-  void set_ind_pos(individual& i, const std::pair<double, double> pos);
+  void set_ind_pos(individual& i, std::pair<double, double> pos);
 
   ///Sets and individual's energy
   void set_ind_en(int i, double en)

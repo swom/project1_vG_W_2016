@@ -10,8 +10,8 @@ GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output):
   m_THidden(n_hidden,0),
   m_TOutput(n_output,0),
   m_ExInput(n_input,0),
-  m_ExHidden(n_hidden,0),
-  m_ExOutput(n_output,0)
+  m_ExHidden(n_hidden,false),
+  m_ExOutput(n_output,false)
 {
 
 }
@@ -391,7 +391,7 @@ void test_GRN()//!OCLINT , tests may be long
   //Output nodes can be updated based on values of hidden nodes
   {
     GRN g;
-    bool hidden_nodes_value = 1;
+    bool hidden_nodes_value = true;
     //all hidden nodes are 1
     g.set_all_hid_nodes(hidden_nodes_value);
     //all weights H20 are

@@ -36,7 +36,7 @@ public:
     const std::vector<int>& get_v_neighbors() const noexcept {return m_v_neighbors;}
 
     ///Sets the vector of neigbors to a vector of integers
-    void set_v_neighbors(std::vector<int> neighbors) noexcept {m_v_neighbors = neighbors;}
+    void set_v_neighbors(std::vector<int> neighbors) noexcept {m_v_neighbors = std::move(neighbors);}
 
 
 private:

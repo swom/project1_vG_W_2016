@@ -1,11 +1,11 @@
 #include "individual.h"
 #include <cassert>
-#include <math.h>
+#include <cmath>
 
 individual::individual(double x_pos, double y_pos,
                        double radius, double energy,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
-                       phenotype individual_type, int sporulation_timer,
+                       phenotype phenotype, int sporulation_timer,
                        int transformation_time):
   m_x(x_pos),
   m_y(y_pos),
@@ -14,7 +14,7 @@ individual::individual(double x_pos, double y_pos,
   m_treshold_energy(treshold_energy),
   m_uptake_rate(uptake_rate),
   m_metab_rate(metabolic_rate),
-  m_individual_type(individual_type),
+  m_individual_type(phenotype),
   m_sporulation_timer(sporulation_timer),
   m_transformation_time(transformation_time)
 {
@@ -125,7 +125,7 @@ int find_grid_index(const individual& i, double grid_side)
   return x_index_offset + y_index_offset * static_cast<int>(grid_side);
 }
 
-const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept
+std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept
 {
   std::pair<double, double> pos;
   pos.first = i.get_x() + cos(rnd_angle)*2*i.get_radius();
@@ -140,7 +140,7 @@ double get_fitness(const individual& i, double disp_prob, double spore_advantage
   return disp_prob;
 }
 
-const std::pair<double, double> get_pos(individual& i)  noexcept
+std::pair<double, double> get_pos(individual& i)  noexcept
 {
   std::pair<double, double> pos;
   pos.first = i.get_x();

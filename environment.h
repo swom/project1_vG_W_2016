@@ -61,7 +61,7 @@ std::vector<env_grid_cell> calc_diffusion_food(const environment &e) noexcept;
 
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
 ///Assumes that the grid is a square
-const std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept;
+std::vector<int> find_neighbors(int grid_size, int grid_side, int index) noexcept;
 
 ///finds neighbors for all cells in grid
 void find_neighbors_all_grid(environment& e) noexcept;

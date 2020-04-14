@@ -2,7 +2,7 @@
 #include <cassert>
 #include <numeric>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
                        int grid_side, double diff_coeff,
@@ -28,7 +28,7 @@ simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
     if(base_disp_prob * spore_advantage > 1)
       {throw std::string{"base dispersal probability * spore advantage > 1, too high!\n"};}
   }
-  catch (std::string e) {
+  catch (std::string& e) {
     std::cout << e;
 #ifdef NDEBUG
     abort();
@@ -41,7 +41,7 @@ simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
     }
 }
 
-const std::pair<double,double> simulation::get_ind_pos(int i)
+std::pair<double,double> simulation::get_ind_pos(int i)
 {
   std::pair<double, double> pos = get_pos(get_ind(i));
   return pos;
@@ -69,8 +69,8 @@ double calc_angle_3_pos(std::pair<double, double> P1,
   auto angle2 = std::atan2(P2.second - P1.second, P2.first - P1.first);
   if(angle1 >= angle2)
     return angle1 - angle2;
-  else
-    return M_PI + std::abs(angle1 -angle2);
+
+  return M_PI + std::abs(angle1 -angle2);
 }
 
 //not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
@@ -89,9 +89,6 @@ void division(simulation &s) noexcept
       int div_ind = div_inds[i];
       divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
               s.get_rng(),s.get_mu_p(),s.get_mu_st());
-      auto dist = distance(s.get_ind(div_ind), s.get_pop().back());
-      auto radii_sum = s.get_ind(div_ind).get_radius() + s.get_pop().back().get_radius();
-      assert( dist - radii_sum > -0.00001 && dist - radii_sum  < 0.00001);
     }
 }
 
@@ -162,10 +159,10 @@ std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  n
   int sis_dist;
   auto div_ind = get_dividing_individuals(s);
 
-  for (size_t i = 0; i < div_ind.size(); i++)
+  for (const auto& ind : div_ind)
     {
-      sis_dist = static_cast<int>(s.get_pop_size()) - div_ind[i];
-      daughters.first = div_ind[i];
+      sis_dist = static_cast<int>(s.get_pop_size()) - ind;
+      daughters.first = ind;
       daughters.second = daughters.first + sis_dist;
       sis_indexes.push_back(daughters);
     }
@@ -174,6 +171,8 @@ std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  n
 
 std::vector<int> has_collision(const simulation& s)
 {
+  //Sort the pop vector
+//  std::sort(s.get_pop().begin(),s.get_pop().end)
   int n_ind = s.get_pop_size();
   for ( int i = 0; i < n_ind; ++i)
     {
@@ -183,7 +182,7 @@ std::vector<int> has_collision(const simulation& s)
             {
               continue;
             }
-          else if (are_colliding(s.get_ind(i), s.get_ind(j)))
+          if (are_colliding(s.get_ind(i), s.get_ind(j)))
             {
               return std::vector<int>{i,j};
             }
@@ -196,7 +195,7 @@ std::vector<int> has_collision(const simulation& s)
 void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes)
 {
   const auto n_ind = pop.size();
-  for ( size_t i = static_cast<size_t>(first_collisions_indexes[0]); i != n_ind; ++i)
+  for ( auto i = static_cast<size_t>(first_collisions_indexes[0]); i != n_ind; ++i)
     {
       for ( size_t j = 0 ; j != n_ind; ++j)
         {
@@ -240,7 +239,6 @@ void manage_static_collisions(simulation& s)
       first_collision_indexes = has_collision(s);
       time ++;
     }
-
 }
 
 void metabolism_pop(simulation& s)
@@ -381,7 +379,7 @@ void test_simulation()//!OCLINT tests may be many
     std::vector<int> x{0,1,7,19,22};
     std::vector<int> n{0,1,2,3,4};
 
-    for(unsigned int i = 0; i < x.size(); i++ )
+    for(size_t i = 0; i < x.size(); i++ )
       {
         assert(count_hex_layers(x[i]) == n[i]);
       }
@@ -473,7 +471,7 @@ void test_simulation()//!OCLINT tests may be many
     s.get_ind(2).set_energy(s.get_ind(2).get_treshold_energy()+1);
 
     std::vector<int> div_ind = get_dividing_individuals(s);
-    assert(div_ind.size() > 0);
+    assert(!div_ind.empty());
 
     for(unsigned int i = 0; i != div_ind.size(); i++)
       assert(s.get_ind(div_ind[i]).get_energy()
@@ -582,7 +580,7 @@ void test_simulation()//!OCLINT tests may be many
     simulation s(7);
     assert(has_collision(s).empty());
     //add 1 individual overlapping with central individual
-    s.get_pop().push_back(individual(0,0));
+    s.get_pop().emplace_back(individual(0,0));
     assert(!has_collision(s).empty());
     manage_static_collisions(s);
     assert(has_collision(s).empty());
@@ -1154,7 +1152,7 @@ void test_simulation()//!OCLINT tests may be many
 #ifndef IS_ON_TRAVIS
     try {
       simulation(0,0,0,0,0,0,0,0,1);
-    } catch (std::string e) {
+    } catch (std::string& e) {
       assert(e == "base dispersal probability * spore advantage > 1, too high!\n" );
     }
 #endif

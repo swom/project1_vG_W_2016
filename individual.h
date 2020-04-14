@@ -163,14 +163,14 @@ int find_grid_index(const individual &i, double grid_side) ;
 void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///returns the position of the second daughter cell just outside the mother
-const std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept;
+std::pair<double, double> get_daughter_pos(individual& i, double rnd_angle) noexcept;
 
 ///Returns the fitness of an individual based on its phenotype
 ///And the base_fitness declared in simulation
 double get_fitness(const individual& i, double base_disp_prob, double spore_advantage) noexcept;
 
 ///Gets the x,y coordinates as a pair
-const std::pair<double,double> get_pos(individual& i) noexcept;
+std::pair<double, double> get_pos(individual& i) noexcept;
 
 ///Signals if an individual has to be destroyed
 bool is_dead(const individual &i) noexcept;

@@ -33,15 +33,15 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
 #ifndef NDEBUG
 
-  else
+
 #endif
   if(args.size() > 1 && args[1] == "--visual")
     {
       simulation s(1,0,0.1,20,0.01,20);
-//      for(int i = 0; i != s.get_env().get_grid_size()/2; i++)
-//        {
-//          s.get_env().get_cell(i).set_food(0);
-//        }
+      //      for(int i = 0; i != s.get_env().get_grid_size()/2; i++)
+      //        {
+      //          s.get_env().get_cell(i).set_food(0);
+      //        }
       sim_view v(s);
 
       while (v.get_window().isOpen())
@@ -55,7 +55,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
               v.show();
               continue;
             }
-              v.show();
+          v.show();
         }
     }
 #endif

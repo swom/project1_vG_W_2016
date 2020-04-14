@@ -6,7 +6,7 @@
 class GRN
 {
 public:
-  GRN(size_t n_input = 3, size_t n_inner = 3, size_t n_output = 2);
+  GRN(size_t n_input = 3, size_t n_hidden = 3, size_t n_output = 2);
 
   ///Gets the constant reference to connection from input to hidden layer
   const std::vector<std::vector<double> >& get_I2H() const noexcept {return m_ConI2H;}
