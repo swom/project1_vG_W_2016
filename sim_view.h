@@ -139,9 +139,6 @@ private:
   /// Draws individuals
   void draw_inds() noexcept;
 
-  ///Draws indexes of individuals
-  void draw_ind_indexes() noexcept;
-
   ///Draws the background
   void draw_background() noexcept;
 
