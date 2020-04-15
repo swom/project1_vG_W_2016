@@ -171,12 +171,33 @@ std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  n
 
 std::vector<int> has_collision(const simulation& s)
 {
-  //Sort the pop vector
-//  std::sort(s.get_pop().begin(),s.get_pop().end)
+  //Sort the pop vector by increasing x
+  std::sort(s.get_pop().begin(),s.get_pop().end(),
+            [](const individual& lhs, const individual& rhs)
+  {return lhs.get_x() <  rhs.get_x();});
+
   int n_ind = s.get_pop_size();
   for ( int i = 0; i < n_ind; ++i)
     {
-      for ( int j = i ; j < n_ind; ++j)
+      const auto focal_ind_x = s.get_ind(i).get_x();
+      const auto focal_ind_y = s.get_ind(i).get_y();
+      const auto focal_ind_radius = s.get_ind(i).get_radius();
+      //Find all other index of first and last ind individuals in range
+      //focal_x - radius, focal_x + radius
+      //and sort them by increasing y coordinate
+      std::sort(std::lower_bound(s.get_pop().begin(),s.get_pop().end(),focal_ind_x - focal_ind_radius),
+                std::upper_bound(s.get_pop().begin(),s.get_pop().end(),focal_ind_x + focal_ind_radius),
+                [](const individual& lhs, const individual& rhs)
+      {return lhs.get_y() < rhs.get_y();});
+      //Find the first and last elements in the range focal_y -radius, focal_y + radius
+      int start = static_cast<int>(
+            std::distance(s.get_pop().begin(), std::lower_bound(s.get_pop().begin(),s.get_pop().end(),focal_ind_y - focal_ind_radius))
+            );
+      int end = static_cast<int>(
+            std::distance(s.get_pop().begin(), std::upper_bound(s.get_pop().begin(),s.get_pop().end(),focal_ind_y + focal_ind_radius))
+            );
+
+     for ( auto j = start ; j != end; ++j)
         {
           if(i == j)
             {
@@ -187,6 +208,10 @@ std::vector<int> has_collision(const simulation& s)
               return std::vector<int>{i,j};
             }
         }
+     //Sort back to increasing x
+     std::sort(s.get_pop().begin() + start ,s.get_pop().begin() + end,
+               [](const individual& lhs, const individual& rhs)
+     {return lhs.get_x() <  rhs.get_x();});
     }
   std::vector<int> empty_v;
   return empty_v;
@@ -194,7 +219,13 @@ std::vector<int> has_collision(const simulation& s)
 
 void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes)
 {
+  //Sort the pop vector by increasing x
+  std::sort(pop.begin(), pop.end(),
+            [](const individual& lhs, const individual& rhs)
+  {return lhs.get_x() <  rhs.get_x();});
+
   const auto n_ind = pop.size();
+
   for ( auto i = static_cast<size_t>(first_collisions_indexes[0]); i != n_ind; ++i)
     {
       for ( size_t j = 0 ; j != n_ind; ++j)
