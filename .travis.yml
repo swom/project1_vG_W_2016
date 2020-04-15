@@ -34,7 +34,7 @@ script:
   - make --silent debug
   - ./simulation --test
   # Build and run and profile normal program
-  - time ./simulation
+  - timeout 50s ./simulation
   - gprof simulation > gprof.log
   - head gprof.log -n 1000
   # OCLint, failed OCLint does not break the build
