@@ -22,11 +22,6 @@ individual::individual(double x_pos, double y_pos,
 }
 
 
-bool operator == (const individual& lhs, const individual& rhs) noexcept {
-  //check that two individuals' centers are at the same coordinates
-  return lhs.get_x() - rhs.get_x() < 0.00001
-      && lhs.get_y() - rhs.get_y() < 0.000001;
-}
 
 bool are_colliding(const individual &lhs, const individual &rhs) noexcept
 {

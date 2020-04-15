@@ -182,18 +182,46 @@ std::vector<int> has_collision(simulation& s)
       const auto focal_ind = s.get_ind(i);
       //Sort all individuals whose x +/- radius is in the range between focal_x -/+ focal_radius
       //in ascending order by thei y coordinate
-      auto first = std::lower_bound(s.get_pop().begin(), s.get_pop().end(), focal_ind,
-                                                [](const individual& lhs, const individual& rhs)
-                         {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();});
+      auto first_x = std::lower_bound(
+            s.get_pop().begin(), s.get_pop().end(), focal_ind,
+            [](const individual& lhs, const individual& rhs)
+      {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
+      );
+      if(first_x == s.get_pop().end()){continue;}
 
-      auto last = std::upper_bound(s.get_pop().begin(), s.get_pop().end(), focal_ind,
-                                  [](const individual& lhs, const individual& rhs)
-           {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();});
+      auto last_x = std::upper_bound(
+            s.get_pop().begin(), s.get_pop().end(), focal_ind,
+            [](const individual& lhs, const individual& rhs)
+      {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
+      );
+      if(last_x == s.get_pop().end()){continue;}
 
-      std::sort(first, last, [](const individual& lhs, const individual& rhs){return lhs.get_y() < rhs.get_y();});
+      if(first_x == last_x){continue;}
 
-      auto start = static_cast<int>(std::distance(s.get_pop().begin(),first));
-      auto end = static_cast<int>(std::distance(s.get_pop().begin(), last));
+      auto check_x_first = first_x;
+      auto check_x_last = last_x;
+      std::sort(first_x, last_x, [](const individual& lhs, const individual& rhs){return lhs.get_y() < rhs.get_y();});
+      assert(first_x == check_x_first && last_x == check_x_last);
+
+      auto first_y = std::lower_bound(
+            first_x,last_x,focal_ind,
+            [](const individual& lhs, const individual& rhs)
+      {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
+      );
+      if(first_y == s.get_pop().end()){continue;}
+
+
+      auto last_y = std::upper_bound(
+            first_x,last_x,focal_ind,
+            [](const individual& lhs, const individual& rhs)
+      {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
+      );
+      if(last_y == s.get_pop().end()){continue;}
+
+      if(first_y == last_y){continue;}
+
+      auto start = static_cast<int>(std::distance(s.get_pop().begin(),first_y));
+      auto end = static_cast<int>(std::distance(s.get_pop().begin(), last_y));
       for ( auto j = start ; j != end; ++j)
         {
           if(i == j)
@@ -206,7 +234,7 @@ std::vector<int> has_collision(simulation& s)
             }
         }
       //Sort back to increasing x
-      std::sort(s.get_pop().begin() + start ,s.get_pop().begin() + end,
+      std::sort(first_y ,last_y,
                 [](const individual& lhs, const individual& rhs)
       {return lhs.get_x() <  rhs.get_x();});
     }
@@ -594,9 +622,9 @@ void test_simulation()//!OCLINT tests may be many
     simulation s(2);
     assert(has_collision(s).empty());
     set_pos(s.get_ind(1),s.get_ind_pos(0));
+    no_complete_overlap(s);
     assert(!has_collision(s).empty());
 
-    no_complete_overlap(s);
     calc_tot_displ_pop(s.get_pop(), has_collision(s));
     for(auto& ind : s.get_pop()){ind.displace();}
 
