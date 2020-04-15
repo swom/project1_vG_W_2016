@@ -33,6 +33,12 @@ script:
   - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation.pro
   - make --silent debug
   - ./simulation --test
+  # Build and run and profile normal program
+  - make clean
+  - make --silent release
+  - timeout 50s ./simulation
+  - gprof simulation > gprof.log
+  - head gprof.log -n 1000
   # OCLint, failed OCLint does not break the build
   - ./scripts/do_oclint
   # Get code coverage
