@@ -36,7 +36,14 @@ QMAKE_CXXFLAGS += -Werror
 CONFIG += debug_and_release
 CONFIG(release, debug|release) {
   DEFINES += NDEBUG
+
+  linux{
+    # gprof
+    QMAKE_CXXFLAGS += -pg
+    QMAKE_LFLAGS += -pg
+  }
 }
+
 
 # Qt5
 QT += core gui
