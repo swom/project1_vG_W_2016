@@ -4,13 +4,13 @@
 #include <algorithm>
 #include <cmath>
 
-simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
+simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_dist,
                        int grid_side, double diff_coeff,
                        double init_food, double mutation_prob,
                        double mutation_step, double base_disp_prob, double spore_advantage,
                        double reproduction_prob):
 
-  m_pop{static_cast<unsigned int>(pop_size),individual{0,0}},
+  m_pop(pop_size,individual{0,0}),
   m_exp_new_pop_size{exp_new_pop_size},
   m_min_init_dist_btw_cells{min_dist},
   m_grid_side{grid_side},
@@ -493,7 +493,7 @@ void test_simulation()//!OCLINT tests may be many
   // The value 1234567890 is irrelevant: just get this to compile
 
   {
-    int pop_size = 100;
+    unsigned int pop_size = 100;
     simulation s(pop_size);
     for(int i = 0; i < s.get_pop_size(); ++i)
       {
@@ -677,7 +677,7 @@ void test_simulation()//!OCLINT tests may be many
   //Individuals can be sorted based on their x coordinate in increasing order
   {
     auto pop_size = 4;
-    simulation s(pop_size);
+    simulation s(static_cast<unsigned int>(pop_size));
     auto comparison_pop = s.get_pop();
     sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
     assert(s.get_pop() != comparison_pop);
@@ -1203,14 +1203,14 @@ void test_simulation()//!OCLINT tests may be many
     death(s);
     assert(s.get_pop().empty() && s.get_pop_size() == 0);
 
-    int pop_size = 5;
+    unsigned int pop_size = 5;
     //The simulation does not have a grid with food,
     //so organisms cannot feed
     s = simulation(pop_size,1,0.1,0);
     //Only the first individual has enough energy to survive
     //for 1 tick
     s.set_ind_en(0,s.get_ind(0).get_metab_rate() + 0.001);
-    assert(s.get_pop_size() == pop_size);
+    assert(s.get_pop().size() == pop_size);
     tick(s);
     assert(s.get_pop_size() == 1);
     //then at the second tick the only individual left dies
@@ -1424,12 +1424,12 @@ void test_simulation()//!OCLINT tests may be many
   //After a new population is selected it swapped with the old population
   //And the old population is cancelled
   {
-    int pop_size = 1000;
+    unsigned int pop_size = 1000;
     int new_pop_size = 100;
     simulation s(pop_size,new_pop_size);
     select_new_pop(s);
     assert(s.get_new_pop_size() == new_pop_size);
-    assert(s.get_pop_size() == pop_size);
+    assert(s.get_pop().size() == pop_size);
     fund_pop(s);
     assert(s.get_new_pop_size() == 0);
     assert(s.get_pop_size() == new_pop_size);
@@ -1437,7 +1437,7 @@ void test_simulation()//!OCLINT tests may be many
 
   //Individuals after funding the new population are set in an hexagonal pattern
   {
-    int pop_size = 1000;
+    unsigned int pop_size = 1000;
     int new_pop_size = 100;
     simulation s(pop_size,new_pop_size);
     select_new_pop(s);
@@ -1454,7 +1454,7 @@ void test_simulation()//!OCLINT tests may be many
   //Max 100 ind, selected based on phenotype, are placed in a hex pattern, in a new env after dispersal
   //Tests all of the above
   {
-    int pop_size = 1000;
+    unsigned int pop_size = 1000;
     int new_pop_size = 100;
     auto food = 42.1;
     auto metabolite = 42.1;
