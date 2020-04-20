@@ -54,16 +54,16 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
           }
       }
 #endif
-//  {
-//    simulation s(1,1,0.1,20,0.1,1);
-//    int time_now = 0;
-//    int time_limit = 200;
-//    while(time_now != time_limit)
-//      {
-//        tick(s);
-//        time_now++;
-//      }
-//  }
+  {
+    simulation s(1,1,0.1,20,0.1,1);
+    int time_now = 0;
+    int time_limit = 200;
+    while(time_now != time_limit)
+      {
+        tick(s);
+        time_now++;
+      }
+  }
 
   return 0;
 

@@ -53,7 +53,7 @@ void calc_change_metab(environment& e, int index_focal_cell) noexcept
   auto& focal_gridcell = e.get_cell(index_focal_cell);
   auto v_metab_fluxes = get_neighbors_metab_fluxes(focal_gridcell, e);
   if(std::none_of(v_metab_fluxes.begin(), v_metab_fluxes.end(),
-                 [](double f){return  f < 0.000001 && f > -0.000001;}))
+                 [](double f){return  f < 0.000001 || f > -0.000001;}))
     {
       assert(focal_gridcell.get_metab_change() < 0.00000001 &&
              focal_gridcell.get_metab_change() > -0.00000001);
@@ -61,7 +61,7 @@ void calc_change_metab(environment& e, int index_focal_cell) noexcept
     }
   auto av_metab_flux =
       std::accumulate(v_metab_fluxes.begin(),v_metab_fluxes.end(),0.0) /
-      (/*v_metab_fluxes.empty() ? 1 : */v_metab_fluxes.size());
+      (v_metab_fluxes.empty() ? 1 : v_metab_fluxes.size());
 
   auto in_out_flux_metab = calc_in_out_metab_flux(focal_gridcell, av_metab_flux, e.get_diff_coeff());
   focal_gridcell.set_metab_change(in_out_flux_metab);
