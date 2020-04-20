@@ -200,7 +200,6 @@ void sim_view::update_pop() noexcept
   if(m_pop_shapes.size() != m_sim.get_pop().size())
     {
       m_pop_shapes.resize(m_sim.get_pop().size(), m_pop_shapes[0]);
-      m_pop_indexes.resize(m_sim.get_pop().size(), m_pop_indexes[0]);
       for( size_t i = 0; i != m_pop_shapes.size(); i++)
         {
           float x = m_scale * static_cast<float>(m_sim.get_ind(static_cast<int>(i)).get_x());

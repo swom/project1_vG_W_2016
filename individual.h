@@ -7,6 +7,7 @@
 #include <utility>
 #include <algorithm>
 #include <random>
+#include <cassert>
 
 class individual
 {
@@ -17,6 +18,10 @@ public:
              double uptake_rate = 0.1, double metabolic_rate = 0.01,
              phenotype phenotype = phenotype::active,
              int sporulation_timer = 0, int transformation_time = 5);
+
+
+  ///Turns the flag (signalling that this is the focal individual during collision check
+  void becomes_focal() noexcept {m_is_focal = true;}
 
   ///Changes x of an individual
   void change_x(double x) noexcept {m_x += x;}
@@ -60,6 +65,12 @@ public:
   ///gets x position of the individual
   double get_x() const noexcept {return m_x;}
 
+  ///Gets the amount of displacement that will be applied on the x coordinate
+  double get_x_displacement() const noexcept {return m_x_displacement;}
+
+  ///Gets the amount of displacement that will be applied on the x coordinate
+  double get_y_displacement() const noexcept {return m_y_displacement;}
+
   ///gets y position of the individual
   double get_y() const noexcept {return m_y;}
 
@@ -68,6 +79,16 @@ public:
 
   ///Gets the sporulation timer
   int get_spo_timer() const noexcept {return m_sporulation_timer;}
+
+  ///Returns the flag signalling if this is the focal individual during the collision check
+  bool is_focal() const noexcept {return m_is_focal;}
+
+  ///Resets the flag signalling if this is the focal individual in collision check to flase
+  void no_more_focal() noexcept {
+#ifndef NDEBUG
+    assert(m_is_focal);
+#endif
+    m_is_focal = false;}
 
   ///resets the values of m_x_displacement and m_y_displacement to 0;
   void reset_displacement() {m_x_displacement = 0; m_y_displacement = 0;}
@@ -112,21 +133,27 @@ private:
   double m_y_displacement = 0;
   double m_radius;
   double m_energy;
+  bool m_is_focal = false;
   double m_treshold_energy;
   double m_uptake_rate;
   double m_metab_rate;
   phenotype m_individual_type;
   int m_sporulation_timer;
   int m_transformation_time; //number of time steps the individual needs
-                             //to go through to sporulate, if it is alive at
-                             //m_transformation time + 1 it will become a spore
+  //to go through to sporulate, if it is alive at
+  //m_transformation time + 1 it will become a spore
   GRN m_grn;
   bool m_is_drawn = false;
 };
 
+///Returns true if two individuals are in the same position
+bool operator==(const individual& lhs, const individual& rhs);
+
+///Returns true if two individuals are not in the same position
+bool operator!=(const individual& lhs, const individual& rhs);
 
 ///Checks if two individuals are colliding
-bool are_colliding(const individual &lhs, const individual &rhs) noexcept;
+bool are_colliding(individual &lhs, individual &rhs) noexcept;
 
 ///Calculates how much individuals need to be displaced to not overlap
 std::pair<double, double> get_displacement(const individual &lhs, const individual &rhs) noexcept;
@@ -194,8 +221,8 @@ void metabolism(individual& i) noexcept;
 /// ///For now requires to get distribution and rng from somewhere else
 /// (simulation)
 void mutates(individual& i, std::minstd_rand& rng,
-            std::bernoulli_distribution& mu_p,
-            std::normal_distribution<double> mu_st) noexcept;
+             std::bernoulli_distribution& mu_p,
+             std::normal_distribution<double> mu_st) noexcept;
 
 ///Finds the overlap between two individuals
 double half_overlap(const individual& lhs, const individual& rhs) noexcept;

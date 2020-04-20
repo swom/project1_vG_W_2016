@@ -21,18 +21,32 @@ individual::individual(double x_pos, double y_pos,
 
 }
 
-
-
-bool are_colliding(const individual &lhs, const individual &rhs) noexcept
+bool operator==(const individual& lhs, const individual& rhs)
 {
-  auto radii_sum = lhs.get_radius() + rhs.get_radius();
-  //Do not do all calculation for cellss to far away
-  if(std::abs(lhs.get_x() - rhs.get_x()) > radii_sum ||
-         std::abs(lhs.get_y() - rhs.get_y()) > radii_sum)
-    return false;
+  return ((lhs.get_x() - rhs.get_x() < 0.00001 && lhs.get_x() - rhs.get_x() > -0.00001) &&
+          (lhs.get_y() - rhs.get_y() < 0.00001 && lhs.get_y() - rhs.get_y() > -0.00001));
+}
 
+bool operator!=(const individual& lhs, const individual& rhs)
+{
+  return !(lhs == rhs);
+}
+
+bool are_colliding(individual &lhs, individual &rhs) noexcept
+{
+  static constexpr double eps = 0.0001;
+  auto radii_sum = lhs.get_radius() + rhs.get_radius();
   const double sqrd_actual_distance = squared_distance(lhs,rhs) ;
-  return sqrd_actual_distance + 0.001 < radii_sum * radii_sum;
+  //Almost never called but to make sure we do not divide by 0
+  //In  get_displacement()
+  if(sqrd_actual_distance < eps)
+    {
+      std::minstd_rand rng;
+      auto rnd_n_0_1 =static_cast<double>( std::uniform_real_distribution(0.f,1.f)(rng));
+      lhs.change_x(rnd_n_0_1 * 0.1);
+      rhs.change_x(rnd_n_0_1 * -0.1);
+    }
+  return sqrd_actual_distance + 0.000001 < radii_sum * radii_sum ;
 }
 
 void add_displacement(individual& lhs, individual& rhs) noexcept
@@ -93,7 +107,8 @@ void feed(individual& i, env_grid_cell& c) noexcept
 {
   if(c.get_food() > i.get_uptake_rate())
     {
-      c.increment_food(- i.get_uptake_rate());
+      c.set_food_change(- i.get_uptake_rate());
+      c.increment_food();
       i.change_en(i.get_uptake_rate());
     }
   else
@@ -149,17 +164,8 @@ std::pair<double, double> get_displacement(const individual& lhs, const individu
   auto dist = distance(lhs, rhs);
 
   auto half_overlapping = half_overlap(lhs,rhs);
-
-  if(dist < 0.0000001 && dist > -0.0000001)
-    {
-      displ_x_y.first =  half_overlapping / sqrt(2);
-      displ_x_y.second = half_overlapping / sqrt(2);
-    }
-  else
-    {
   displ_x_y.first = half_overlapping * (lhs.get_x() - rhs.get_x()) / dist;
   displ_x_y.second = half_overlapping * (lhs.get_y() - rhs.get_y()) / dist;
-    }
   return  displ_x_y;
 }
 
@@ -245,7 +251,7 @@ void sense(individual& i, const env_grid_cell& c)
 {
   auto& inputs = i.get_grn().get_input_nodes();
   inputs[0] = c.get_food();
-  inputs[1] = c.get_metabolite();
+  inputs[1] = c.get_metab();
   inputs[2] = i.get_energy();
 }
 

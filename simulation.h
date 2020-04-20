@@ -132,9 +132,9 @@ public:
 
 
 private:
-///Made public for testing reasons
-//  ///Returns a random angle
-//  double rnd_angle() noexcept { return m_reproduction_angle(m_rng);}
+  ///Made public for testing reasons
+  //  ///Returns a random angle
+  //  double rnd_angle() noexcept { return m_reproduction_angle(m_rng);}
 
   std::vector<individual> m_pop;
   int m_exp_new_pop_size;
@@ -166,11 +166,11 @@ double calculate_distance(std::pair<double, double> lhs, std::pair<double, doubl
 ///Calculates angle between 3 positions(first position is the vertex of the angle)
 ///returns an angle in radiants betweem 0 and 2PI
 double calc_angle_3_pos(std::pair<double, double> P1,
-                       std::pair<double, double> P2,
-                       std::pair<double, double> P3);
+                        std::pair<double, double> P2,
+                        std::pair<double, double> P3);
 
 ///Calculates the total displacement of each individual in the population if there are collisions
-void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes);
+bool calc_tot_displ_pop(std::vector<individual>& pop);
 
 ///Calculates the modulus of the angles between all the individuals of a population
 ///and a given angle in radiants
@@ -180,16 +180,34 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 void death(simulation& s) noexcept;
 
 ///The individuals in the vector are copied at the end of the pop vector
-void division(simulation& s) noexcept;
+bool division(simulation& s) noexcept;
 
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
+
+///Displaces the individuals after their total displacement
+///has been calculated with calc_tot_disp_pop()
+void displace_inds(std::vector<individual>& pop) noexcept;
 
 /// All the individuals feed
 void feeding(simulation& s);
 
 ///The new population becomes the actual population, the old population is cancelled
 void fund_pop(simulation& s) noexcept;
+
+///Returns the iterators to the range of individuals in a population
+/// that could possibly be colliding with a focal individual along the x axis
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions_x(individual focal_ind, std::vector<individual> &pop);
+
+///Returns the iterators to the range of individuals that could
+/// collide with a focal individual on the x_axis and as well on the y axis
+/// !!! It changes the order of the elemnts in pop vector
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions_y(individual focal_ind,
+                      std::vector<individual>::iterator first_x,
+                      std::vector<individual>::iterator last_x,
+                      std::vector<individual> &pop);
 
 ///finds the indexes of the individuals ready to divide
 std::vector<int> get_dividing_individuals(const simulation& s) noexcept;
@@ -202,14 +220,18 @@ std::vector<std::pair<int, int> > get_sisters_index_offset(const simulation& s) 
 
 ///Checks if any two cells are colliding, return an empty vector in this case
 /// or a vecto of the indexes of the first two colliding cells
-std::vector<int> has_collision(simulation &s);
+bool has_collision(simulation &s);
 
 /// Displaces colliding cells so that they do not collide anymore
-void manage_static_collisions(simulation& s);
+int manage_static_collisions(simulation& s);
 
 ///Moves individuals that are perfectly on top of each other a little bit
 ///to allow correct displacement
 void no_complete_overlap(simulation& s) noexcept;
+
+///Check that in a certain range there is only one individual
+bool only_one_focal(const std::vector<individual>::iterator first,
+                    const std::vector<individual>::iterator last);
 
 ///All inidviduals lose energy due to metabolism
 void metabolism_pop(simulation& s);
@@ -228,10 +250,13 @@ void reset_env(simulation& s);
 void select_new_pop(simulation& s);
 
 ///Runs all the necessary actions for a timestep to happen
-void tick(simulation& s);
+int tick(simulation& s);
 
 ///Runs a simulation or a given amount of time
 void exec(simulation& s, int n_tick) noexcept;
+
+///Sorts individuals in a given range of a vector by increasing x coordinate
+void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);
 
 void test_simulation();
 

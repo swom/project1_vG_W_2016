@@ -52,12 +52,33 @@ bool operator == (const environment& lhs, const environment& rhs) noexcept;
 ///Checks if two environment have the same grid_size and the the same amount of food and metabolite in each cell
 bool operator != (const environment& lhs, const environment& rhs) noexcept;
 
+///Applies the changes in substance concntration in all cells do to diffusion, the claculations are
+/// done by calc_diffusion
+ void apply_diffusion(environment& e) noexcept;
+
+///Calculates the change of food for a given gridcell at a certain index in a given environment
+void calc_change_food(environment& e, int index_focal_cell) noexcept;
+
+///Calculates the change of metab for a given gridcell at a certain index in a given environment
+void calc_change_metab(environment& e, int index_focal_cell) noexcept;
 
 ///Calculates the amount of metabolite that needs to diffuse
-std::vector<env_grid_cell> calc_diffusion_metab(const environment &e) noexcept;
+void calc_diffusion_metab(environment &e) noexcept;
+
+///Calculates the amoutn of substances that diffuse in or out of each cell
+void calc_diffusion(environment& e) noexcept;
 
 ///Calculates the amount of food that needs to diffuse
-std::vector<env_grid_cell> calc_diffusion_food(const environment &e) noexcept;
+void calc_diffusion_food(environment &e) noexcept;
+
+///Diffuses substances in environment
+void diffusion(environment& e) noexcept;
+
+///Diffuses food
+void diff_food(environment& e) noexcept;
+
+///Diffuses metabolite
+void diff_metab(environment& e) noexcept;
 
 ///Finds the indexes of the neighboring grid_cell of a grid_cell at a certain index
 ///Assumes that the grid is a square
@@ -70,10 +91,7 @@ void find_neighbors_all_grid(environment& e) noexcept;
 std::vector<double> get_neighbors_food_fluxes(const env_grid_cell& c, const environment& e) noexcept;
 
 ///Finds the difference in metabolite between one focal cell and other cells(normally intended to be its neighbors)
-std::vector<double> get_neighbors_metab_deltas(const env_grid_cell& c, const environment& e) noexcept;
-
-///Diffuses substances in environment
-void diffusion(environment& e) noexcept;
+std::vector<double> get_neighbors_metab_fluxes(const env_grid_cell& c, const environment& e) noexcept;
 
 ///Checks that cells do not check for neighbors over the side of the grid
 bool is_over_sides(int index, int grid_side, int column)  noexcept;
@@ -93,3 +111,4 @@ void reset_env(environment& e);
 void test_environment();
 
 #endif // ENVIRONMENT_H
+

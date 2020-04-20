@@ -16,8 +16,8 @@ bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept
 {
   return lhs.get_food() - rhs.get_food() < 0.00001 &&
       lhs.get_food() - rhs.get_food() > -0.00001 &&
-      lhs.get_metabolite() - rhs.get_metabolite() < 0.00001 &&
-      lhs.get_metabolite() - rhs.get_metabolite() > -0.00001;
+      lhs.get_metab() - rhs.get_metab() < 0.00001 &&
+      lhs.get_metab() - rhs.get_metab() > -0.00001;
 }
 
 bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept
@@ -25,7 +25,7 @@ bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept
   return !(lhs == rhs);
 }
 
-double calc_in_out_flux( const env_grid_cell& cell, double av_food_flux,
+double calc_in_out_food_flux( const env_grid_cell& cell, double av_food_flux,
                           double diffusion_coeff) noexcept
 {
   auto in_out_flux = cell.get_v_neighbors().size() * av_food_flux * diffusion_coeff;
@@ -37,12 +37,15 @@ double calc_in_out_flux( const env_grid_cell& cell, double av_food_flux,
 }
 
 
-double calc_exiting_metabolite(const env_grid_cell& cell, double tot_metab_delta,
-                               double diffusion_coeff) noexcept
+double calc_in_out_metab_flux( const env_grid_cell& cell, double av_metab_flux,
+                                double diffusion_coeff) noexcept
 {
-  return tot_metab_delta * diffusion_coeff >= 1 ?
-        cell.get_metabolite() :
-        std::max(cell.get_metabolite() * tot_metab_delta * diffusion_coeff, 0.0);
+  auto in_out_flux = cell.get_v_neighbors().size() * av_metab_flux * diffusion_coeff;
+  if(cell.get_metab() + in_out_flux < 0)
+    {
+      return - cell.get_metab();
+    }
+  return in_out_flux;
 }
 
 double food_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
@@ -50,10 +53,9 @@ double food_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
   return  rhs.get_food() - lhs.get_food();
 }
 
-double metab_difference(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
+double metab_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
 {
-  return lhs.get_metabolite() - rhs.get_metabolite() > 0 ?
-        lhs.get_metabolite() - rhs.get_metabolite() : 0;
+  return rhs.get_metab()- lhs.get_metab();
 }
 
 void test_env_grid_cell()//!OCLINT tests may be many
@@ -66,17 +68,17 @@ void test_env_grid_cell()//!OCLINT tests may be many
   //is called properly
   {
     env_grid_cell g;
-    assert( g.get_metabolite() > -123456789);
+    assert( g.get_metab() > -123456789);
   }
 
   //Concentration of metabolite can be set
   {
     env_grid_cell g;
     double new_metabolite_conc = 3;
-    assert(g.get_metabolite() - new_metabolite_conc > 0.0000001
-           || g.get_metabolite() - new_metabolite_conc < -0.0000001);
+    assert(g.get_metab() - new_metabolite_conc > 0.0000001
+           || g.get_metab() - new_metabolite_conc < -0.0000001);
     g.set_metabolite(new_metabolite_conc);
-    assert(g.get_metabolite() - new_metabolite_conc < 0.00001);
+    assert(g.get_metab() - new_metabolite_conc < 0.00001);
   }
 
   //Concentration of metabolite can be changed
@@ -84,12 +86,15 @@ void test_env_grid_cell()//!OCLINT tests may be many
     env_grid_cell g;
     env_grid_cell g1 = g;
     double change_in_metabolite = 3;
-    assert(g.get_metabolite() - change_in_metabolite > 0.0000001
-           || g.get_metabolite() - change_in_metabolite < -0.0000001);
-    g1.increment_metabolite(change_in_metabolite);
-    assert(g.get_metabolite() - g1.get_metabolite() > 0.000000001
-           || g.get_metabolite() - g1.get_metabolite() < -0.000000001);
-    assert(std::abs(g.get_metabolite() - g1.get_metabolite()) -
+    assert(g.get_metab() - change_in_metabolite > 0.0000001
+           || g.get_metab() - change_in_metabolite < -0.0000001);
+    g1.set_metab_change(change_in_metabolite);
+    g1.increment_metabolite();
+    assert(g1.get_metab_change() < 0.00001 && g1.get_metab_change() > -0.0001);
+
+    assert(g.get_metab() - g1.get_metab() > 0.000000001
+           || g.get_metab() - g1.get_metab() < -0.000000001);
+    assert(std::abs(g.get_metab() - g1.get_metab()) -
            change_in_metabolite < 0.000001);
 
   }
@@ -97,8 +102,10 @@ void test_env_grid_cell()//!OCLINT tests may be many
   //Metabolite concentration cannot be less than 0
   {
     env_grid_cell g;
-    g.increment_metabolite(-10000);
-    assert(g.get_metabolite() >= 0);
+    g.set_metab_change(-10000);
+    g.increment_metabolite();
+    assert(g.get_metab_change() < 0.00001 && g.get_metab_change() > -0.0001);
+    assert(g.get_metab() >= 0);
   }
 
   //A grid cell has a food value,
@@ -127,7 +134,9 @@ void test_env_grid_cell()//!OCLINT tests may be many
     double change_in_food = 3;
     assert(g.get_food() - change_in_food > 0.0000001
            || g.get_food() - change_in_food < -0.0000001);
-    g1.increment_food(change_in_food);
+    g1.set_food_change(change_in_food);
+    g1.increment_food();
+    assert(g1.get_food_change() < 0.00001 && g1.get_food_change() > -0.0001);
     assert(g.get_food() - g1.get_food() > 0.00000001
            || g.get_food() - g1.get_food() < -0.00000001);
     assert(std::abs(g.get_food() - g1.get_food()) - change_in_food < 0.000001);
@@ -137,7 +146,9 @@ void test_env_grid_cell()//!OCLINT tests may be many
   //Food concentration cannot be less than 0
   {
     env_grid_cell g;
-    g.increment_food(-10000);
+    g.set_food_change(-10000);
+    g.increment_food();
+    assert(g.get_food_change() < 0.00001 && g.get_food_change() > -0.0001);
     assert(g.get_food() >= 0);
   }
 
@@ -162,10 +173,9 @@ void test_env_grid_cell()//!OCLINT tests may be many
       }
   }
 
-  //The substance difference between two cells can be found
-  //by subtracting the amount of substance of the neighbor cell
-  //from the focal,
-  //if the difference is negative, it is considered 0
+  //The flux between two cells can be found
+  //by subtracting the amount of substance of the focal cell
+  //from the neighbor,
   {
     auto food_lhs = 0.0;
     auto food_rhs = 1.0;
@@ -174,32 +184,15 @@ void test_env_grid_cell()//!OCLINT tests may be many
     env_grid_cell lhs(metab_lhs, food_lhs);
     env_grid_cell rhs(metab_rhs, food_rhs);
 
-    auto a = food_flux(lhs,rhs) - (food_rhs - food_lhs) ;
-    assert(a < 0.0000001
-           && a > -0.0000001);
-    assert(metab_difference(lhs,rhs)< 0.0000001
-           && metab_difference(lhs,rhs) > -0.0000001);
+    auto flux_food = food_flux(lhs,rhs) - (food_rhs - food_lhs) ;
+    assert(flux_food < 0.0000001
+           && flux_food > -0.0000001);
+    auto flux_metab = metab_flux(lhs,rhs) - (metab_rhs - metab_lhs) ;
+
+    assert(flux_metab < 0.0000001
+           && flux_metab > -0.0000001);
   }
 
-  //A cell will lose due to diffusion an proportion of his metabolite equal to
-  //The sum of differences in metabolite with all its neighbors * the  diffusion coefficient
-  //If this proportion is bigger than 1 it will lose all its food
-  {
-    //Check for case in which exiting metabolite >= cell_metabolite
-    //And therefore exiting metabolite = cell_metabolite
-    double diffusion_coeff = 1;
-    double tot_delta = 3;//Three neighbours each with 1 metabolite less than focal cell
-    env_grid_cell c(1,0);
-    assert(calc_exiting_metabolite(c,tot_delta,diffusion_coeff) - c.get_metabolite() < 0.000001 &&
-           calc_exiting_metabolite(c,tot_delta,diffusion_coeff) - c.get_metabolite() > -0.000001);
-    //Check for case in which exiting metabolite < cell_metabolite
-    //-> exiting food = cell_metabolite * tot_difference * diffusion_metabolite
-    diffusion_coeff = 0.1;
-    assert(calc_exiting_metabolite(c,tot_delta,diffusion_coeff)
-           - tot_delta * diffusion_coeff < 0.000001 &&
-           calc_exiting_metabolite(c,tot_delta,diffusion_coeff)
-           - tot_delta * diffusion_coeff > -0.000001);
-  }
 
   //Env_grid_cell has a boolean operator
   {

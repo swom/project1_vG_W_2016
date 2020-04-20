@@ -73,6 +73,45 @@ double calc_angle_3_pos(std::pair<double, double> P1,
   return M_PI + std::abs(angle1 -angle2);
 }
 
+bool calc_tot_displ_pop(std::vector<individual>& pop)
+{
+  bool has_collision = false;
+  //Sort the pop vector by increasing x
+  sort_inds_by_x_inc(pop.begin(), pop.end());
+
+  for ( auto i = pop.begin(); i != pop.end(); ++i)
+    {
+      i->becomes_focal();
+      auto focal_ind = *i;
+      auto range_x = possible_collisions_x(focal_ind, pop);
+      auto range_y = possible_collisions_y(focal_ind,range_x.first, range_x.second, pop);
+
+#ifndef NDEBUG
+      assert(only_one_focal(range_x.first,range_x.second));
+#endif
+
+      auto focal_ind_address = std::find_if(range_x.first, range_x.second,
+                                            [](const individual& ind) {return ind.is_focal();});
+
+      for ( auto j = range_y.first ; j != range_y.second; ++j)
+        {
+          if(j->is_focal()){continue;}
+          if (are_colliding(*focal_ind_address, *j))
+            {
+#ifndef NDEBUG
+              assert(!j->is_focal());
+#endif
+              add_displacement(*focal_ind_address, *j);
+              has_collision = true;
+            }
+        }
+      //Sort back to increasing x
+      focal_ind_address->no_more_focal();
+      sort_inds_by_x_inc(range_x.first, range_x.second);
+    }
+  return has_collision;
+}
+
 //not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
 void death(simulation& s) noexcept
 {
@@ -81,15 +120,17 @@ void death(simulation& s) noexcept
       ,s.get_pop().end());
 }
 
-void division(simulation &s) noexcept
+bool division(simulation &s) noexcept
 {
   auto  div_inds  = get_dividing_individuals(s);
-  for(size_t i = 0; i != div_inds.size(); i++)
-    {
-      int div_ind = div_inds[i];
-      divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
-              s.get_rng(),s.get_mu_p(),s.get_mu_st());
-    }
+  if(!div_inds.empty())
+    for(size_t i = 0; i != div_inds.size(); i++)
+      {
+        int div_ind = div_inds[i];
+        divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
+                s.get_rng(),s.get_mu_p(),s.get_mu_st());
+      }
+  return !div_inds.empty();
 }
 
 void dispersal(simulation& s)
@@ -98,6 +139,20 @@ void dispersal(simulation& s)
   fund_pop(s);
   place_start_cells(s);
   reset_env(s.get_env());
+}
+
+void displace_inds(std::vector<individual>& pop) noexcept
+{
+  for(auto& ind : pop)
+    {
+      if(ind.get_x_displacement() < 0.00000001 &&
+         ind.get_x_displacement() > -0.0000001 &&
+         ind.get_y_displacement() < 0.00000001 &&
+         ind.get_y_displacement() > -0.0000001)
+        {
+          ind.displace();
+        }
+    }
 }
 
 void exec(simulation& s, int n_tick) noexcept
@@ -169,133 +224,69 @@ std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  n
   return sis_indexes;
 }
 
-std::vector<int> has_collision(simulation& s)
+bool has_collision(simulation& s)
 {
+  auto pop = s.get_pop();
   //Sort the pop vector by increasing x
-  std::sort(s.get_pop().begin(),s.get_pop().end(),
-            [](const individual& lhs, const individual& rhs)
-  {return lhs.get_x() < rhs.get_x();});
+  sort_inds_by_x_inc(pop.begin(), pop.end());
 
-  int n_ind = s.get_pop_size();
-  for ( int i = 0; i < n_ind; ++i)
+  for ( auto i = pop.begin(); i != pop.end(); ++i)
     {
-      const auto focal_ind = s.get_ind(i);
-      //Sort all individuals whose x +/- radius is in the range between focal_x -/+ focal_radius
-      //in ascending order by thei y coordinate
-      auto first_x = std::lower_bound(
-            s.get_pop().begin(), s.get_pop().end(), focal_ind,
-            [](const individual& lhs, const individual& rhs)
-      {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
-      );
-      if(first_x == s.get_pop().end()){continue;}
+      i->becomes_focal();
+      auto focal_ind = *i;
+      auto range_x = possible_collisions_x(focal_ind, pop);
+      auto range_y = possible_collisions_y(focal_ind,range_x.first, range_x.second, pop);
 
-      auto last_x = std::upper_bound(
-            s.get_pop().begin(), s.get_pop().end(), focal_ind,
-            [](const individual& lhs, const individual& rhs)
-      {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
-      );
-      if(last_x == s.get_pop().end()){continue;}
+#ifndef NDEBUG
+      assert(only_one_focal(range_x.first,range_x.second));
+#endif
 
-      if(first_x == last_x){continue;}
+      auto focal_ind_address = std::find_if(range_x.first, range_x.second,
+                                                  [](const individual& ind) {return ind.is_focal();});
 
-      auto check_x_first = first_x;
-      auto check_x_last = last_x;
-      std::sort(first_x, last_x, [](const individual& lhs, const individual& rhs){return lhs.get_y() < rhs.get_y();});
-      assert(first_x == check_x_first && last_x == check_x_last);
-
-      auto first_y = std::lower_bound(
-            first_x,last_x,focal_ind,
-            [](const individual& lhs, const individual& rhs)
-      {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
-      );
-      if(first_y == s.get_pop().end()){continue;}
-
-
-      auto last_y = std::upper_bound(
-            first_x,last_x,focal_ind,
-            [](const individual& lhs, const individual& rhs)
-      {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
-      );
-      if(last_y == s.get_pop().end()){continue;}
-
-      if(first_y == last_y){continue;}
-
-      auto start = static_cast<int>(std::distance(s.get_pop().begin(),first_y));
-      auto end = static_cast<int>(std::distance(s.get_pop().begin(), last_y));
-      for ( auto j = start ; j != end; ++j)
+      for ( auto j = range_y.first ; j != range_y.second; ++j)
         {
-          if(i == j)
+          //if j is the focal individual skip collision
+          if(j->is_focal()){continue;}
+          if (are_colliding(*focal_ind_address, *j))
             {
-              continue;
-            }
-          if (are_colliding(s.get_ind(i), s.get_ind(j)))
-            {
-              return std::vector<int>{i,j};
+#ifndef NDEBUG
+              assert(!j->is_focal());
+#endif
+              return true;
             }
         }
       //Sort back to increasing x
-      std::sort(first_y ,last_y,
-                [](const individual& lhs, const individual& rhs)
-      {return lhs.get_x() <  rhs.get_x();});
+      focal_ind_address->no_more_focal();
+      sort_inds_by_x_inc(range_x.first, range_x.second);
     }
-
-  std::vector<int> empty_v;
-  return empty_v;
+  return false;
 }
 
-void calc_tot_displ_pop(std::vector<individual>& pop, std::vector<int> first_collisions_indexes)
+int manage_static_collisions(simulation& s)
 {
-  //Sort the pop vector by increasing x
-  std::sort(pop.begin(), pop.end(),
-            [](const individual& lhs, const individual& rhs)
-  {return lhs.get_x() <  rhs.get_x();});
-
-  const auto n_ind = pop.size();
-
-  for ( auto i = static_cast<size_t>(first_collisions_indexes[0]); i != n_ind; ++i)
-    {
-      for ( size_t j = 0 ; j != n_ind; ++j)
-        {
-          if (i == static_cast<size_t>(first_collisions_indexes[0]) &&
-              j < static_cast<size_t>(first_collisions_indexes[1]))
-            {
-              j = static_cast<size_t>(first_collisions_indexes[1]);
-            }
-          else if(j == i) continue;
-          if(are_colliding(pop[i], pop[j]))
-            add_displacement(pop[i], pop[j]);
-        }
-    }
-}
-
-void no_complete_overlap(simulation& s) noexcept
-{
-  for(size_t i = 0; i != s.get_pop().size(); i++)
-    for(size_t j = 0; j != s.get_pop().size(); j++)
-      {
-        if(i == j ) continue;
-        if(distance(s.get_pop()[i], s.get_pop()[j]) < 0.00001 &&
-           distance(s.get_pop()[i], s.get_pop()[j]) > -0.00001)
-          {
-            auto rnd_n_0_1 = s.get_unif_dist()(s.get_rng());
-            s.get_pop()[i].change_x(rnd_n_0_1 * 0.0001);
-            s.get_pop()[j].change_x(rnd_n_0_1 * -0.0001);
-          }
-      }
-}
-
-void manage_static_collisions(simulation& s)
-{
-  auto first_collision_indexes = has_collision(s);
   int time = 0;
-  while(!first_collision_indexes.empty())
+  bool has_collision = true;
+  do
     {
-      no_complete_overlap(s);
-      calc_tot_displ_pop(s.get_pop(), first_collision_indexes);
-      for(auto& ind : s.get_pop()){ind.displace();}
-      first_collision_indexes = has_collision(s);
+      has_collision = false;
+      if((has_collision = calc_tot_displ_pop(s.get_pop())))
+        {
+          for(auto& ind : s.get_pop())
+            {
+              if(
+                 std::abs(ind.get_x_displacement()) > 0 ||
+                 std::abs(ind.get_y_displacement()) > 0
+                 )
+                {
+                  ind.displace();
+                }
+            }
+        }
       time ++;
     }
+  while(has_collision);
+  return time;
 }
 
 void metabolism_pop(simulation& s)
@@ -320,6 +311,31 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
           v_modulus.push_back((abs(fmod(calc_angle_3_pos(P1,P2,P3),ang_rad))));
         }
   return v_modulus;
+}
+
+void no_complete_overlap(simulation& s) noexcept
+{
+  for(size_t i = 0; i != s.get_pop().size(); i++)
+    for(size_t j = 0; j != s.get_pop().size(); j++)
+      {
+        if(i == j ) continue;
+        if(distance(s.get_pop()[i], s.get_pop()[j]) < 0.00001 &&
+           distance(s.get_pop()[i], s.get_pop()[j]) > -0.00001)
+          {
+            auto rnd_n_0_1 = s.get_unif_dist()(s.get_rng());
+            s.get_pop()[i].change_x(rnd_n_0_1 * 0.0001);
+            s.get_pop()[j].change_x(rnd_n_0_1 * -0.0001);
+          }
+      }
+}
+
+bool only_one_focal(const std::vector<individual>::iterator first,
+                    const std::vector<individual>::iterator last)
+{
+  auto real_focal =std::find_if(first,last,[](const individual& i)
+  {return i.is_focal();}) + 1;
+  return last == std::find_if(real_focal,last,[](const individual& i)
+  {return i.is_focal();});
 }
 
 void place_start_cells(simulation& s) noexcept
@@ -355,6 +371,61 @@ void place_start_cells(simulation& s) noexcept
     }
 }
 
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions(individual focal_ind, std::vector<individual>& pop)
+{
+  auto range_x = possible_collisions_x(focal_ind,pop);
+  auto range_y = possible_collisions_y(focal_ind, range_x.first, range_x.second, pop);
+  return range_y;
+}
+
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions_x(individual focal_ind, std::vector<individual>& pop)
+{
+  std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator> range;
+  //Sort all individuals whose x +/- radius is in the range between focal_x -/+ focal_radius
+  //in ascending order by thei y coordinate
+  auto first_x = std::lower_bound(
+        pop.begin(), pop.end(), focal_ind,
+        [](const individual& lhs, const individual& rhs)
+  {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
+  );
+
+  auto last_x = std::upper_bound(
+        pop.begin(),pop.end(), focal_ind,
+        [](const individual& lhs, const individual& rhs)
+  {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
+  );
+
+  return range = {first_x, last_x};
+}
+
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions_y(individual focal_ind,
+                      std::vector<individual>::iterator first_x,
+                      std::vector<individual>::iterator last_x,
+                      std::vector<individual> &pop)
+{
+  std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator> range;
+  std::sort(first_x, last_x, [](const individual& lhs, const individual& rhs){return lhs.get_y() < rhs.get_y();});
+
+  //In this new range find individuals whose  y +/- radius is in range with focal_ y -/+ focal_radius
+  auto first_y = std::lower_bound(
+        first_x,last_x,focal_ind,
+        [](const individual& lhs, const individual& rhs)
+  {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
+  );
+  if(first_y == pop.end()){first_y = pop.begin();}
+
+  auto last_y = std::upper_bound(
+        first_x,last_x,focal_ind,
+        [](const individual& lhs, const individual& rhs)
+  {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
+  );
+
+  return range =  {first_y,last_y};
+}
+
 void reset_drawn_fl_new_pop(simulation& s) noexcept
 {
   std::for_each(s.get_new_pop().begin(),s.get_new_pop().end(),
@@ -385,15 +456,26 @@ void select_new_pop(simulation& s)
     }
 }
 
-void tick(simulation& s)
+void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator last)
 {
+  std::sort(start,last,
+            [](const individual& lhs, const individual& rhs)
+  {return lhs.get_x() < rhs.get_x();});
+}
+
+int tick(simulation& s)
+{
+  int time = 0;
   feeding(s);
   metabolism_pop(s);
   death(s);
-  division(s);
-  manage_static_collisions(s);
+  if(division(s))
+    {
+     time += manage_static_collisions(s);
+    }
   diffusion(s.get_env());
   s.update_sim_timer();
+  return time;
 }
 
 
@@ -464,7 +546,7 @@ void test_simulation()//!OCLINT tests may be many
   //No individuals are overlapping at the start of the simulation
   {
     simulation s(2);
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
   }
 
 
@@ -587,6 +669,27 @@ void test_simulation()//!OCLINT tests may be many
            s.get_ind_en(0) - s.get_ind_en(1) > -0.00001);
   }
 
+  //Individuals can be sorted based on their x coordinate in increasing order
+  {
+    auto pop_size = 4;
+    simulation s(pop_size);
+    auto comparison_pop = s.get_pop();
+    sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
+    assert(s.get_pop() != comparison_pop);
+    sort_inds_by_x_inc(comparison_pop.begin(), comparison_pop.end());
+    assert(s.get_pop() == comparison_pop);
+
+    //Can also sort parts of the vector of ind
+    auto changed_ind = pop_size - 1;
+    auto reference_ind = pop_size / 2 - 1;
+    set_pos(s.get_ind(changed_ind),get_pos(s.get_ind(reference_ind)));
+    comparison_pop = s.get_pop();
+    sort_inds_by_x_inc(comparison_pop.begin(),comparison_pop.end());
+    assert(s.get_pop() != comparison_pop);
+    sort_inds_by_x_inc(s.get_pop().begin() + reference_ind, s.get_pop().begin() + changed_ind + 1);
+    assert(s.get_pop() == comparison_pop);
+
+  }
 
   //After reproduction the first daughter individual takes the position of the mother
   {
@@ -611,36 +714,110 @@ void test_simulation()//!OCLINT tests may be many
     s.set_ind_en(0,s.get_ind_tr_en(0));
     divides(s.get_ind(0), s.get_pop(), s.repr_angle(),
             s.get_rng(), s.get_mu_p(), s.get_mu_st());
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
     assert(distance(s.get_ind(0), s.get_ind(1)) -
            (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
   }
 
+  //Given a focal individual it is possible to find the individuals that could potentially
+  //collide with it (if we draw a square around each individuals, these squares intersect)
+  {
+    simulation s(2);
+    set_pos(s.get_ind(1),s.get_ind_pos(0));
+    auto collision_range = possible_collisions_x(s.get_ind(0),s.get_pop());
+    assert(collision_range.first == s.get_pop().begin() &&
+           collision_range.second == s.get_pop().end());
+
+
+    //No collisions should return a pair whose first element is the focal individual
+    //And the second the individual after the focal
+    //(or the end of the vector in case the focal is the last)
+    set_pos(s.get_ind(1),std::pair<double,double>{2,2});
+    //Pop need to be sorted by increasing x coord
+    std::sort(s.get_pop().begin(),s.get_pop().end(),
+              [](const individual& lhs, const individual& rhs)
+    {return  lhs.get_x() < rhs.get_x();});
+    collision_range = possible_collisions_x(s.get_ind(0),s.get_pop());
+    assert(collision_range.first + 1 == collision_range.second);
+
+    //One collision to the left should return a pair whose first element is the iterator
+    //before the focal individual and the second is the one after the focal individual
+    //(the end of the vector if the focal is the last element
+    set_pos(s.get_ind(0),
+            std::pair<double,double>{
+              s.get_ind(1).get_x() - s.get_ind(1).get_radius(),
+              s.get_ind(1).get_y()
+            }
+            );
+    sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
+    auto focal_ind_index = 1;
+    collision_range = possible_collisions_x(s.get_ind(focal_ind_index),s.get_pop());
+    assert(collision_range.first == s.get_pop().begin() + focal_ind_index - 1);
+    assert(collision_range.second == s.get_pop().begin() + focal_ind_index + 1);
+    assert(collision_range.second == s.get_pop().end());
+
+    //Collision to the right should return a range
+    //focal_ind_index,focal_ind_index+2
+    sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
+    focal_ind_index = 0;
+    collision_range = possible_collisions_x(s.get_ind(focal_ind_index), s.get_pop());
+    assert(collision_range.first == s.get_pop().begin() + focal_ind_index);
+    assert(collision_range.second == s.get_pop().begin() + focal_ind_index + 2);
+    assert(collision_range.second == s.get_pop().end());
+
+    //Collision from below should return a range
+    //focal_index - 1, focal_index +1
+    set_pos(s.get_ind(0),
+            std::pair<double,double>{
+              s.get_ind(1).get_x(),
+              s.get_ind(1).get_y() + s.get_ind(1).get_radius()
+            }
+            );
+    sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
+    focal_ind_index = 1;
+    collision_range = possible_collisions_x(s.get_ind(focal_ind_index), s.get_pop());
+    assert(collision_range.first == s.get_pop().begin() + focal_ind_index - 1);
+    assert(collision_range.first == s.get_pop().begin());
+    assert(collision_range.second == s.get_pop().begin() + focal_ind_index + 1);
+    assert(collision_range.second == s.get_pop().end());
+
+    //Collision from above should return a range
+    //focal_index, focal_index + 2
+    sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
+    focal_ind_index = 0;
+    collision_range = possible_collisions_x(s.get_ind(focal_ind_index), s.get_pop());
+    assert(collision_range.first == s.get_pop().begin() + focal_ind_index);
+    assert(collision_range.first == s.get_pop().begin());
+    assert(collision_range.second == s.get_pop().begin() + focal_ind_index + 2);
+    assert(collision_range.second == s.get_pop().end());
+
+  }
   //If there are collisions individuals are displaced
   //until there are no more collisions
   {
     simulation s(2);
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
     set_pos(s.get_ind(1),s.get_ind_pos(0));
     no_complete_overlap(s);
-    assert(!has_collision(s).empty());
+    assert(has_collision(s));
 
-    calc_tot_displ_pop(s.get_pop(), has_collision(s));
-    for(auto& ind : s.get_pop()){ind.displace();}
+    calc_tot_displ_pop(s.get_pop());
+    for(auto& ind : s.get_pop())
+      {ind.displace();}
 
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
 
   }
   //After reproduction new collisions caused by new individuals
   //being placed where other individuals already are managed
   {
     simulation s(7);
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
     //add 1 individual overlapping with central individual
     s.get_pop().emplace_back(individual(0,0));
-    assert(!has_collision(s).empty());
+    assert(has_collision(s));
     manage_static_collisions(s);
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
   }
 
   //A simulation has an environment
@@ -804,7 +981,7 @@ void test_simulation()//!OCLINT tests may be many
     assert(!(predicted_food_after_feeding - s.get_env().get_cell(grid_index_ind).get_food() < 0.00001
              && predicted_food_after_feeding -s.get_env().get_cell(grid_index_ind).get_food() > -0.0001));
     assert(s.get_pop().size() == 2 * init_pop_size);
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
   }
 
   //If nothing else happens, food should constantly decrease when cells are feeding
@@ -849,7 +1026,9 @@ void test_simulation()//!OCLINT tests may be many
         auto food_before_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
                                                 [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
-        auto new_grid = calc_diffusion_food(s.get_env());
+         calc_diffusion_food(s.get_env());
+
+        auto new_grid = s.get_env().get_grid();
 
         auto food_after_diff = std::accumulate(new_grid.begin(), new_grid.end(), 0.0,
                                                [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
@@ -884,7 +1063,7 @@ void test_simulation()//!OCLINT tests may be many
     manage_static_collisions(s);
 
     assert(s.get_pop().size() == init_pop_size + 1);
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
   }
   //A simulation is initialized with a m_tick = 0;
   {
@@ -1263,7 +1442,7 @@ void test_simulation()//!OCLINT tests may be many
     auto v_modulus = modulus_of_btw_ind_angles(s, M_PI/ (6 * n_hex_l));
     for(auto ind_modulus : v_modulus)
       assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
   }
 
 
@@ -1291,7 +1470,7 @@ void test_simulation()//!OCLINT tests may be many
       {
         assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
       }
-    assert(has_collision(s).empty());
+    assert(!has_collision(s));
     //Reset env
     assert( s.get_env() != ref_env );
     auto init_food = s.get_env().get_init_food();
@@ -1299,8 +1478,8 @@ void test_simulation()//!OCLINT tests may be many
       {
         assert(grid_cell.get_food() - init_food <  0.000001 &&
                grid_cell.get_food() - init_food >  -0.000001);
-        assert(grid_cell.get_metabolite() <  0.000001 &&
-               grid_cell.get_metabolite() >  -0.000001);
+        assert(grid_cell.get_metab() <  0.000001 &&
+               grid_cell.get_metab() >  -0.000001);
       }
   }
 
