@@ -7,21 +7,23 @@
 simulation::simulation(int pop_size, int exp_new_pop_size, double min_dist,
                        int grid_side, double diff_coeff,
                        double init_food, double mutation_prob,
-                       double mutation_step, double base_disp_prob, double spore_advantage):
+                       double mutation_step, double base_disp_prob, double spore_advantage,
+                       double reproduction_prob):
 
-  m_pop(static_cast<unsigned int>(pop_size),individual(0,0)),
-  m_exp_new_pop_size(exp_new_pop_size),
-  m_min_init_dist_btw_cells(min_dist),
-  m_grid_side(grid_side),
-  m_diff_coeff(diff_coeff),
-  m_init_food(init_food),
-  m_e(m_grid_side, m_diff_coeff, m_init_food),
-  m_reproduction_angle(0, 2 * M_PI),
-  m_mutation_prob(mutation_prob),
-  m_mutation_step(0,mutation_step),
-  m_disp_dist(0,1),
-  m_base_disp_prob(base_disp_prob),
-  m_spore_advantage(spore_advantage)
+  m_pop{static_cast<unsigned int>(pop_size),individual{0,0}},
+  m_exp_new_pop_size{exp_new_pop_size},
+  m_min_init_dist_btw_cells{min_dist},
+  m_grid_side{grid_side},
+  m_diff_coeff{diff_coeff},
+  m_init_food{init_food},
+  m_e{m_grid_side, m_diff_coeff, m_init_food},
+  m_reproduction_angle{0, 2 * M_PI},
+  m_mutation_prob{mutation_prob},
+  m_mutation_step{0,mutation_step},
+  m_disp_dist{0,1},
+  m_base_disp_prob{base_disp_prob},
+  m_spore_advantage{spore_advantage},
+  m_repr_prob{reproduction_prob}
 {
 #ifndef IS_ON_TRAVIS
   try {
@@ -123,12 +125,15 @@ void death(simulation& s) noexcept
 bool division(simulation &s) noexcept
 {
   auto  div_inds  = get_dividing_individuals(s);
+  std::uniform_real_distribution<double> repr_prob(0,1);
+
   if(!div_inds.empty())
     for(size_t i = 0; i != div_inds.size(); i++)
       {
         int div_ind = div_inds[i];
-        divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
-                s.get_rng(),s.get_mu_p(),s.get_mu_st());
+        if(repr_prob(s.get_rng()) < s.get_repr_p())
+          divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
+                  s.get_rng(),s.get_mu_p(),s.get_mu_st());
       }
   return !div_inds.empty();
 }
@@ -242,7 +247,7 @@ bool has_collision(simulation& s)
 #endif
 
       auto focal_ind_address = std::find_if(range_x.first, range_x.second,
-                                                  [](const individual& ind) {return ind.is_focal();});
+                                            [](const individual& ind) {return ind.is_focal();});
 
       for ( auto j = range_y.first ; j != range_y.second; ++j)
         {
@@ -471,7 +476,7 @@ int tick(simulation& s)
   death(s);
   if(division(s))
     {
-     time += manage_static_collisions(s);
+      time += manage_static_collisions(s);
     }
   diffusion(s.get_env());
   s.update_sim_timer();
@@ -1026,7 +1031,7 @@ void test_simulation()//!OCLINT tests may be many
         auto food_before_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
                                                 [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
-         calc_diffusion_food(s.get_env());
+        calc_diffusion_food(s.get_env());
 
         auto new_grid = s.get_env().get_grid();
 

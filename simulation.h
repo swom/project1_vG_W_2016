@@ -8,9 +8,9 @@
 class simulation
 {
 public:
-  simulation(int pop_size = 1, int exp_new_pop_size = 1,double min_dist = 0.1, int grid_side = 1,
+  simulation(int pop_size = 1, int exp_new_pop_size = 1, double min_dist = 0.1, int grid_side = 1,
              double diff_coeff = 0.1, double init_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
-             double base_disp_prob = 0.01, double spore_advantage = 10);
+             double base_disp_prob = 0.01, double spore_advantage = 10, double reproduction_prob = 0.4);
 
   ///Returns the value of the variable m_base_fitness that indicates
   /// the basal fitness/dispersal probability of an individual
@@ -98,6 +98,9 @@ public:
   ///Gets reference to m_reproduction_angle
   std::uniform_real_distribution<double>& get_repr_angle() noexcept {return m_reproduction_angle;}
 
+  ///Gets the probability of reproducing
+  double get_repr_p() const noexcept {return m_repr_prob;}
+
   ///Returns the variable m_spore_advantage that indicates
   ///how many times a spore is more likely to get dispersed
   ///than the other phenotypes
@@ -152,6 +155,7 @@ private:
   std::uniform_real_distribution<double> m_disp_dist;
   double m_base_disp_prob;
   double m_spore_advantage;
+  double m_repr_prob;
 };
 
 ///Checks if the entire population has been already drawn for funding the new population
