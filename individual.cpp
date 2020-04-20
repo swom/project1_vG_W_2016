@@ -34,7 +34,7 @@ bool operator!=(const individual& lhs, const individual& rhs)
 
 bool are_colliding(individual &lhs, individual &rhs) noexcept
 {
-  static constexpr double wiggle_space = 0.0001;
+  static constexpr double wiggle_space = 0.01;
   auto radii_sum = lhs.get_radius() + rhs.get_radius();
   const double sqrd_actual_distance = squared_distance(lhs,rhs) ;
   //Almost never called but to make sure we do not divide by 0
@@ -216,7 +216,7 @@ void mutates(individual& i, std::minstd_rand& rng,
 
 double half_overlap(const individual& lhs, const individual& rhs) noexcept
 {
-  static constexpr double wiggle_space = 0.0001;
+  static constexpr double wiggle_space = 0.01;
   auto dist = distance(lhs,rhs);
   auto sum_of_radiuses = lhs.get_radius() + rhs.get_radius();
 
@@ -421,7 +421,7 @@ void test_individual()//!OCLINT tests may be many
 
   //The overlap of two individuals can be calculated
   {
-    double wiggle_space = 0.0001; //Need to class variable!!!
+    double wiggle_space = 0.01; //Need to class variable!!!
 
     //Two individuals overlap by half their radius
     individual lhs(0,0);
