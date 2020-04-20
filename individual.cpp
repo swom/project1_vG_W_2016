@@ -34,19 +34,19 @@ bool operator!=(const individual& lhs, const individual& rhs)
 
 bool are_colliding(individual &lhs, individual &rhs) noexcept
 {
-  static constexpr double eps = 0.0001;
+  static constexpr double wiggle_space = 0.0001;
   auto radii_sum = lhs.get_radius() + rhs.get_radius();
   const double sqrd_actual_distance = squared_distance(lhs,rhs) ;
   //Almost never called but to make sure we do not divide by 0
   //In  get_displacement()
-  if(sqrd_actual_distance < eps)
+  if(sqrd_actual_distance < wiggle_space)
     {
       std::minstd_rand rng;
       auto rnd_n_0_1 =static_cast<double>( std::uniform_real_distribution(0.f,1.f)(rng));
       lhs.change_x(rnd_n_0_1 * 0.1);
       rhs.change_x(rnd_n_0_1 * -0.1);
     }
-  return sqrd_actual_distance + 0.000001 < radii_sum * radii_sum ;
+  return sqrd_actual_distance + 0.000001 < radii_sum * radii_sum - wiggle_space;
 }
 
 void add_displacement(individual& lhs, individual& rhs) noexcept
@@ -216,6 +216,7 @@ void mutates(individual& i, std::minstd_rand& rng,
 
 double half_overlap(const individual& lhs, const individual& rhs) noexcept
 {
+  static constexpr double wiggle_space = 0.0001;
   auto dist = distance(lhs,rhs);
   auto sum_of_radiuses = lhs.get_radius() + rhs.get_radius();
 
@@ -229,7 +230,7 @@ double half_overlap(const individual& lhs, const individual& rhs) noexcept
   //if circles partially overlap or
   //their dist is equal to sum of radiuses
   //(in which case they should not pass through this function)
-  return (sum_of_radiuses - dist)  / 2;
+  return wiggle_space + (sum_of_radiuses - dist)  / 2;
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -420,11 +421,13 @@ void test_individual()//!OCLINT tests may be many
 
   //The overlap of two individuals can be calculated
   {
+    double wiggle_space = 0.0001; //Need to class variable!!!
+
     //Two individuals overlap by half their radius
     individual lhs(0,0);
     individual rhs(0,lhs.get_radius());
-    assert(half_overlap(lhs, rhs) - lhs.get_radius() / 2 < 0.000001 &&
-           half_overlap(lhs, rhs) - lhs.get_radius() / 2> -0.000001 );
+    assert(half_overlap(lhs, rhs) - (lhs.get_radius() / 2 + wiggle_space) < 0.000001 &&
+           half_overlap(lhs, rhs) - (lhs.get_radius() / 2 + wiggle_space) > -0.000001 );
   }
 
   //Given  2 overlapping individuals lhs and rhs:
