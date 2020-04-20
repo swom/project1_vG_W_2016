@@ -132,8 +132,10 @@ bool division(simulation &s) noexcept
       {
         int div_ind = div_inds[i];
         if(repr_prob(s.get_rng()) < s.get_repr_p())
+        {
           divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
                   s.get_rng(),s.get_mu_p(),s.get_mu_st());
+        }
       }
   return !div_inds.empty();
 }

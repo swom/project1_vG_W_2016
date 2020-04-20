@@ -10,7 +10,7 @@ class simulation
 public:
   simulation(unsigned int pop_size = 1, int exp_new_pop_size = 1, double min_dist = 0.1, int grid_side = 1,
              double diff_coeff = 0.1, double init_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
-             double base_disp_prob = 0.01, double spore_advantage = 10, double reproduction_prob = 0.4);
+             double base_disp_prob = 0.01, double spore_advantage = 10, double reproduction_prob = 0.1);
 
   ///Returns the value of the variable m_base_fitness that indicates
   /// the basal fitness/dispersal probability of an individual
