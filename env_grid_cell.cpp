@@ -25,7 +25,7 @@ bool operator != (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept
   return !(lhs == rhs);
 }
 
-double calc_in_out_food_flux( const env_grid_cell& cell, double av_food_flux,
+double calc_food_flux( const env_grid_cell& cell, double av_food_flux,
                           double diffusion_coeff) noexcept
 {
   auto in_out_flux = cell.get_v_neighbors().size() * av_food_flux * diffusion_coeff;
@@ -37,7 +37,7 @@ double calc_in_out_food_flux( const env_grid_cell& cell, double av_food_flux,
 }
 
 
-double calc_in_out_metab_flux( const env_grid_cell& cell, double av_metab_flux,
+double calc_metab_flux( const env_grid_cell& cell, double av_metab_flux,
                                 double diffusion_coeff) noexcept
 {
   auto in_out_flux = cell.get_v_neighbors().size() * av_metab_flux * diffusion_coeff;

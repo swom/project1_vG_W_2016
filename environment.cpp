@@ -44,7 +44,7 @@ void calc_change_food(environment& e, int index_focal_cell) noexcept
       std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
       (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
-  auto in_out_flux_food = calc_in_out_food_flux(focal_gridcell, av_food_flux, e.get_diff_coeff());
+  auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_diff_coeff());
   focal_gridcell.set_food_change(in_out_flux_food);
 }
 
@@ -63,7 +63,7 @@ void calc_change_metab(environment& e, int index_focal_cell) noexcept
       std::accumulate(v_metab_fluxes.begin(),v_metab_fluxes.end(),0.0) /
       (v_metab_fluxes.empty() ? 1 : v_metab_fluxes.size());
 
-  auto in_out_flux_metab = calc_in_out_metab_flux(focal_gridcell, av_metab_flux, e.get_diff_coeff());
+  auto in_out_flux_metab = calc_metab_flux(focal_gridcell, av_metab_flux, e.get_diff_coeff());
   focal_gridcell.set_metab_change(in_out_flux_metab);
 }
 
@@ -86,7 +86,7 @@ void calc_diffusion_food(environment& e) noexcept
           std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
           (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
-      auto in_out_flux_food = calc_in_out_food_flux(focal_gridcell, av_food_flux, e.get_diff_coeff());
+      auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_diff_coeff());
       focal_gridcell.set_food_change(in_out_flux_food);
     }
 }
@@ -100,7 +100,7 @@ void calc_diffusion_metab(environment &e) noexcept
           std::accumulate(v_metab_fluxes.begin(),v_metab_fluxes.end(),0.0) /
           (v_metab_fluxes.empty() ? 1 : v_metab_fluxes.size());
 
-      auto in_out_flux_metab = calc_in_out_metab_flux(e.get_grid()[i], av_metab_flux, e.get_diff_coeff());
+      auto in_out_flux_metab = calc_metab_flux(e.get_grid()[i], av_metab_flux, e.get_diff_coeff());
       e.get_grid()[i].set_metab_change(in_out_flux_metab);
     }
 }
@@ -376,9 +376,9 @@ void test_environment()//!OCLINT tests may be many
     //-> exiting food = cell_food * av_difference * diffusion_coeff * neighbors_
     diffusion_coeff = 0.1;
     auto predicted_flux = av_diff * diffusion_coeff * c.get_food() * c.get_v_neighbors().size();
-    assert(calc_in_out_food_flux(c,av_diff,diffusion_coeff) -
+    assert(calc_food_flux(c,av_diff,diffusion_coeff) -
            predicted_flux < 0.000001 &&
-           calc_in_out_food_flux(c,av_diff,diffusion_coeff) -
+           calc_food_flux(c,av_diff,diffusion_coeff) -
            predicted_flux > -0.000001);
   }
 
@@ -397,9 +397,9 @@ void test_environment()//!OCLINT tests may be many
     //-> exiting metab = cell_metab * av_difference * diffusion_coeff * neighbors_
     diffusion_coeff = 0.1;
     auto predicted_flux = av_diff * diffusion_coeff * c.get_metab() * c.get_v_neighbors().size();
-    assert(calc_in_out_metab_flux(c,av_diff,diffusion_coeff) -
+    assert(calc_metab_flux(c,av_diff,diffusion_coeff) -
            predicted_flux < 0.000001 &&
-           calc_in_out_metab_flux(c,av_diff,diffusion_coeff) -
+           calc_metab_flux(c,av_diff,diffusion_coeff) -
            predicted_flux > -0.000001);
   }
 
