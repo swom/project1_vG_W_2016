@@ -785,8 +785,11 @@ void test_individual()//!OCLINT tests may be many
         i.get_grn().set_all_H2O(1);
         //Since the network reacts to input of timestpe t
         //at timestep t+1 I will run responds(i) 2 times
-        //so we can read the output
+        //In this first response call, since the hidden nodes are 0
+        //The output will be 0 and therefore the individual phenotype
+        //will be phenotype::sporulating
         responds(i, c);
+        assert(is_sporulating(i));
         //The values of food and metabolite in the grid_cell as well as the energy in the individual
         //are changed so that all inputs are -1, the network should therefore give outputs == 0/false
         //since the outputs node will recieve a signal that is negative(below the treshold)
