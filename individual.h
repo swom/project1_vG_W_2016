@@ -13,137 +13,177 @@ class individual
 {
 public:
 
-  individual(double x_pos = 0, double y_pos = 0, double radius  = 0.5,
-             double energy = 0, double treshold_energy = 3,
-             double uptake_rate = 0.1, double metabolic_rate = 0.01,
-             phenotype phenotype = phenotype::active,
-             int sporulation_timer = 0, int transformation_time = 5);
+    individual(double x_pos = 0, double y_pos = 0, double radius  = 0.5,
+               double energy = 0, double treshold_energy = 3,
+               double uptake_rate = 0.1, double metabolic_rate = 0.01,
+               phenotype phenotype = phenotype::active,
+               int sporulation_timer = 0, int transformation_time = 5,
+               double wiggle_room = 0.01);
 
 
-  ///Turns the flag (signalling that this is the focal individual during collision check
-  void becomes_focal() noexcept {m_is_focal = true;}
+    ///Turns the flag (signalling that this is the focal individual during collision check
+    void becomes_focal() noexcept {m_is_focal = true;}
 
-  ///Changes x of an individual
-  void change_x(double x) noexcept {m_x += x;}
+    ///Changes x of an individual
+    void change_x(double x) noexcept {m_x += x;}
 
-  ///Changes y of an individual
-  void change_y(double y) noexcept {m_y += y;}
+    ///Changes y of an individual
+    void change_y(double y) noexcept {m_y += y;}
 
-  ///Displaces an individual based on its m_x_displacement and m_y_displacement values
-  void displace() noexcept { change_x(m_x_displacement); change_y(m_y_displacement); reset_displacement();}
+    ///Displaces an individual based on its m_x_displacement and m_y_displacement values
+    void displace() noexcept { change_x(m_x_displacement); change_y(m_y_displacement); reset_displacement();}
 
-  ///Gets the flag that signal if the individual has been drawn to be member of the new pop
-  bool get_drawn_flag() const noexcept {return m_is_drawn;}
+    ///Gets the flag that signal if the individual has been drawn to be member of the new pop
+    bool get_drawn_flag() const noexcept {return m_is_drawn;}
 
-  ///Changes the energy level of an individual
-  void change_en(double en_change) noexcept {m_energy += en_change;}
+    ///Changes the energy level of an individual
+    void change_en(double en_change) noexcept {m_energy += en_change;}
 
-  ///gets energy of individual
-  double get_energy() const noexcept {return m_energy;}
+    ///gets energy of individual
+    double get_energy() const noexcept {return m_energy;}
 
-  ///Gets the const ref to the m_grn
-  const GRN& get_grn() const noexcept {return m_grn;}
+    ///Gets the const ref to the m_grn
+    const GRN& get_grn() const noexcept {return m_grn;}
 
-  ///Gets the ref to the m_grn
-  GRN& get_grn() noexcept {return m_grn;}
+    ///Gets the ref to the m_grn
+    GRN& get_grn() noexcept {return m_grn;}
 
-  ///gets the metabolic rate of an individual
-  double get_metab_rate() const noexcept {return m_metab_rate;}
+    ///gets the metabolic rate of an individual
+    double get_metab_rate() const noexcept {return m_metab_rate;}
 
-  ///gets radius of individual
-  double get_radius() const noexcept {return m_radius;}
+    ///gets radius of individual
+    double get_radius() const noexcept {return m_radius;}
 
-  ///Gets the type of the individual
-  phenotype get_phen() const noexcept {return m_individual_type;}
+    ///Gets the type of the individual
+    phenotype get_phen() const noexcept {return m_phenotype;}
 
-  ///Gets the time it takes to transform into a spore
-  int get_transformation_time() const noexcept {return m_transformation_time;}
+    ///Gets the time it takes to transform into a spore
+    int get_transformation_time() const noexcept {return m_transformation_time;}
 
-  ///gets the food uptake_rate of an individual
-  double get_uptake_rate() const noexcept {return m_uptake_rate;}
+    ///gets the food uptake_rate of an individual
+    double get_uptake_rate() const noexcept {return m_uptake_rate;}
 
-  ///gets x position of the individual
-  double get_x() const noexcept {return m_x;}
+    ///gets x position of the individual
+    double get_x() const noexcept {return m_x;}
 
-  ///Gets the amount of displacement that will be applied on the x coordinate
-  double get_x_displacement() const noexcept {return m_x_displacement;}
+    ///Gets the amount of displacement that will be applied on the x coordinate
+    double get_x_displacement() const noexcept {return m_x_displacement;}
 
-  ///Gets the amount of displacement that will be applied on the x coordinate
-  double get_y_displacement() const noexcept {return m_y_displacement;}
+    ///Gets the amount of displacement that will be applied on the x coordinate
+    double get_y_displacement() const noexcept {return m_y_displacement;}
 
-  ///gets y position of the individual
-  double get_y() const noexcept {return m_y;}
+    ///gets y position of the individual
+    double get_y() const noexcept {return m_y;}
 
-  ///gets the treshold energy at which an individual reproduces
-  double get_treshold_energy() const noexcept {return m_treshold_energy;}
+    ///gets the treshold energy at which an individual reproduces
+    double get_treshold_energy() const noexcept {return m_treshold_energy;}
 
-  ///Gets the sporulation timer
-  int get_spo_timer() const noexcept {return m_sporulation_timer;}
+    ///Gets the sporulation timer
+    int get_spo_timer() const noexcept {return m_sporulation_timer;}
 
-  ///Returns the flag signalling if this is the focal individual during the collision check
-  bool is_focal() const noexcept {return m_is_focal;}
+    ///Gets the wiglle room of an individual
+    double get_wiggle_room() const noexcept {return m_wiggle_room;}
 
-  ///Resets the flag signalling if this is the focal individual in collision check to flase
-  void no_more_focal() noexcept {
+    ///Returns the flag signalling if this is the focal individual during the collision check
+    bool is_focal() const noexcept {return m_is_focal;}
+
+    ///Resets the flag signalling if this is the focal individual in collision check to flase
+    void no_more_focal() noexcept {
 #ifndef NDEBUG
-    assert(m_is_focal);
+        assert(m_is_focal);
 #endif
-    m_is_focal = false;}
+        m_is_focal = false;}
 
-  ///resets the values of m_x_displacement and m_y_displacement to 0;
-  void reset_displacement() {m_x_displacement = 0; m_y_displacement = 0;}
+    ///resets the values of m_x_displacement and m_y_displacement to 0;
+    void reset_displacement() {m_x_displacement = 0; m_y_displacement = 0;}
 
-  ///Resets the sporulation timer
-  void reset_spo_timer() noexcept {m_sporulation_timer = 0;}
+    ///Resets the sporulation timer
+    void reset_spo_timer() noexcept {m_sporulation_timer = 0;}
 
-  ///Sets the m_is_drawn flag to a bool value
-  void set_drawn_flag(bool b) noexcept {m_is_drawn = b;}
+    ///Sets the m_is_drawn flag to a bool value
+    void set_drawn_flag(bool b) noexcept {m_is_drawn = b;}
 
-  ///sets the energy of an individual
-  void set_energy(double new_energy) {m_energy = new_energy;}
+    ///sets the energy of an individual
+    void set_energy(double new_energy) {m_energy = new_energy;}
 
-  ///Sets the type of an individual
-  void set_phen(phenotype type) {m_individual_type = type;}
+    ///Sets the type of an individual
+    void set_phen(phenotype type) {m_phenotype = type;}
 
-  ///Sets the x of an individual
-  void set_x(double x) noexcept {m_x = x;}
+    ///Sets the x of an individual
+    void set_x(double x) noexcept {m_x = x;}
 
-  ///Sets the y of an individual
-  void set_y(double y) noexcept {m_y = y;}
+    ///Sets the y of an individual
+    void set_y(double y) noexcept {m_y = y;}
 
-  ///Ticks the sporulation timer by one
-  void tick_spo_timer() noexcept {m_sporulation_timer++;}
+    ///Ticks the sporulation timer by one
+    void tick_spo_timer() noexcept {m_sporulation_timer++;}
 
-  ///Splits the excess energy not required for division in two9to be then
-  ///(to be then assigned to the two daughter cells by
-  /// simulation::reproduce/cells_divide)
-  double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
+    ///Splits the excess energy not required for division in two9to be then
+    ///(to be then assigned to the two daughter cells by
+    /// simulation::reproduce/cells_divide)
+    double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
 
-  ///Changes x of an individual
-  void x_displacement(double x_displacement) noexcept {m_x_displacement += x_displacement;}
+    ///Changes x of an individual
+    void x_displacement(double x_displacement) noexcept {m_x_displacement += x_displacement;}
 
-  ///Changes y of an individual
-  void y_displacement(double y_displacement) noexcept {m_y_displacement += y_displacement;}
+    ///Changes y of an individual
+    void y_displacement(double y_displacement) noexcept {m_y_displacement += y_displacement;}
 
 private:
 
-  double m_x;
-  double m_y;
-  double m_x_displacement = 0;
-  double m_y_displacement = 0;
-  double m_radius;
-  double m_energy;
-  bool m_is_focal = false;
-  double m_treshold_energy;
-  double m_uptake_rate;
-  double m_metab_rate;
-  phenotype m_individual_type;
-  int m_sporulation_timer;
-  int m_transformation_time; //number of time steps the individual needs
-  //to go through to sporulate, if it is alive at
-  //m_transformation time + 1 it will become a spore
-  GRN m_grn;
-  bool m_is_drawn = false;
+    ///X coord of an individual
+    double m_x;
+
+    ///Y coord of an individual
+    double m_y;
+
+    ///Change that will be applued to the X coord
+    double m_x_displacement = 0;
+
+    ///Change that will be applued to the Y coord
+    double m_y_displacement = 0;
+
+    ///Level of internal energy gained from feeding
+    double m_energy;
+
+    ///The gene regulatory network of an individual,
+    ///driving the decision of which phenotype to assume
+    GRN m_grn;
+
+    ///Flag that signals if an individual has already been drawn to be part
+    /// of the new population
+    bool m_is_drawn = false;
+
+    ///Flag signalling if this is the focal individual
+    ///  during loop of collision detection
+    bool m_is_focal = false;
+
+    ///The rate at which internal energy is depleted
+    double m_metab_rate;
+
+    ///The phenotype of the individual
+    phenotype m_phenotype;
+
+    ///Radius of an individual, individuals are considered circular
+    double m_radius;
+
+    ///The amount of timesteps an individual has been sporulating
+    int m_sporulation_timer;
+
+    ///number of time steps the individual needs
+    ///to go through to sporulate, if it is alive at
+    ///m_transformation time + 1 it will become a spore
+    int m_transformation_time;
+
+    ///The level of energy required to divide
+    double m_treshold_energy;
+
+    ///The rate of food uptake, the conversion of food into energy is = 1
+    double m_uptake_rate;
+
+    ///The minimum amount of overlap necessary for a detection between two individuals
+    /// to be detected, implemented to speed up collision management
+    double m_wiggle_room;
 };
 
 ///Returns true if two individuals are in the same position
