@@ -18,7 +18,7 @@ public:
                double uptake_rate = 0.1, double metabolic_rate = 0.01,
                phenotype phenotype = phenotype::active,
                int sporulation_timer = 0, int transformation_time = 5,
-               double wiggle_room = 0.01);
+               double wiggle_room = 0.01, double metab_secretion_rate = 0.1);
 
 
     ///Turns the flag (signalling that this is the focal individual during collision check
@@ -49,7 +49,10 @@ public:
     GRN& get_grn() noexcept {return m_grn;}
 
     ///gets the metabolic rate of an individual
-    double get_metab_rate() const noexcept {return m_metab_rate;}
+    double get_metabolic_rate() const noexcept {return m_metabolic_rate;}
+
+    ///Gets the rate of secretion of metabolite
+    double get_metab_secr_rate() const noexcept{return m_metab_secr_rate;}
 
     ///gets radius of individual
     double get_radius() const noexcept {return m_radius;}
@@ -159,7 +162,10 @@ private:
     bool m_is_focal = false;
 
     ///The rate at which internal energy is depleted
-    double m_metab_rate;
+    double m_metabolic_rate;
+
+    ///The rate at which metabolite is secreted into the environment
+    double m_metab_secr_rate;
 
     ///The phenotype of the individual
     phenotype m_phenotype;
@@ -273,6 +279,9 @@ void reverts(individual& i) noexcept;
 ///An individual senses cues, internal and on its grid_cell
 ///  and responds to them
 void responds(individual& i, const env_grid_cell& c);
+
+///Adds metabolite to the cell where the individual's center is on
+void secretes_metab(const individual& i, env_grid_cell& c);
 
 ///Takes food, metabolite from the grid cell and energy from individual
 /// and sets them as inputs of the grn

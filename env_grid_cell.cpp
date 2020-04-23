@@ -59,6 +59,16 @@ double metab_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept
   return rhs.get_metab()- lhs.get_metab();
 }
 
+void metabolite_degrades(env_grid_cell& g, double degrad_rate) noexcept
+{
+   auto new_metab = g.get_metab() - degrad_rate;
+   if(new_metab < 0)
+   {
+       g.set_metab(0);
+       return;
+   }
+   g.set_metab(new_metab);
+}
 void test_env_grid_cell()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
@@ -78,7 +88,7 @@ void test_env_grid_cell()//!OCLINT tests may be many
     double new_metabolite_conc = 3;
     assert(g.get_metab() - new_metabolite_conc > 0.0000001
            || g.get_metab() - new_metabolite_conc < -0.0000001);
-    g.set_metabolite(new_metabolite_conc);
+    g.set_metab(new_metabolite_conc);
     assert(g.get_metab() - new_metabolite_conc < 0.00001);
   }
 
@@ -152,6 +162,21 @@ void test_env_grid_cell()//!OCLINT tests may be many
     assert(g.get_food_change() < 0.00001 && g.get_food_change() > -0.0001);
     assert(g.get_food() >= 0);
   }
+
+  //Metabolite degrades at a constant rate
+    {
+        double init_metab = 3.0;
+        double degrad_rate = init_metab;
+        env_grid_cell g;
+        g.set_metab(init_metab);
+        metabolite_degrades(g, degrad_rate);
+        assert(init_metab > g.get_metab());
+        //Metabolite con should be 0
+        assert(g.get_metab() < 0.000001 && g.get_metab() > -0.000001);
+        //The metabolite would go below 0 so it stays 0
+        metabolite_degrades(g, degrad_rate);
+        assert(g.get_metab() < 0.000001 && g.get_metab() > -0.000001);
+    }
 
   //A grid_cell has a vector that can store
   //the indexes of its neighbouring cells if placed in a grid

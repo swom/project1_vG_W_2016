@@ -10,11 +10,15 @@ class simulation
 public:
   simulation(unsigned int pop_size = 1, int exp_new_pop_size = 1, double min_dist = 0.1, int grid_side = 1,
              double diff_coeff = 0.1, double init_food = 1, double mutation_prob = 0.01, double mutation_step = 0.1,
-             double base_disp_prob = 0.01, double spore_advantage = 10, double reproduction_prob = 0.1);
+             double base_disp_prob = 0.01, double spore_advantage = 10, double reproduction_prob = 0.1,
+             double metab_degradation_rate = 0.01);
 
   ///Returns the value of the variable m_base_fitness that indicates
   /// the basal fitness/dispersal probability of an individual
   double get_base_disp_prob() const noexcept {return m_base_disp_prob;}
+
+  ///Gets the degradation rate of the metabolite
+  double get_metab_degr_rate() const noexcept {return m_metab_degradation_rate;}
 
   ///Returns the diffusion coefficent of the environment that will be built in this simulation
   double get_diff_coeff() const noexcept {return m_diff_coeff;}
@@ -143,9 +147,10 @@ private:
   int m_exp_new_pop_size;
   std::vector<individual> m_new_pop;
   double m_min_init_dist_btw_cells;
-  int m_grid_side; //possibly useless, think of taking out
-  double m_diff_coeff; //possibly useless, think of taking out
-  double m_init_food; //possibly useless, think of taking out
+  int m_grid_side;
+  double m_diff_coeff;
+  double m_metab_degradation_rate;
+  double m_init_food;
   environment m_e;
   int m_sim_timer = 0;
   std::minstd_rand m_rng;
@@ -176,10 +181,6 @@ double calc_angle_3_pos(std::pair<double, double> P1,
 ///Calculates the total displacement of each individual in the population if there are collisions
 bool calc_tot_displ_pop(std::vector<individual>& pop);
 
-///Calculates the modulus of the angles between all the individuals of a population
-///and a given angle in radiants
-std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
-
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
 
@@ -193,25 +194,14 @@ void dispersal(simulation& s);
 ///has been calculated with calc_tot_disp_pop()
 void displace_inds(std::vector<individual>& pop) noexcept;
 
+///Runs a simulation or a given amount of time
+void exec(simulation& s, int n_tick) noexcept;
+
 /// All the individuals feed
 void feeding(simulation& s);
 
 ///The new population becomes the actual population, the old population is cancelled
 void fund_pop(simulation& s) noexcept;
-
-///Returns the iterators to the range of individuals in a population
-/// that could possibly be colliding with a focal individual along the x axis
-std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
-possible_collisions_x(individual focal_ind, std::vector<individual> &pop);
-
-///Returns the iterators to the range of individuals that could
-/// collide with a focal individual on the x_axis and as well on the y axis
-/// !!! It changes the order of the elemnts in pop vector
-std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
-possible_collisions_y(individual focal_ind,
-                      std::vector<individual>::iterator first_x,
-                      std::vector<individual>::iterator last_x,
-                      std::vector<individual> &pop);
 
 ///finds the indexes of the individuals ready to divide
 std::vector<int> get_dividing_individuals(const simulation& s) noexcept;
@@ -229,6 +219,13 @@ bool has_collision(simulation &s);
 /// Displaces colliding cells so that they do not collide anymore
 int manage_static_collisions(simulation& s);
 
+///All inidviduals lose energy due to metabolism
+void metabolism_pop(simulation& s);
+
+///Calculates the modulus of the angles between all the individuals of a population
+///and a given angle in radiants
+std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
+
 ///Moves individuals that are perfectly on top of each other a little bit
 ///to allow correct displacement
 void no_complete_overlap(simulation& s) noexcept;
@@ -237,12 +234,23 @@ void no_complete_overlap(simulation& s) noexcept;
 bool only_one_focal(const std::vector<individual>::iterator first,
                     const std::vector<individual>::iterator last);
 
-///All inidviduals lose energy due to metabolism
-void metabolism_pop(simulation& s);
-
 /// Places cells in an hexagonal grid
 /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
 void place_start_cells(simulation& s) noexcept;
+
+///Returns the iterators to the range of individuals in a population
+/// that could possibly be colliding with a focal individual along the x axis
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions_x(individual focal_ind, std::vector<individual> &pop);
+
+///Returns the iterators to the range of individuals that could
+/// collide with a focal individual on the x_axis and as well on the y axis
+/// !!! It changes the order of the elemnts in pop vector
+std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
+possible_collisions_y(individual focal_ind,
+                      std::vector<individual>::iterator first_x,
+                      std::vector<individual>::iterator last_x,
+                      std::vector<individual> &pop);
 
 ///Resets the drawn flag for all individuals in the new_population vector
 void reset_drawn_fl_new_pop(simulation& s) noexcept;
@@ -250,17 +258,17 @@ void reset_drawn_fl_new_pop(simulation& s) noexcept;
 ///Resets the environment in the simulation to be identical to the previous one at the start
 void reset_env(simulation& s);
 
+///All individuals secrete metabolite
+void secretion_metabolite(simulation& s);
+
 ///Draws a 100 individual to fund the new population and puts them in m_new_pop
 void select_new_pop(simulation& s);
 
-///Runs all the necessary actions for a timestep to happen
-int tick(simulation& s);
-
-///Runs a simulation or a given amount of time
-void exec(simulation& s, int n_tick) noexcept;
-
 ///Sorts individuals in a given range of a vector by increasing x coordinate
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);
+
+///Runs all the necessary actions for a timestep to happen
+int tick(simulation& s);
 
 void test_simulation();
 

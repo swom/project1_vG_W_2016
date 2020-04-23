@@ -6,7 +6,7 @@
 class environment
 {
 public:
-    environment(int grid_side = 1, double diff_coeff = 0, double init_food = 1);
+    environment(int grid_side = 1, double diff_coeff = 0, double init_food = 1, double degrad_coeff = 0.001);
 
     ///Gets const reference of cell at a certain index
     const env_grid_cell& get_cell(int i) const noexcept
@@ -19,6 +19,9 @@ public:
     {
       return m_grid[static_cast<unsigned int>(i)];
     }
+
+    ///Gets the degradation coefficient
+    const double& get_degr_coeff() const noexcept {return m_degrad_coefficient;}
 
     ///Get the diffusion coefficent of the environment
     const double& get_diff_coeff() const noexcept {return m_diffusion_coefficient;}
@@ -42,6 +45,7 @@ public:
 private:
     int m_side;
     //Always needs to be between 0 and 1!!!
+    double m_degrad_coefficient;
     double m_diffusion_coefficient;
     double m_init_food;
     std::vector<env_grid_cell> m_grid;
@@ -70,6 +74,9 @@ void calc_diffusion(environment& e) noexcept;
 
 ///Calculates the amount of food that needs to diffuse
 void calc_diffusion_food(environment &e) noexcept;
+
+///Metabolite degrades in each grid_cell
+void degradation_metabolite(environment& e) noexcept;
 
 ///Diffuses substances in environment
 void diffusion(environment& e) noexcept;

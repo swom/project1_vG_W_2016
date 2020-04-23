@@ -3,10 +3,11 @@
 #include <cassert>
 #include <numeric>
 
-environment::environment(int grid_side, double diff_coeff, double init_food):
-  m_side(grid_side),
-  m_diffusion_coefficient(diff_coeff),
-  m_init_food(init_food),
+environment::environment(int grid_side, double diff_coeff, double init_food, double degrad_coeff):
+  m_side{grid_side},
+  m_degrad_coefficient{degrad_coeff},
+  m_diffusion_coefficient{diff_coeff},
+  m_init_food{init_food},
   m_grid(static_cast<unsigned int>(m_side * m_side),env_grid_cell(0,m_init_food))
 {
   find_neighbors_all_grid(*this);
@@ -102,6 +103,14 @@ void calc_diffusion_metab(environment &e) noexcept
 
       auto in_out_flux_metab = calc_metab_flux(e.get_grid()[i], av_metab_flux, e.get_diff_coeff());
       e.get_grid()[i].set_metab_change(in_out_flux_metab);
+    }
+}
+
+void degradation_metabolite(environment& e) noexcept
+{
+    for(auto& grid_cell : e.get_grid())
+    {
+        metabolite_degrades(grid_cell, e.get_degr_coeff());
     }
 }
 
@@ -335,7 +344,7 @@ void test_environment()//!OCLINT tests may be many
     e.get_cell(target_cell).set_food(food);
     assert(e.get_cell(target_cell).get_food() - food < 0.000001);
 
-    e.get_cell(target_cell).set_metabolite(metabolite);
+    e.get_cell(target_cell).set_metab(metabolite);
     assert(e.get_cell(target_cell).get_metab() - metabolite < 0.000001);
   }
 
@@ -408,7 +417,7 @@ void test_environment()//!OCLINT tests may be many
     environment e(3, 0.1, 0);
     auto focal_cell_index = 4;
     e.get_cell(focal_cell_index).set_food(1);
-    e.get_cell(focal_cell_index).set_metabolite(1);
+    e.get_cell(focal_cell_index).set_metab(1);
 
     //register strting values
     std::vector<double> v_orig_food_val;
@@ -484,10 +493,10 @@ void test_environment()//!OCLINT tests may be many
     environment e(3, 0.1);
     //Let's add metabolite to all grid_cells
     double metab_value = 4;
-    for(auto& cell: e.get_grid()){cell.set_metabolite(metab_value);}
+    for(auto& cell: e.get_grid()){cell.set_metab(metab_value);}
     //Let's have one cell with less metabolite
     auto focal_cell_index = 4;
-    e.get_cell(focal_cell_index).set_metabolite(1);
+    e.get_cell(focal_cell_index).set_metab(1);
 
     //register starting values
     std::vector<double> v_orig_metab_val;
@@ -524,7 +533,7 @@ void test_environment()//!OCLINT tests may be many
     environment e(3, 0.1, 4);
     auto focal_cell_index = 4;
     e.get_cell(focal_cell_index).set_food(1);
-    e.get_cell(focal_cell_index).set_metabolite(1);
+    e.get_cell(focal_cell_index).set_metab(1);
 
     auto tot_food_bef = std::accumulate(
           e.get_grid().begin(), e.get_grid().end(), 0.0,
@@ -553,6 +562,43 @@ void test_environment()//!OCLINT tests may be many
            tot_metab_bef - tot_metab_after > -0.0001);
   }
 
+    //The metabolite in all grid_cells canbe depleted by the degradation rate
+    {
+        double degradation_coeff = 3.14;
+        double init_metab_per_cell = degradation_coeff;
+        environment e(2,0,1,degradation_coeff);
+        double tot_metab = 0;
+        for(auto& grid_cell : e.get_grid())
+        {
+            grid_cell.set_metab(init_metab_per_cell);
+            tot_metab++;
+        }
+
+        degradation_metabolite(e);
+
+        auto tot_metab_post_degr = std::accumulate(e.get_grid().begin(),e.get_grid().begin(),0.0,
+                                                   [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
+        assert(tot_metab > tot_metab_post_degr);
+        for(auto& grid_cell : e.get_grid())
+        {
+            //metabolite should be 0
+            assert(grid_cell.get_metab() < 0.00001 && grid_cell.get_metab() > -0.0000001);
+        }
+
+        degradation_metabolite(e);
+
+        tot_metab_post_degr = std::accumulate(e.get_grid().begin(),e.get_grid().begin(),0.0,
+                                                   [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
+        assert(tot_metab_post_degr < 0.000001 && tot_metab_post_degr > -0.000001);
+
+        for(auto& grid_cell : e.get_grid())
+        {
+            //Degradation should have brought metabolite below 0
+            //so metabolite stays 0
+            assert(grid_cell.get_metab() < 0.00001 && grid_cell.get_metab() > -0.0000001);
+        }
+    }
+
   //environment has a boolean operator (it checks if two grids have all
   //the same cells)
   {
@@ -574,7 +620,7 @@ void test_environment()//!OCLINT tests may be many
     for(auto& grid_cell : e.get_grid())
       {
         grid_cell.set_food(food_quantity);
-        grid_cell.set_metabolite(metabolite_quantity);
+        grid_cell.set_metab(metabolite_quantity);
       }
     auto e2 = e;
     reset_env(e2);

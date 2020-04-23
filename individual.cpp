@@ -6,11 +6,13 @@ individual::individual(double x_pos, double y_pos,
                        double radius, double energy,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
                        phenotype phenotype, int sporulation_timer,
-                       int transformation_time, double wiggle_room):
+                       int transformation_time, double wiggle_room,
+                       double metab_secretion_rate):
     m_x{x_pos},
     m_y{y_pos},
     m_energy{energy},
-    m_metab_rate{metabolic_rate},
+    m_metabolic_rate{metabolic_rate},
+    m_metab_secr_rate{metab_secretion_rate},
     m_phenotype{phenotype},
     m_radius{radius},
     m_sporulation_timer{sporulation_timer},
@@ -18,6 +20,7 @@ individual::individual(double x_pos, double y_pos,
     m_treshold_energy{treshold_energy},
     m_uptake_rate{uptake_rate},
     m_wiggle_room{wiggle_room}
+
 {
 
 }
@@ -198,8 +201,8 @@ bool is_spore(const individual& i) noexcept
 
 void metabolism(individual& i) noexcept
 {
-    if(i.get_energy() >= i.get_metab_rate())
-    {i.change_en(-i.get_metab_rate());}
+    if(i.get_energy() >= i.get_metabolic_rate())
+    {i.change_en(-i.get_metabolic_rate());}
     else
     {i.set_energy(0);}
 
@@ -249,6 +252,13 @@ void reverts(individual& i) noexcept
     i.reset_spo_timer();
 }
 
+void secretes_metab(const individual& i, env_grid_cell& c)
+{
+    assert(c.get_metab_change() < 0.000001 && c.get_metab_change() > -0.00001);
+    c.set_metab_change(i.get_metab_secr_rate());
+    c.increment_metabolite();
+    c.set_metab_change(0);
+}
 
 void sense(individual& i, const env_grid_cell& c)
 {
@@ -332,12 +342,12 @@ void test_individual()//!OCLINT tests may be many
     //0.01 by default
     {
         individual i;
-        assert(i.get_metab_rate() - 0.01 < 0.000001
-               && i.get_metab_rate() - 0.01 > -0.000001);
+        assert(i.get_metabolic_rate() - 0.01 < 0.000001
+               && i.get_metabolic_rate() - 0.01 > -0.000001);
         double metabolic_rate = 2;
         individual i2(0,0,0,0,0,0,metabolic_rate);
-        assert(i2.get_metab_rate() - metabolic_rate < 0.000001
-               && i2.get_metab_rate() - metabolic_rate > -0.000001);
+        assert(i2.get_metabolic_rate() - metabolic_rate < 0.000001
+               && i2.get_metabolic_rate() - metabolic_rate > -0.000001);
 
     }
     //Individuals should be initialized with 0 internal energy
@@ -538,6 +548,7 @@ void test_individual()//!OCLINT tests may be many
         assert(i.get_energy() - init_food - init_en < 0.000001);
     }
 
+
     //individuals lose energy due to their metabolism
     {
         individual i(0,0,0,1);
@@ -550,11 +561,21 @@ void test_individual()//!OCLINT tests may be many
     //An individual's energy cannot go below 0
     {
         individual i(0,0,0,0,0,0);
-        assert(i.get_energy() - i.get_metab_rate() < 0);
+        assert(i.get_energy() - i.get_metabolic_rate() < 0);
         metabolism(i);
         assert(i.get_energy() < 0.000001
                && i.get_energy() > -0.0000001);
     }
+
+    //An individual can release metabolite in a grid_cell
+    {
+        individual i;
+        env_grid_cell c;
+        auto init_metab = c.get_metab();
+        secretes_metab(i,c);
+        assert(c.get_metab() > init_metab);
+    }
+
 
     //An individual is initialized with a individual_type(living, sporulating, spore)
     //By default it is initialized with  individual_type::living
@@ -617,7 +638,7 @@ void test_individual()//!OCLINT tests may be many
     {
         individual i;
         i.set_phen(phenotype::sporulating);
-        i.set_energy(i.get_metab_rate() * i.get_transformation_time());
+        i.set_energy(i.get_metabolic_rate() * i.get_transformation_time());
         for(int j = 0; j != i.get_transformation_time(); j++)
         {
             assert(i.get_phen() == phenotype::sporulating);
@@ -688,7 +709,7 @@ void test_individual()//!OCLINT tests may be many
         assert(is_dead(i));//individual is initialized with 0 energy
         //Let's create an env grid cell that will feed the individual
         //the exact quantity it will lose with metabolism
-        env_grid_cell c(0,i.get_metab_rate());
+        env_grid_cell c(0,i.get_metabolic_rate());
         feed(i,c);
         assert(!is_dead(i));
         metabolism(i);
@@ -797,7 +818,7 @@ void test_individual()//!OCLINT tests may be many
         //since the outputs node will recieve a signal that is negative(below the treshold)
         //after responds(i) is called 2 more times
         c.set_food(-1);
-        c.set_metabolite(-1);
+        c.set_metab(-1);
         i.set_energy(-1);
         //1st responds(i), the individual responds to the initial parameter
         //expected output value == 1
@@ -833,6 +854,7 @@ void test_individual()//!OCLINT tests may be many
         draw_flag_reset(i);
         assert(!is_drawn(i));
     }
+
 
 #endif
 }

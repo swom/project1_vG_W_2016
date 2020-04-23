@@ -41,8 +41,7 @@ public:
     void set_food(double f) noexcept {m_food = f;}
 
     ///Sets the amount of metabolite
-    void set_metabolite(double m) noexcept {m_metabolite = m;}
-
+    void set_metab(double m) noexcept {m_metabolite = m;}
 
     ///Sets the future change in metabolite concentration
     void set_food_change(double f_change) noexcept {m_food_change = f_change;}
@@ -78,12 +77,15 @@ double food_flux(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 /// Calculates how much food the cell will give away
 double calc_food_flux(const env_grid_cell& cell, double av_food_flux, double diffusion_coeff) noexcept;
 
-///Gets the difference in metabolite between two cells
-double metab_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
-
 ///Given the vector of food differences with the neighbors and the diffusion coefficient
 /// Calculates how much metabolite the cell will give away
 double calc_metab_flux(const env_grid_cell &cell, double av_metab_flux, double diffusion_coeff) noexcept;
+
+///Gets the difference in metabolite between two cells
+double metab_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
+
+///Degrades the amount of metabolite in the grid_cell by a value equal to the degradation rate
+void metabolite_degrades(env_grid_cell& g, double degrad_rate) noexcept;
 
 void test_env_grid_cell();
 

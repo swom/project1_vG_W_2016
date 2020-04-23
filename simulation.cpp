@@ -8,15 +8,16 @@ simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_d
                        int grid_side, double diff_coeff,
                        double init_food, double mutation_prob,
                        double mutation_step, double base_disp_prob, double spore_advantage,
-                       double reproduction_prob):
+                       double reproduction_prob, double metab_degradation_rate):
 
     m_pop(pop_size,individual{0,0}),
     m_exp_new_pop_size{exp_new_pop_size},
     m_min_init_dist_btw_cells{min_dist},
     m_grid_side{grid_side},
     m_diff_coeff{diff_coeff},
+    m_metab_degradation_rate{metab_degradation_rate},
     m_init_food{init_food},
-    m_e{m_grid_side, m_diff_coeff, m_init_food},
+    m_e{m_grid_side, m_diff_coeff, m_init_food, metab_degradation_rate},
     m_reproduction_angle{0, 2 * M_PI},
     m_mutation_prob{mutation_prob},
     m_mutation_step{0,mutation_step},
@@ -436,8 +437,8 @@ void response(simulation& s)
         auto index = find_grid_index(ind,s.get_env().get_grid_side());
         if(index == -100)//When individual is outside grid
         {
-         responds(ind, env_grid_cell(0,0,0,0));
-         continue;
+            responds(ind, env_grid_cell(0,0,0,0));
+            continue;
         }
         responds(ind, s.get_env().get_cell(index));
     }
@@ -447,6 +448,19 @@ void reset_drawn_fl_new_pop(simulation& s) noexcept
 {
     std::for_each(s.get_new_pop().begin(),s.get_new_pop().end(),
                   [](individual& i){draw_flag_reset(i);});
+}
+
+void secretion_metabolite(simulation& s)
+{
+    int index;
+    for(const auto& ind : s.get_pop())
+    {
+        if((index = find_grid_index(ind,s.get_env().get_grid_side()) == - 100))
+        {
+            continue;
+        }
+        secretes_metab(ind,s.get_env().get_cell(index));
+    }
 }
 
 void select_new_pop(simulation& s)
@@ -486,11 +500,13 @@ int tick(simulation& s)
     //response(s);
     feeding(s);
     metabolism_pop(s);
+    secretion_metabolite(s);
     death(s);
     if(division(s))
     {
         time += manage_static_collisions(s);
     }
+    degradation_metabolite(s.get_env());
     diffusion(s.get_env());
     s.update_sim_timer();
     return time;
@@ -993,7 +1009,7 @@ void test_simulation()//!OCLINT tests may be many
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
         auto ind_en = s.get_ind_tr_en(0)
-                + s.get_ind(0).get_metab_rate() + 0.01
+                + s.get_ind(0).get_metabolic_rate() + 0.01
                 - s.get_ind(0).get_uptake_rate();
         s.get_ind(0).set_energy(ind_en);
 
@@ -1075,6 +1091,41 @@ void test_simulation()//!OCLINT tests may be many
         assert(init_pop_size < final_pop_size);
     }
 
+    //A simulation is initiallized with a degradation rate
+    {
+        double degradation_rate = 3.14;
+        simulation s(0,0,0,0,0,0,0,0,0,0,0,degradation_rate);
+        assert(s.get_metab_degr_rate() - degradation_rate < 0.000001 &&
+               s.get_metab_degr_rate() - degradation_rate > -0.000001);
+    }
+    //Every time step the individuals produce new metabolite and metabolite degrades in grid_cells
+    {
+        double degradation_rate = 3.14;
+        double init_metab = degradation_rate;
+        simulation s(1,0,0,1,0,0,0,0,0,0,0,degradation_rate);
+
+        for(auto& grid_cell : s.get_env().get_grid())
+        {
+            grid_cell.set_metab(init_metab);
+        }
+
+        double tot_metab_before = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                                  [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
+
+        secretion_metabolite(s);
+        degradation_metabolite(s.get_env());
+
+        double tot_metab_after = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                                 [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
+        double tot_production = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
+                                                [](int sum, const individual& i) {return sum + i.get_metab_secr_rate();});
+        double tot_degradation = s.get_env().get_grid_size() * s.get_metab_degr_rate();
+
+        auto metab_balance = tot_metab_before - tot_degradation + tot_production - tot_metab_after;
+        assert(metab_balance < 0.000001 && metab_balance > -0.000001);
+
+
+    }
     //every timestep/tick collisions are handled
     {
         simulation s(7,3);
@@ -1082,7 +1133,7 @@ void test_simulation()//!OCLINT tests may be many
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
         s.get_ind(1).set_energy(s.get_ind_tr_en(1)
-                                + s.get_ind(1).get_metab_rate() + 0.01
+                                + s.get_ind(1).get_metabolic_rate() + 0.01
                                 - s.get_ind(1).get_uptake_rate());
         feeding(s);
         metabolism_pop(s);
@@ -1189,8 +1240,8 @@ void test_simulation()//!OCLINT tests may be many
         auto init_food = s.get_env().get_cell(0).get_food();
         feeding(s);
         metabolism_pop(s);
-        assert(init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metab_rate() < 0.000001
-               && init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metab_rate() > -0.000001);
+        assert(init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metabolic_rate() < 0.000001
+               && init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metabolic_rate() > -0.000001);
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
     }
@@ -1236,7 +1287,7 @@ void test_simulation()//!OCLINT tests may be many
         s = simulation(pop_size,1,0.1,0);
         //Only the first individual has enough energy to survive
         //for 1 tick
-        s.set_ind_en(0,s.get_ind(0).get_metab_rate() + 0.001);
+        s.set_ind_en(0,s.get_ind(0).get_metabolic_rate() + 0.001);
         assert(s.get_pop().size() == pop_size);
         tick(s);
         assert(s.get_pop_size() == 1);
@@ -1489,7 +1540,7 @@ void test_simulation()//!OCLINT tests may be many
         for(auto& grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(food);
-            grid_cell.set_metabolite(metabolite);
+            grid_cell.set_metab(metabolite);
         }
         environment ref_env = s.get_env();
         dispersal(s);
@@ -1524,7 +1575,7 @@ void test_simulation()//!OCLINT tests may be many
         for(auto & grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(food_amount);
-            grid_cell.set_metabolite(metabolite_amount);
+            grid_cell.set_metab(metabolite_amount);
         }
         for(auto& ind : s.get_pop())
         {
@@ -1551,7 +1602,7 @@ void test_simulation()//!OCLINT tests may be many
         for(auto& grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(-1);
-            grid_cell.set_metabolite(-1);
+            grid_cell.set_metab(-1);
         }
         for(auto& ind : s.get_pop())
         {
