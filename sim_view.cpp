@@ -347,9 +347,9 @@ void test_sim_view()//!OCLINT tests may be many
         assert(v.get_grid_view().get_grid_vert_size() == v.get_sim().get_env().get_grid_size() * 4);
     }
 
-    //When the F key is pressed the flag signalling that food should be shown on the grid will turn true
-    //and the flag signalling that metabolite should not be shown will be turned to false
-    //Tested graphically
+    //When the F key is pressed the flag signalling that food should be shown on the grid will
+    //turn true and the flag signalling that metabolite should not be shown will be turned to
+    //false tested graphically
 
 
 #endif
