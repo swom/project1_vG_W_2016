@@ -6,7 +6,7 @@
 class env_grid_cell
 {
 public:
-    env_grid_cell(double metabolite = 0, double food = 0, double max_food = 20);
+    env_grid_cell(double metabolite = 0, double food = 0, double max_food = 20, double max_metab = 20);
 
     ///Gets the amount of metabolite in the cell
     const double& get_metab() const noexcept {return m_metabolite;}
@@ -25,6 +25,9 @@ public:
 
     ///Gets the reference to the amount of food in the cell
     const double& get_max_food() const noexcept {return m_max_food;}
+
+    ///Gets the reference to the amount of food in the cell
+    const double& get_max_metab() const noexcept {return m_max_metab;}
 
     ///Sets the amount of food
     void increment_food() noexcept {m_food + m_food_change > -0.0000001 ? m_food += m_food_change : m_food = 0;
@@ -61,6 +64,7 @@ private:
     double m_food;
     double m_food_change;
     double m_max_food;
+    double m_max_metab;
 };
 
 bool operator == (const env_grid_cell& lhs, const env_grid_cell& rhs) noexcept;

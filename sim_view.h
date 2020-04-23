@@ -75,6 +75,12 @@ public:
   /// Show one frame
   void show() noexcept;
 
+  ///Parses input to see if food concentrations need to be shown on the grid
+  void show_food_input(sf::Event& event);
+
+  ///Parses input to see if metab concentrations need to be shown on the grid
+  void show_metab_input(sf::Event& event);
+
   ///Processes when keyboard input for zooming is given
   void zoom_k_input_starts(const sf::Event& event) noexcept;
 

@@ -166,6 +166,8 @@ bool sim_view::process_events()
         case sf::Event::KeyPressed:
             zoom_k_input_starts(event);
             pan_k_input_starts(event);
+            show_food_input(event);
+            show_metab_input(event);
             break;
         case sf::Event::KeyReleased:
             zoom_k_input_ends(event);
@@ -225,6 +227,22 @@ void sim_view::update_indexes() noexcept
             m_pop_indexes[i].setPosition(m_pop_shapes[i].getPosition());
             m_pop_indexes[i].setString(std::to_string(i));
         }
+    }
+}
+
+void sim_view::show_food_input(sf::Event& event)
+{
+    if(event.key.code == sf::Keyboard::F)
+    {
+        m_grid_view.show_food_conc();
+    }
+}
+
+void sim_view::show_metab_input(sf::Event& event)
+{
+    if(event.key.code == sf::Keyboard::M)
+    {
+        m_grid_view.show_metab_conc();
     }
 }
 
@@ -322,6 +340,11 @@ void test_sim_view()//!OCLINT tests may be many
         sim_view v;
         assert(v.get_grid_view().get_grid_vert_size() == v.get_sim().get_env().get_grid_size() * 4);
     }
+
+    //When the F key is pressed the flag signalling that food should be shown on the grid will turn true
+    //and the flag signalling that metabolite should not be shown will be turned to false
+    //Tested graphically
+
 
 #endif
 }

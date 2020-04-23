@@ -203,7 +203,10 @@ void metabolism(individual& i) noexcept
     else
     {i.set_energy(0);}
 
-    sporulation(i);
+    if(i.get_phen() == phenotype::sporulating )
+    {
+        sporulation(i);
+    }
 
 }
 
@@ -271,8 +274,7 @@ void starts_sporulation(individual& i)
 
 void sporulation(individual& i) noexcept
 {
-    if(i.get_phen() == phenotype::sporulating )
-    {
+
         i.tick_spo_timer();
         assert(i.get_spo_timer() <= i.get_transformation_time());
         if(i.get_spo_timer() == i.get_transformation_time())
@@ -280,7 +282,7 @@ void sporulation(individual& i) noexcept
             i.set_phen(phenotype::spore);
             i.reset_spo_timer();
         }
-    }
+
 }
 
 

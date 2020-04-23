@@ -434,6 +434,11 @@ void response(simulation& s)
     for(auto& ind : s.get_pop())
     {
         auto index = find_grid_index(ind,s.get_env().get_grid_side());
+        if(index == -100)//When individual is outside grid
+        {
+         responds(ind, env_grid_cell(0,0,0,0));
+         continue;
+        }
         responds(ind, s.get_env().get_cell(index));
     }
 }
@@ -478,7 +483,7 @@ void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<ind
 int tick(simulation& s)
 {
     int time = 0;
-    response(s);
+    //response(s);
     feeding(s);
     metabolism_pop(s);
     death(s);
@@ -971,17 +976,26 @@ void test_simulation()//!OCLINT tests may be many
         assert(after_en_tot < init_en_tot);
     }
 
-    //In one tick/timestep individuals first feed,
-    //than reproduce, than substances diffuse
+    //In one tick/timestep individuals take in input, determine phenotype(based on previous timestep),
+    // feed, than reproduce, than substances diffuse
     {
         simulation s(1,1,0.1,3,1,1,0);
+        //Set all the hid nodes and H2O and H2H weights to one so that we are sure the phenotype will stay = active;
+        for(auto& ind : s.get_pop())
+        {
+            ind.get_grn().set_all_hid_nodes(1);
+            ind.get_grn().set_all_out_nodes(1);
+            ind.get_grn().set_all_H2O(1);
+            ind.get_grn().set_all_H2H(1);
+        }
 
         //The single individual in this population
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
-        s.get_ind(0).set_energy(s.get_ind_tr_en(0)
-                                + s.get_ind(0).get_metab_rate() + 0.01
-                                - s.get_ind(0).get_uptake_rate());
+        auto ind_en = s.get_ind_tr_en(0)
+                + s.get_ind(0).get_metab_rate() + 0.01
+                - s.get_ind(0).get_uptake_rate();
+        s.get_ind(0).set_energy(ind_en);
 
         //and the grid_cell where it is should recieve
         //food nutrients
@@ -1118,7 +1132,9 @@ void test_simulation()//!OCLINT tests may be many
         s.set_ind_en(0,s.get_ind_tr_en(0));
         auto init_pop_size = s.get_pop_size();
         s.set_ind_en(0,s.get_ind_tr_en(0));
-        tick(s);
+        feeding(s);
+        metabolism_pop(s);
+        assert(!division(s));
         assert(init_pop_size == s.get_pop_size());
     }
 
@@ -1137,7 +1153,7 @@ void test_simulation()//!OCLINT tests may be many
         s.get_ind(0).set_phen(phenotype::spore);
         s.set_ind_en(0,s.get_ind_tr_en(0));
         auto init_en_ind0 = s.get_ind_en(0);
-        tick(s);
+        metabolism_pop(s);
         assert(s.get_ind_en(0) - init_en_ind0 < 0.000001
                && s.get_ind_en(0) - init_en_ind0 > -0.000001);
     }
@@ -1158,7 +1174,9 @@ void test_simulation()//!OCLINT tests may be many
         s.set_ind_en(0,s.get_ind_tr_en(0));
         auto init_pop_size = s.get_pop_size();
         s.set_ind_en(0,s.get_ind_tr_en(0));
-        tick(s);
+        feeding(s);
+        metabolism_pop(s);
+        assert(!division(s));
         assert(init_pop_size == s.get_pop_size());
     }
 
@@ -1169,7 +1187,8 @@ void test_simulation()//!OCLINT tests may be many
         s.set_ind_en(0,1);
         auto init_en_ind0 = s.get_ind_en(0);
         auto init_food = s.get_env().get_cell(0).get_food();
-        tick(s);
+        feeding(s);
+        metabolism_pop(s);
         assert(init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metab_rate() < 0.000001
                && init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metab_rate() > -0.000001);
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
@@ -1177,12 +1196,12 @@ void test_simulation()//!OCLINT tests may be many
     }
 
 
-    //A sporulating individual updates its timer every tick
+    //A sporulating individual updates its timer every time metab_pop is called
     {
         simulation s;
         auto init_timer = s.get_ind(0).get_spo_timer();
         s.get_ind(0).set_phen(phenotype::sporulating);
-        tick(s);
+        metabolism_pop(s);
         assert(init_timer != s.get_ind(0).get_spo_timer());
         assert(s.get_ind(0).get_spo_timer() == init_timer + 1);
         assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
@@ -1190,7 +1209,7 @@ void test_simulation()//!OCLINT tests may be many
         s.get_ind(0).reset_spo_timer();
         init_timer = s.get_ind(0).get_spo_timer();
         s.get_ind(0).set_phen(phenotype::spore);
-        tick(s);
+        metabolism_pop(s);
         assert(s.get_ind(0).get_spo_timer() == init_timer);
         assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
         assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
@@ -1198,7 +1217,7 @@ void test_simulation()//!OCLINT tests may be many
         s.get_ind(0).reset_spo_timer();
         init_timer = s.get_ind(0).get_spo_timer();
         s.get_ind(0).set_phen(phenotype::active);
-        tick(s);
+        metabolism_pop(s);
         assert(s.get_ind(0).get_spo_timer() == init_timer);
         assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
         assert(s.get_ind(0).get_spo_timer() != init_timer + 2);

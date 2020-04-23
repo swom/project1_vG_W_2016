@@ -4,10 +4,11 @@
 #include <numeric>
 
 
-env_grid_cell::env_grid_cell(double metabolite, double food, double max_food):
-  m_metabolite(metabolite),
-  m_food(food),
-  m_max_food(max_food)
+env_grid_cell::env_grid_cell(double metabolite, double food, double max_food, double max_metab):
+  m_metabolite{metabolite},
+  m_food{food},
+  m_max_food{max_food},
+  m_max_metab{max_metab}
 {
 
 }
