@@ -132,7 +132,7 @@ void test_grid_view() noexcept
         std::vector<env_grid_cell> grid{10,10};
         grid_view gv{10};
         gv.prepare_grid(grid);
-        gv.is_food_shown();
+        gv.show_food_conc();
         gv.update_grid_quads(grid);
         for(size_t i = 0; i != gv.get_vertex_grid().getVertexCount(); i++)
         {
@@ -144,7 +144,7 @@ void test_grid_view() noexcept
         std::vector<env_grid_cell> grid{10,10};
         grid_view gv{10};
         gv.prepare_grid(grid);
-        gv.is_metab_shown();
+        gv.show_metab_conc();
         gv.update_grid_quads(grid);
         sf::Color pink(255,192,203);
         for(size_t i = 0; i != gv.get_vertex_grid().getVertexCount(); i++)
