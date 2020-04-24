@@ -207,21 +207,26 @@ void sim_view::update_pop() noexcept
             float x = m_scale * static_cast<float>(m_sim.get_pop()[i].get_x());
             float y = m_scale * static_cast<float>(m_sim.get_pop()[i].get_y());
             m_pop_shapes[i].setPosition(x, y);
-            if(m_sim.get_pop()[i].get_phen() == phenotype::active)
-            {
-                m_pop_shapes[i].setFillColor(sf::Color::Blue);
-                continue;
-            }
-            if(m_sim.get_pop()[i].get_phen() == phenotype::sporulating)
-            {
-                m_pop_shapes[i].setFillColor(sf::Color::Magenta);
-                continue;
-            }
-            m_pop_shapes[i].setFillColor(sf::Color::Yellow);
-
         }
     }
+
+    for( size_t i = 0; i != m_pop_shapes.size(); i++)
+    {
+        if(m_sim.get_pop()[i].get_phen() == phenotype::active)
+        {
+            m_pop_shapes[i].setFillColor(sf::Color::Blue);
+            continue;
+        }
+        if(m_sim.get_pop()[i].get_phen() == phenotype::sporulating)
+        {
+            m_pop_shapes[i].setFillColor(sf::Color::Magenta);
+            continue;
+        }
+        m_pop_shapes[i].setFillColor(sf::Color::Yellow);
+
+    }
 }
+
 
 void sim_view::update_indexes() noexcept
 {

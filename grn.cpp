@@ -3,10 +3,10 @@
 #include <numeric>
 
 
-GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output):
-  m_ConI2H(n_input,std::vector<double>(n_hidden,0.0)),
-  m_ConH2H(n_hidden,std::vector<double>(n_hidden,0.0)),
-  m_ConH2O(n_hidden,std::vector<double>(n_output,0.0)),
+GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output, double weights):
+  m_ConI2H(n_input,std::vector<double>(n_hidden, weights)),
+  m_ConH2H(n_hidden,std::vector<double>(n_hidden, weights)),
+  m_ConH2O(n_hidden,std::vector<double>(n_output, weights)),
   m_THidden(n_hidden,0),
   m_TOutput(n_output,0),
   m_ExInput(n_input,0),
@@ -293,23 +293,24 @@ void test_GRN()//!OCLINT , tests may be long
 {
 #ifndef NDEBUG
   //A grn is initialized with connection weights
-  //all to 0
+  //all to a given value, default  = 1
   {
-    GRN g;
+        double weight_value = 3.14;
+        GRN g{3,3,2,weight_value};
     for(const auto& node : g.get_I2H())
       {
         for(const auto& weight : node)
-          assert(weight < 0.00001 && weight > -0.00001);
+          assert(weight - weight_value < 0.00001 && weight - weight_value > -0.00001);
       }
     for(const auto& node : g.get_H2H())
       {
         for(const auto& weight : node)
-          assert(weight < 0.00001 && weight > -0.00001);
+          assert(weight - weight_value < 0.00001 && weight - weight_value > -0.00001);
       }
     for(const auto& node : g.get_H2O())
       {
         for(const auto& weight : node)
-          assert(weight < 0.00001 && weight > -0.00001);
+          assert(weight - weight_value < 0.00001 && weight - weight_value > -0.00001);
       }
   }
   //A GRN is initialized with three layers

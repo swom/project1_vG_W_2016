@@ -34,21 +34,25 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #ifndef LOGIC_ONLY
     if(args.size() > 1 && args[1] == "--visual")
       {
-        simulation s(1,1,0.1,4,0.1,20);
+        simulation s(1,1,0.1,4,0.1,20,0.5);
         sim_view v(s);
 
         int sim_time = 0;
 
         while (v.get_window().isOpen())
           {
-            sim_time++;
             bool must_quit{v.process_events()};
             if (must_quit)
               return 0;
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
               {
+                sim_time++;
                 tick(v.get_sim());
-                v.show();
+              }
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+              {
+               v.get_sim() = s;
+               v.prepare_pop();
               }
             v.show();
           }

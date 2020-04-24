@@ -434,6 +434,7 @@ void response(simulation& s)
 {
     for(auto& ind : s.get_pop())
     {
+        if(ind.get_phen() == phenotype::spore){continue;}
         auto index = find_grid_index(ind,s.get_env().get_grid_side());
         if(index == -100)//When individual is outside grid
         {
@@ -455,7 +456,8 @@ void secretion_metabolite(simulation& s)
     int index;
     for(const auto& ind : s.get_pop())
     {
-        if((index = find_grid_index(ind,s.get_env().get_grid_side()) == - 100))
+        index = find_grid_index(ind,s.get_env().get_grid_side());
+        if(index == - 100)
         {
             continue;
         }
@@ -497,7 +499,7 @@ void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<ind
 int tick(simulation& s)
 {
     int time = 0;
-    //response(s);
+    response(s);
     feeding(s);
     metabolism_pop(s);
     secretion_metabolite(s);
@@ -888,14 +890,14 @@ void test_simulation()//!OCLINT tests may be many
         double total_food_init = std::accumulate
                 (
                     s.get_env().get_grid().begin(),
-                    s.get_env().get_grid().end(),0,
+                    s.get_env().get_grid().end(),0.0,
                     [](double sum,const env_grid_cell& c){return sum + c.get_food();}
         );
 
         double total_en_init = std::accumulate
                 (
                     s.get_pop().begin(),
-                    s.get_pop().end(),0,
+                    s.get_pop().end(),0.0,
                     [](double sum,const individual& i){return sum + i.get_energy();}
         );
 
@@ -1276,7 +1278,8 @@ void test_simulation()//!OCLINT tests may be many
 
     //Individuals that die are removed from the population
     {
-        simulation s;//the only individual in this sim has 0 energy, thus it will die
+        simulation s;
+        s.get_ind(0).set_energy(0);//the only individual in this sim has 0 energy, thus it will die
         assert(s.get_pop_size() == 1);
         death(s);
         assert(s.get_pop().empty() && s.get_pop_size() == 0);
@@ -1285,6 +1288,10 @@ void test_simulation()//!OCLINT tests may be many
         //The simulation does not have a grid with food,
         //so organisms cannot feed
         s = simulation(pop_size,1,0.1,0);
+        for(auto& ind :s.get_pop())
+        {
+            ind.set_energy(0);
+        }
         //Only the first individual has enough energy to survive
         //for 1 tick
         s.set_ind_en(0,s.get_ind(0).get_metabolic_rate() + 0.001);
@@ -1595,6 +1602,7 @@ void test_simulation()//!OCLINT tests may be many
         {
             assert(is_sporulating(ind));
         }
+
         //The values of food and metabolite in the grid_cell as well as the energy in the individual
         //are changed so that all inputs are -1, the network should therefore give outputs == 0/false
         //since the outputs node will recieve a signal that is negative(below the treshold)

@@ -59,9 +59,9 @@ public:
 private:
     std::vector<int> m_v_neighbors;
     double m_metabolite;
-    double m_metabolite_change;
+    double m_metabolite_change = 0;
     double m_food;
-    double m_food_change;
+    double m_food_change = 0;
     double m_max_food;
     double m_max_metab;
 };

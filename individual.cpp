@@ -350,10 +350,13 @@ void test_individual()//!OCLINT tests may be many
                && i2.get_metabolic_rate() - metabolic_rate > -0.000001);
 
     }
-    //Individuals should be initialized with 0 internal energy
+    //Individuals should be initialized with a internal energy value
+    //by default 0.1
     {
-        individual i;
-        assert(i.get_energy() - 0.0 < 0.000001);
+        double internal_energy = 3.14;
+        individual i{0,0,0,internal_energy};
+        assert(i.get_energy() - internal_energy < 0.000001 &&
+               i.get_energy() - internal_energy > -0.000001);
     }
 
     //An individual is initialized with a treshold level of energy
@@ -698,14 +701,14 @@ void test_individual()//!OCLINT tests may be many
     }
     //An individual with 0 energy is signaled to be destroyed
     {
-        individual i;
+        individual i{0,0,0,0};
         assert(i.get_energy() < 0.00001 && i.get_energy() > -0.00001);
         assert(is_dead(i));
     }
 
     //After feeding and metabolism if energy is 0 individual is destroyed
     {
-        individual i;
+        individual i{0,0,0,0};
         assert(is_dead(i));//individual is initialized with 0 energy
         //Let's create an env grid cell that will feed the individual
         //the exact quantity it will lose with metabolism
@@ -718,7 +721,7 @@ void test_individual()//!OCLINT tests may be many
 
     //Spores do not die even if their energy is 0
     {
-        individual i;
+        individual i{0,0,0,0};
         assert(i.get_phen() != phenotype::spore);
         assert(is_dead(i));
         i.set_phen(phenotype::spore);
@@ -751,7 +754,7 @@ void test_individual()//!OCLINT tests may be many
     //An individual can sense food, metabolite and energy amounts
     //and use them as inputs to its GRN
     {
-        individual i;
+        individual i{0,0,0,0};
         env_grid_cell g;
         sense(i, g);
         for(const auto& input : i.get_grn().get_input_nodes())
