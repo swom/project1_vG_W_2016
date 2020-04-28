@@ -7,6 +7,7 @@ HEADERS += \
     grn.h \
     individual.h \
     phenotype.h \
+    sim_parameters.h \
     sim_view.h \
     simulation.h
 
@@ -18,6 +19,7 @@ SOURCES += \
     individual.cpp \
     main.cpp \
     phenotype.cpp \
+    sim_parameters.cpp \
     sim_view.cpp \
     simulation.cpp
 

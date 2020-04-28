@@ -2,8 +2,9 @@
 #define SIMULATION_H
 #include <vector>
 #include <random>
-#include "individual.h"
 #include "environment.h"
+#include "individual.h"
+#include "sim_parameters.h"
 
 class simulation
 {
@@ -167,6 +168,9 @@ private:
 
     ///The probability that an individual will reproduce
     double m_repr_prob;
+
+    ///The parameters of the simulation
+    sim_parameters m_param;
 };
 
 ///Checks if the entire population has been already drawn for funding the new population
