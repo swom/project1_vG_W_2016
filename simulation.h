@@ -62,7 +62,7 @@ public:
     double get_mu_p() noexcept {return m_mutation_prob;}
 
     ///Gets the reference to the mutation step distribution
-    std::normal_distribution<double>& get_mu_st() noexcept {return m_mutation_step;}
+    double get_mu_st() noexcept {return m_mutation_step;}
 
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_new_pop() const noexcept {return m_new_pop_tmp_buffer;}
@@ -99,9 +99,6 @@ public:
     ///Gets the number of ticks in the simulation
     int get_tick() const noexcept {return m_sim_timer;}
 
-    ///Gives back the mutation size based on initialization parameters
-    double mut_step() noexcept {return m_mutation_step(m_rng);}
-
     ///Places an individual of index i at position x,y
     void set_ind_pos(individual& i, double x, double y);
 
@@ -122,31 +119,46 @@ private:
 
     ///The vector of individuals representing a population
     std::vector<individual> m_pop;
+
     ///The expected size of a newly funded population
     int m_exp_new_pop_size;
+
     ///The buffer vector on which the new population will be copied and that
     /// will be then swapped with the current population
     /// Used to reduce memory allocation time
     std::vector<individual> m_new_pop_tmp_buffer;
+
     ///The minimum ditance between individuals when they are placed down at the start
     ///of a population cycle
     double m_min_init_dist_btw_inds;
+
     ///The side of the grid
     int m_grid_side;
+
     /// The diffusion coefficient of substances in the grid
     double m_diff_coeff;
+
     ///The rate at which metabolite degrades
     double m_metab_degradation_rate;
+
     ///The initial amount of food in each grid_cell at the start of a pop cycle
     double m_init_food;
+
     ///The environment class containing the grid where substances(food, metabolite) are
     environment m_e;
+
     ///The timer that keeps track of how many timesteps we are in the simulation
     int m_sim_timer = 0;
+
+    ///The random number generator of simulation(used for everything)
     std::minstd_rand m_rng;
+
     ///The probability of a mutation to happen
     double m_mutation_prob;
-    std::normal_distribution<double> m_mutation_step;
+
+    ///The variance of the gaussian from which the size of the mutation is drawn
+    double m_mutation_step;
+
     double m_base_disp_prob;
     double m_spore_advantage;
     double m_repr_prob;
@@ -175,6 +187,9 @@ std::uniform_real_distribution<double> create_unif_dist(double a, double b) noex
 
 ///Creates a bernoulli distribution
 std::bernoulli_distribution create_bernoulli_dist(double p) noexcept;
+
+///Creates a normal distribution
+std::normal_distribution<double> create_normal_dist(double m, double v);
 
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
@@ -231,6 +246,9 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 
 ///Checks if a mutation happens given the mutation probability of a simulation
 bool mut_happens(simulation& s) noexcept;
+
+///Gives back the mutation size based on initialization parameters
+double mut_step() noexcept;
 
 ///Moves individuals that are perfectly on top of each other a little bit
 ///to allow correct displacement

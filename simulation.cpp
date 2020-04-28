@@ -19,7 +19,7 @@ simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_d
     m_init_food{init_food},
     m_e{m_grid_side, m_diff_coeff, m_init_food, metab_degradation_rate},
     m_mutation_prob{mutation_prob},
-    m_mutation_step{0,mutation_step},
+    m_mutation_step{mutation_step},
     m_base_disp_prob{base_disp_prob},
     m_spore_advantage{spore_advantage},
     m_repr_prob{reproduction_prob}
@@ -119,6 +119,11 @@ std::bernoulli_distribution create_bernoulli_dist(double p) noexcept
     return std::bernoulli_distribution{p};
 }
 
+std::normal_distribution<double> create_normal_dist(double m, double v)
+{
+    return std::normal_distribution<double>{m, v};
+}
+
 //not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
 void death(simulation& s) noexcept
 {
@@ -139,9 +144,13 @@ bool division(simulation &s) noexcept
             if(repr_prob(s.get_rng()) < s.get_repr_p())
             {
 
-                divides(s.get_ind(div_ind),s.get_pop(),repr_angle(s),
-                        s.get_rng(),create_bernoulli_dist(s.get_mu_p()),
-                        s.get_mu_st());
+                divides(s.get_ind(div_ind),
+                        s.get_pop(),
+                        repr_angle(s),
+                        s.get_rng(),
+                        create_bernoulli_dist(s.get_mu_p()),
+                        create_normal_dist(0,s.get_mu_st())
+                        );
             }
         }
     return !div_inds.empty();
@@ -340,6 +349,11 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 bool mut_happens(simulation& s) noexcept
 {
     return create_bernoulli_dist(s.get_mu_p())(s.get_rng());
+}
+
+double mut_step(simulation& s) noexcept
+{
+    return create_normal_dist(0,s.get_mu_st())(s.get_rng());
 }
 
 void no_complete_overlap(simulation& s) noexcept
@@ -765,9 +779,13 @@ void test_simulation()//!OCLINT tests may be many
         //to reproduce without offspring having negative enrgies
         s.set_ind_en(0,get_ind_tr_en(s, 0));
 
-        divides(s.get_ind(0),s.get_pop(), repr_angle(s),
-                s.get_rng(), create_bernoulli_dist(s.get_mu_p()),
-                s.get_mu_st());
+        divides(s.get_ind(0),
+                s.get_pop(),
+                repr_angle(s),
+                s.get_rng(),
+                create_bernoulli_dist(s.get_mu_p()),
+                create_normal_dist(0,s.get_mu_st())
+                );
         //The first daughter cell is at the same index of the mother cell
         assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
     }
@@ -779,9 +797,13 @@ void test_simulation()//!OCLINT tests may be many
         //setting energy high enough for the individual to reproduce
         //without offspring having negative enrgies
         s.set_ind_en(0,get_ind_tr_en(s, 0));
-        divides(s.get_ind(0), s.get_pop(), repr_angle(s),
-                s.get_rng(), create_bernoulli_dist(s.get_mu_p()),
-                s.get_mu_st());
+        divides(s.get_ind(0),
+                s.get_pop(),
+                repr_angle(s),
+                s.get_rng(),
+                create_bernoulli_dist(s.get_mu_p()),
+                create_normal_dist(0,s.get_mu_st())
+                );
         assert(!has_collision(s));
         assert(distance(s.get_ind(0), s.get_ind(1)) -
                (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
@@ -1396,7 +1418,7 @@ void test_simulation()//!OCLINT tests may be many
         double mean = 0;
         int sampling_size = 10000;
         for(int i = 0 ; i != sampling_size; i++ )
-            mean += s.mut_step();
+            mean += mut_step(s);
         mean /= sampling_size;
         assert(mean < 0.01 && mean > -0.01);
     }
@@ -1423,10 +1445,14 @@ void test_simulation()//!OCLINT tests may be many
 
         int sampling_size = 10000;
         auto mut_prob_dist = create_bernoulli_dist(s.get_mu_p());
+        auto mut_step_dist = create_normal_dist(0,s.get_mu_st());
         for (int i = 0; i != sampling_size; i++)
         {
-            mutates(s.get_ind(0),s.get_rng(),
-                    mut_prob_dist, s.get_mu_st());
+            mutates(s.get_ind(0),
+                    s.get_rng(),
+                    mut_prob_dist,
+                    mut_step_dist
+                    );
         }
         //This first assert does not pass, the mean is much more variable than
         //I thought, but I do not see any bug. I will comment this out
@@ -1440,8 +1466,13 @@ void test_simulation()//!OCLINT tests may be many
         simulation s(1, 1, 0, 0, 0, 0, mutation_probability);
         auto init_var = weights_var(s.get_ind(0).get_grn());
         assert(init_var < 0.00001 && init_var > -0.0001);
-        divides(s.get_ind(0),s.get_pop(), repr_angle(s), s.get_rng(),
-                create_bernoulli_dist(s.get_mu_p()), s.get_mu_st());
+        divides(s.get_ind(0),
+                s.get_pop(),
+                repr_angle(s),
+                s.get_rng(),
+                create_bernoulli_dist(s.get_mu_p()),
+                create_normal_dist(0, s.get_mu_st())
+                );
         auto post_var = weights_var(s.get_ind(0).get_grn());
         assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
     }
