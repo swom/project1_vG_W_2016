@@ -159,8 +159,13 @@ private:
     ///The variance of the gaussian from which the size of the mutation is drawn
     double m_mutation_step;
 
+    ///The base dispersal probability of an individual(so when it is active or sporulating)
     double m_base_disp_prob;
+
+    ///The factor for which the dispersal probability is multiplied if the individual is a spore
     double m_spore_advantage;
+
+    ///The probability that an individual will reproduce
     double m_repr_prob;
 };
 
