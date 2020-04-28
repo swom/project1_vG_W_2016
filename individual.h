@@ -215,7 +215,7 @@ double squared_distance(const individual& lhs, const individual& rhs) noexcept;
 
 ///Divides an individual at a given index
 void divides(individual &i, std::vector<individual> &pop, double repr_angle,
-             std::minstd_rand& rng, std::bernoulli_distribution& mu_p,
+             std::minstd_rand& rng, std::bernoulli_distribution mu_p,
              std::normal_distribution<double> mu_st);
 
 ///Sets the type of the individual accordingly to its GRN's outputs

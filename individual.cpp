@@ -82,7 +82,7 @@ void determine_phen(individual& i) noexcept
 
 
 void divides(individual& i, std::vector<individual>& pop, double repr_angle,
-             std::minstd_rand& rng, std::bernoulli_distribution& mu_p,
+             std::minstd_rand& rng, std::bernoulli_distribution mu_p,
              std::normal_distribution<double> mu_st)
 {
     double offs_init_en = i.split_excess_energy();

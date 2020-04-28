@@ -12,16 +12,14 @@ simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_d
 
     m_pop(pop_size,individual{0,0}),
     m_exp_new_pop_size{exp_new_pop_size},
-    m_min_init_dist_btw_cells{min_dist},
+    m_min_init_dist_btw_inds{min_dist},
     m_grid_side{grid_side},
     m_diff_coeff{diff_coeff},
     m_metab_degradation_rate{metab_degradation_rate},
     m_init_food{init_food},
     m_e{m_grid_side, m_diff_coeff, m_init_food, metab_degradation_rate},
-    m_reproduction_angle{0, 2 * M_PI},
     m_mutation_prob{mutation_prob},
     m_mutation_step{0,mutation_step},
-    m_disp_dist{0,1},
     m_base_disp_prob{base_disp_prob},
     m_spore_advantage{spore_advantage},
     m_repr_prob{reproduction_prob}
@@ -111,6 +109,16 @@ bool calc_tot_displ_pop(std::vector<individual>& pop)
     return has_collision;
 }
 
+std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept
+{
+    return std::uniform_real_distribution<double>(a,b);
+}
+
+std::bernoulli_distribution create_bernoulli_dist(double p) noexcept
+{
+    return std::bernoulli_distribution{p};
+}
+
 //not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
 void death(simulation& s) noexcept
 {
@@ -130,8 +138,10 @@ bool division(simulation &s) noexcept
             int div_ind = div_inds[i];
             if(repr_prob(s.get_rng()) < s.get_repr_p())
             {
-                divides(s.get_ind(div_ind),s.get_pop(),s.repr_angle(),
-                        s.get_rng(),s.get_mu_p(),s.get_mu_st());
+
+                divides(s.get_ind(div_ind),s.get_pop(),repr_angle(s),
+                        s.get_rng(),create_bernoulli_dist(s.get_mu_p()),
+                        s.get_mu_st());
             }
         }
     return !div_inds.empty();
@@ -205,10 +215,20 @@ std::vector<double> get_excess_energies(const simulation& s) noexcept
     {
         int ind_index = v_ind[i];
         excess_energy.push_back(
-                    s.get_ind_en(ind_index) - s.get_ind_tr_en(ind_index)
+                    get_ind_en(s, ind_index) - get_ind_tr_en(s, ind_index)
                     );
     }
     return excess_energy;
+}
+
+double get_ind_en(const simulation& s, int i)
+{
+return s.get_ind(i).get_energy();
+}
+
+double get_ind_tr_en(const simulation& s, int i)
+{
+return s.get_ind(i).get_treshold_energy();
 }
 
 std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  noexcept
@@ -317,6 +337,11 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
     return v_modulus;
 }
 
+bool mut_happens(simulation& s) noexcept
+{
+    return create_bernoulli_dist(s.get_mu_p())(s.get_rng());
+}
+
 void no_complete_overlap(simulation& s) noexcept
 {
     for(size_t i = 0; i != s.get_pop().size(); i++)
@@ -326,7 +351,7 @@ void no_complete_overlap(simulation& s) noexcept
             if(distance(s.get_pop()[i], s.get_pop()[j]) < 0.00001 &&
                     distance(s.get_pop()[i], s.get_pop()[j]) > -0.00001)
             {
-                auto rnd_n_0_1 = s.get_unif_dist()(s.get_rng());
+                auto rnd_n_0_1 = create_unif_dist(0,1)(s.get_rng());
                 s.get_pop()[i].change_x(rnd_n_0_1 * 0.0001);
                 s.get_pop()[j].change_x(rnd_n_0_1 * -0.0001);
             }
@@ -430,6 +455,11 @@ possible_collisions_y(individual focal_ind,
     return range =  {first_y,last_y};
 }
 
+double repr_angle( simulation& s) noexcept
+{
+    return create_unif_dist(0, 2 * M_PI)(s.get_rng());
+}
+
 void response(simulation& s)
 {
     for(auto& ind : s.get_pop())
@@ -472,7 +502,7 @@ void select_new_pop(simulation& s)
     {
         for(auto& ind : s.get_pop())
         {
-            if(s.get_unif_dist()(s.get_rng()) <
+            if(create_unif_dist(0,1)(s.get_rng()) <
                     get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv())
                     && !is_drawn(ind))
             {
@@ -658,13 +688,13 @@ void test_simulation()//!OCLINT tests may be many
     //to the diference between their energy and their treshold energy
     {
         simulation s(2);
-        double energy = s.get_ind_tr_en(0);
+        double energy = get_ind_tr_en(s, 0);
         s.set_ind_en(0,energy);
         s.set_ind_en(1,energy*2);
         auto v_ex_en = get_excess_energies(s);
         for(int i =0; i != static_cast<int>(v_ex_en.size()); i++){
             assert(v_ex_en[static_cast<unsigned int>(i)]
-                    - (s.get_ind_en(i) - s.get_ind_tr_en(i)) < 0.00000001);
+                    - (get_ind_en(s, i) - get_ind_tr_en(s, i)) < 0.00000001);
         }
     }
 
@@ -675,7 +705,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s(1);
         //First individual reproduces
-        s.set_ind_en(0,s.get_ind_tr_en(0)*2);
+        s.set_ind_en(0,get_ind_tr_en(s, 0)*2);
         auto daughters = get_sisters_index_offset(s);
         // In this case the distance between the two offspring
         //will be 1 element of the vector in next gen
@@ -697,12 +727,12 @@ void test_simulation()//!OCLINT tests may be many
 
         auto mother_excess_energy = get_excess_energies(s);
         division(s);
-        assert(s.get_ind_en(0) - mother_excess_energy[0]/2 < 0.00001 &&
-                s.get_ind_en(0) - mother_excess_energy[0]/2 > -0.00001);
-        assert(s.get_ind_en(1) - mother_excess_energy[0]/2 < 0.00001 &&
-                s.get_ind_en(1) - mother_excess_energy[0]/2 > -0.00001);
-        assert(s.get_ind_en(0) - s.get_ind_en(1) < 0.00001 &&
-               s.get_ind_en(0) - s.get_ind_en(1) > -0.00001);
+        assert(get_ind_en(s, 0) - mother_excess_energy[0]/2 < 0.00001 &&
+                get_ind_en(s, 0) - mother_excess_energy[0]/2 > -0.00001);
+        assert(get_ind_en(s, 1) - mother_excess_energy[0]/2 < 0.00001 &&
+                get_ind_en(s, 1) - mother_excess_energy[0]/2 > -0.00001);
+        assert(get_ind_en(s, 0) - get_ind_en(s, 1) < 0.00001 &&
+               get_ind_en(s, 0) - get_ind_en(s, 1) > -0.00001);
     }
 
     //Individuals can be sorted based on their x coordinate in increasing order
@@ -733,10 +763,11 @@ void test_simulation()//!OCLINT tests may be many
         auto parent_pop = s.get_pop();
         //setting energy high enough for the individual
         //to reproduce without offspring having negative enrgies
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
 
-        divides(s.get_ind(0),s.get_pop(),s.repr_angle(),
-                s.get_rng(), s.get_mu_p(), s.get_mu_st());
+        divides(s.get_ind(0),s.get_pop(), repr_angle(s),
+                s.get_rng(), create_bernoulli_dist(s.get_mu_p()),
+                s.get_mu_st());
         //The first daughter cell is at the same index of the mother cell
         assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
     }
@@ -747,9 +778,10 @@ void test_simulation()//!OCLINT tests may be many
         simulation s;
         //setting energy high enough for the individual to reproduce
         //without offspring having negative enrgies
-        s.set_ind_en(0,s.get_ind_tr_en(0));
-        divides(s.get_ind(0), s.get_pop(), s.repr_angle(),
-                s.get_rng(), s.get_mu_p(), s.get_mu_st());
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        divides(s.get_ind(0), s.get_pop(), repr_angle(s),
+                s.get_rng(), create_bernoulli_dist(s.get_mu_p()),
+                s.get_mu_st());
         assert(!has_collision(s));
         assert(distance(s.get_ind(0), s.get_ind(1)) -
                (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
@@ -1010,7 +1042,7 @@ void test_simulation()//!OCLINT tests may be many
         //The single individual in this population
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
-        auto ind_en = s.get_ind_tr_en(0)
+        auto ind_en = get_ind_tr_en(s, 0)
                 + s.get_ind(0).get_metabolic_rate() + 0.01
                 - s.get_ind(0).get_uptake_rate();
         s.get_ind(0).set_energy(ind_en);
@@ -1134,7 +1166,7 @@ void test_simulation()//!OCLINT tests may be many
         //The central individual in this population
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
-        s.get_ind(1).set_energy(s.get_ind_tr_en(1)
+        s.get_ind(1).set_energy(get_ind_tr_en(s, 1)
                                 + s.get_ind(1).get_metabolic_rate() + 0.01
                                 - s.get_ind(1).get_uptake_rate());
         feeding(s);
@@ -1172,7 +1204,7 @@ void test_simulation()//!OCLINT tests may be many
     //Spores do not get detected when looking for dividing individual
     {
         simulation s;
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
         assert(get_dividing_individuals(s)[0] == 0);
         s.get_ind(0).set_phen(phenotype::spore);
         assert(get_dividing_individuals(s).empty());
@@ -1182,9 +1214,9 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::spore);
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
         auto init_pop_size = s.get_pop_size();
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
         feeding(s);
         metabolism_pop(s);
         assert(!division(s));
@@ -1204,17 +1236,17 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::spore);
-        s.set_ind_en(0,s.get_ind_tr_en(0));
-        auto init_en_ind0 = s.get_ind_en(0);
+        s.set_ind_en(0, get_ind_tr_en(s, 0));
+        auto init_en_ind0 = get_ind_en(s, 0);
         metabolism_pop(s);
-        assert(s.get_ind_en(0) - init_en_ind0 < 0.000001
-               && s.get_ind_en(0) - init_en_ind0 > -0.000001);
+        assert(get_ind_en(s, 0) - init_en_ind0 < 0.000001
+               && get_ind_en(s, 0) - init_en_ind0 > -0.000001);
     }
 
     //Sporulating individuals do not get detected when looking for dividing individual
     {
         simulation s;
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
         assert(get_dividing_individuals(s)[0] == 0);
         s.get_ind(0).set_phen(phenotype::sporulating);
         assert(get_dividing_individuals(s).empty());
@@ -1224,9 +1256,9 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::sporulating);
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0,get_ind_tr_en(s, 0));
         auto init_pop_size = s.get_pop_size();
-        s.set_ind_en(0,s.get_ind_tr_en(0));
+        s.set_ind_en(0, get_ind_tr_en(s, 0));
         feeding(s);
         metabolism_pop(s);
         assert(!division(s));
@@ -1238,12 +1270,12 @@ void test_simulation()//!OCLINT tests may be many
         simulation s;
         s.get_ind(0).set_phen(phenotype::sporulating);
         s.set_ind_en(0,1);
-        auto init_en_ind0 = s.get_ind_en(0);
+        auto init_en_ind0 = get_ind_en(s, 0);
         auto init_food = s.get_env().get_cell(0).get_food();
         feeding(s);
         metabolism_pop(s);
-        assert(init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metabolic_rate() < 0.000001
-               && init_en_ind0 - s.get_ind_en(0) - s.get_ind(0).get_metabolic_rate() > -0.000001);
+        assert(init_en_ind0 - get_ind_en(s, 0) - s.get_ind(0).get_metabolic_rate() < 0.000001
+               && init_en_ind0 - get_ind_en(s, 0) - s.get_ind(0).get_metabolic_rate() > -0.000001);
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
     }
@@ -1327,7 +1359,7 @@ void test_simulation()//!OCLINT tests may be many
         int sampling_size = 1000;
         for(int i = 0; i != sampling_size; i++)
         {
-            mean += s.repr_angle();
+            mean += repr_angle(s);
         }
         //calculate mean of the drawn values
         mean /= 1000;
@@ -1350,7 +1382,7 @@ void test_simulation()//!OCLINT tests may be many
         int sampling_size = 1000;
         for(int i = 0; i != sampling_size; i++)
         {
-            auto daughter = get_daughter_pos(s.get_ind(0),s.repr_angle());
+            auto daughter = get_daughter_pos(s.get_ind(0), repr_angle(s));
             mean += calc_angle_3_pos(mother,daughter,reference);
         }
         mean /= sampling_size;
@@ -1375,7 +1407,7 @@ void test_simulation()//!OCLINT tests may be many
         double mean = 0;
         int sampling_size = 100000;
         for(int i = 0 ; i != sampling_size; i++ )
-            mean += s.mut_happens();
+            mean += mut_happens(s);
         mean /= sampling_size;
         assert(mean < 0.011 && mean > 0.009);
     }
@@ -1390,11 +1422,11 @@ void test_simulation()//!OCLINT tests may be many
         assert(init_variance < 0.0001 && init_variance > -0.000001);
 
         int sampling_size = 10000;
-
+        auto mut_prob_dist = create_bernoulli_dist(s.get_mu_p());
         for (int i = 0; i != sampling_size; i++)
         {
             mutates(s.get_ind(0),s.get_rng(),
-                    s.get_mu_p(), s.get_mu_st());
+                    mut_prob_dist, s.get_mu_st());
         }
         //This first assert does not pass, the mean is much more variable than
         //I thought, but I do not see any bug. I will comment this out
@@ -1408,8 +1440,8 @@ void test_simulation()//!OCLINT tests may be many
         simulation s(1, 1, 0, 0, 0, 0, mutation_probability);
         auto init_var = weights_var(s.get_ind(0).get_grn());
         assert(init_var < 0.00001 && init_var > -0.0001);
-        divides(s.get_ind(0),s.get_pop(),s.repr_angle(),s.get_rng(),
-                s.get_mu_p(),s.get_mu_st());
+        divides(s.get_ind(0),s.get_pop(), repr_angle(s), s.get_rng(),
+                create_bernoulli_dist(s.get_mu_p()), s.get_mu_st());
         auto post_var = weights_var(s.get_ind(0).get_grn());
         assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
     }
@@ -1466,7 +1498,7 @@ void test_simulation()//!OCLINT tests may be many
         double mean = 0;
         for(int i = 0; i != sample_size; i++)
         {
-            mean += s.get_unif_dist()(s.get_rng());
+            mean += create_unif_dist(0,1)(s.get_rng());
         }
         mean /= sample_size;
         assert(mean - 0.5 < 0.01 &&
