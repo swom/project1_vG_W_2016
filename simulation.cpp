@@ -48,9 +48,9 @@ simulation::simulation(unsigned int pop_size,
     }
 }
 
-simulation::simulation(sim_param param):
+simulation::simulation(sim_param param, ind_param inds_param = ind_param()):
     m_param{param},
-    m_pop(m_param.get_pop_start_size(),individual{0,0}),
+    m_pop(m_param.get_pop_start_size(),individual{inds_param}),
     m_e{m_param.get_grid_side(), m_param.get_diff_coeff(), m_param.get_init_food(), m_param.get_metab_degr_rate()}
 
 {
@@ -231,7 +231,7 @@ std::vector<int> get_dividing_individuals(const simulation& s) noexcept
     std::vector<int> dividing_individuals;
     for(unsigned int i = 0; i != s.get_pop().size(); i++)
     {
-        if(s.get_pop()[i].get_energy() >= s.get_pop()[i].get_treshold_energy()
+        if(s.get_pop()[i].get_energy() >= s.get_pop()[i].get_param().get_treshold_energy()
                 && s.get_pop()[i].get_phen() == phenotype::active)
         {
             dividing_individuals.push_back(static_cast<int>(i));
@@ -261,15 +261,15 @@ double get_ind_en(const simulation& s, int i)
 
 double get_ind_tr_en(const simulation& s, int i)
 {
-    return s.get_ind(i).get_treshold_energy();
+    return s.get_ind(i).get_param().get_treshold_energy();
 }
 
 std::pair<double, double> get_ind_pos(const individual& i)
 {
-  std::pair<double, double> pos;
-pos.first = i.get_x();
-pos.second = i.get_y();
-return pos;
+    std::pair<double, double> pos;
+    pos.first = i.get_x();
+    pos.second = i.get_y();
+    return pos;
 
 }
 
@@ -420,7 +420,7 @@ void place_start_cells(simulation& s) noexcept
     unsigned int placed_ind = 0;
 
     // d is the distance between 2 individuals's centers
-    double d = 2 * (s.get_pop()[0].get_radius() + s.get_param().get_min_dist());
+    double d = 2 * (s.get_pop()[0].get_param().get_radius() + s.get_param().get_min_dist());
 
     for(int i = 0; i != n; i++)
     {
@@ -464,13 +464,13 @@ possible_collisions_x(individual focal_ind, std::vector<individual>& pop)
     auto first_x = std::lower_bound(
                 pop.begin(), pop.end(), focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
+    {return lhs.get_x() + lhs.get_param().get_radius() < rhs.get_x() - rhs.get_param().get_radius();}
     );
 
     auto last_x = std::upper_bound(
                 pop.begin(),pop.end(), focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
+    {return lhs.get_x() + lhs.get_param().get_radius() < rhs.get_x() - rhs.get_param().get_radius();}
     );
 
     return range = {first_x, last_x};
@@ -489,14 +489,14 @@ possible_collisions_y(individual focal_ind,
     auto first_y = std::lower_bound(
                 first_x,last_x,focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
+    {return lhs.get_y() + lhs.get_param().get_radius() < rhs.get_y() - rhs.get_param().get_radius();}
     );
     if(first_y == pop.end()){first_y = pop.begin();}
 
     auto last_y = std::upper_bound(
                 first_x,last_x,focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
+    {return lhs.get_y() + lhs.get_param().get_radius() < rhs.get_y() - rhs.get_param().get_radius();}
     );
 
     return range =  {first_y,last_y};
@@ -603,7 +603,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //A simulation can be initialized by getting a sim_parmater class as an argument
     {
-         unsigned int pop_size = 1;
+        unsigned int pop_size = 1;
         int exp_new_pop_size = 1;
         double min_dist = 0.1;
         int grid_side = 1;
@@ -617,17 +617,17 @@ void test_simulation()//!OCLINT tests may be many
         double metab_degradation_rate = 0.01;
 
         sim_param s_p(pop_size,
-                           exp_new_pop_size,
-                           min_dist,
-                           grid_side,
-                           diff_coeff,
-                           init_food,
-                           mutation_prob,
-                           mutation_step,
-                           base_disp_prob,
-                           spore_advantage,
-                           reproduction_prob,
-                           metab_degradation_rate);
+                      exp_new_pop_size,
+                      min_dist,
+                      grid_side,
+                      diff_coeff,
+                      init_food,
+                      mutation_prob,
+                      mutation_step,
+                      base_disp_prob,
+                      spore_advantage,
+                      reproduction_prob,
+                      metab_degradation_rate);
         simulation s(s_p);
         assert(s.get_pop().size() == pop_size);
         assert(s.get_param().get_exp_new_pop_size() == exp_new_pop_size);
@@ -755,7 +755,7 @@ void test_simulation()//!OCLINT tests may be many
         //to facilitate the testing conditions
         for(auto& ind : s.get_pop())
         {
-            ind.set_energy(ind.get_treshold_energy());
+            ind.set_energy(ind.get_param().get_treshold_energy());
         }
         division(s);
 
@@ -769,18 +769,18 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s(3);
         //This ind will not reproduce
-        s.get_ind(0).set_energy(s.get_ind(0).get_treshold_energy()-1);
+        s.get_ind(0).set_energy(s.get_ind(0).get_param().get_treshold_energy()-1);
         //This ind will reproduce with no extra energy
-        s.get_ind(1).set_energy(s.get_ind(1).get_treshold_energy());
+        s.get_ind(1).set_energy(s.get_ind(1).get_param().get_treshold_energy());
         //This ind will reproduce with extra energy
-        s.get_ind(2).set_energy(s.get_ind(2).get_treshold_energy()+1);
+        s.get_ind(2).set_energy(s.get_ind(2).get_param().get_treshold_energy()+1);
 
         std::vector<int> div_ind = get_dividing_individuals(s);
         assert(!div_ind.empty());
 
         for(unsigned int i = 0; i != div_ind.size(); i++)
             assert(s.get_ind(div_ind[i]).get_energy()
-                   >= s.get_ind(div_ind[i]).get_treshold_energy());
+                   >= s.get_ind(div_ind[i]).get_param().get_treshold_energy());
 
     }
 
@@ -892,7 +892,7 @@ void test_simulation()//!OCLINT tests may be many
                 );
         assert(!has_collision(s));
         assert(distance(s.get_ind(0), s.get_ind(1)) -
-               (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
+               (s.get_ind(0).get_param().get_radius() + s.get_ind(1).get_param().get_radius()) < 0.1);
     }
 
     //Given a focal individual it is possible to find the individuals that could potentially
@@ -921,7 +921,7 @@ void test_simulation()//!OCLINT tests may be many
         //(the end of the vector if the focal is the last element
         set_pos(s.get_ind(0),
                 std::pair<double,double>{
-                    s.get_ind(1).get_x() - s.get_ind(1).get_radius(),
+                    s.get_ind(1).get_x() - s.get_ind(1).get_param().get_radius(),
                     s.get_ind(1).get_y()
                 }
                 );
@@ -946,7 +946,7 @@ void test_simulation()//!OCLINT tests may be many
         set_pos(s.get_ind(0),
                 std::pair<double,double>{
                     s.get_ind(1).get_x(),
-                    s.get_ind(1).get_y() + s.get_ind(1).get_radius()
+                    s.get_ind(1).get_y() + s.get_ind(1).get_param().get_radius()
                 }
                 );
         sort_inds_by_x_inc(s.get_pop().begin(),s.get_pop().end());
@@ -1062,7 +1062,8 @@ void test_simulation()//!OCLINT tests may be many
         assert(total_en_init < total_en_after);
 
         auto total_uptake = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
-                                            [](double sum, const individual& i) {return sum + i.get_uptake_rate();});
+                                            [](double sum, const individual& i)
+        {return sum + i.get_param().get_uptake_rate();});
 
         assert(total_en_after - (total_uptake + total_en_init) < 0.00000001 &&
                total_en_after - (total_uptake + total_en_init) > -0.00000001);
@@ -1151,15 +1152,16 @@ void test_simulation()//!OCLINT tests may be many
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
         auto ind_en = get_ind_tr_en(s, 0)
-                + s.get_ind(0).get_metabolic_rate() + 0.01
-                - s.get_ind(0).get_uptake_rate();
+                + s.get_ind(0).get_param().get_metabolic_rate() + 0.01
+                - s.get_ind(0).get_param().get_uptake_rate();
         s.get_ind(0).set_energy(ind_en);
 
         //and the grid_cell where it is should recieve
         //food nutrients
         auto grid_index_ind =  find_grid_index(s.get_ind(0),s.get_env().get_grid_side());
         double predicted_food_after_feeding =
-                s.get_env().get_cell(grid_index_ind).get_food() - s.get_ind(0).get_uptake_rate();
+                s.get_env().get_cell(grid_index_ind).get_food() -
+                s.get_ind(0).get_param().get_uptake_rate();
 
         tick(s);
 
@@ -1176,7 +1178,8 @@ void test_simulation()//!OCLINT tests may be many
                                           [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
 
         //The simulation will last long enough  for the individuals to reproduce
-        auto sim_time = s.get_ind(0).get_treshold_energy() / s.get_ind(0).get_uptake_rate() + 5;
+        auto sim_time = s.get_ind(0).get_param().get_treshold_energy() /
+                s.get_ind(0).get_param().get_uptake_rate() + 5;
 
         auto init_pop_size =  s.get_pop().size();
 
@@ -1196,7 +1199,7 @@ void test_simulation()//!OCLINT tests may be many
                 auto grid_cell_ind = find_grid_index(ind, s.get_param().get_grid_side());
                 if( grid_cell_ind != -100 && s.get_env().get_cell(grid_cell_ind).get_food() > 0)
                 {
-                    food_eaten += ind.get_uptake_rate();
+                    food_eaten += ind.get_param().get_uptake_rate();
                 }
             }
 
@@ -1257,10 +1260,16 @@ void test_simulation()//!OCLINT tests may be many
         secretion_metabolite(s);
         degradation_metabolite(s.get_env());
 
-        double tot_metab_after = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                                 [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
-        double tot_production = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
-                                                [](int sum, const individual& i) {return sum + i.get_metab_secr_rate();});
+        double tot_metab_after =
+                std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                                [](int sum, const env_grid_cell& g)
+        {return sum + g.get_metab();});
+
+        double tot_production =
+                std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
+                                [](int sum, const individual& i)
+        {return sum + i.get_param().get_metab_secr_rate();});
+
         double tot_degradation = s.get_env().get_grid_size() * s.get_param().get_metab_degr_rate();
 
         auto metab_balance = tot_metab_before - tot_degradation + tot_production - tot_metab_after;
@@ -1275,8 +1284,8 @@ void test_simulation()//!OCLINT tests may be many
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().size();
         s.get_ind(1).set_energy(get_ind_tr_en(s, 1)
-                                + s.get_ind(1).get_metabolic_rate() + 0.01
-                                - s.get_ind(1).get_uptake_rate());
+                                + s.get_ind(1).get_param().get_metabolic_rate() + 0.01
+                                - s.get_ind(1).get_param().get_uptake_rate());
         feeding(s);
         metabolism_pop(s);
         division(s);
@@ -1382,8 +1391,12 @@ void test_simulation()//!OCLINT tests may be many
         auto init_food = s.get_env().get_cell(0).get_food();
         feeding(s);
         metabolism_pop(s);
-        assert(init_en_ind0 - get_ind_en(s, 0) - s.get_ind(0).get_metabolic_rate() < 0.000001
-               && init_en_ind0 - get_ind_en(s, 0) - s.get_ind(0).get_metabolic_rate() > -0.000001);
+        assert(init_en_ind0 - get_ind_en(s, 0) -
+               s.get_ind(0).get_param().get_metabolic_rate() < 0.000001
+               &&
+               init_en_ind0 - get_ind_en(s, 0) -
+               s.get_ind(0).get_param().get_metabolic_rate() > -0.000001);
+
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
     }
@@ -1434,7 +1447,7 @@ void test_simulation()//!OCLINT tests may be many
         }
         //Only the first individual has enough energy to survive
         //for 1 tick
-        set_ind_en(s.get_ind(0),s.get_ind(0).get_metabolic_rate() + 0.001);
+        set_ind_en(s.get_ind(0),s.get_ind(0).get_param().get_metabolic_rate() + 0.001);
         assert(s.get_pop().size() == pop_size);
         tick(s);
         assert(s.get_pop_size() == 1);

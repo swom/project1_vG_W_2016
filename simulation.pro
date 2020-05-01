@@ -5,9 +5,10 @@ HEADERS += \
     environment.h \
     grid_view.h \
     grn.h \
+    ind_param.h \
     individual.h \
+    parameters.h \
     phenotype.h \
-    sim_parameters.h \
     sim_view.h \
     simulation.h
 
@@ -16,6 +17,7 @@ SOURCES += \
     environment.cpp \
     grid_view.cpp \
     grn.cpp \
+    ind_param.cpp \
     individual.cpp \
     main.cpp \
     phenotype.cpp \

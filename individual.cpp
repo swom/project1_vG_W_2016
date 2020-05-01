@@ -8,19 +8,34 @@ individual::individual(double x_pos, double y_pos,
                        phenotype phenotype, int sporulation_timer,
                        int transformation_time, double wiggle_room,
                        double metab_secretion_rate):
+    m_ind_param{radius,
+                treshold_energy,
+                uptake_rate,
+                metabolic_rate,
+                transformation_time,
+                wiggle_room,
+                metab_secretion_rate},
     m_x{x_pos},
     m_y{y_pos},
     m_energy{energy},
-    m_metabolic_rate{metabolic_rate},
-    m_metab_secr_rate{metab_secretion_rate},
     m_phenotype{phenotype},
-    m_radius{radius},
-    m_sporulation_timer{sporulation_timer},
-    m_transformation_time{transformation_time},
-    m_treshold_energy{treshold_energy},
-    m_uptake_rate{uptake_rate},
-    m_wiggle_room{wiggle_room}
+    m_sporulation_timer{sporulation_timer}
+{
 
+}
+
+individual::individual(ind_param ind_param,
+                       double x_pos,
+                       double y_pos,
+                       double energy,
+                       phenotype phenotype,
+                       int sporulation_timer):
+    m_ind_param{ind_param},
+    m_x{x_pos},
+    m_y{y_pos},
+    m_energy{energy},
+    m_phenotype{phenotype},
+    m_sporulation_timer{sporulation_timer}
 {
 
 }
@@ -38,18 +53,19 @@ bool operator!=(const individual& lhs, const individual& rhs)
 
 bool are_colliding(individual &lhs, individual &rhs) noexcept
 {
-    auto radii_sum = lhs.get_radius() + rhs.get_radius();
+    auto radii_sum = lhs.get_param().get_radius() + rhs.get_param().get_radius();
     const double sqrd_actual_distance = squared_distance(lhs,rhs) ;
     //Almost never called but to make sure we do not divide by 0
     //In  get_displacement()
-    if(sqrd_actual_distance < lhs.get_wiggle_room())
+    if(sqrd_actual_distance < lhs.get_param().get_wiggle_room())
     {
         std::minstd_rand rng;
-        auto rnd_n_0_1 =static_cast<double>( std::uniform_real_distribution(0.f,1.f)(rng));
+        auto rnd_n_0_1 =static_cast<double>(std::uniform_real_distribution(0.f,1.f)(rng));
         lhs.change_x(rnd_n_0_1 * 0.1);
         rhs.change_x(rnd_n_0_1 * -0.1);
     }
-    return sqrd_actual_distance + 0.000001 < radii_sum * radii_sum - lhs.get_wiggle_room();
+    return sqrd_actual_distance + 0.000001 <
+            radii_sum * radii_sum - lhs.get_param().get_wiggle_room();
 }
 
 void add_displacement(individual& lhs, individual& rhs) noexcept
@@ -108,11 +124,11 @@ void draw_flag_reset(individual& i)
 
 void feed(individual& i, env_grid_cell& c) noexcept
 {
-    if(c.get_food() > i.get_uptake_rate())
+    if(c.get_food() > i.get_param().get_uptake_rate())
     {
-        c.set_food_change(- i.get_uptake_rate());
+        c.set_food_change(- i.get_param().get_uptake_rate());
         c.increment_food();
-        i.change_en(i.get_uptake_rate());
+        i.change_en(i.get_param().get_uptake_rate());
     }
     else
     {
@@ -141,8 +157,8 @@ int find_grid_index(const individual& i, double grid_side)
 std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept
 {
     std::pair<double, double> pos;
-    pos.first = i.get_x() + cos(rnd_angle)*2*i.get_radius();
-    pos.second += i.get_y() + sin(rnd_angle)*2*i.get_radius();
+    pos.first = i.get_x() + cos(rnd_angle) * 2 * i.get_param().get_radius();
+    pos.second += i.get_y() + sin(rnd_angle) * 2 * i.get_param().get_radius();
     return pos;
 }
 
@@ -201,8 +217,8 @@ bool is_spore(const individual& i) noexcept
 
 void metabolism(individual& i) noexcept
 {
-    if(i.get_energy() >= i.get_metabolic_rate())
-    {i.change_en(-i.get_metabolic_rate());}
+    if(i.get_energy() >= i.get_param().get_metabolic_rate())
+    {i.change_en(-i.get_param().get_metabolic_rate());}
     else
     {i.set_energy(0);}
 
@@ -223,19 +239,20 @@ void mutates(individual& i, std::minstd_rand& rng,
 double half_overlap(const individual& lhs, const individual& rhs) noexcept
 {
     auto dist = distance(lhs,rhs);
-    auto sum_of_radiuses = lhs.get_radius() + rhs.get_radius();
+    auto sum_of_radiuses = lhs.get_param().get_radius() + rhs.get_param().get_radius();
 
     //if circles are one into the other
-    if (dist < std::max(lhs.get_radius(),rhs.get_radius()))
+    if (dist < std::max(lhs.get_param().get_radius(),rhs.get_param().get_radius()))
     {
-        return (std::max(lhs.get_radius(),rhs.get_radius()) -
-                dist + std::min(lhs.get_radius(),rhs.get_radius()))  / 2;
+        return (std::max(lhs.get_param().get_radius(),rhs.get_param().get_radius()) -
+                dist +
+                std::min(lhs.get_param().get_radius(),rhs.get_param().get_radius())) / 2;
     }
 
     //if circles partially overlap or
     //their dist is equal to sum of radiuses
     //(in which case they should not pass through this function)
-    return lhs.get_wiggle_room() + (sum_of_radiuses - dist)  / 2;
+    return lhs.get_param().get_wiggle_room() + (sum_of_radiuses - dist)  / 2;
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -255,7 +272,7 @@ void reverts(individual& i) noexcept
 void secretes_metab(const individual& i, env_grid_cell& c)
 {
     assert(c.get_metab_change() < 0.000001 && c.get_metab_change() > -0.00001);
-    c.set_metab_change(i.get_metab_secr_rate());
+    c.set_metab_change(i.get_param().get_metab_secr_rate());
     c.increment_metabolite();
     c.set_metab_change(0);
 }
@@ -285,13 +302,13 @@ void starts_sporulation(individual& i)
 void sporulation(individual& i) noexcept
 {
 
-        i.tick_spo_timer();
-        assert(i.get_spo_timer() <= i.get_transformation_time());
-        if(i.get_spo_timer() == i.get_transformation_time())
-        {
-            i.set_phen(phenotype::spore);
-            i.reset_spo_timer();
-        }
+    i.tick_spo_timer();
+    assert(i.get_spo_timer() <= i.get_param().get_transformation_time());
+    if(i.get_spo_timer() == i.get_param().get_transformation_time())
+    {
+        i.set_phen(phenotype::spore);
+        i.reset_spo_timer();
+    }
 
 }
 
@@ -315,7 +332,7 @@ void test_individual()//!OCLINT tests may be many
     {
         double starting_size = 14.0;
         individual i(0,0,starting_size);
-        assert(i.get_radius() - starting_size < 0.0000001);
+        assert(i.get_param().get_radius() - starting_size < 0.0000001);
     }
 
     //An individual should be initialized at a certain position
@@ -331,23 +348,23 @@ void test_individual()//!OCLINT tests may be many
     //0.1 by default
     {
         individual i;
-        assert(i.get_uptake_rate() - 0.1 < 0.000001);
+        assert(i.get_param().get_uptake_rate() - 0.1 < 0.000001);
 
         double uptake_rate = 0.3;
         individual i2(0, 0, 0, 0, 0, uptake_rate);
-        assert(i2.get_uptake_rate() - uptake_rate < 0.000001);
+        assert(i2.get_param().get_uptake_rate() - uptake_rate < 0.000001);
     }
 
     //An individual is initialized with a m_metab_rate
     //0.01 by default
     {
         individual i;
-        assert(i.get_metabolic_rate() - 0.01 < 0.000001
-               && i.get_metabolic_rate() - 0.01 > -0.000001);
+        assert(i.get_param().get_metabolic_rate() - 0.01 < 0.000001
+               && i.get_param().get_metabolic_rate() - 0.01 > -0.000001);
         double metabolic_rate = 2;
         individual i2(0,0,0,0,0,0,metabolic_rate);
-        assert(i2.get_metabolic_rate() - metabolic_rate < 0.000001
-               && i2.get_metabolic_rate() - metabolic_rate > -0.000001);
+        assert(i2.get_param().get_metabolic_rate() - metabolic_rate < 0.000001
+               && i2.get_param().get_metabolic_rate() - metabolic_rate > -0.000001);
 
     }
     //Individuals should be initialized with a internal energy value
@@ -363,7 +380,7 @@ void test_individual()//!OCLINT tests may be many
     {
         double treshold_energy = 3;
         individual i(0,0,0,0,treshold_energy);
-        assert(i.get_treshold_energy() - treshold_energy < 0.00000001);
+        assert(i.get_param().get_treshold_energy() - treshold_energy < 0.00000001);
     }
 
     // an individual's energy can be set
@@ -389,8 +406,11 @@ void test_individual()//!OCLINT tests may be many
     {
         individual i(0,0,0,4,2);//this individual should have energy in excess = 2
         //after division
-        double excess_energy = i.get_energy()-i.get_treshold_energy();
-        assert(i.split_excess_energy() - excess_energy/2 < 0.000000001);
+        double excess_energy = i.get_energy() - i.get_param().get_treshold_energy();
+        auto split_energy = i.split_excess_energy();
+
+        assert(split_energy - excess_energy/2 < 0.000000001 &&
+               split_energy - excess_energy/2 > -0.000000001);
 
     }
     // An individual position can be extracted as a pair of doubles x,y
@@ -437,16 +457,16 @@ void test_individual()//!OCLINT tests may be many
     {
         double wiggle_room = 0.01;
         individual i(0,0,0.5,0,3,0.1,0.01,phenotype::active,0,5,wiggle_room);
-        assert(i.get_wiggle_room() - wiggle_room < 0.00001 &&
-               i.get_wiggle_room() - wiggle_room > -0.00001);
+        assert(i.get_param().get_wiggle_room() - wiggle_room < 0.00001 &&
+               i.get_param().get_wiggle_room() - wiggle_room > -0.00001);
     }
     //The overlap of two individuals can be calculated
     {
         //Two individuals overlap by half their radius
         individual lhs(0,0);
-        individual rhs(0,lhs.get_radius());
-        assert(half_overlap(lhs, rhs) - (lhs.get_radius() / 2 + lhs.get_wiggle_room()) < 0.000001 &&
-               half_overlap(lhs, rhs) - (lhs.get_radius() / 2 + lhs.get_wiggle_room()) > -0.000001 );
+        individual rhs(0,lhs.get_param().get_radius());
+        assert(half_overlap(lhs, rhs) - (lhs.get_param().get_radius() / 2 + lhs.get_param().get_wiggle_room()) < 0.000001 &&
+               half_overlap(lhs, rhs) - (lhs.get_param().get_radius() / 2 + lhs.get_param().get_wiggle_room()) > -0.000001 );
     }
 
     //Given  2 overlapping individuals lhs and rhs:
@@ -476,7 +496,7 @@ void test_individual()//!OCLINT tests may be many
         lhs.displace();
         rhs.displace();
         auto dist = distance(lhs,rhs);
-        auto radii_sum = lhs.get_radius() + rhs.get_radius();
+        auto radii_sum = lhs.get_param().get_radius() + rhs.get_param().get_radius();
         auto space_btw_circles = dist - radii_sum;
         assert( space_btw_circles < 0.00001
                 && space_btw_circles > -0.00001);
@@ -532,8 +552,8 @@ void test_individual()//!OCLINT tests may be many
         env_grid_cell c(0,init_food);
         feed(i,c);
         assert(i.get_energy() > init_en);
-        assert(init_food - i.get_uptake_rate() < 0.00001);
-        assert((i.get_energy() + i.get_uptake_rate() + c.get_food()) -
+        assert(init_food - i.get_param().get_uptake_rate() < 0.00001);
+        assert((i.get_energy() + i.get_param().get_uptake_rate() + c.get_food()) -
                (init_en + init_food) > 0.000001);
 
     }
@@ -544,7 +564,7 @@ void test_individual()//!OCLINT tests may be many
         double init_en = i.get_energy();
         double init_food = 0.01;
         env_grid_cell c(0,init_food);
-        assert(i.get_uptake_rate() > c.get_food());
+        assert(i.get_param().get_uptake_rate() > c.get_food());
 
         feed(i, c);
         assert(c.get_food() < 0.000001 && c.get_food() > -0.000001);
@@ -564,7 +584,7 @@ void test_individual()//!OCLINT tests may be many
     //An individual's energy cannot go below 0
     {
         individual i(0,0,0,0,0,0);
-        assert(i.get_energy() - i.get_metabolic_rate() < 0);
+        assert(i.get_energy() - i.get_param().get_metabolic_rate() < 0);
         metabolism(i);
         assert(i.get_energy() < 0.000001
                && i.get_energy() > -0.0000001);
@@ -630,10 +650,10 @@ void test_individual()//!OCLINT tests may be many
     //by default 5, the value will be constant
     {
         individual i;
-        assert(i.get_transformation_time() == 5);
+        assert(i.get_param().get_transformation_time() == 5);
         auto transformation_time = 42;
         individual i2(0,0,0,0,0,0,0,phenotype::sporulating,0,transformation_time);
-        assert(i2.get_transformation_time() == transformation_time);
+        assert(i2.get_param().get_transformation_time() == transformation_time);
     }
 
     //When the timer_for_sporulation reaches the transformation time
@@ -641,8 +661,8 @@ void test_individual()//!OCLINT tests may be many
     {
         individual i;
         i.set_phen(phenotype::sporulating);
-        i.set_energy(i.get_metabolic_rate() * i.get_transformation_time());
-        for(int j = 0; j != i.get_transformation_time(); j++)
+        i.set_energy(i.get_param().get_metabolic_rate() * i.get_param().get_transformation_time());
+        for(int j = 0; j != i.get_param().get_transformation_time(); j++)
         {
             assert(i.get_phen() == phenotype::sporulating);
             sporulation(i);
@@ -712,7 +732,7 @@ void test_individual()//!OCLINT tests may be many
         assert(is_dead(i));//individual is initialized with 0 energy
         //Let's create an env grid cell that will feed the individual
         //the exact quantity it will lose with metabolism
-        env_grid_cell c(0,i.get_metabolic_rate());
+        env_grid_cell c(0,i.get_param().get_metabolic_rate());
         feed(i,c);
         assert(!is_dead(i));
         metabolism(i);
@@ -858,6 +878,12 @@ void test_individual()//!OCLINT tests may be many
         assert(!is_drawn(i));
     }
 
+    //An individual has a parameter member ind_param
+    //The value -123456789 is irrelevant, used only to use assert
+    {
+        individual i;
+        assert(i.get_param().get_metabolic_rate() > -123456789);
+    }
 
 #endif
 }

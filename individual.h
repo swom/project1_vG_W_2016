@@ -1,8 +1,10 @@
 #ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
 #include "env_grid_cell.h"
-#include "phenotype.h"
 #include "grn.h"
+#include "ind_param.h"
+#include "phenotype.h"
+
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -19,6 +21,13 @@ public:
                phenotype phenotype = phenotype::active,
                int sporulation_timer = 0, int transformation_time = 5,
                double wiggle_room = 0.01, double metab_secretion_rate = 0.1);
+
+    individual(ind_param ind_param,
+               double x_pos = 0,
+               double y_pos = 0,
+               double energy = 0.1,
+               phenotype phenotype = phenotype::active,
+               int sporulation_timer = 0);
 
 
     ///Turns the flag (signalling that this is the focal individual during collision check
@@ -48,23 +57,11 @@ public:
     ///Gets the ref to the m_grn
     GRN& get_grn() noexcept {return m_grn;}
 
-    ///gets the metabolic rate of an individual
-    double get_metabolic_rate() const noexcept {return m_metabolic_rate;}
-
-    ///Gets the rate of secretion of metabolite
-    double get_metab_secr_rate() const noexcept{return m_metab_secr_rate;}
-
-    ///gets radius of individual
-    double get_radius() const noexcept {return m_radius;}
+    ///Gets const ref to the parametersof the individual
+    const ind_param& get_param() const noexcept {return m_ind_param;}
 
     ///Gets the type of the individual
     phenotype get_phen() const noexcept {return m_phenotype;}
-
-    ///Gets the time it takes to transform into a spore
-    int get_transformation_time() const noexcept {return m_transformation_time;}
-
-    ///gets the food uptake_rate of an individual
-    double get_uptake_rate() const noexcept {return m_uptake_rate;}
 
     ///gets x position of the individual
     double get_x() const noexcept {return m_x;}
@@ -78,14 +75,8 @@ public:
     ///gets y position of the individual
     double get_y() const noexcept {return m_y;}
 
-    ///gets the treshold energy at which an individual reproduces
-    double get_treshold_energy() const noexcept {return m_treshold_energy;}
-
     ///Gets the sporulation timer
     int get_spo_timer() const noexcept {return m_sporulation_timer;}
-
-    ///Gets the wiglle room of an individual
-    double get_wiggle_room() const noexcept {return m_wiggle_room;}
 
     ///Returns the flag signalling if this is the focal individual during the collision check
     bool is_focal() const noexcept {return m_is_focal;}
@@ -124,7 +115,7 @@ public:
     ///Splits the excess energy not required for division in two9to be then
     ///(to be then assigned to the two daughter cells by
     /// simulation::reproduce/cells_divide)
-    double split_excess_energy() const noexcept {return (m_energy - m_treshold_energy)/2;}
+    double split_excess_energy() const noexcept {return (m_energy - m_ind_param.get_treshold_energy())/2;}
 
     ///Changes x of an individual
     void x_displacement(double x_displacement) noexcept {m_x_displacement += x_displacement;}
@@ -133,6 +124,9 @@ public:
     void y_displacement(double y_displacement) noexcept {m_y_displacement += y_displacement;}
 
 private:
+
+    ///The parameters of the individual
+    ind_param m_ind_param;
 
     ///X coord of an individual
     double m_x;
@@ -161,35 +155,11 @@ private:
     ///  during loop of collision detection
     bool m_is_focal = false;
 
-    ///The rate at which internal energy is depleted
-    double m_metabolic_rate;
-
-    ///The rate at which metabolite is secreted into the environment
-    double m_metab_secr_rate;
-
     ///The phenotype of the individual
     phenotype m_phenotype;
 
-    ///Radius of an individual, individuals are considered circular
-    double m_radius;
-
     ///The amount of timesteps an individual has been sporulating
     int m_sporulation_timer;
-
-    ///number of time steps the individual needs
-    ///to go through to sporulate, if it is alive at
-    ///m_transformation time + 1 it will become a spore
-    int m_transformation_time;
-
-    ///The level of energy required to divide
-    double m_treshold_energy;
-
-    ///The rate of food uptake, the conversion of food into energy is = 1
-    double m_uptake_rate;
-
-    ///The minimum amount of overlap necessary for a detection between two individuals
-    /// to be detected, implemented to speed up collision management
-    double m_wiggle_room;
 };
 
 ///Returns true if two individuals are in the same position

@@ -4,7 +4,7 @@
 #include <random>
 #include "environment.h"
 #include "individual.h"
-#include "sim_parameters.h"
+#include "parameters.h"
 
 class simulation
 {
@@ -14,7 +14,7 @@ public:
                double base_disp_prob = 0.01, double spore_advantage = 10.0, double reproduction_prob = 0.1,
                double metab_degradation_rate = 0.01);
 
-    simulation(sim_param param);
+    simulation(sim_param param, ind_param inds_param);
 
     ///Gets the environment of a simulation
     const environment& get_env() const noexcept {return m_e;}
@@ -65,14 +65,6 @@ public:
     ///Updates tick counter by one
     void update_sim_timer() noexcept {++m_sim_timer;}
 
-
-
-//    ///Places an individual of index i at position x,y
-//    void set_ind_pos(individual& i, double x, double y);
-
-//    ///Places an individual of index i at position x,y
-//    void set_ind_pos(individual& i, std::pair<double, double> pos);
-
 private:
 
     ///The parameters of the simulation
@@ -81,29 +73,10 @@ private:
     ///The vector of individuals representing a population
     std::vector<individual> m_pop;
 
-    ///The expected size of a newly funded population
-    int m_exp_new_pop_size;
-
     ///The buffer vector on which the new population will be copied and that
     /// will be then swapped with the current population
     /// Used to reduce memory allocation time
     std::vector<individual> m_new_pop_tmp_buffer;
-
-    ///The minimum ditance between individuals when they are placed down at the start
-    ///of a population cycle
-    double m_min_init_dist_btw_inds;
-
-    ///The side of the grid
-    int m_grid_side;
-
-    /// The diffusion coefficient of substances in the grid
-    double m_diff_coeff;
-
-    ///The rate at which metabolite degrades
-    double m_metab_degradation_rate;
-
-    ///The initial amount of food in each grid_cell at the start of a pop cycle
-    double m_init_food;
 
     ///The environment class containing the grid where substances(food, metabolite) are
     environment m_e;
@@ -113,21 +86,6 @@ private:
 
     ///The random number generator of simulation(used for everything)
     std::minstd_rand m_rng;
-
-    ///The probability of a mutation to happen
-    double m_mutation_prob;
-
-    ///The variance of the gaussian from which the size of the mutation is drawn
-    double m_mutation_step;
-
-    ///The base dispersal probability of an individual(so when it is active or sporulating)
-    double m_base_disp_prob;
-
-    ///The factor for which the dispersal probability is multiplied if the individual is a spore
-    double m_spore_advantage;
-
-    ///The probability that an individual will reproduce
-    double m_repr_prob;
 
 };
 
@@ -161,12 +119,15 @@ std::normal_distribution<double> create_normal_dist(double m, double v);
 ///Removes dead inidviduals from population vector
 void death(simulation& s) noexcept;
 
+//Pop
 ///The individuals in the vector are copied at the end of the pop vector
 bool division(simulation& s) noexcept;
 
+//Pop
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
 
+//Pop
 ///Displaces the individuals after their total displacement
 ///has been calculated with calc_tot_disp_pop()
 void displace_inds(std::vector<individual>& pop) noexcept;
@@ -177,65 +138,83 @@ void exec(simulation& s, int n_tick) noexcept;
 /// All the individuals feed
 void feeding(simulation& s);
 
+//Pop
 ///The new population becomes the actual population, the old population is cancelled
 void fund_pop(simulation& s) noexcept;
 
+//Pop
 ///finds the indexes of the individuals ready to divide
 std::vector<int> get_dividing_individuals(const simulation& s) noexcept;
 
+//Pop
 ///Gets the excess energy from a referenced vector of index of individuals in population vector
 std::vector<double> get_excess_energies(const simulation& s) noexcept;
 
+//Pop
 ///Gets an individual's energy
 double get_ind_en(const simulation& s, int i);
 
 
+//Pop
 ///Gets an individual's treshold energy
 double get_ind_tr_en(const simulation& s, int i);
 
+//Pop
 ///Gets the position of an individual as a vector x,y
 std::pair<double, double> get_ind_pos(int i);
 
+//Pop
 ///Gets distance in vector elements between two duaghters of same mother cell
 std::vector<std::pair<int, int> > get_sisters_index_offset(const simulation& s) noexcept;
 
+//Pop
 ///Checks if any two cells are colliding, return an empty vector in this case
 /// or a vecto of the indexes of the first two colliding cells
 bool has_collision(simulation &s);
 
+//Pop
 /// Displaces colliding cells so that they do not collide anymore
 int manage_static_collisions(simulation& s);
 
+//Pop
 ///All inidviduals lose energy due to metabolism
 void metabolism_pop(simulation& s);
 
+//Pop
 ///Calculates the modulus of the angles between all the individuals of a population
 ///and a given angle in radiants
 std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad);
 
+//Pop
 ///Checks if a mutation happens given the mutation probability of a simulation
 bool mut_happens(simulation& s) noexcept;
 
+//Pop
 ///Gives back the mutation size based on initialization parameters
 double mut_step() noexcept;
 
+//Pop
 ///Moves individuals that are perfectly on top of each other a little bit
 ///to allow correct displacement
 void no_complete_overlap(simulation& s) noexcept;
 
+//Pop
 ///Check that in a certain range there is only one individual
 bool only_one_focal(const std::vector<individual>::iterator first,
                     const std::vector<individual>::iterator last);
 
+//Pop
 /// Places cells in an hexagonal grid
 /// https://stackoverflow.com/questions/14280831/algorithm-to-generate-2d-magic-hexagon-lattice
 void place_start_cells(simulation& s) noexcept;
 
+//Pop
 ///Returns the iterators to the range of individuals in a population
 /// that could possibly be colliding with a focal individual along the x axis
 std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
 possible_collisions_x(individual focal_ind, std::vector<individual> &pop);
 
+//Pop
 ///Returns the iterators to the range of individuals that could
 /// collide with a focal individual on the x_axis and as well on the y axis
 /// !!! It changes the order of the elemnts in pop vector
@@ -248,6 +227,7 @@ possible_collisions_y(individual focal_ind,
 ///Returns a random angle between 0 and and 2PI (in radians)
 double repr_angle(simulation &s) noexcept;
 
+//Pop
 ///Resets the drawn flag for all individuals in the new_population vector
 void reset_drawn_fl_new_pop(simulation& s) noexcept;
 
@@ -257,18 +237,23 @@ void reset_env(simulation& s);
 ///All individuals secrete metabolite
 void secretion_metabolite(simulation& s);
 
+//Pop
 ///Draws a 100 individual to fund the new population and puts them in m_new_pop
 void select_new_pop(simulation& s);
 
+//Pop
 ///Places an individual of index i at position x,y
 void set_ind_pos(individual& i, double x, double y);
 
+//Pop
 ///Places an individual of index i at position x,y
 void set_ind_pos(individual& i, std::pair<double, double> pos);
 
+//Pop
 ///Sets and individual's energy
 void set_ind_en(individual& i, double en);
 
+//Pop
 ///Sorts individuals in a given range of a vector by increasing x coordinate
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);
 

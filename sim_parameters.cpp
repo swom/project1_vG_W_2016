@@ -1,4 +1,4 @@
-#include "sim_parameters.h"
+#include "parameters.h"
 
 sim_param::sim_param(unsigned int start_pop_size,//!OCLINT
                      int exp_new_pop_size,
@@ -34,6 +34,5 @@ void test_sim_parameters() noexcept //!OCLINT
 
     //A sim_paramaeters can be intitialized from a file
     {
-        sim_param s_p;
     }
 }

@@ -135,7 +135,7 @@ void sim_view::prepare_pop() noexcept
     {
         const auto& ind = m_sim.get_pop()[i];
         // Type conversions that simplify notation
-        const float r{static_cast<float>(ind.get_radius()) * m_scale};
+        const float r{static_cast<float>(ind.get_param().get_radius()) * m_scale};
         const float x{static_cast<float>(ind.get_x()) * m_scale};
         const float y{static_cast<float>(ind.get_y()) * m_scale};
 
