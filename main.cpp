@@ -11,6 +11,7 @@ void test() {
   test_individual_type();
   test_simulation();
   test_sim_view();
+  test_sim_parameters();
 }
 
 

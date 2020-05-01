@@ -1,0 +1,10 @@
+debug/env_grid_cell.o
+debug/environment.o
+debug/grid_view.o
+debug/grn.o
+debug/individual.o
+debug/main.o
+debug/phenotype.o
+debug/sim_parameters.o
+debug/sim_view.o
+debug/simulation.o

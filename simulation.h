@@ -14,25 +14,13 @@ public:
                double base_disp_prob = 0.01, double spore_advantage = 10.0, double reproduction_prob = 0.1,
                double metab_degradation_rate = 0.01);
 
-    ///Returns the value of the variable m_base_fitness that indicates
-    /// the basal fitness/dispersal probability of an individual
-    double get_base_disp_prob() const noexcept {return m_base_disp_prob;}
-
-    ///Gets the degradation rate of the metabolite
-    double get_metab_degr_rate() const noexcept {return m_metab_degradation_rate;}
-
-    ///Returns the diffusion coefficent of the environment that will be built in this simulation
-    double get_diff_coeff() const noexcept {return m_diff_coeff;}
+    simulation(sim_parameters param);
 
     ///Gets the environment of a simulation
     const environment& get_env() const noexcept {return m_e;}
 
     ///Gets the reference to environment of a simulation
     environment& get_env() noexcept {return m_e;}
-
-    ///Gets the dimension of the side of the env_grid that is built
-    /// in this simulation
-    int get_grid_side() const noexcept {return m_grid_side;}
 
     ///Gets an inidividual at a certain index in the vector
     const individual& get_ind(int i) const
@@ -50,35 +38,14 @@ public:
         return m_pop[static_cast<unsigned int>(i)];
     }
 
-    ///Gets the position of an individual as a vector x,y
-    std::pair<double, double> get_ind_pos(int i);
-
-    ///Gets the initial food that will be provided in each grid_cell of the environment
-    double get_init_food() const noexcept {return m_init_food;}
-
-    ///Get minimum distance between individuals at the start of the simulation
-    double get_min_dist() const noexcept {return m_min_init_dist_btw_inds;}
-
-    ///Gets the reference to the mutation probability distribution
-    double get_mu_p() noexcept {return m_mutation_prob;}
-
-    ///Gets the reference to the mutation step distribution
-    double get_mu_st() noexcept {return m_mutation_step;}
-
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_new_pop() const noexcept {return m_new_pop_tmp_buffer;}
 
     ///Gets the vector containing all the individuals of the population
     std::vector<individual>& get_new_pop() noexcept {return m_new_pop_tmp_buffer;}
 
-    ///Gets the size of the population
-    int get_new_pop_size() const noexcept {return static_cast<int>(m_new_pop_tmp_buffer.size());}
-
-    ///Gets the expected size of the new population
-    int get_exp_new_pop_size() const noexcept {return m_exp_new_pop_size;}
-
-    ///Gets the size of the population
-    int get_pop_size() const noexcept {return static_cast<int>(m_pop.size());}
+     ///Gets const ref to parameters
+    const sim_parameters& get_param() const noexcept {return m_param;}
 
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_pop() const noexcept {return m_pop;}
@@ -86,37 +53,30 @@ public:
     ///Gets the vector containing all the individuals of the population
     std::vector<individual>& get_pop() noexcept {return m_pop;}
 
+    ///Gets the size of the population
+    int get_pop_size() const noexcept {return static_cast<int>(m_pop.size());}
+
     ///Gets the reference to m_rng
     auto& get_rng() noexcept {return  m_rng;}
 
-    ///Gets the probability of reproducing
-    double get_repr_p() const noexcept {return m_repr_prob;}
-
-    ///Returns the variable m_spore_advantage that indicates
-    ///how many times a spore is more likely to get dispersed
-    ///than the other phenotypes
-    double get_spo_adv() const noexcept {return m_spore_advantage;}
-
     ///Gets the number of ticks in the simulation
     int get_tick() const noexcept {return m_sim_timer;}
-
-    ///Places an individual of index i at position x,y
-    void set_ind_pos(individual& i, double x, double y);
-
-    ///Places an individual of index i at position x,y
-    void set_ind_pos(individual& i, std::pair<double, double> pos);
-
-    ///Sets and individual's energy
-    void set_ind_en(int i, double en)
-    {
-        m_pop[static_cast<unsigned int>(i)].set_energy(en);
-    }
 
     ///Updates tick counter by one
     void update_sim_timer() noexcept {++m_sim_timer;}
 
 
+
+//    ///Places an individual of index i at position x,y
+//    void set_ind_pos(individual& i, double x, double y);
+
+//    ///Places an individual of index i at position x,y
+//    void set_ind_pos(individual& i, std::pair<double, double> pos);
+
 private:
+
+    ///The parameters of the simulation
+    sim_parameters m_param;
 
     ///The vector of individuals representing a population
     std::vector<individual> m_pop;
@@ -169,8 +129,6 @@ private:
     ///The probability that an individual will reproduce
     double m_repr_prob;
 
-    ///The parameters of the simulation
-    sim_parameters m_param;
 };
 
 ///Checks if the entire population has been already drawn for funding the new population
@@ -235,6 +193,8 @@ double get_ind_en(const simulation& s, int i);
 ///Gets an individual's treshold energy
 double get_ind_tr_en(const simulation& s, int i);
 
+///Gets the position of an individual as a vector x,y
+std::pair<double, double> get_ind_pos(int i);
 
 ///Gets distance in vector elements between two duaghters of same mother cell
 std::vector<std::pair<int, int> > get_sisters_index_offset(const simulation& s) noexcept;
@@ -299,6 +259,15 @@ void secretion_metabolite(simulation& s);
 
 ///Draws a 100 individual to fund the new population and puts them in m_new_pop
 void select_new_pop(simulation& s);
+
+///Places an individual of index i at position x,y
+void set_ind_pos(individual& i, double x, double y);
+
+///Places an individual of index i at position x,y
+void set_ind_pos(individual& i, std::pair<double, double> pos);
+
+///Sets and individual's energy
+void set_ind_en(individual& i, double en);
 
 ///Sorts individuals in a given range of a vector by increasing x coordinate
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);

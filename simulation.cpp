@@ -9,20 +9,19 @@ simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_d
                        double init_food, double mutation_prob,
                        double mutation_step, double base_disp_prob, double spore_advantage,
                        double reproduction_prob, double metab_degradation_rate):
+    m_param{pop_size,
+            exp_new_pop_size,
+            min_dist, grid_side,
+            diff_coeff, init_food,
+            mutation_prob,
+            mutation_step,
+            base_disp_prob,
+            spore_advantage,
+            reproduction_prob,
+            metab_degradation_rate},
+    m_pop(m_param.get_pop_start_size(),individual{0,0}),
+    m_e{m_param.get_grid_side(), m_param.get_diff_coeff(), m_param.get_init_food(), m_param.get_metab_degr_rate()}
 
-    m_pop(pop_size,individual{0,0}),
-    m_exp_new_pop_size{exp_new_pop_size},
-    m_min_init_dist_btw_inds{min_dist},
-    m_grid_side{grid_side},
-    m_diff_coeff{diff_coeff},
-    m_metab_degradation_rate{metab_degradation_rate},
-    m_init_food{init_food},
-    m_e{m_grid_side, m_diff_coeff, m_init_food, metab_degradation_rate},
-    m_mutation_prob{mutation_prob},
-    m_mutation_step{mutation_step},
-    m_base_disp_prob{base_disp_prob},
-    m_spore_advantage{spore_advantage},
-    m_repr_prob{reproduction_prob}
 {
 #ifndef IS_ON_TRAVIS
     try {
@@ -42,10 +41,28 @@ simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_d
     }
 }
 
-std::pair<double,double> simulation::get_ind_pos(int i)
+simulation::simulation(sim_parameters param):
+    m_param{param},
+    m_pop(m_param.get_pop_start_size(),individual{0,0}),
+    m_e{m_param.get_grid_side(), m_param.get_diff_coeff(), m_param.get_init_food(), m_param.get_metab_degr_rate()}
+
 {
-    std::pair<double, double> pos = get_pos(get_ind(i));
-    return pos;
+#ifndef IS_ON_TRAVIS
+    try {
+        if(get_param().get_base_disp_prob() * get_param().get_spo_adv() > 1)
+        {throw std::string{"base dispersal probability * spore advantage > 1, too high!\n"};}
+    }
+    catch (std::string& e) {
+        std::cout << e;
+#ifdef NDEBUG
+        abort();
+#endif
+    }
+#endif
+    if(!m_pop.empty())
+    {
+        place_start_cells(*this);
+    }
 }
 
 bool all_ind_are_drawn(const simulation& s) noexcept
@@ -141,15 +158,15 @@ bool division(simulation &s) noexcept
         for(size_t i = 0; i != div_inds.size(); i++)
         {
             int div_ind = div_inds[i];
-            if(repr_prob(s.get_rng()) < s.get_repr_p())
+            if(repr_prob(s.get_rng()) < s.get_param().get_repr_p())
             {
 
                 divides(s.get_ind(div_ind),
                         s.get_pop(),
                         repr_angle(s),
                         s.get_rng(),
-                        create_bernoulli_dist(s.get_mu_p()),
-                        create_normal_dist(0,s.get_mu_st())
+                        create_bernoulli_dist(s.get_param().get_mu_p()),
+                        create_normal_dist(0,s.get_param().get_mu_st())
                         );
             }
         }
@@ -232,12 +249,21 @@ std::vector<double> get_excess_energies(const simulation& s) noexcept
 
 double get_ind_en(const simulation& s, int i)
 {
-return s.get_ind(i).get_energy();
+    return s.get_ind(i).get_energy();
 }
 
 double get_ind_tr_en(const simulation& s, int i)
 {
-return s.get_ind(i).get_treshold_energy();
+    return s.get_ind(i).get_treshold_energy();
+}
+
+std::pair<double, double> get_ind_pos(const individual& i)
+{
+  std::pair<double, double> pos;
+pos.first = i.get_x();
+pos.second = i.get_y();
+return pos;
+
 }
 
 std::vector<std::pair<int,int>> get_sisters_index_offset(const simulation& s)  noexcept
@@ -348,12 +374,12 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
 
 bool mut_happens(simulation& s) noexcept
 {
-    return create_bernoulli_dist(s.get_mu_p())(s.get_rng());
+    return create_bernoulli_dist(s.get_param().get_mu_p())(s.get_rng());
 }
 
 double mut_step(simulation& s) noexcept
 {
-    return create_normal_dist(0,s.get_mu_st())(s.get_rng());
+    return create_normal_dist(0,s.get_param().get_mu_st())(s.get_rng());
 }
 
 void no_complete_overlap(simulation& s) noexcept
@@ -387,7 +413,7 @@ void place_start_cells(simulation& s) noexcept
     unsigned int placed_ind = 0;
 
     // d is the distance between 2 individuals's centers
-    double d = 2 * (s.get_pop()[0].get_radius() + s.get_min_dist());
+    double d = 2 * (s.get_pop()[0].get_radius() + s.get_param().get_min_dist());
 
     for(int i = 0; i != n; i++)
     {
@@ -517,13 +543,13 @@ void select_new_pop(simulation& s)
         for(auto& ind : s.get_pop())
         {
             if(create_unif_dist(0,1)(s.get_rng()) <
-                    get_fitness(ind, s.get_base_disp_prob(), s.get_spo_adv())
+                    get_fitness(ind, s.get_param().get_base_disp_prob(), s.get_param().get_spo_adv())
                     && !is_drawn(ind))
             {
                 draw(ind);
                 s.get_new_pop().push_back(ind);
             }
-            if(s.get_new_pop_size() == s.get_exp_new_pop_size() ||
+            if(static_cast<int>(s.get_new_pop().size()) == s.get_param().get_exp_new_pop_size() ||
                     all_ind_are_drawn(s))
             {
                 reset_drawn_fl_new_pop(s);
@@ -531,6 +557,11 @@ void select_new_pop(simulation& s)
             }
         }
     }
+}
+
+void set_ind_en(individual& i, double en)
+{
+    i.set_energy(en);
 }
 
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator last)
@@ -563,7 +594,55 @@ void test_simulation()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
 
+    //A simulation can be initialized by getting a sim_parmater class as an argument
+    {
+         unsigned int pop_size = 1;
+        int exp_new_pop_size = 1;
+        double min_dist = 0.1;
+        int grid_side = 1;
+        double diff_coeff = 0.1;
+        double init_food = 1.0;
+        double mutation_prob = 0.01;
+        double mutation_step = 0.1;
+        double base_disp_prob = 0.01;
+        double spore_advantage = 10.0;
+        double reproduction_prob = 0.1;
+        double metab_degradation_rate = 0.01;
 
+        sim_parameters s_p(pop_size,
+                           exp_new_pop_size,
+                           min_dist,
+                           grid_side,
+                           diff_coeff,
+                           init_food,
+                           mutation_prob,
+                           mutation_step,
+                           base_disp_prob,
+                           spore_advantage,
+                           reproduction_prob,
+                           metab_degradation_rate);
+        simulation s(s_p);
+        assert(s.get_pop().size() == pop_size);
+        assert(s.get_param().get_exp_new_pop_size() == exp_new_pop_size);
+        assert(s.get_param().get_min_dist() - min_dist < 0.0001 &&
+               s.get_param().get_min_dist() - min_dist > -0.0001);
+        assert(s.get_param().get_diff_coeff() - diff_coeff < 0.00001 &&
+               s.get_param().get_diff_coeff() - diff_coeff > -0.00001);
+        assert(s.get_param().get_init_food() - init_food < 0.0001 &&
+               s.get_param().get_init_food() - init_food > -0.0001);
+        assert(s.get_param().get_mu_p() - mutation_prob < 0.0001 &&
+               s.get_param().get_mu_p() - mutation_prob > -0.0001);
+        assert(s.get_param().get_mu_st() - mutation_step < 0.0001 &&
+               s.get_param().get_mu_st() - mutation_step > -0.0001);
+        assert(s.get_param().get_base_disp_prob() - base_disp_prob < 0.00001 &&
+               s.get_param().get_base_disp_prob() - base_disp_prob > -0.00001);
+        assert(s.get_param().get_spo_adv() - spore_advantage < 0.0001 &&
+               s.get_param().get_spo_adv() - spore_advantage > -0.0001);
+        assert(s.get_param().get_repr_p() - reproduction_prob < 0.0001 &&
+               s.get_param().get_repr_p() - reproduction_prob > -0.0001);
+        assert(s.get_param().get_metab_degr_rate() - metab_degradation_rate < 0.0001 &&
+               s.get_param().get_metab_degr_rate() - metab_degradation_rate > -0.0001);
+    }
     //Simulation is initialized with a certain number of individuals
     // The value 1234567890 is irrelevant: just get this to compile
 
@@ -636,8 +715,8 @@ void test_simulation()//!OCLINT tests may be many
         std::pair<double, double> v{0,0};//default coordinates of individuals
         std::pair<double, double> v2{1,1};//different coordinates from default
 
-        assert(s.get_ind_pos(0) == v);
-        assert(s.get_ind_pos(0) != v2);
+        assert(get_ind_pos(s.get_ind(0)) == v);
+        assert(get_ind_pos(s.get_ind(0)) != v2);
     }
 
 
@@ -653,7 +732,7 @@ void test_simulation()//!OCLINT tests may be many
         {
             for(int j = i+1 ; j < s.get_pop_size(); j++)
             {
-                assert(s.get_ind_pos(i) != s.get_ind_pos(j));
+                assert(get_ind_pos(s.get_ind(0)) != get_ind_pos(s.get_ind(j)));
             }
         }
 
@@ -703,8 +782,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s(2);
         double energy = get_ind_tr_en(s, 0);
-        s.set_ind_en(0,energy);
-        s.set_ind_en(1,energy*2);
+        set_ind_en(s.get_ind(0), energy);
+        set_ind_en(s.get_ind(1), energy*2);
         auto v_ex_en = get_excess_energies(s);
         for(int i =0; i != static_cast<int>(v_ex_en.size()); i++){
             assert(v_ex_en[static_cast<unsigned int>(i)]
@@ -719,7 +798,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s(1);
         //First individual reproduces
-        s.set_ind_en(0,get_ind_tr_en(s, 0)*2);
+        set_ind_en(s.get_ind(0), get_ind_tr_en(s, 0)*2);
         auto daughters = get_sisters_index_offset(s);
         // In this case the distance between the two offspring
         //will be 1 element of the vector in next gen
@@ -737,7 +816,7 @@ void test_simulation()//!OCLINT tests may be many
         simulation s;
         auto repr_excess_en = 3;
         //This ind will reproduce with extra energy
-        s.set_ind_en(0,repr_excess_en);
+        set_ind_en(s.get_ind(0), repr_excess_en);
 
         auto mother_excess_energy = get_excess_energies(s);
         division(s);
@@ -777,17 +856,17 @@ void test_simulation()//!OCLINT tests may be many
         auto parent_pop = s.get_pop();
         //setting energy high enough for the individual
         //to reproduce without offspring having negative enrgies
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
 
         divides(s.get_ind(0),
                 s.get_pop(),
                 repr_angle(s),
                 s.get_rng(),
-                create_bernoulli_dist(s.get_mu_p()),
-                create_normal_dist(0,s.get_mu_st())
+                create_bernoulli_dist(s.get_param().get_mu_p()),
+                create_normal_dist(0,s.get_param().get_mu_st())
                 );
         //The first daughter cell is at the same index of the mother cell
-        assert(s.get_ind_pos(0) == get_pos(parent_pop[0]) );
+        assert(get_ind_pos(s.get_ind(0)) == get_pos(parent_pop[0]) );
     }
 
     //After reproduction the second daughter individual
@@ -796,13 +875,13 @@ void test_simulation()//!OCLINT tests may be many
         simulation s;
         //setting energy high enough for the individual to reproduce
         //without offspring having negative enrgies
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
         divides(s.get_ind(0),
                 s.get_pop(),
                 repr_angle(s),
                 s.get_rng(),
-                create_bernoulli_dist(s.get_mu_p()),
-                create_normal_dist(0,s.get_mu_st())
+                create_bernoulli_dist(s.get_param().get_mu_p()),
+                create_normal_dist(0,s.get_param().get_mu_st())
                 );
         assert(!has_collision(s));
         assert(distance(s.get_ind(0), s.get_ind(1)) -
@@ -813,7 +892,7 @@ void test_simulation()//!OCLINT tests may be many
     //collide with it (if we draw a square around each individuals, these squares intersect)
     {
         simulation s(2);
-        set_pos(s.get_ind(1),s.get_ind_pos(0));
+        set_pos(s.get_ind(1),get_ind_pos(s.get_ind(0)));
         auto collision_range = possible_collisions_x(s.get_ind(0),s.get_pop());
         assert(collision_range.first == s.get_pop().begin() &&
                collision_range.second == s.get_pop().end());
@@ -887,7 +966,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s(2);
         assert(!has_collision(s));
-        set_pos(s.get_ind(1),s.get_ind_pos(0));
+        set_pos(s.get_ind(1), get_ind_pos(s.get_ind(0)));
         no_complete_overlap(s);
         assert(has_collision(s));
 
@@ -1107,7 +1186,7 @@ void test_simulation()//!OCLINT tests may be many
             double food_eaten = 0.0;
             for(const auto& ind : s.get_pop())
             {
-                auto grid_cell_ind = find_grid_index(ind, s.get_grid_side());
+                auto grid_cell_ind = find_grid_index(ind, s.get_param().get_grid_side());
                 if( grid_cell_ind != -100 && s.get_env().get_cell(grid_cell_ind).get_food() > 0)
                 {
                     food_eaten += ind.get_uptake_rate();
@@ -1151,8 +1230,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         double degradation_rate = 3.14;
         simulation s(0,0,0,0,0,0,0,0,0,0,0,degradation_rate);
-        assert(s.get_metab_degr_rate() - degradation_rate < 0.000001 &&
-               s.get_metab_degr_rate() - degradation_rate > -0.000001);
+        assert(s.get_param().get_metab_degr_rate() - degradation_rate < 0.000001 &&
+               s.get_param().get_metab_degr_rate() - degradation_rate > -0.000001);
     }
     //Every time step the individuals produce new metabolite and metabolite degrades in grid_cells
     {
@@ -1175,7 +1254,7 @@ void test_simulation()//!OCLINT tests may be many
                                                  [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
         double tot_production = std::accumulate(s.get_pop().begin(), s.get_pop().end(), 0.0,
                                                 [](int sum, const individual& i) {return sum + i.get_metab_secr_rate();});
-        double tot_degradation = s.get_env().get_grid_size() * s.get_metab_degr_rate();
+        double tot_degradation = s.get_env().get_grid_size() * s.get_param().get_metab_degr_rate();
 
         auto metab_balance = tot_metab_before - tot_degradation + tot_production - tot_metab_after;
         assert(metab_balance < 0.000001 && metab_balance > -0.000001);
@@ -1226,7 +1305,7 @@ void test_simulation()//!OCLINT tests may be many
     //Spores do not get detected when looking for dividing individual
     {
         simulation s;
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
         assert(get_dividing_individuals(s)[0] == 0);
         s.get_ind(0).set_phen(phenotype::spore);
         assert(get_dividing_individuals(s).empty());
@@ -1236,9 +1315,9 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::spore);
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
         auto init_pop_size = s.get_pop_size();
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
         feeding(s);
         metabolism_pop(s);
         assert(!division(s));
@@ -1258,7 +1337,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::spore);
-        s.set_ind_en(0, get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0), get_ind_tr_en(s, 0));
         auto init_en_ind0 = get_ind_en(s, 0);
         metabolism_pop(s);
         assert(get_ind_en(s, 0) - init_en_ind0 < 0.000001
@@ -1268,7 +1347,7 @@ void test_simulation()//!OCLINT tests may be many
     //Sporulating individuals do not get detected when looking for dividing individual
     {
         simulation s;
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
         assert(get_dividing_individuals(s)[0] == 0);
         s.get_ind(0).set_phen(phenotype::sporulating);
         assert(get_dividing_individuals(s).empty());
@@ -1278,9 +1357,9 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::sporulating);
-        s.set_ind_en(0,get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
         auto init_pop_size = s.get_pop_size();
-        s.set_ind_en(0, get_ind_tr_en(s, 0));
+        set_ind_en(s.get_ind(0), get_ind_tr_en(s, 0));
         feeding(s);
         metabolism_pop(s);
         assert(!division(s));
@@ -1291,7 +1370,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         s.get_ind(0).set_phen(phenotype::sporulating);
-        s.set_ind_en(0,1);
+        set_ind_en(s.get_ind(0),1);
         auto init_en_ind0 = get_ind_en(s, 0);
         auto init_food = s.get_env().get_cell(0).get_food();
         feeding(s);
@@ -1348,7 +1427,7 @@ void test_simulation()//!OCLINT tests may be many
         }
         //Only the first individual has enough energy to survive
         //for 1 tick
-        s.set_ind_en(0,s.get_ind(0).get_metabolic_rate() + 0.001);
+        set_ind_en(s.get_ind(0),s.get_ind(0).get_metabolic_rate() + 0.001);
         assert(s.get_pop().size() == pop_size);
         tick(s);
         assert(s.get_pop_size() == 1);
@@ -1444,8 +1523,8 @@ void test_simulation()//!OCLINT tests may be many
         assert(init_variance < 0.0001 && init_variance > -0.000001);
 
         int sampling_size = 10000;
-        auto mut_prob_dist = create_bernoulli_dist(s.get_mu_p());
-        auto mut_step_dist = create_normal_dist(0,s.get_mu_st());
+        auto mut_prob_dist = create_bernoulli_dist(s.get_param().get_mu_p());
+        auto mut_step_dist = create_normal_dist(0,s.get_param().get_mu_st());
         for (int i = 0; i != sampling_size; i++)
         {
             mutates(s.get_ind(0),
@@ -1470,8 +1549,8 @@ void test_simulation()//!OCLINT tests may be many
                 s.get_pop(),
                 repr_angle(s),
                 s.get_rng(),
-                create_bernoulli_dist(s.get_mu_p()),
-                create_normal_dist(0, s.get_mu_st())
+                create_bernoulli_dist(s.get_param().get_mu_p()),
+                create_normal_dist(0, s.get_param().get_mu_st())
                 );
         auto post_var = weights_var(s.get_ind(0).get_grn());
         assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
@@ -1486,7 +1565,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s(1000, 100);
         select_new_pop(s);
-        assert(s.get_new_pop_size() == s.get_exp_new_pop_size());
+        assert(static_cast<int>(s.get_new_pop().size()) == s.get_param().get_exp_new_pop_size());
         s = simulation(10, 100);
         select_new_pop(s);
         auto n_drawn_ind = std::count_if(s.get_pop().begin(),s.get_pop().end(),
@@ -1508,8 +1587,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         double base_disp_prob = 0.1;
         simulation s(0,0,0,0,0,0,0,0,base_disp_prob);
-        assert(s.get_base_disp_prob() - base_disp_prob < 0.00001 &&
-               s.get_base_disp_prob() - base_disp_prob > -0.000001);
+        assert(s.get_param().get_base_disp_prob() - base_disp_prob < 0.00001 &&
+               s.get_param().get_base_disp_prob() - base_disp_prob > -0.000001);
     }
 
     //A simulation is initialized with a variable m_spore_advantage
@@ -1517,8 +1596,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         double spore_advantage = 10;
         simulation s(0,0,0,0,0,0,0,0,0,spore_advantage);
-        assert(s.get_spo_adv() - spore_advantage < 0.00001 &&
-               s.get_spo_adv() - spore_advantage > -0.000001);
+        assert(s.get_param().get_spo_adv() - spore_advantage < 0.00001 &&
+               s.get_param().get_spo_adv() - spore_advantage > -0.000001);
     }
 
     //A simulation is initialized with a uniform distribution between 0 and 1
@@ -1557,7 +1636,7 @@ void test_simulation()//!OCLINT tests may be many
         auto spore_ratio =
                 std::accumulate(s.get_new_pop().begin(),s.get_new_pop().end(),0.0,
                                 [](const int sum, const individual& ind){return sum + is_spore(ind);}) /
-                s.get_new_pop_size();
+                s.get_new_pop().size();
         assert(spore_ratio > 0.5);
     }
 
@@ -1576,11 +1655,11 @@ void test_simulation()//!OCLINT tests may be many
         int new_pop_size = 100;
         simulation s(pop_size,new_pop_size);
         select_new_pop(s);
-        assert(s.get_new_pop_size() == new_pop_size);
+        assert(static_cast<int>(s.get_new_pop().size()) == new_pop_size);
         assert(s.get_pop().size() == pop_size);
         fund_pop(s);
-        assert(s.get_new_pop_size() == 0);
-        assert(s.get_pop_size() == new_pop_size);
+        assert(s.get_new_pop().size() == 0);
+        assert(static_cast<int>(s.get_pop_size()) == new_pop_size);
     }
 
     //Individuals after funding the new population are set in an hexagonal pattern
@@ -1626,7 +1705,7 @@ void test_simulation()//!OCLINT tests may be many
         assert(!has_collision(s));
         //Reset env
         assert( s.get_env() != ref_env );
-        auto init_food = s.get_env().get_init_food();
+        auto init_food = s.get_param().get_init_food();
         for(const auto& grid_cell : s.get_env().get_grid())
         {
             assert(grid_cell.get_food() - init_food <  0.000001 &&
