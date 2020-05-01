@@ -101,7 +101,10 @@ void calc_diffusion_metab(environment &e) noexcept
                 std::accumulate(v_metab_fluxes.begin(),v_metab_fluxes.end(),0.0) /
                 (v_metab_fluxes.empty() ? 1 : v_metab_fluxes.size());
 
-        auto in_out_flux_metab = calc_metab_flux(e.get_grid()[i], av_metab_flux, e.get_diff_coeff());
+        auto in_out_flux_metab = calc_metab_flux(e.get_grid()[i],
+                                                 av_metab_flux,
+                                                 e.get_diff_coeff());
+
         e.get_grid()[i].set_metab_change(in_out_flux_metab);
     }
 }
@@ -405,7 +408,9 @@ void test_environment()//!OCLINT tests may be many
         //Check for case in which exiting metab < cell_metab
         //-> exiting metab = cell_metab * av_difference * diffusion_coeff * neighbors_
         diffusion_coeff = 0.1;
-        auto predicted_flux = av_diff * diffusion_coeff * c.get_metab() * c.get_v_neighbors().size();
+        auto predicted_flux = av_diff * diffusion_coeff *
+                c.get_metab() * c.get_v_neighbors().size();
+
         assert(calc_metab_flux(c,av_diff,diffusion_coeff) -
                predicted_flux < 0.000001 &&
                calc_metab_flux(c,av_diff,diffusion_coeff) -
@@ -462,7 +467,9 @@ void test_environment()//!OCLINT tests may be many
         //register starting values
         std::vector<double> v_orig_food_val;
         for(auto cell : e.get_grid()) {v_orig_food_val.push_back(cell.get_food());}
-        auto tot_food_init = std::accumulate(v_orig_food_val.begin(), v_orig_food_val.end(), 0.0);
+        auto tot_food_init = std::accumulate(v_orig_food_val.begin(),
+                                             v_orig_food_val.end(),
+                                             0.0);
 
         diff_food(e);
         auto new_grid = e.get_grid();
@@ -471,7 +478,9 @@ void test_environment()//!OCLINT tests may be many
         std::vector<double> v_new_food_values;
         v_new_food_values.reserve(new_grid.size());
         for(auto cell : new_grid) {v_new_food_values.push_back(cell.get_food());}
-        auto tot_food_new = std::accumulate(v_new_food_values.begin(), v_new_food_values.end(), 0.0);
+        auto tot_food_new = std::accumulate(v_new_food_values.begin(),
+                                            v_new_food_values.end(),
+                                            0.0);
 
         //Check they are different
         assert(v_orig_food_val != v_new_food_values);
@@ -501,7 +510,9 @@ void test_environment()//!OCLINT tests may be many
         //register starting values
         std::vector<double> v_orig_metab_val;
         for(const auto& cell : e.get_grid()) {v_orig_metab_val.push_back(cell.get_metab());}
-        auto tot_metab_init = std::accumulate(v_orig_metab_val.begin(), v_orig_metab_val.end(), 0.0);
+        auto tot_metab_init = std::accumulate(v_orig_metab_val.begin(),
+                                              v_orig_metab_val.end(),
+                                              0.0);
 
         diff_metab(e);
         auto new_grid = e.get_grid();
@@ -510,7 +521,9 @@ void test_environment()//!OCLINT tests may be many
         std::vector<double> v_new_metab_values;
         v_new_metab_values.reserve(new_grid.size());
         for(const auto& cell : new_grid) {v_new_metab_values.push_back(cell.get_metab());}
-        auto tot_metab_new = std::accumulate(v_new_metab_values.begin(), v_new_metab_values.end(), 0.0);
+        auto tot_metab_new = std::accumulate(v_new_metab_values.begin(),
+                                             v_new_metab_values.end(),
+                                             0.0);
 
         //Check they are different
         assert(v_orig_metab_val != v_new_metab_values);
