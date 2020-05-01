@@ -4,11 +4,18 @@
 #include <algorithm>
 #include <cmath>
 
-simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_dist,
-                       int grid_side, double diff_coeff,
-                       double init_food, double mutation_prob,
-                       double mutation_step, double base_disp_prob, double spore_advantage,
-                       double reproduction_prob, double metab_degradation_rate):
+simulation::simulation(unsigned int pop_size,
+                       int exp_new_pop_size,
+                       double min_dist,
+                       int grid_side,
+                       double diff_coeff,
+                       double init_food,
+                       double mutation_prob,
+                       double mutation_step,
+                       double base_disp_prob,
+                       double spore_advantage,
+                       double reproduction_prob,
+                       double metab_degradation_rate):
     m_param{pop_size,
             exp_new_pop_size,
             min_dist, grid_side,
@@ -367,7 +374,7 @@ std::vector<double> modulus_of_btw_ind_angles(simulation& s, double ang_rad)
                 auto P1 = get_pos(s.get_ind(i));
                 auto P2 = get_pos(s.get_ind(j));
                 auto P3 = get_pos(s.get_ind(k));
-                v_modulus.push_back((abs(fmod(calc_angle_3_pos(P1,P2,P3),ang_rad))));
+                v_modulus.push_back((std::abs(fmod(calc_angle_3_pos(P1,P2,P3),ang_rad))));
             }
     return v_modulus;
 }
