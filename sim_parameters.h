@@ -19,7 +19,8 @@ public:
     ///Returns the diffusion coefficient
     double get_diff_coeff() const noexcept {return  m_diff_coeff;}
 
-    ///Returns the number of individuals that should be present in the new funding population
+    ///Returns the number of individuals that should be present
+    ///  in the new funding population
     int get_exp_new_pop_size() const noexcept {return m_exp_new_pop_size;}
 
     ///Returns the side of the grid, used to determine the total size of the grid(square)

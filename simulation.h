@@ -14,7 +14,7 @@ public:
                double base_disp_prob = 0.01, double spore_advantage = 10.0, double reproduction_prob = 0.1,
                double metab_degradation_rate = 0.01);
 
-    simulation(sim_parameters param);
+    simulation(sim_param param);
 
     ///Gets the environment of a simulation
     const environment& get_env() const noexcept {return m_e;}
@@ -45,7 +45,7 @@ public:
     std::vector<individual>& get_new_pop() noexcept {return m_new_pop_tmp_buffer;}
 
      ///Gets const ref to parameters
-    const sim_parameters& get_param() const noexcept {return m_param;}
+    const sim_param& get_param() const noexcept {return m_param;}
 
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_pop() const noexcept {return m_pop;}
@@ -76,7 +76,7 @@ public:
 private:
 
     ///The parameters of the simulation
-    sim_parameters m_param;
+    sim_param m_param;
 
     ///The vector of individuals representing a population
     std::vector<individual> m_pop;

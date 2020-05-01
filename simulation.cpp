@@ -41,7 +41,7 @@ simulation::simulation(unsigned int pop_size, int exp_new_pop_size, double min_d
     }
 }
 
-simulation::simulation(sim_parameters param):
+simulation::simulation(sim_param param):
     m_param{param},
     m_pop(m_param.get_pop_start_size(),individual{0,0}),
     m_e{m_param.get_grid_side(), m_param.get_diff_coeff(), m_param.get_init_food(), m_param.get_metab_degr_rate()}
@@ -609,7 +609,7 @@ void test_simulation()//!OCLINT tests may be many
         double reproduction_prob = 0.1;
         double metab_degradation_rate = 0.01;
 
-        sim_parameters s_p(pop_size,
+        sim_param s_p(pop_size,
                            exp_new_pop_size,
                            min_dist,
                            grid_side,
