@@ -390,7 +390,7 @@ void test_individual()//!OCLINT tests may be many
         double new_energy = 3 + i.get_energy();
         i.set_energy(new_energy);
         double rhs = i.get_energy();
-        assert(abs(rhs - lhs)>0.0000001);
+        assert(std::abs(rhs - lhs)>0.0000001);
     }
 
     //an individual energy can be changed

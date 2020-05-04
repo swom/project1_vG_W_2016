@@ -15,23 +15,24 @@ simulation::simulation(unsigned int pop_size,
                        double base_disp_prob,
                        double spore_advantage,
                        double reproduction_prob,
-                       double metab_degradation_rate):
-    m_pop{pop_param{
-          pop_size,
-          exp_new_pop_size,
-          min_dist,
-          mutation_prob,
-          mutation_step,
-          base_disp_prob,
-          spore_advantage,
-          reproduction_prob}
-          },
-    m_e{env_param{
-        grid_side,
-        diff_coeff,
-        init_food,
-        metab_degradation_rate}
-        }
+                       double metab_degr_rate)//!OCLINT
+    :
+      m_pop{pop_param{
+            pop_size,
+            exp_new_pop_size,
+            min_dist,
+            mutation_prob,
+            mutation_step,
+            base_disp_prob,
+            spore_advantage,
+            reproduction_prob}
+            },
+      m_e{env_param{
+          grid_side,
+          diff_coeff,
+          init_food,
+          metab_degr_rate}
+          }
 {
 
 }
@@ -135,7 +136,7 @@ void test_simulation()//!OCLINT tests may be many
         double mutation_step = 0.1;
         double base_disp_prob = 0.01;
         double spore_advantage = 10.0;
-        double reproduction_prob = 0.1;
+        double repr_trsh = 0.1;
         double metab_degradation_rate = 0.01;
 
         sim_param s_p(pop_size,
@@ -148,7 +149,7 @@ void test_simulation()//!OCLINT tests may be many
                       mutation_step,
                       base_disp_prob,
                       spore_advantage,
-                      reproduction_prob,
+                      repr_trsh,
                       metab_degradation_rate);
         simulation s(s_p);
         //tests for pop_param
@@ -164,8 +165,8 @@ void test_simulation()//!OCLINT tests may be many
                s.pop().get_param().get_base_disp_prob() - base_disp_prob > -0.00001);
         assert(s.pop().get_param().get_spo_adv() - spore_advantage < 0.0001 &&
                s.pop().get_param().get_spo_adv() - spore_advantage > -0.0001);
-        assert(s.pop().get_param().get_repr_p() - reproduction_prob < 0.0001 &&
-               s.pop().get_param().get_repr_p() - reproduction_prob > -0.0001);
+        assert(s.pop().get_param().get_repr_p() - repr_trsh < 0.0001 &&
+               s.pop().get_param().get_repr_p() - repr_trsh > -0.0001);
         //tests for env param
         assert(s.get_env().get_param().get_diff_coeff() - diff_coeff < 0.00001 &&
                s.get_env().get_param().get_diff_coeff() - diff_coeff > -0.00001);
@@ -242,8 +243,10 @@ void test_simulation()//!OCLINT tests may be many
         assert(total_food_init > total_food_after);
         assert(total_en_init < total_en_after);
 
-        auto total_uptake = std::accumulate(s.pop().get_v_ind().begin(), s.pop().get_v_ind().end(), 0.0,
-                                            [](double sum, const individual& i)
+        auto total_uptake =
+                std::accumulate(s.pop().get_v_ind().begin(),
+                                s.pop().get_v_ind().end(), 0.0,
+                                [](double sum, const individual& i)
         {return sum + i.get_param().get_uptake_rate();});
 
         assert(total_en_after - (total_uptake + total_en_init) < 0.00000001 &&
@@ -295,11 +298,13 @@ void test_simulation()//!OCLINT tests may be many
                && total_en_init - total_en_after > -0.000001);
     }
 
-    //In one tick/timestep individuals take in input, determine phenotype(based on previous timestep),
+    //In one tick/timestep individuals take in input,
+    //determine phenotype(based on previous timestep),
     // feed, than reproduce, than substances diffuse
     {
         simulation s(1,1,0.1,3,1,1,0);
-        //Set all the hid nodes and H2O and H2H weights to one so that we are sure the phenotype will stay = active;
+        //Set all the hid nodes and H2O and H2H weights to one so
+        //that we are sure the phenotype will stay = active;
         for(auto& ind : s.pop().get_v_ind())
         {
             ind.get_grn().set_all_hid_nodes(1);
@@ -321,7 +326,9 @@ void test_simulation()//!OCLINT tests may be many
         response(s);
         feeding(s);
 
-        auto grid_index_ind =  find_grid_index(s.pop().get_ind(0),s.get_env().get_param().get_grid_side());
+        auto grid_index_ind =  find_grid_index(s.pop().get_ind(0),
+                                               s.get_env().get_param().get_grid_side());
+
         double food_after_feeding = s.get_env().get_cell(grid_index_ind).get_food();
 
         metabolism_pop(s.pop());
@@ -344,8 +351,11 @@ void test_simulation()//!OCLINT tests may be many
     //If nothing else happens, food should constantly decrease when cells are feeding
     {
         simulation s (2, 1, 0, 3, 0.1, 5);
-        auto food_begin = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                          [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+        auto food_begin =
+                std::accumulate(s.get_env().get_grid().begin(),
+                                s.get_env().get_grid().end(), 0.0,
+                                [](double sum, const env_grid_cell& c)
+        {return sum + c.get_food();});
 
         //The simulation will last long enough  for the individuals to reproduce
         auto sim_time = s.pop().get_ind(0).get_param().get_treshold_energy() /
@@ -356,12 +366,19 @@ void test_simulation()//!OCLINT tests may be many
         for( int i = 0; i != static_cast<int>(sim_time); i++)
         {
 
-            auto food_before_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                                    [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+            auto food_before_feed =
+                    std::accumulate(s.get_env().get_grid().begin(),
+                                    s.get_env().get_grid().end(), 0.0,
+                                    [](double sum, const env_grid_cell& c)
+            {return sum + c.get_food();});
+
             feeding(s);
 
-            auto food_after_feed = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                                   [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+            auto food_after_feed =
+                    std::accumulate(s.get_env().get_grid().begin(),
+                                    s.get_env().get_grid().end(), 0.0,
+                                    [](double sum, const env_grid_cell& c)
+            {return sum + c.get_food();});
 
             double food_eaten = 0.0;
             for(const auto& ind : s.pop().get_v_ind())
@@ -373,7 +390,7 @@ void test_simulation()//!OCLINT tests may be many
                 }
             }
 
-            auto balance_uptake = food_before_feed - (food_after_feed + food_eaten) ;
+            auto balance_uptake = food_before_feed - (food_after_feed + food_eaten);
             assert(balance_uptake < 0.0001 && balance_uptake > -0.0001);
 
             metabolism_pop(s.pop());
@@ -381,15 +398,21 @@ void test_simulation()//!OCLINT tests may be many
             division(s.pop());
             manage_static_collisions(s.pop());
 
-            auto food_before_diff = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                                    [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+            auto food_before_diff =
+                    std::accumulate(s.get_env().get_grid().begin(),
+                                    s.get_env().get_grid().end(), 0.0,
+                                    [](double sum, const env_grid_cell& c)
+            {return sum + c.get_food();});
 
             calc_diffusion_food(s.get_env());
 
             auto new_grid = s.get_env().get_grid();
 
-            auto food_after_diff = std::accumulate(new_grid.begin(), new_grid.end(), 0.0,
-                                                   [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+            auto food_after_diff =
+                    std::accumulate(new_grid.begin(),
+                                    new_grid.end(), 0.0,
+                                    [](double sum, const env_grid_cell& c)
+            {return sum + c.get_food();});
 
             auto balance_diffusion = food_before_diff - food_after_diff;
             assert(balance_diffusion < 0.0001 && balance_diffusion > -0.0001);
@@ -397,8 +420,12 @@ void test_simulation()//!OCLINT tests may be many
             new_grid.swap(s.get_env().get_grid());
 
         }
-        auto food_end = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                        [](double sum, const env_grid_cell& c) {return sum + c.get_food();});
+        auto food_end =
+                std::accumulate(s.get_env().get_grid().begin(),
+                                s.get_env().get_grid().end(), 0.0,
+                                [](double sum, const env_grid_cell& c)
+        {return sum + c.get_food();});
+
         assert(food_end < food_begin);
 
         auto final_pop_size =  s.pop().get_v_ind().size();
@@ -424,25 +451,33 @@ void test_simulation()//!OCLINT tests may be many
             grid_cell.set_metab(init_metab);
         }
 
-        double tot_metab_before = std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
-                                                  [](int sum, const env_grid_cell& g) {return sum + g.get_metab();});
+        double tot_metab_before =
+                std::accumulate(s.get_env().get_grid().begin(),
+                                s.get_env().get_grid().end(), 0.0,
+                                [](int sum, const env_grid_cell& g)
+        {return sum + g.get_metab();});
 
         secretion_metabolite(s);
         degradation_metabolite(s.get_env());
 
         double tot_metab_after =
-                std::accumulate(s.get_env().get_grid().begin(), s.get_env().get_grid().end(), 0.0,
+                std::accumulate(s.get_env().get_grid().begin(),
+                                s.get_env().get_grid().end(), 0.0,
                                 [](int sum, const env_grid_cell& g)
         {return sum + g.get_metab();});
 
         double tot_production =
-                std::accumulate(s.pop().get_v_ind().begin(), s.pop().get_v_ind().end(), 0.0,
+                std::accumulate(s.pop().get_v_ind().begin(),
+                                s.pop().get_v_ind().end(), 0.0,
                                 [](int sum, const individual& i)
         {return sum + i.get_param().get_metab_secr_rate();});
 
-        double tot_degradation = s.get_env().get_grid_size() * s.get_env().get_param().get_metab_degr_rate();
+        double tot_degradation =
+                s.get_env().get_grid_size() * s.get_env().get_param().get_metab_degr_rate();
 
-        auto metab_balance = tot_metab_before - tot_degradation + tot_production - tot_metab_after;
+        auto metab_balance =
+                tot_metab_before - tot_degradation + tot_production - tot_metab_after;
+
         assert(metab_balance < 0.000001 && metab_balance > -0.000001);
 
 
@@ -455,7 +490,8 @@ void test_simulation()//!OCLINT tests may be many
         //after a tick should reproduce
         auto init_pop_size = s.pop().get_v_ind().size();
         s.pop().get_ind(1).set_energy(get_ind_tr_en(s.pop(), 1)
-                                      + s.pop().get_ind(1).get_param().get_metabolic_rate() + 0.01
+                                      + s.pop().get_ind(1).get_param().get_metabolic_rate()
+                                      + 0.01
                                       - s.pop().get_ind(1).get_param().get_uptake_rate());
         feeding(s);
         metabolism_pop(s.pop());
@@ -522,304 +558,8 @@ void test_simulation()//!OCLINT tests may be many
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
     }
 
-
-    //    //A sporulating individual updates its timer every time metab_pop is called
-    //    {
-    //        simulation s;
-    //        auto init_timer = s.get_ind(0).get_spo_timer();
-    //        s.get_ind(0).set_phen(phenotype::sporulating);
-    //        metabolism_pop(s);
-    //        assert(init_timer != s.get_ind(0).get_spo_timer());
-    //        assert(s.get_ind(0).get_spo_timer() == init_timer + 1);
-    //        assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
-
-    //        s.get_ind(0).reset_spo_timer();
-    //        init_timer = s.get_ind(0).get_spo_timer();
-    //        s.get_ind(0).set_phen(phenotype::spore);
-    //        metabolism_pop(s);
-    //        assert(s.get_ind(0).get_spo_timer() == init_timer);
-    //        assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
-    //        assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
-
-    //        s.get_ind(0).reset_spo_timer();
-    //        init_timer = s.get_ind(0).get_spo_timer();
-    //        s.get_ind(0).set_phen(phenotype::active);
-    //        metabolism_pop(s);
-    //        assert(s.get_ind(0).get_spo_timer() == init_timer);
-    //        assert(s.get_ind(0).get_spo_timer() != init_timer + 1);
-    //        assert(s.get_ind(0).get_spo_timer() != init_timer + 2);
-    //    }
-
-    //    //Individuals that die are removed from the population
-    //    {
-    //        simulation s;
-    //        s.get_ind(0).set_energy(0);//the only individual in this sim has 0 energy, thus it will die
-    //        assert(s.get_pop_size() == 1);
-    //        death(s);
-    //        assert(s.get_pop().empty() && s.get_pop_size() == 0);
-
-    //        unsigned int pop_size = 5;
-    //        //The simulation does not have a grid with food,
-    //        //so organisms cannot feed
-    //        s = simulation(pop_size,1,0.1,0);
-    //        for(auto& ind :s.get_pop())
-    //        {
-    //            ind.set_energy(0);
-    //        }
-    //        //Only the first individual has enough energy to survive
-    //        //for 1 tick
-    //        set_ind_en(s.get_ind(0),s.get_ind(0).get_param().get_metabolic_rate() + 0.001);
-    //        assert(s.get_pop().size() == pop_size);
-    //        tick(s);
-    //        assert(s.get_pop_size() == 1);
-    //        //then at the second tick the only individual left dies
-    //        tick(s);
-    //        assert(s.get_pop().empty() && s.get_pop_size() == 0);
-    //    }
-
-    //    //A simulation is initialized with a random number generator
-    //    {
-    //        simulation s;
-    //        std::uniform_int_distribution u_d(0,2);
-    //        double mean = 0;
-    //        //Draw a thousands times from a uniform dist between 0 and 2
-    //        for(int i = 0; i != 1000; i++)
-    //        {
-    //            mean += u_d(s.get_rng());
-    //        }
-    //        //calculate mean of the drawn values
-    //        mean /= 1000;
-    //        assert(mean < 1.01 && mean > 0.99 );
-    //    }
-
-    //    //A pop can generate numbers from a uniform distribution
-    //    //between 0 and 2PI
-    //    {
-    //        simulation s;
-    //        double mean = 0;
-    //        //Draw a thousands times from a uniform dist between 0 and 2
-    //        int sampling_size = 1000;
-    //        for(int i = 0; i != sampling_size; i++)
-    //        {
-    //            mean += repr_angle(s);
-    //        }
-    //        //calculate mean of the drawn values
-    //        mean /= 1000;
-    //        assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );
-    //    }
-
-    //    //Daughter cells are placed at a random angle after reproduction
-    //    {
-    //        simulation s;
-    //        //to calculate angle we will use three point
-    //        //the center of the mother(0,0)
-    //        std::pair<double, double> mother (0,0);
-    //        set_pos(s.get_ind(0),mother);
-    //        //a reference point on the same axis as the mother (0,1)
-    //        //and the center of the daughter -> get_daughter_pos()
-    //        std::pair<double, double> reference(1,0);
-
-    //        //Draw a thousands times from a uniform dist between 0 and 2
-    //        double mean = 0;
-    //        int sampling_size = 1000;
-    //        for(int i = 0; i != sampling_size; i++)
-    //        {
-    //            auto daughter = get_daughter_pos(s.get_ind(0), repr_angle(s));
-    //            mean += calc_angle_3_pos(mother,daughter,reference);
-    //        }
-    //        mean /= sampling_size;
-    //        assert(mean < M_PI + 0.1 && mean > M_PI - 0.1 );
-    //    }
-
-    //    //A pop can generate numbers from a normal distribution for mutation step
-    //    //with mean 0 and variance 0.1 by default
-    //    {
-    //        simulation s;
-    //        double mean = 0;
-    //        int sampling_size = 10000;
-    //        for(int i = 0 ; i != sampling_size; i++ )
-    //            mean += mut_step(s);
-    //        mean /= sampling_size;
-    //        assert(mean < 0.01 && mean > -0.01);
-    //    }
-    //    //A pop can generate numbers from a bernoulli distribution to see if mutation happens or not
-    //    //0.01 by default
-    //    {
-    //        simulation s;
-    //        double mean = 0;
-    //        int sampling_size = 100000;
-    //        for(int i = 0 ; i != sampling_size; i++ )
-    //            mean += mut_happens(s);
-    //        mean /= sampling_size;
-    //        assert(mean < 0.011 && mean > 0.009);
-    //    }
-
-    //    //The sum of weight of an individual after many rounds of mutation
-    //    //Should have the same mean as in the beginning, but its variance should
-    //    //be the same as the mutation_step distribution
-    //    {
-    //        simulation s;
-    //        //   double init_mean = weights_mean(s.get_ind(0).get_grn());
-    //        double init_variance = weights_var(s.get_ind(0).get_grn());
-    //        assert(init_variance < 0.0001 && init_variance > -0.000001);
-
-    //        int sampling_size = 10000;
-    //        auto mut_prob_dist = create_bernoulli_dist(s.get_param().get_mu_p());
-    //        auto mut_step_dist = create_normal_dist(0,s.get_param().get_mu_st());
-    //        for (int i = 0; i != sampling_size; i++)
-    //        {
-    //            mutates(s.get_ind(0),
-    //                    s.get_rng(),
-    //                    mut_prob_dist,
-    //                    mut_step_dist
-    //                    );
-    //        }
-    //        //This first assert does not pass, the mean is much more variable than
-    //        //I thought, but I do not see any bug. I will comment this out
-    //        //    assert(mean - init_mean > -0.1 && mean - init_mean < 0.1);
-    //        assert(init_variance - weights_var(s.get_ind(0).get_grn()) > 0.01 ||
-    //               init_variance - weights_var(s.get_ind(0).get_grn()) < -0.01);
-    //    }
-    //    //After dividing the two daughter individuals mutate
-    //    {
-    //        double mutation_probability = 1; //all weights will be mutated in this simulation
-    //        simulation s(1, 1, 0, 0, 0, 0, mutation_probability);
-    //        auto init_var = weights_var(s.get_ind(0).get_grn());
-    //        assert(init_var < 0.00001 && init_var > -0.0001);
-    //        divides(s.get_ind(0),
-    //                s.get_pop(),
-    //                repr_angle(s),
-    //                s.get_rng(),
-    //                create_bernoulli_dist(s.get_param().get_mu_p()),
-    //                create_normal_dist(0, s.get_param().get_mu_st())
-    //                );
-    //        auto post_var = weights_var(s.get_ind(0).get_grn());
-    //        assert(init_var - post_var > 0.000001 || init_var - post_var < -0.0001);
-    //    }
-
-    //    //A simulation has a member variable m_new_pop_size that states the max number of
-    //    //individuals that will start a new population
-    //    //by default = to pop.size()
-    //    //If at dispersal m_new_pop_size > pop.size()
-    //    //Then the number of funding individuals == pop.size()
-
-    //    {
-    //        simulation s(1000, 100);
-    //        select_new_pop(s);
-    //        assert(static_cast<int>(s.get_new_pop().size()) == s.get_param().get_exp_new_pop_size());
-    //        s = simulation(10, 100);
-    //        select_new_pop(s);
-    //        auto n_drawn_ind = std::count_if(s.get_pop().begin(),s.get_pop().end(),
-    //                                         [](const individual& i) {return is_drawn(i);});
-    //        assert( n_drawn_ind == s.get_pop_size());
-    //    }
-
-
-    //    //During dispersal the individuals selected for the new_pop cannot be drawn again from pop
-    //    {
-    //        simulation s(1000, 100);
-    //        select_new_pop(s);
-    //        assert(std::count_if(s.get_pop().begin(),s.get_pop().end(),
-    //                             [](const individual& i) {return is_drawn(i);}) == 100);
-    //    }
-
-    //    //A simulation is initialized with a variable m_base_fitness
-    //    //by default = 0.01
-    //    {
-    //        double base_disp_prob = 0.1;
-    //        simulation s(0,0,0,0,0,0,0,0,base_disp_prob);
-    //        assert(s.get_param().get_base_disp_prob() - base_disp_prob < 0.00001 &&
-    //               s.get_param().get_base_disp_prob() - base_disp_prob > -0.000001);
-    //    }
-
-    //    //A simulation is initialized with a variable m_spore_advantage
-    //    //by default = 10
-    //    {
-    //        double spore_advantage = 10;
-    //        simulation s(0,0,0,0,0,0,0,0,0,spore_advantage);
-    //        assert(s.get_param().get_spo_adv() - spore_advantage < 0.00001 &&
-    //               s.get_param().get_spo_adv() - spore_advantage > -0.000001);
-    //    }
-
-    //    //A simulation is initialized with a uniform distribution between 0 and 1
-    //    //used to see which ind is drawn at dispersal
-    //    {
-    //        simulation s;
-    //        int sample_size = 100000;
-    //        double mean = 0;
-    //        for(int i = 0; i != sample_size; i++)
-    //        {
-    //            mean += create_unif_dist(0,1)(s.get_rng());
-    //        }
-    //        mean /= sample_size;
-    //        assert(mean - 0.5 < 0.01 &&
-    //               mean - 0.5 > -0.01);
-    //    }
-    //    //At initialization a simulation checks that base_disp_dist * 10 is not > 1
-    //    //--------> constructor throws exception. Tested directly in constructor
-    //    {
-    //#ifndef IS_ON_TRAVIS
-    //        try {
-    //            simulation(0,0,0,0,0,0,0,0,1);
-    //        } catch (std::string& e) {
-    //            assert(e == "base dispersal probability * spore advantage > 1, too high!\n" );
-    //        }
-    //#endif
-    //    }
-
-    //    //Individuals are selected based on their phenotype
-    //    //A spore is more likely to be selected than a living
-    //    {
-    //        simulation s(1000,100);
-    //        for(int i = s.get_pop_size() / 2; i != s.get_pop_size(); i++)
-    //            s.get_ind(i).set_phen(phenotype::spore);
-    //        select_new_pop(s);
-    //        auto spore_ratio =
-    //                std::accumulate(s.get_new_pop().begin(),s.get_new_pop().end(),0.0,
-    //                                [](const int sum, const individual& ind){return sum + is_spore(ind);}) /
-    //                s.get_new_pop().size();
-    //        assert(spore_ratio > 0.5);
-    //    }
-
-    //    //After being selected in new population individuals flag is_drawn is resetted
-    //    {
-    //        simulation s;
-    //        select_new_pop(s);
-    //        for(const auto& ind :s.get_new_pop())
-    //            assert(!is_drawn(ind));
-    //    }
-
-    //    //After a new population is selected it swapped with the old population
-    //    //And the old population is cancelled
-    //    {
-    //        unsigned int pop_size = 1000;
-    //        int new_pop_size = 100;
-    //        simulation s(pop_size,new_pop_size);
-    //        select_new_pop(s);
-    //        assert(static_cast<int>(s.get_new_pop().size()) == new_pop_size);
-    //        assert(s.get_pop().size() == pop_size);
-    //        fund_pop(s);
-    //        assert(s.get_new_pop().size() == 0);
-    //        assert(static_cast<int>(s.get_pop_size()) == new_pop_size);
-    //    }
-
-    //    //Individuals after funding the new population are set in an hexagonal pattern
-    //    {
-    //        unsigned int pop_size = 1000;
-    //        int new_pop_size = 100;
-    //        simulation s(pop_size,new_pop_size);
-    //        select_new_pop(s);
-    //        fund_pop(s);
-    //        place_start_cells(s);
-    //        auto n_hex_l = count_hex_layers(s.get_pop_size());
-    //        auto v_modulus = modulus_of_btw_ind_angles(s, M_PI/ (6 * n_hex_l));
-    //        for(auto ind_modulus : v_modulus)
-    //            assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
-    //        assert(!has_collision(s));
-    //    }
-
-
-    //Max 100 ind, selected based on phenotype, are placed in a hex pattern, in a new env after dispersal
+    //Max 100 ind, selected based on phenotype, are placed in a hex pattern,
+    //in a new env after dispersal
     //Tests all of the above
     {
         unsigned int pop_size = 1000;
@@ -841,7 +581,9 @@ void test_simulation()//!OCLINT tests may be many
         auto v_modulus = modulus_of_btw_ind_angles(s.pop(), M_PI/ (6 * n_hex_l));
         for(auto ind_modulus : v_modulus)
         {
-            assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
+            assert( ind_modulus < 0.0000000001 ||
+                    (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 &&
+                     ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
         }
         assert(!has_collision(s.pop()));
         //Reset env
@@ -886,9 +628,12 @@ void test_simulation()//!OCLINT tests may be many
             assert(is_sporulating(ind));
         }
 
-        //The values of food and metabolite in the grid_cell as well as the energy in the individual
-        //are changed so that all inputs are -1, the network should therefore give outputs == 0/false
-        //since the outputs node will recieve a signal that is negative(below the treshold)
+        //The values of food and metabolite in the grid_cell
+        //as well as the energy in the individual
+        //are changed so that all inputs are -1,
+        //the network should therefore give outputs == 0/false
+        //since the outputs node will recieve a signal
+        //that is negative(below the treshold)
         //after responds(i) is called 2 more times
         for(auto& grid_cell : s.get_env().get_grid())
         {
