@@ -469,6 +469,8 @@ void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<ind
 
 void test_population() noexcept  //!OCLINT
 {
+#ifndef NDEBUG
+
     //pop is initialized with a certain number of individuals
     // The value 1234567890 is irrelevant: just get this to compile
 
@@ -1185,5 +1187,5 @@ void test_population() noexcept  //!OCLINT
             assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
         assert(!has_collision(p));
     }
-
+#endif
 }
