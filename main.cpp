@@ -9,6 +9,8 @@ void test() {
   test_GRN();
   test_individual();
   test_individual_type();
+  test_pop_param();
+  test_population();
   test_simulation();
   test_sim_view();
   test_sim_parameters();

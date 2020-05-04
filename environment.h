@@ -2,35 +2,30 @@
 #define ENVIRONMENT_H
 #include "vector"
 #include "env_grid_cell.h"
+#include "env_param.h"
 
 class environment
 {
 public:
-    environment(int grid_side = 1, double diff_coeff = 0, double init_food = 1, double degrad_coeff = 0.001);
+
+    environment(int grid_side = 1, double diff_coeff = 0, double init_food = 1, double metab_deg_rate = 0.001);
+
+    environment(env_param env_parameters);
 
     ///Gets const reference of cell at a certain index
     const env_grid_cell& get_cell(int i) const noexcept
     {
-      return m_grid[static_cast<unsigned int>(i)];
+        return m_grid[static_cast<unsigned int>(i)];
     }
 
     ///Gets reference of cell at a certain index
     env_grid_cell& get_cell(int i) noexcept
     {
-      return m_grid[static_cast<unsigned int>(i)];
+        return m_grid[static_cast<unsigned int>(i)];
     }
-
-    ///Gets the degradation coefficient
-    const double& get_degr_coeff() const noexcept {return m_degrad_coefficient;}
-
-    ///Get the diffusion coefficent of the environment
-    const double& get_diff_coeff() const noexcept {return m_diffusion_coefficient;}
 
     ///Gets the size of the grid of cells(number of grid cells)
     int get_grid_size() const noexcept {return static_cast<int>(m_grid.size());}
-
-    ///Gets the size of the grid of cells(number of grid cells)
-    int get_grid_side() const noexcept {return m_side;}
 
     ///Gets the entire grid by const reference
     const std::vector<env_grid_cell>& get_grid() const noexcept {return m_grid;}
@@ -38,16 +33,11 @@ public:
     ///Gets the entire grid by reference
     std::vector<env_grid_cell>& get_grid() noexcept {return m_grid;}
 
-    ///Gets the amount of initial food in the grid
-    double get_init_food() const noexcept {return  m_init_food;}
-
+    ///Returns constant reference to the parameters
+    const env_param get_param() const noexcept {return m_env_param;}
 
 private:
-    int m_side;
-    //Always needs to be between 0 and 1!!!
-    double m_degrad_coefficient;
-    double m_diffusion_coefficient;
-    double m_init_food;
+    env_param m_env_param;
     std::vector<env_grid_cell> m_grid;
 };
 ///Checks if two environment have the same grid_size and the the same amount of food and metabolite in each cell
@@ -58,7 +48,7 @@ bool operator != (const environment& lhs, const environment& rhs) noexcept;
 
 ///Applies the changes in substance concntration in all cells do to diffusion, the claculations are
 /// done by calc_diffusion
- void apply_diffusion(environment& e) noexcept;
+void apply_diffusion(environment& e) noexcept;
 
 ///Calculates the change of food for a given gridcell at a certain index in a given environment
 void calc_change_food(environment& e, int index_focal_cell) noexcept;

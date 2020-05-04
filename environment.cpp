@@ -3,12 +3,21 @@
 #include <cassert>
 #include <numeric>
 
-environment::environment(int grid_side, double diff_coeff, double init_food, double degrad_coeff):
-    m_side{grid_side},
-    m_degrad_coefficient{degrad_coeff},
-    m_diffusion_coefficient{diff_coeff},
-    m_init_food{init_food},
-    m_grid(static_cast<unsigned int>(m_side * m_side),env_grid_cell(0,m_init_food))
+environment::environment(int grid_side, double diff_coeff, double init_food, double metab_deg_rate):
+    m_env_param{
+        grid_side,
+        diff_coeff,
+        init_food,
+        metab_deg_rate
+        },
+    m_grid(static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),env_grid_cell(0,m_env_param.get_init_food()))
+{
+    find_neighbors_all_grid(*this);
+}
+
+environment::environment(env_param env_parameters):
+    m_env_param(env_parameters),
+    m_grid(static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),env_grid_cell(0,m_env_param.get_init_food()))
 {
     find_neighbors_all_grid(*this);
 }
@@ -18,8 +27,8 @@ bool operator == (const environment& lhs, const environment& rhs) noexcept
 {
 
     return lhs.get_grid_size() == rhs.get_grid_size() &&
-            lhs.get_diff_coeff() - rhs.get_diff_coeff() < 0.00001 &&
-            lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.00001 &&
+            lhs.get_param().get_diff_coeff() - rhs.get_param().get_diff_coeff() < 0.00001 &&
+            lhs.get_param().get_diff_coeff() - rhs.get_param().get_diff_coeff() > -0.00001 &&
             std::equal(lhs.get_grid().begin(),lhs.get_grid().end(),
                        rhs.get_grid().begin(),rhs.get_grid().end(),
                        [](const env_grid_cell& l, const env_grid_cell& r) {return l == r;});
@@ -45,7 +54,7 @@ void calc_change_food(environment& e, int index_focal_cell) noexcept
             std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
             (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
-    auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_diff_coeff());
+    auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_param().get_diff_coeff());
     focal_gridcell.set_food_change(in_out_flux_food);
 }
 
@@ -64,7 +73,7 @@ void calc_change_metab(environment& e, int index_focal_cell) noexcept
             std::accumulate(v_metab_fluxes.begin(),v_metab_fluxes.end(),0.0) /
             (v_metab_fluxes.empty() ? 1 : v_metab_fluxes.size());
 
-    auto in_out_flux_metab = calc_metab_flux(focal_gridcell, av_metab_flux, e.get_diff_coeff());
+    auto in_out_flux_metab = calc_metab_flux(focal_gridcell, av_metab_flux, e.get_param().get_diff_coeff());
     focal_gridcell.set_metab_change(in_out_flux_metab);
 }
 
@@ -87,7 +96,7 @@ void calc_diffusion_food(environment& e) noexcept
                 std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
                 (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
-        auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_diff_coeff());
+        auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_param().get_diff_coeff());
         focal_gridcell.set_food_change(in_out_flux_food);
     }
 }
@@ -103,7 +112,7 @@ void calc_diffusion_metab(environment &e) noexcept
 
         auto in_out_flux_metab = calc_metab_flux(e.get_grid()[i],
                                                  av_metab_flux,
-                                                 e.get_diff_coeff());
+                                                 e.get_param().get_diff_coeff());
 
         e.get_grid()[i].set_metab_change(in_out_flux_metab);
     }
@@ -113,7 +122,7 @@ void degradation_metabolite(environment& e) noexcept
 {
     for(auto& grid_cell : e.get_grid())
     {
-        metabolite_degrades(grid_cell, e.get_degr_coeff());
+        metabolite_degrades(grid_cell, e.get_param().get_degr_coeff());
     }
 }
 
@@ -174,7 +183,7 @@ void find_neighbors_all_grid(environment& e) noexcept
 {
     for (int i = 0; i != e.get_grid_size(); i++)
     {
-        e.get_cell(i).set_v_neighbors(find_neighbors(e.get_grid_size(), e.get_grid_side(), i));
+        e.get_cell(i).set_v_neighbors(find_neighbors(e.get_grid_size(), e.get_param().get_grid_side(), i));
     }
 }
 
@@ -231,7 +240,10 @@ bool is_same_cell(int column, int row) noexcept
 
 void reset_env(environment& e)
 {
-    e = environment(e.get_grid_side(), e.get_diff_coeff(), e.get_init_food());
+    e = environment(e.get_param().get_grid_side(),
+                    e.get_param().get_diff_coeff(),
+                    e.get_param().get_init_food(),
+                    e.get_param().get_metab_degr_rate());
 }
 
 void reset_env(environment& e, int grid_side, double diff_coeff, double food)
@@ -266,7 +278,7 @@ void test_environment()//!OCLINT tests may be many
     {
         int side = 42;
         environment e(side);
-        assert(e.get_grid_side() == side );
+        assert(e.get_param().get_grid_side() == side );
     }
 
     //An environment is initialized by default with
@@ -309,12 +321,13 @@ void test_environment()//!OCLINT tests may be many
     //0 by default
     {
         environment e;
-        assert(e.get_diff_coeff() < 0.000001
-               || e.get_diff_coeff() > -0.000001);
+        assert(e.get_param().get_diff_coeff() < 0.000001
+               && e.get_param().get_diff_coeff() > -0.000001);
 
         double diff_coeff = 3.14;
         environment e1(1, diff_coeff);
-        assert(e1.get_diff_coeff() - diff_coeff < 0.0001);
+        assert(e1.get_param().get_diff_coeff() - diff_coeff < 0.0001 &&
+               e1.get_param().get_diff_coeff() - diff_coeff > -0.0001);
     }
 
     //On initializtion each grid_cells has its neighbor vector
@@ -357,7 +370,8 @@ void test_environment()//!OCLINT tests may be many
         environment e;
         //the focal cell in this case is the first and only cell of the grid
         auto focal_cell_index = 0;
-        assert(find_neighbors(e.get_grid_size(),e.get_grid_side(),focal_cell_index).empty());
+        assert(find_neighbors(e.get_grid_size(),
+                              e.get_param().get_grid_side(),focal_cell_index).empty());
 
         //the central grid_cell in a 3x3 grid (index = 4) should have 8 neighbors
         environment e3x3(3);
@@ -366,7 +380,7 @@ void test_environment()//!OCLINT tests may be many
                     find_neighbors
                     (
                         e3x3.get_grid_size(),
-                        e3x3.get_grid_side(),
+                        e3x3.get_param().get_grid_side(),
                         focal_cell_index
                         ).size()
                     == 8
@@ -471,7 +485,7 @@ void test_environment()//!OCLINT tests may be many
                                              v_orig_food_val.end(),
                                              0.0);
 
-        diff_food(e);
+        diffusion(e);
         auto new_grid = e.get_grid();
 
         //register new values
@@ -575,7 +589,7 @@ void test_environment()//!OCLINT tests may be many
                tot_metab_bef - tot_metab_after > -0.0001);
     }
 
-    //The metabolite in all grid_cells canbe depleted by the degradation rate
+    //The metabolite in all grid_cells can be depleted by the degradation rate
     {
         double degradation_coeff = 3.14;
         double init_metab_per_cell = degradation_coeff;
@@ -643,13 +657,13 @@ void test_environment()//!OCLINT tests may be many
         auto e2 = e;
         reset_env(e2);
         assert(e2 != e);
-        assert(e2.get_grid_side() == e.get_grid_side());
-        assert(e2.get_diff_coeff() - e.get_diff_coeff() < 0.00001 &&
-               e2.get_diff_coeff() - e.get_diff_coeff() > -0.000001);
+        assert(e2.get_param().get_grid_side() == e.get_param().get_grid_side());
+        assert(e2.get_param().get_diff_coeff() - e.get_param().get_diff_coeff() < 0.00001 &&
+               e2.get_param().get_diff_coeff() - e.get_param().get_diff_coeff() > -0.000001);
         for (const auto& grid_cell : e2.get_grid())
         {
-            assert(grid_cell.get_food() - e.get_init_food() < 0.00001 &&
-                   grid_cell.get_food() - e.get_init_food() > -0.00001 );
+            assert(grid_cell.get_food() - e.get_param().get_init_food() < 0.00001 &&
+                   grid_cell.get_food() - e.get_param().get_init_food() > -0.00001 );
             assert(grid_cell.get_metab() < 0.000001 && grid_cell.get_metab() > -0.000001);
         }
     }
@@ -668,11 +682,11 @@ void test_environment()//!OCLINT tests may be many
         auto food = 42;
         reset_env(e2, grid_side, diff_coeff, food);
         assert( e != e2);
-        assert(e2.get_grid_side() == grid_side);
-        assert(e2.get_diff_coeff() - diff_coeff < 0.00001 &&
-               e2.get_diff_coeff() - diff_coeff > -0.000001);
-        assert(e2.get_init_food() - food < 0.00001 &&
-               e2.get_init_food() - food > -0.000001);
+        assert(e2.get_param().get_grid_side() == grid_side);
+        assert(e2.get_param().get_diff_coeff() - diff_coeff < 0.00001 &&
+               e2.get_param().get_diff_coeff() - diff_coeff > -0.000001);
+        assert(e2.get_param().get_init_food() - food < 0.00001 &&
+               e2.get_param().get_init_food() - food > -0.000001);
     }
 
 #endif

@@ -1,42 +1,31 @@
-#ifndef SIM_PARAMETERS_H
-#define SIM_PARAMETERS_H
+#ifndef POP_PARAM_H
+#define POP_PARAM_H
+#include "ind_param.h"
 
-
-class sim_param
+class pop_param
 {
 public:
-    sim_param(unsigned int start_pop_size = 1,
-              int exp_new_pop_size = 1,
+    pop_param(unsigned int start_pop_size = 1,
+              unsigned int exp_new_pop_size = 1,
               double min_dist = 0.1,
-              int grid_side = 1,
-              double diff_coeff = 0.1,
-              double init_food = 1.0,
               double mutation_prob = 0.01,
               double mutation_step = 0.1,
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
               double reproduction_prob = 0.1,
-              double metab_degrad_rate = 0.01);
+              ind_param ind_parameters = ind_param());
+
 
     ///Returns the value of the variable m_base_fitness that indicates
     /// the basal fitness/dispersal probability of an individual
     double get_base_disp_prob() const noexcept {return m_base_disp_prob;}
 
-    ///Returns the diffusion coefficient
-    double get_diff_coeff() const noexcept {return  m_diff_coeff;}
-
     ///Returns the number of individuals that should be present
     ///  in the new funding population
-    int get_exp_new_pop_size() const noexcept {return m_exp_new_pop_size;}
+    unsigned int get_exp_new_pop_size() const noexcept {return m_exp_new_pop_size;}
 
-    ///Returns the side of the grid, used to determine the total size of the grid(square)
-    int get_grid_side() const noexcept {return m_grid_side;}
-
-    ///Gets the initial food that will be provided in each grid_cell of the environment
-    double get_init_food() const noexcept {return m_init_food;}
-
-    ///Gets the degradation rate of the metabolite
-    double get_metab_degr_rate() const noexcept {return m_metab_degradation_rate;}
+    ///Get ind parameters
+    const ind_param& get_ind_param() const noexcept {return m_ind_param;}
 
     ///Get minimum distance between individuals at the start of the simulation
     double get_min_dist() const noexcept {return m_min_init_dist_btw_inds;}
@@ -58,32 +47,20 @@ public:
     ///than the other phenotypes
     double get_spo_adv() const noexcept {return m_spore_advantage;}
 
-
-
 private:
 
+    ///The parameters of the individuals
+    ind_param m_ind_param;
 
     ///The base dispersal probability of an individual(so when it is active or sporulating)
     double m_base_disp_prob;
 
-    /// The diffusion coefficient of substances in the grid
-    double m_diff_coeff;
-
     ///The expected size of a newly funded population
-    int m_exp_new_pop_size;
-
-    ///The side of the grid
-    int m_grid_side;
-
-    ///The initial amount of food in each grid_cell at the start of a pop cycle
-    double m_init_food;
+    unsigned int m_exp_new_pop_size;
 
     ///The minimum ditance between individuals when they are placed down at the start
     ///of a population cycle
     double m_min_init_dist_btw_inds;
-
-    ///The rate at which metabolite degrades
-    double m_metab_degradation_rate;
 
     ///The probability of a mutation to happen
     double m_mutation_prob;
@@ -101,6 +78,6 @@ private:
     unsigned int m_start_pop_size;
 };
 
-void test_sim_parameters() noexcept;
+void test_pop_param() noexcept;
 
-#endif // SIM_PARAMETERS_H
+#endif // POP_PARAM_H

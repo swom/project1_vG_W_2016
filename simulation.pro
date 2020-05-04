@@ -2,18 +2,22 @@
 
 HEADERS += \
     env_grid_cell.h \
+    env_param.h \
     environment.h \
     grid_view.h \
     grn.h \
     ind_param.h \
     individual.h \
-    parameters.h \
     phenotype.h \
+    pop_param.h \
+    population.h \
+    sim_parameters.h \
     sim_view.h \
     simulation.h
 
 SOURCES += \
     env_grid_cell.cpp \
+    env_param.cpp \
     environment.cpp \
     grid_view.cpp \
     grn.cpp \
@@ -21,6 +25,8 @@ SOURCES += \
     individual.cpp \
     main.cpp \
     phenotype.cpp \
+    pop_param.cpp \
+    population.cpp \
     sim_parameters.cpp \
     sim_view.cpp \
     simulation.cpp

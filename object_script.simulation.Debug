@@ -1,4 +1,5 @@
 debug/env_grid_cell.o
+debug/env_param.o
 debug/environment.o
 debug/grid_view.o
 debug/grn.o
@@ -6,6 +7,8 @@ debug/ind_param.o
 debug/individual.o
 debug/main.o
 debug/phenotype.o
+debug/pop_param.o
+debug/population.o
 debug/sim_parameters.o
 debug/sim_view.o
 debug/simulation.o
