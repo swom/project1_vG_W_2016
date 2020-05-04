@@ -37,7 +37,7 @@ pop_param::pop_param(unsigned int start_pop_size,
 #endif
 }
 
-void test_pop_param() noexcept
+void test_pop_param() noexcept  //!OCLINT
 {
 
     //At initialization a pop checks that base_disp_dist * spore advantage is not > 1

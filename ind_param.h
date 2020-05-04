@@ -61,4 +61,6 @@ private:
     double m_wiggle_room;
 };
 
+void test_ind_param() noexcept;
+
 #endif // IND_PARAM_H

@@ -467,7 +467,7 @@ void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<ind
 }
 
 
-void test_population() noexcept
+void test_population() noexcept  //!OCLINT
 {
     //pop is initialized with a certain number of individuals
     // The value 1234567890 is irrelevant: just get this to compile

@@ -41,4 +41,6 @@ private:
     double m_metab_degradation_rate;
 };
 
+void test_env_param() noexcept;
+
 #endif // ENV_PARAM_H
