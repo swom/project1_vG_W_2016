@@ -37,7 +37,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #ifndef LOGIC_ONLY
     if(args.size() > 1 && args[1] == "--visual")
       {
-        simulation s(1,1,0.1,4,0.1,20 );
+        simulation s(sim_param{1,1,0.1,4,0.1,20});
         sim_view v(s);
 
         int sim_time = 0;
@@ -62,7 +62,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
       }
 #endif
   {
-    simulation s(1,1,0.1,20,0.1,1);
+    simulation s(sim_param{1,1,0.1,20,0.1,1});
     int time_now = 0;
     int time_limit = 200;
     while(time_now != time_limit)

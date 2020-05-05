@@ -288,7 +288,7 @@ void test_sim_view()//!OCLINT tests may be many
     {
         // Show the game for one frame
         // (there will be a member function 'exec' for running the game)
-        simulation s(20);
+        simulation s(sim_param{20});
         sim_view v(s);
         v.show();
     }

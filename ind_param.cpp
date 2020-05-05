@@ -17,3 +17,8 @@ ind_param::ind_param(double radius,
 {
 
 }
+
+void test_ind_param() noexcept  //!OCLINT
+{
+
+}

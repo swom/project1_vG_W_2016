@@ -10,7 +10,8 @@ environment::environment(int grid_side, double diff_coeff, double init_food, dou
         init_food,
         metab_deg_rate
         },
-    m_grid(static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),env_grid_cell(0,m_env_param.get_init_food()))
+    m_grid(static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),
+           env_grid_cell(0,m_env_param.get_init_food()))
 {
     find_neighbors_all_grid(*this);
 }

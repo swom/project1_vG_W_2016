@@ -4,40 +4,6 @@
 #include <algorithm>
 #include <cmath>
 
-//!OCLINT
-simulation::simulation (unsigned int pop_size,
-                       unsigned int exp_new_pop_size,
-                       double min_dist,
-                       int grid_side,
-                       double diff_coeff,
-                       double init_food,
-                       double mutation_prob,
-                       double mutation_step,
-                       double base_disp_prob,
-                       double spore_advantage,
-                       double reproduction_prob,
-                       double metab_degr_rate)
-    :
-      m_pop{pop_param{
-            pop_size,
-            exp_new_pop_size,
-            min_dist,
-            mutation_prob,
-            mutation_step,
-            base_disp_prob,
-            spore_advantage,
-            reproduction_prob}
-            },
-      m_e{env_param{
-          grid_side,
-          diff_coeff,
-          init_food,
-          metab_degr_rate}
-          }
-{
-
-}
-
 simulation::simulation(sim_param param):
     m_pop(param.get_pop_param()),
     m_e{param.get_env_param()}
@@ -199,7 +165,7 @@ void test_simulation()//!OCLINT tests may be many
         }
 
         double starting_food = 3.14;
-        s = simulation(1, 1, 1, 1, 0.1, starting_food);
+        s = simulation(sim_param{1, 1, 1, 1, 0.1, starting_food});
         for( auto& grid_cell : s.get_env().get_grid())
         {
             assert(grid_cell.get_food() - starting_food < 0.000001
@@ -209,7 +175,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //Individuals can take up energy from the environment
     {
-        simulation s(1,1,0.1,2);
+        simulation s(sim_param{1,1,0.1,2});
         double total_food_init = std::accumulate
                 (
                     s.get_env().get_grid().begin(),
@@ -258,7 +224,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //Individuals outside the grid do not feed
     {
-        simulation s(1,1,0.1,2);
+        simulation s(sim_param{1,1,0.1,2});
 
         double total_food_init = std::accumulate
                 (
@@ -303,7 +269,7 @@ void test_simulation()//!OCLINT tests may be many
     //determine phenotype(based on previous timestep),
     // feed, than reproduce, than substances diffuse
     {
-        simulation s(1,1,0.1,3,1,1,0);
+        simulation s(sim_param{1,1,0.1,3,1,1,0});
         //Set all the hid nodes and H2O and H2H weights to one so
         //that we are sure the phenotype will stay = active;
         for(auto& ind : s.pop().get_v_ind())
@@ -351,7 +317,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //If nothing else happens, food should constantly decrease when cells are feeding
     {
-        simulation s (2, 1, 0, 3, 0.1, 5);
+        simulation s (sim_param{2, 1, 0, 3, 0.1, 5});
         auto food_begin =
                 std::accumulate(s.get_env().get_grid().begin(),
                                 s.get_env().get_grid().end(), 0.0,
@@ -437,7 +403,7 @@ void test_simulation()//!OCLINT tests may be many
     //A simulation is initiallized with a degradation rate
     {
         double degradation_rate = 3.14;
-        simulation s(0,0,0,0,0,0,0,0,0,0,0,degradation_rate);
+        simulation s(sim_param{0,0,0,0,0,0,0,0,0,0,0,degradation_rate});
         assert(s.get_env().get_param().get_metab_degr_rate() - degradation_rate < 0.000001 &&
                s.get_env().get_param().get_metab_degr_rate() - degradation_rate > -0.000001);
     }
@@ -445,7 +411,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         double degradation_rate = 3.14;
         double init_metab = degradation_rate;
-        simulation s(1,0,0,1,0,0,0,0,0,0,0,degradation_rate);
+        simulation s(sim_param{1,0,0,1,0,0,0,0,0,0,0,degradation_rate});
 
         for(auto& grid_cell : s.get_env().get_grid())
         {
@@ -486,7 +452,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //every timestep/tick collisions are handled
     {
-        simulation s(7,3);
+        simulation s(sim_param{7,3});
         //The central individual in this population
         //after a tick should reproduce
         auto init_pop_size = s.pop().get_v_ind().size();
@@ -567,7 +533,7 @@ void test_simulation()//!OCLINT tests may be many
         unsigned int new_pop_size = 100;
         auto food = 42.1;
         auto metabolite = 42.1;
-        simulation s(pop_size,new_pop_size);
+        simulation s(sim_param{pop_size,new_pop_size});
         for(auto& grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(food);
@@ -604,7 +570,7 @@ void test_simulation()//!OCLINT tests may be many
         double food_amount = 3.14;
         double metabolite_amount = 3.14;
         double energy_amount = 3.14;
-        simulation s(2,1,0.1,4);
+        simulation s(sim_param{2,1,0.1,4});
         for(auto & grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(food_amount);

@@ -11,3 +11,9 @@ env_param::env_param(int grid_side,
 {
 
 }
+
+void test_env_param() noexcept //!OCLINT
+
+{
+
+}
