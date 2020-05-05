@@ -17,7 +17,10 @@ environment::environment(int grid_side, double diff_coeff, double init_food, dou
 
 environment::environment(env_param env_parameters):
     m_env_param(env_parameters),
-    m_grid(static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),env_grid_cell(0,m_env_param.get_init_food()))
+    m_grid(
+        static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),
+        env_grid_cell(0,m_env_param.get_init_food())
+        )
 {
     find_neighbors_all_grid(*this);
 }
@@ -54,7 +57,11 @@ void calc_change_food(environment& e, int index_focal_cell) noexcept
             std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
             (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
-    auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_param().get_diff_coeff());
+    auto in_out_flux_food =
+            calc_food_flux(focal_gridcell,
+                           av_food_flux,
+                           e.get_param().get_diff_coeff());
+
     focal_gridcell.set_food_change(in_out_flux_food);
 }
 
@@ -73,7 +80,11 @@ void calc_change_metab(environment& e, int index_focal_cell) noexcept
             std::accumulate(v_metab_fluxes.begin(),v_metab_fluxes.end(),0.0) /
             (v_metab_fluxes.empty() ? 1 : v_metab_fluxes.size());
 
-    auto in_out_flux_metab = calc_metab_flux(focal_gridcell, av_metab_flux, e.get_param().get_diff_coeff());
+    auto in_out_flux_metab =
+            calc_metab_flux(focal_gridcell,
+                            av_metab_flux,
+                            e.get_param().get_diff_coeff());
+
     focal_gridcell.set_metab_change(in_out_flux_metab);
 }
 
@@ -96,7 +107,11 @@ void calc_diffusion_food(environment& e) noexcept
                 std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
                 (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
 
-        auto in_out_flux_food = calc_food_flux(focal_gridcell, av_food_flux, e.get_param().get_diff_coeff());
+        auto in_out_flux_food =
+                calc_food_flux(focal_gridcell,
+                               av_food_flux,
+                               e.get_param().get_diff_coeff());
+
         focal_gridcell.set_food_change(in_out_flux_food);
     }
 }
@@ -183,7 +198,14 @@ void find_neighbors_all_grid(environment& e) noexcept
 {
     for (int i = 0; i != e.get_grid_size(); i++)
     {
-        e.get_cell(i).set_v_neighbors(find_neighbors(e.get_grid_size(), e.get_param().get_grid_side(), i));
+        e.get_cell(i).set_v_neighbors
+                (
+                    find_neighbors
+                    (e.get_grid_size(),
+                     e.get_param().get_grid_side(),
+                     i
+                     )
+                    );
     }
 }
 

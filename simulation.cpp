@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <cmath>
 
-simulation::simulation(unsigned int pop_size,
+//!OCLINT
+simulation::simulation (unsigned int pop_size,
                        unsigned int exp_new_pop_size,
                        double min_dist,
                        int grid_side,
@@ -15,7 +16,7 @@ simulation::simulation(unsigned int pop_size,
                        double base_disp_prob,
                        double spore_advantage,
                        double reproduction_prob,
-                       double metab_degr_rate)//!OCLINT
+                       double metab_degr_rate)
     :
       m_pop{pop_param{
             pop_size,
@@ -137,7 +138,7 @@ void test_simulation()//!OCLINT tests may be many
         double base_disp_prob = 0.01;
         double spore_advantage = 10.0;
         double repr_trsh = 0.1;
-        double metab_degradation_rate = 0.01;
+        double metab_degr_rate = 0.01;
 
         sim_param s_p(pop_size,
                       exp_new_pop_size,
@@ -150,7 +151,7 @@ void test_simulation()//!OCLINT tests may be many
                       base_disp_prob,
                       spore_advantage,
                       repr_trsh,
-                      metab_degradation_rate);
+                      metab_degr_rate);
         simulation s(s_p);
         //tests for pop_param
         assert(s.pop().get_v_ind().size() == pop_size);
@@ -173,8 +174,8 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_env().get_param().get_init_food() - init_food < 0.0001 &&
                s.get_env().get_param().get_init_food() - init_food > -0.0001);
 
-        assert(s.get_env().get_param().get_metab_degr_rate() - metab_degradation_rate < 0.0001 &&
-               s.get_env().get_param().get_metab_degr_rate() - metab_degradation_rate > -0.0001);
+        assert(s.get_env().get_param().get_metab_degr_rate() - metab_degr_rate < 0.0001 &&
+               s.get_env().get_param().get_metab_degr_rate() - metab_degr_rate > -0.0001);
     }
 
 
@@ -232,8 +233,8 @@ void test_simulation()//!OCLINT tests may be many
                     [](double sum, const env_grid_cell& c){return sum + c.get_food();}
         );
 
-        double total_en_after = std::accumulate
-                (
+        double total_en_after =
+                std::accumulate(
                     s.pop().get_v_ind().begin(),
                     s.pop().get_v_ind().end(),0.0,
                     [](double sum,const individual& i){
