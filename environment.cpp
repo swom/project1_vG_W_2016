@@ -39,7 +39,7 @@ bool operator == (const environment& lhs, const environment& rhs) noexcept
 
 bool operator != (const environment& lhs, const environment& rhs) noexcept
 {
-    return !(lhs == rhs);
+    return  !(lhs == rhs);
 }
 
 void calc_change_food(environment& e, int index_focal_cell) noexcept
