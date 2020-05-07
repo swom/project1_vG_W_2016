@@ -31,6 +31,11 @@ SOURCES += \
     sim_view.cpp \
     simulation.cpp
 
+
+INCLUDEPATH += libs
+HEADERS += $$PWD/libs/hrtree/*.hpp
+
+
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += resources_big
