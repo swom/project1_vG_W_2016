@@ -32,6 +32,10 @@ SOURCES += \
     simulation.cpp
 
 
+# Build with clang works
+QMAKE_CXX = clang
+
+# Include the libs
 INCLUDEPATH += libs
 HEADERS += $$PWD/libs/hrtree/*.hpp
 
