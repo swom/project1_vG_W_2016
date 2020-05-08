@@ -3,6 +3,7 @@
 
 #include "individual.h"
 #include "pop_param.h"
+#include "relaxation.hpp"
 #include <utility>
 
 class population
@@ -63,6 +64,8 @@ private:
     ///The random number generator of pop(used for everything)
     std::minstd_rand m_rng;
 
+    ///Hilbert tree collision manager
+    relaxation::Relaxation relax_;
 };
 
 ///Checks if the entire population has been already drawn for funding the new population
@@ -170,11 +173,15 @@ possible_collisions_y(individual focal_ind,
                       std::vector<individual>::iterator last_x,
                       std::vector<individual> &population);
 
+
 ///Returns a random angle between 0 and and 2PI (in radians)
 double repr_angle(population& p) noexcept;
 
 ///Resets the drawn flag for all individuals in the new_population vector
 void reset_drawn_fl_new_pop(population& p) noexcept;
+
+///Resets a population to its original parameters
+void reset_pop(population& p) noexcept;
 
 ///Draws a 100 individual to fund the new population and puts them in m_new_pop
 void select_new_pop(population& p);

@@ -131,9 +131,9 @@ void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
 
 void sim_view::prepare_pop() noexcept
 {
-    for (size_t i = 0 ; i != m_sim.pop().get_v_ind().size(); i++)
+    for (size_t i = 0 ; i != m_sim.get_pop().get_v_ind().size(); i++)
     {
-        const auto& ind = m_sim.pop().get_v_ind()[i];
+        const auto& ind = m_sim.get_pop().get_v_ind()[i];
         // Type conversions that simplify notation
         const float r{static_cast<float>(ind.get_param().get_radius()) * m_scale};
         const float x{static_cast<float>(ind.get_x()) * m_scale};
@@ -199,25 +199,25 @@ void sim_view::show() noexcept
 
 void sim_view::update_pop() noexcept
 {
-    if(m_pop_shapes.size() != m_sim.pop().get_v_ind().size())
+    if(m_pop_shapes.size() != m_sim.get_pop().get_v_ind().size())
     {
-        m_pop_shapes.resize(m_sim.pop().get_v_ind().size(), m_pop_shapes[0]);
+        m_pop_shapes.resize(m_sim.get_pop().get_v_ind().size(), m_pop_shapes[0]);
         for( size_t i = 0; i != m_pop_shapes.size(); i++)
         {
-            float x = m_scale * static_cast<float>(m_sim.pop().get_v_ind()[i].get_x());
-            float y = m_scale * static_cast<float>(m_sim.pop().get_v_ind()[i].get_y());
+            float x = m_scale * static_cast<float>(m_sim.get_pop().get_v_ind()[i].get_x());
+            float y = m_scale * static_cast<float>(m_sim.get_pop().get_v_ind()[i].get_y());
             m_pop_shapes[i].setPosition(x, y);
         }
     }
 
     for( size_t i = 0; i != m_pop_shapes.size(); i++)
     {
-        if(m_sim.pop().get_v_ind()[i].get_phen() == phenotype::active)
+        if(m_sim.get_pop().get_v_ind()[i].get_phen() == phenotype::active)
         {
             m_pop_shapes[i].setFillColor(sf::Color::Blue);
             continue;
         }
-        if(m_sim.pop().get_v_ind()[i].get_phen() == phenotype::sporulating)
+        if(m_sim.get_pop().get_v_ind()[i].get_phen() == phenotype::sporulating)
         {
             m_pop_shapes[i].setFillColor(sf::Color::Magenta);
             continue;

@@ -3,7 +3,8 @@
 population::population(pop_param pop_parameters):
     m_pop_param{pop_parameters},
     m_pop(m_pop_param.get_pop_start_size(), m_pop_param.get_ind_param()),
-    m_new_pop_tmp_buffer(0, m_pop_param.get_ind_param())
+    m_new_pop_tmp_buffer(0, m_pop_param.get_ind_param()),
+    relax_(relaxation::param_t{})
 {
     if(!m_pop.empty())
     {
@@ -429,6 +430,14 @@ void reset_drawn_fl_new_pop(population &p) noexcept
                   [](individual& i){draw_flag_reset(i);});
 }
 
+void reset_pop(population& p) noexcept
+{
+   p.get_v_ind().resize(p.get_param().get_pop_start_size());
+   for(auto& ind : p.get_v_ind())
+   {
+       ind.get_grn() = GRN{};
+   }
+}
 
 void select_new_pop(population &p)
 {
@@ -939,22 +948,22 @@ void test_population() noexcept  //!OCLINT
         unsigned int pop_size = 5;
         //The pop does not have a grid with food,
         //so organisms cannot feed
-        p = population(pop_param{pop_size,1,0.1,0});
+        population p1 (pop_param{pop_size,1,0.1,0});
         for(auto& ind : p.get_v_ind())
         {
             ind.set_energy(0);
         }
         //Only the first individual has enough energy to survive
         //for 1 tick
-        set_ind_en(p.get_ind(0),p.get_ind(0).get_param().get_metabolic_rate() + 0.001);
-        assert(p.get_v_ind().size() == pop_size);
-        metabolism_pop(p);
-        death(p);
-        assert(p.get_pop_size() == 1);
+        set_ind_en(p1.get_ind(0),p.get_ind(0).get_param().get_metabolic_rate() + 0.001);
+        assert(p1.get_v_ind().size() == pop_size);
+        metabolism_pop(p1);
+        death(p1);
+        assert(p1.get_pop_size() == 1);
         //then at the second tick the only individual left dies
-        metabolism_pop(p);
-        death(p);
-        assert(p.get_v_ind().empty() && p.get_pop_size() == 0);
+        metabolism_pop(p1);
+        death(p1);
+        assert(p1.get_v_ind().empty() && p.get_pop_size() == 0);
     }
 
     //A pop is initialized with a random number generator
@@ -1087,11 +1096,11 @@ void test_population() noexcept  //!OCLINT
         population p(pop_param{1000, 100});
         select_new_pop(p);
         assert(p.get_new_v_ind().size() == p.get_param().get_exp_new_pop_size());
-        p = population(pop_param{10, 100});
-        select_new_pop(p);
-        auto n_drawn_ind = std::count_if(p.get_v_ind().begin(),p.get_v_ind().end(),
+        population p1 (pop_param{10, 100});
+        select_new_pop(p1);
+        auto n_drawn_ind = std::count_if(p1.get_v_ind().begin(),p1.get_v_ind().end(),
                                          [](const individual& i) {return is_drawn(i);});
-        assert( n_drawn_ind == p.get_pop_size());
+        assert( n_drawn_ind == p1.get_pop_size());
     }
 
 

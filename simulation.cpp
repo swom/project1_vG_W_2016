@@ -7,16 +7,15 @@
 simulation::simulation(sim_param param):
     m_pop(param.get_pop_param()),
     m_e{param.get_env_param()}
-
 {
 
 }
 
 void dispersal(simulation &s)
 {
-    select_new_pop(s.pop());
-    fund_pop(s.pop());
-    place_start_cells(s.pop());
+    select_new_pop(s.get_pop());
+    fund_pop(s.get_pop());
+    place_start_cells(s.get_pop());
     reset_env(s.get_env());
 }
 
@@ -28,7 +27,7 @@ void exec(simulation& s, int n_tick) noexcept
 
 void feeding(simulation& s)
 {
-    for(auto& ind : s.pop().get_v_ind())
+    for(auto& ind : s.get_pop().get_v_ind())
     {
         auto index_grid = find_grid_index(ind,s.get_env().get_param().get_grid_side());
         if(index_grid == -100 ||
@@ -38,9 +37,15 @@ void feeding(simulation& s)
     }
 }
 
+void reset_sim(simulation& s) noexcept
+{
+    reset_env(s.get_env());
+    reset_pop(s.get_pop());
+}
+
 void response(simulation& s)
 {
-    for(auto& ind : s.pop().get_v_ind())
+    for(auto& ind : s.get_pop().get_v_ind())
     {
         if(ind.get_phen() == phenotype::spore){continue;}
         auto index = find_grid_index(ind,s.get_env().get_param().get_grid_side());
@@ -56,7 +61,7 @@ void response(simulation& s)
 void secretion_metabolite(simulation& s)
 {
     int index;
-    for(const auto& ind : s.pop().get_v_ind())
+    for(const auto& ind : s.get_pop().get_v_ind())
     {
         index = find_grid_index(ind,s.get_env().get_param().get_grid_side());
         if(index == - 100)
@@ -73,12 +78,12 @@ int tick(simulation& s)
     int time = 0;
     response(s);
     feeding(s);
-    metabolism_pop(s.pop());
+    metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    death(s.pop());
-    if(division(s.pop()))
+    death(s.get_pop());
+    if(division(s.get_pop()))
     {
-        time += manage_static_collisions(s.pop());
+        time += manage_static_collisions(s.get_pop());
     }
     degradation_metabolite(s.get_env());
     diffusion(s.get_env());
@@ -120,20 +125,20 @@ void test_simulation()//!OCLINT tests may be many
                       metab_degr_rate);
         simulation s(s_p);
         //tests for pop_param
-        assert(s.pop().get_v_ind().size() == pop_size);
-        assert(s.pop().get_param().get_exp_new_pop_size() == exp_new_pop_size);
-        assert(s.pop().get_param().get_min_dist() - min_dist < 0.0001 &&
-               s.pop().get_param().get_min_dist() - min_dist > -0.0001);
-        assert(s.pop().get_param().get_mu_p() - mutation_prob < 0.0001 &&
-               s.pop().get_param().get_mu_p() - mutation_prob > -0.0001);
-        assert(s.pop().get_param().get_mu_st() - mutation_step < 0.0001 &&
-               s.pop().get_param().get_mu_st() - mutation_step > -0.0001);
-        assert(s.pop().get_param().get_base_disp_prob() - base_disp_prob < 0.00001 &&
-               s.pop().get_param().get_base_disp_prob() - base_disp_prob > -0.00001);
-        assert(s.pop().get_param().get_spo_adv() - spore_advantage < 0.0001 &&
-               s.pop().get_param().get_spo_adv() - spore_advantage > -0.0001);
-        assert(s.pop().get_param().get_repr_p() - repr_trsh < 0.0001 &&
-               s.pop().get_param().get_repr_p() - repr_trsh > -0.0001);
+        assert(s.get_pop().get_v_ind().size() == pop_size);
+        assert(s.get_pop().get_param().get_exp_new_pop_size() == exp_new_pop_size);
+        assert(s.get_pop().get_param().get_min_dist() - min_dist < 0.0001 &&
+               s.get_pop().get_param().get_min_dist() - min_dist > -0.0001);
+        assert(s.get_pop().get_param().get_mu_p() - mutation_prob < 0.0001 &&
+               s.get_pop().get_param().get_mu_p() - mutation_prob > -0.0001);
+        assert(s.get_pop().get_param().get_mu_st() - mutation_step < 0.0001 &&
+               s.get_pop().get_param().get_mu_st() - mutation_step > -0.0001);
+        assert(s.get_pop().get_param().get_base_disp_prob() - base_disp_prob < 0.00001 &&
+               s.get_pop().get_param().get_base_disp_prob() - base_disp_prob > -0.00001);
+        assert(s.get_pop().get_param().get_spo_adv() - spore_advantage < 0.0001 &&
+               s.get_pop().get_param().get_spo_adv() - spore_advantage > -0.0001);
+        assert(s.get_pop().get_param().get_repr_p() - repr_trsh < 0.0001 &&
+               s.get_pop().get_param().get_repr_p() - repr_trsh > -0.0001);
         //tests for env param
         assert(s.get_env().get_param().get_diff_coeff() - diff_coeff < 0.00001 &&
                s.get_env().get_param().get_diff_coeff() - diff_coeff > -0.00001);
@@ -165,8 +170,8 @@ void test_simulation()//!OCLINT tests may be many
         }
 
         double starting_food = 3.14;
-        s = simulation(sim_param{1, 1, 1, 1, 0.1, starting_food});
-        for( auto& grid_cell : s.get_env().get_grid())
+        simulation s1 (sim_param{1, 1, 1, 1, 0.1, starting_food});
+        for( auto& grid_cell : s1.get_env().get_grid())
         {
             assert(grid_cell.get_food() - starting_food < 0.000001
                    && grid_cell.get_food() - starting_food > -0.0000001);
@@ -185,8 +190,8 @@ void test_simulation()//!OCLINT tests may be many
 
         double total_en_init = std::accumulate
                 (
-                    s.pop().get_v_ind().begin(),
-                    s.pop().get_v_ind().end(),0.0,
+                    s.get_pop().get_v_ind().begin(),
+                    s.get_pop().get_v_ind().end(),0.0,
                     [](double sum,const individual& i){return sum + i.get_energy();}
         );
 
@@ -201,8 +206,8 @@ void test_simulation()//!OCLINT tests may be many
 
         double total_en_after =
                 std::accumulate(
-                    s.pop().get_v_ind().begin(),
-                    s.pop().get_v_ind().end(),0.0,
+                    s.get_pop().get_v_ind().begin(),
+                    s.get_pop().get_v_ind().end(),0.0,
                     [](double sum,const individual& i){
             return sum + i.get_energy();}
         );
@@ -211,8 +216,8 @@ void test_simulation()//!OCLINT tests may be many
         assert(total_en_init < total_en_after);
 
         auto total_uptake =
-                std::accumulate(s.pop().get_v_ind().begin(),
-                                s.pop().get_v_ind().end(), 0.0,
+                std::accumulate(s.get_pop().get_v_ind().begin(),
+                                s.get_pop().get_v_ind().end(), 0.0,
                                 [](double sum, const individual& i)
         {return sum + i.get_param().get_uptake_rate();});
 
@@ -235,12 +240,12 @@ void test_simulation()//!OCLINT tests may be many
 
         double total_en_init = std::accumulate
                 (
-                    s.pop().get_v_ind().begin(),
-                    s.pop().get_v_ind().end(),0.0,
+                    s.get_pop().get_v_ind().begin(),
+                    s.get_pop().get_v_ind().end(),0.0,
                     [](double sum,const individual& i){return sum + i.get_energy();}
         );
 
-        set_pos(s.pop().get_ind(0),std::pair<double,double>(-42,42));
+        set_pos(s.get_pop().get_ind(0),std::pair<double,double>(-42,42));
 
         feeding(s);
 
@@ -253,8 +258,8 @@ void test_simulation()//!OCLINT tests may be many
 
         double total_en_after = std::accumulate
                 (
-                    s.pop().get_v_ind().begin(),
-                    s.pop().get_v_ind().end(),0.0,
+                    s.get_pop().get_v_ind().begin(),
+                    s.get_pop().get_v_ind().end(),0.0,
                     [](double sum,const individual& i){
             return sum + i.get_energy();}
         );
@@ -272,7 +277,7 @@ void test_simulation()//!OCLINT tests may be many
         simulation s(sim_param{1,1,0.1,3,1,1,0});
         //Set all the hid nodes and H2O and H2H weights to one so
         //that we are sure the phenotype will stay = active;
-        for(auto& ind : s.pop().get_v_ind())
+        for(auto& ind : s.get_pop().get_v_ind())
         {
             ind.get_grn().set_all_hid_nodes(1);
             ind.get_grn().set_all_out_nodes(1);
@@ -282,27 +287,27 @@ void test_simulation()//!OCLINT tests may be many
 
         //The single individual in this population
         //after a tick should reproduce
-        auto init_pop_size = s.pop().get_v_ind().size();
-        auto ind_en = get_ind_tr_en( s.pop(), 0)
-                + s.pop().get_ind(0).get_param().get_metabolic_rate() + 0.01
-                - s.pop().get_ind(0).get_param().get_uptake_rate();
-        s.pop().get_ind(0).set_energy(ind_en);
+        auto init_pop_size = s.get_pop().get_v_ind().size();
+        auto ind_en = get_ind_tr_en( s.get_pop(), 0)
+                + s.get_pop().get_ind(0).get_param().get_metabolic_rate() + 0.01
+                - s.get_pop().get_ind(0).get_param().get_uptake_rate();
+        s.get_pop().get_ind(0).set_energy(ind_en);
 
         //and the grid_cell where it is should recieve
         //food nutrients
         response(s);
         feeding(s);
 
-        auto grid_index_ind =  find_grid_index(s.pop().get_ind(0),
+        auto grid_index_ind =  find_grid_index(s.get_pop().get_ind(0),
                                                s.get_env().get_param().get_grid_side());
 
         double food_after_feeding = s.get_env().get_cell(grid_index_ind).get_food();
 
-        metabolism_pop(s.pop());
-        death(s.pop());
-        if(division(s.pop()))
+        metabolism_pop(s.get_pop());
+        death(s.get_pop());
+        if(division(s.get_pop()))
         {
-            manage_static_collisions(s.pop());
+            manage_static_collisions(s.get_pop());
         }
 
         diffusion(s.get_env());
@@ -311,8 +316,8 @@ void test_simulation()//!OCLINT tests may be many
         //The difference in food before and after the diffusion step is not 0
         assert(!(food_after_feeding - food_after_diffusion < 0.00001
                  && food_after_feeding - food_after_diffusion > -0.0001));
-        assert(s.pop().get_v_ind().size() == 2 * init_pop_size);
-        assert(!has_collision(s.pop() ));
+        assert(s.get_pop().get_v_ind().size() == 2 * init_pop_size);
+        assert(!has_collision(s.get_pop() ));
     }
 
     //If nothing else happens, food should constantly decrease when cells are feeding
@@ -325,10 +330,10 @@ void test_simulation()//!OCLINT tests may be many
         {return sum + c.get_food();});
 
         //The simulation will last long enough  for the individuals to reproduce
-        auto sim_time = s.pop().get_ind(0).get_param().get_treshold_energy() /
-                s.pop().get_ind(0).get_param().get_uptake_rate() + 5;
+        auto sim_time = s.get_pop().get_ind(0).get_param().get_treshold_energy() /
+                s.get_pop().get_ind(0).get_param().get_uptake_rate() + 5;
 
-        auto init_pop_size =  s.pop().get_v_ind().size();
+        auto init_pop_size =  s.get_pop().get_v_ind().size();
 
         for( int i = 0; i != static_cast<int>(sim_time); i++)
         {
@@ -348,7 +353,7 @@ void test_simulation()//!OCLINT tests may be many
             {return sum + c.get_food();});
 
             double food_eaten = 0.0;
-            for(const auto& ind : s.pop().get_v_ind())
+            for(const auto& ind : s.get_pop().get_v_ind())
             {
                 auto grid_cell_ind = find_grid_index(ind, s.get_env().get_param().get_grid_side());
                 if( grid_cell_ind != -100 && s.get_env().get_cell(grid_cell_ind).get_food() > 0)
@@ -360,10 +365,10 @@ void test_simulation()//!OCLINT tests may be many
             auto balance_uptake = food_before_feed - (food_after_feed + food_eaten);
             assert(balance_uptake < 0.0001 && balance_uptake > -0.0001);
 
-            metabolism_pop(s.pop());
-            death(s.pop());
-            division(s.pop());
-            manage_static_collisions(s.pop());
+            metabolism_pop(s.get_pop());
+            death(s.get_pop());
+            division(s.get_pop());
+            manage_static_collisions(s.get_pop());
 
             auto food_before_diff =
                     std::accumulate(s.get_env().get_grid().begin(),
@@ -395,7 +400,7 @@ void test_simulation()//!OCLINT tests may be many
 
         assert(food_end < food_begin);
 
-        auto final_pop_size =  s.pop().get_v_ind().size();
+        auto final_pop_size =  s.get_pop().get_v_ind().size();
 
         assert(init_pop_size < final_pop_size);
     }
@@ -434,8 +439,8 @@ void test_simulation()//!OCLINT tests may be many
         {return sum + g.get_metab();});
 
         double tot_production =
-                std::accumulate(s.pop().get_v_ind().begin(),
-                                s.pop().get_v_ind().end(), 0.0,
+                std::accumulate(s.get_pop().get_v_ind().begin(),
+                                s.get_pop().get_v_ind().end(), 0.0,
                                 [](int sum, const individual& i)
         {return sum + i.get_param().get_metab_secr_rate();});
 
@@ -455,18 +460,18 @@ void test_simulation()//!OCLINT tests may be many
         simulation s(sim_param{7,3});
         //The central individual in this population
         //after a tick should reproduce
-        auto init_pop_size = s.pop().get_v_ind().size();
-        s.pop().get_ind(1).set_energy(get_ind_tr_en(s.pop(), 1)
-                                      + s.pop().get_ind(1).get_param().get_metabolic_rate()
+        auto init_pop_size = s.get_pop().get_v_ind().size();
+        s.get_pop().get_ind(1).set_energy(get_ind_tr_en(s.get_pop(), 1)
+                                      + s.get_pop().get_ind(1).get_param().get_metabolic_rate()
                                       + 0.01
-                                      - s.pop().get_ind(1).get_param().get_uptake_rate());
+                                      - s.get_pop().get_ind(1).get_param().get_uptake_rate());
         feeding(s);
-        metabolism_pop(s.pop());
-        division(s.pop());
-        manage_static_collisions(s.pop());
+        metabolism_pop(s.get_pop());
+        division(s.get_pop());
+        manage_static_collisions(s.get_pop());
 
-        assert(s.pop().get_v_ind().size() == init_pop_size + 1);
-        assert(!has_collision(s.pop()));
+        assert(s.get_pop().get_v_ind().size() == init_pop_size + 1);
+        assert(!has_collision(s.get_pop()));
     }
 
     //A simulation is initialized with a m_tick = 0;
@@ -499,7 +504,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         auto init_food = s.get_env().get_cell(0).get_food();
-        s.pop().get_ind(0).set_phen(phenotype::spore);
+        s.get_pop().get_ind(0).set_phen(phenotype::spore);
         feeding(s);
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
@@ -509,17 +514,17 @@ void test_simulation()//!OCLINT tests may be many
     //Sporulating individuals do not feed but they lose energy
     {
         simulation s;
-        s.pop().get_ind(0).set_phen(phenotype::sporulating);
-        set_ind_en(s.pop().get_ind(0),1);
-        auto init_en_ind0 = get_ind_en(s.pop(), 0);
+        s.get_pop().get_ind(0).set_phen(phenotype::sporulating);
+        set_ind_en(s.get_pop().get_ind(0),1);
+        auto init_en_ind0 = get_ind_en(s.get_pop(), 0);
         auto init_food = s.get_env().get_cell(0).get_food();
         feeding(s);
-        metabolism_pop(s.pop());
-        assert(init_en_ind0 - get_ind_en(s.pop(), 0) -
-               s.pop().get_ind(0).get_param().get_metabolic_rate() < 0.000001
+        metabolism_pop(s.get_pop());
+        assert(init_en_ind0 - get_ind_en(s.get_pop(), 0) -
+               s.get_pop().get_ind(0).get_param().get_metabolic_rate() < 0.000001
                &&
-               init_en_ind0 - get_ind_en(s.pop(), 0) -
-               s.pop().get_ind(0).get_param().get_metabolic_rate() > -0.000001);
+               init_en_ind0 - get_ind_en(s.get_pop(), 0) -
+               s.get_pop().get_ind(0).get_param().get_metabolic_rate() > -0.000001);
 
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
@@ -542,17 +547,17 @@ void test_simulation()//!OCLINT tests may be many
         environment ref_env = s.get_env();
         dispersal(s);
         //Max 100 ind
-        assert(s.pop().get_v_ind().size() == new_pop_size);
+        assert(s.get_pop().get_v_ind().size() == new_pop_size);
         //Hex pattern
-        auto n_hex_l = count_hex_layers(s.pop().get_pop_size());
-        auto v_modulus = modulus_of_btw_ind_angles(s.pop(), M_PI/ (6 * n_hex_l));
+        auto n_hex_l = count_hex_layers(s.get_pop().get_pop_size());
+        auto v_modulus = modulus_of_btw_ind_angles(s.get_pop(), M_PI/ (6 * n_hex_l));
         for(auto ind_modulus : v_modulus)
         {
             assert( ind_modulus < 0.0000000001 ||
                     (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 &&
                      ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
         }
-        assert(!has_collision(s.pop()));
+        assert(!has_collision(s.get_pop()));
         //Reset env
         assert( s.get_env() != ref_env );
         auto init_food = s.get_env().get_param().get_init_food();
@@ -576,7 +581,7 @@ void test_simulation()//!OCLINT tests may be many
             grid_cell.set_food(food_amount);
             grid_cell.set_metab(metabolite_amount);
         }
-        for(auto& ind : s.pop().get_v_ind())
+        for(auto& ind : s.get_pop().get_v_ind())
         {
             ind.set_energy(energy_amount);
             //let's set all the weights of the network to 1
@@ -590,7 +595,7 @@ void test_simulation()//!OCLINT tests may be many
         //The output will be 0 and therefore the individuals phenotype
         //will be phenotype::sporulating
         response(s);
-        for(auto& ind : s.pop().get_v_ind())
+        for(auto& ind : s.get_pop().get_v_ind())
         {
             assert(is_sporulating(ind));
         }
@@ -607,21 +612,21 @@ void test_simulation()//!OCLINT tests may be many
             grid_cell.set_food(-1);
             grid_cell.set_metab(-1);
         }
-        for(auto& ind : s.pop().get_v_ind())
+        for(auto& ind : s.get_pop().get_v_ind())
         {
             ind.set_energy(-1);
         }
         //1st respose, the individuals respond to the initial parameter
         //expected output value == 1
         response(s);
-        for(auto& ind : s.pop().get_v_ind())
+        for(auto& ind : s.get_pop().get_v_ind())
         {
             assert(is_active(ind));
         }
         //2nd response, the individual responds to the changed parameter(all 0s)
         //expected output value == 0
         response(s);
-        for(auto& ind : s.pop().get_v_ind())
+        for(auto& ind : s.get_pop().get_v_ind())
         {
             assert(!is_active(ind));
             assert(is_sporulating(ind));

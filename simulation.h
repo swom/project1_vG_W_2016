@@ -4,8 +4,8 @@
 #include <random>
 #include "environment.h"
 #include "individual.h"
-#include "sim_parameters.h"
 #include "population.h"
+#include "sim_parameters.h"
 
 class simulation
 {
@@ -20,10 +20,10 @@ public:
     environment& get_env() noexcept {return m_e;}
 
     ///Gets the vector containing all the individuals of the population
-    const population& pop() const noexcept {return m_pop;}
+    const population& get_pop() const noexcept {return m_pop;}
 
     ///Gets the vector containing all the individuals of the population
-     population& pop() noexcept {return m_pop;}
+     population& get_pop() noexcept {return m_pop;}
 
     ///Gets the number of ticks in the simulation
     int get_tick() const noexcept {return m_sim_timer;}
@@ -64,6 +64,9 @@ void feeding(simulation& s);
 
 ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);
+
+///Resets a simulation to its initial conditions
+void reset_sim(simulation& s) noexcept;
 
 ///Individuals read input from environment and determine their own phenotype
 void response(simulation& s);

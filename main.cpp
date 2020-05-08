@@ -54,7 +54,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
               }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
               {
-               v.get_sim() = s;
+               reset_sim(v.get_sim());
                v.prepare_pop();
               }
             v.show();
