@@ -32,8 +32,8 @@ namespace hrtree {
   class rtree_base
   {
   protected:
-    typedef typename aligned_iterator< BV, memory::allocator_has_align< A >::value > aligned_iter;
-    typedef typename aligned_iterator< const BV, memory::allocator_has_align< A >::value > const_aligned_iter;
+    typedef aligned_iterator< BV, memory::allocator_has_align< A >::value > aligned_iter;
+    typedef aligned_iterator< const BV, memory::allocator_has_align< A >::value > const_aligned_iter;
 
   public:
     static const size_t MaxHeight = 16;

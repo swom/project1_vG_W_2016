@@ -164,8 +164,8 @@ namespace glmutils {
   template<typename bbox>
   inline void include(bbox& lhs, const typename bbox::vec_type& rhs) noexcept
   {
-    lhs.p0() = min<typename bbox::value_type>(lhs.p0(), rhs);
-    lhs.p1() = max<typename bbox::value_type>(lhs.p1(), rhs);
+    lhs.p0() = min(lhs.p0(), rhs);
+    lhs.p1() = max(lhs.p1(), rhs);
   }
 
 

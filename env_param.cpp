@@ -16,7 +16,7 @@ env_param::env_param(int grid_side,
     assert(m_grid_side >= 0);
     assert(m_init_food > -0.000000000001);
     assert(m_metab_degradation_rate > -0.000000001 &&
-           m_metab_degradation_rate < 0.000000001);
+           m_metab_degradation_rate < 1.000000001);
 }
 
 void test_env_param() noexcept //!OCLINT
