@@ -9,6 +9,7 @@ debug/main.o
 debug/phenotype.o
 debug/pop_param.o
 debug/population.o
+debug/relaxation.o
 debug/sim_parameters.o
 debug/sim_view.o
 debug/simulation.o

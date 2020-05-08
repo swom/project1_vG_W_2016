@@ -11,6 +11,7 @@ HEADERS += \
     phenotype.h \
     pop_param.h \
     population.h \
+    relaxation.hpp \
     sim_parameters.h \
     sim_view.h \
     simulation.h
@@ -27,6 +28,7 @@ SOURCES += \
     phenotype.cpp \
     pop_param.cpp \
     population.cpp \
+    relaxation.cpp \
     sim_parameters.cpp \
     sim_view.cpp \
     simulation.cpp
@@ -45,7 +47,7 @@ CONFIG += resources_big
 QMAKE_CXXFLAGS += -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
 
 # A warning is an error
-QMAKE_CXXFLAGS += -Werror
+#QMAKE_CXXFLAGS += -Werror
 
 # Debug and release settings
 CONFIG += debug_and_release

@@ -9,6 +9,7 @@ release/main.o
 release/phenotype.o
 release/pop_param.o
 release/population.o
+release/relaxation.o
 release/sim_parameters.o
 release/sim_view.o
 release/simulation.o
