@@ -46,8 +46,13 @@ CONFIG += resources_big
 # SFML goes bad with -Weffc++
 QMAKE_CXXFLAGS += -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
 
+#Allow to compile Hanno's code
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp
+
+# Hanno's code does not compile cleanly under g++
 # A warning is an error
-QMAKE_CXXFLAGS += -Werror
+# QMAKE_CXXFLAGS += -Werror
 
 # Debug and release settings
 CONFIG += debug_and_release
@@ -76,6 +81,7 @@ unix:!macx {
     LIBS += -lgcov
   }
 }
+
 
 win32{
   INCLUDEPATH += C:/Qt/sfml/include
