@@ -34,6 +34,9 @@ public:
     ///Gets the wiglle room of an individual
     double get_wiggle_room() const noexcept {return m_wiggle_room;}
 
+    ///Sets the radius, used only in m_relax object for managing hilbert_tree collisions
+    void set_radius(float r) noexcept {m_radius = static_cast<double>(r);}
+
 private:
 
     ///The rate at which internal energy is depleted

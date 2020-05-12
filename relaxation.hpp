@@ -117,7 +117,7 @@ namespace relaxation {
   {
     const auto N = static_cast<uint32_t>(std::distance(first, last));
     if (N < 2) return 0;
-    glmutils::bbox2 area(first->pos, 0.f);
+    glmutils::bbox2 area(glm::vec2{first->get_x(),first->get_y()}, 0.f);
     particles_.resize(N); pbuf_.resize(N);
     key_.resize(N); kbuf_.resize(N);
     for (uint32_t i = 0; i < N; ++i) {

@@ -46,6 +46,9 @@ public:
     ///Gets the size of the population
     int get_pop_size() const noexcept {return static_cast<int>(m_pop.size());}
 
+    ///Gets reference to Relaxation object that deals with collision management
+    relaxation::Relaxation& get_relax() {return m_relax;};
+
     ///Gets the reference to m_rng
     auto& get_rng() noexcept {return  m_rng;}
 
@@ -65,7 +68,7 @@ private:
     std::minstd_rand m_rng;
 
     ///Hilbert tree collision manager
-    relaxation::Relaxation relax_;
+    relaxation::Relaxation m_relax;
 };
 
 ///Checks if the entire population has been already drawn for funding the new population

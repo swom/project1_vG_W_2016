@@ -58,6 +58,9 @@ public:
     ///Gets the ref to the m_grn
     GRN& get_grn() noexcept {return m_grn;}
 
+    ///Gets ref to the parametersof the individual
+    ind_param& get_param() noexcept {return m_ind_param;}
+
     ///Gets const ref to the parametersof the individual
     const ind_param& get_param() const noexcept {return m_ind_param;}
 

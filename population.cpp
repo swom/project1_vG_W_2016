@@ -4,7 +4,7 @@ population::population(pop_param pop_parameters):
     m_pop_param{pop_parameters},
     m_pop(m_pop_param.get_pop_start_size(), m_pop_param.get_ind_param()),
     m_new_pop_tmp_buffer(0, m_pop_param.get_ind_param()),
-    relax_(relaxation::param_t{})
+    m_relax(relaxation::param_t{})
 {
     if(!m_pop.empty())
     {
@@ -247,27 +247,16 @@ bool has_collision(population &p)
 
 int manage_static_collisions(population &p)
 {
-    int time = 0;
-    bool has_collision = true;
-    do
-    {
-        has_collision = false;
-        if((has_collision = calc_tot_displ_pop(p.get_v_ind())))
-        {
-            for(auto& ind : p.get_v_ind())
-            {
-                if(
-                        std::abs(ind.get_x_displacement()) > 0 ||
-                        std::abs(ind.get_y_displacement()) > 0
-                        )
-                {
-                    ind.displace();
-                }
-            }
-        }
-        time ++;
-    }
-    while(has_collision);
+    using relaxation::particle_t;
+
+    int time =
+            p.get_relax()(p.get_v_ind().begin(), p.get_v_ind().end(),
+                           [](const individual& i)
+                           // individual to particle_t conversion
+    { return particle_t{ glm::vec2{i.get_x(), i.get_y()}, static_cast<float>(i.get_param().get_radius()) }; },
+                           [](individual& i, const particle_t& p)
+    { i.set_x(p.pos.x); i.get_param().set_radius(p.radius); }
+                          );
     return time;
 }
 
