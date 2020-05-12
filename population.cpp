@@ -255,7 +255,7 @@ int manage_static_collisions(population &p)
                            // individual to particle_t conversion
     { return particle_t{ glm::vec2{i.get_x(), i.get_y()}, static_cast<float>(i.get_param().get_radius()) }; },
                            [](individual& i, const particle_t& p)
-    { i.set_x(p.pos.x); i.get_param().set_radius(p.radius); }
+    { i.set_x(p.pos.x); i.set_y(p.pos.y); i.get_param().set_radius(p.radius); }
                           );
     return time;
 }
@@ -422,8 +422,10 @@ void reset_drawn_fl_new_pop(population &p) noexcept
 void reset_pop(population& p) noexcept
 {
    p.get_v_ind().resize(p.get_param().get_pop_start_size());
+   place_start_cells(p);
    for(auto& ind : p.get_v_ind())
    {
+       ind.set_phen(phenotype::active);
        ind.get_grn() = GRN{};
    }
 }
