@@ -11,7 +11,11 @@ class sim_view
 {
 public:
 
-  sim_view(simulation start_simulation = simulation(), float start_zoom = 10, float zoom_step = 0.01f, float pan_step = 2.f, float scale = 10);
+  sim_view(sim_param start_simulation_param = sim_param(),
+           float start_zoom = 10,
+           float zoom_step = 0.01f,
+           float pan_step = 2.f,
+           float scale = 10);
   ~sim_view();
 
   /// Run the game until the window is closed

@@ -407,14 +407,14 @@ void test_simulation()//!OCLINT tests may be many
 
     //A simulation is initiallized with a degradation rate
     {
-        double degradation_rate = 3.14;
+        double degradation_rate = 0.314;
         simulation s(sim_param{0,0,0,0,0,0,0,0,0,0,0,degradation_rate});
         assert(s.get_env().get_param().get_metab_degr_rate() - degradation_rate < 0.000001 &&
                s.get_env().get_param().get_metab_degr_rate() - degradation_rate > -0.000001);
     }
     //Every time step the individuals produce new metabolite and metabolite degrades in grid_cells
     {
-        double degradation_rate = 3.14;
+        double degradation_rate = 0.314;
         double init_metab = degradation_rate;
         simulation s(sim_param{1,0,0,1,0,0,0,0,0,0,0,degradation_rate});
 

@@ -35,14 +35,14 @@ pop_param::pop_param(unsigned int start_pop_size,
 #endif
     }
 #endif
-    assert(m_base_disp_prob > 0);
-    assert(m_exp_new_pop_size > 0);
-    assert(m_min_init_dist_btw_inds > 0);
-    assert(m_mutation_prob > 0 && m_mutation_prob < 1.000001);
-    assert(m_mutation_step > 0 && m_mutation_step < 1.000001);
-    assert(m_repr_prob > 0 && m_repr_prob < 1.0000001);
-    assert(m_spore_advantage > 0);
-    assert(m_start_pop_size >0);
+    assert(m_base_disp_prob > -0.000001);
+    assert(m_exp_new_pop_size >= 0);
+    assert(m_min_init_dist_btw_inds > -0.000001);
+    assert(m_mutation_prob > -0.000001 && m_mutation_prob < 1.000001);
+    assert(m_mutation_step > -0.000001 && m_mutation_step < 1.000001);
+    assert(m_repr_prob > -0.000001 && m_repr_prob < 1.0000001);
+    assert(m_spore_advantage > -0.000001);
+    assert(m_start_pop_size >= 0);
 }
 
 void test_pop_param() noexcept  //!OCLINT

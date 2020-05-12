@@ -4,9 +4,12 @@
 #include <cassert>
 
 
-sim_view::sim_view(simulation start_simulation, float start_zoom,
-                   float zoom_step, float pan_step, float scale) :
-    m_sim{start_simulation},//!!!Initialize this first!!!
+sim_view::sim_view(sim_param start_simulation_param,
+                   float start_zoom,
+                   float zoom_step,
+                   float pan_step,
+                   float scale) :
+    m_sim(start_simulation_param),//!!!Initialize this first!!!
     m_grid_view{scale},
     m_max_zoom{start_zoom},
     m_pan_step{pan_step},
@@ -288,8 +291,7 @@ void test_sim_view()//!OCLINT tests may be many
     {
         // Show the game for one frame
         // (there will be a member function 'exec' for running the game)
-        simulation s(sim_param{20});
-        sim_view v(s);
+        sim_view v(sim_param{20});
         v.show();
     }
 
@@ -323,12 +325,12 @@ void test_sim_view()//!OCLINT tests may be many
     //An error will be thrown if the zoom_step is more than 1!
     {
         float zoom_step = 0.314f;
-        sim_view v(simulation(),10,zoom_step);
+        sim_view v(sim_param() ,10,zoom_step);
         assert(v.get_zoom_step() - zoom_step < 0.0001f &&
                v.get_zoom_step() - zoom_step > -0.0001f);
         zoom_step = 5;
         try {
-            sim_view v1(simulation(), 10, zoom_step);//!OCLINT
+            sim_view v1(sim_param(), 10, zoom_step);//!OCLINT
         }
         catch (std::string e) {
             assert(e == "zoom_step > 1... too high!\n" );

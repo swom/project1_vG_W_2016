@@ -347,7 +347,7 @@ void test_environment()//!OCLINT tests may be many
         assert(e.get_param().get_diff_coeff() < 0.000001
                && e.get_param().get_diff_coeff() > -0.000001);
 
-        double diff_coeff = 3.14;
+        double diff_coeff = 0.14;
         environment e1(1, diff_coeff);
         assert(e1.get_param().get_diff_coeff() - diff_coeff < 0.0001 &&
                e1.get_param().get_diff_coeff() - diff_coeff > -0.0001);
@@ -614,7 +614,7 @@ void test_environment()//!OCLINT tests may be many
 
     //The metabolite in all grid_cells can be depleted by the degradation rate
     {
-        double degradation_coeff = 3.14;
+        double degradation_coeff = 0.14;
         double init_metab_per_cell = degradation_coeff;
         environment e(2,0,1,degradation_coeff);
         double tot_metab = 0;
@@ -695,13 +695,13 @@ void test_environment()//!OCLINT tests may be many
     //with set size, diffusion coefficent and food
     {
         auto init_grid_side = 2;
-        auto init_diff_coeff = 2;
+        auto init_diff_coeff = 1;
         auto init_food = 2;
         environment e(init_grid_side, init_diff_coeff, init_food);
         environment e2 = e;
 
         auto grid_side = 42;
-        auto diff_coeff = 42;
+        auto diff_coeff = 1;
         auto food = 42;
         reset_env(e2, grid_side, diff_coeff, food);
         assert( e != e2);

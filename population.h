@@ -24,7 +24,7 @@ public:
     individual& get_ind(int i)
     {
         assert(i >= 0);
-        assert(static_cast<unsigned int>(i)< m_pop.size());
+        assert(static_cast<unsigned int>(i) < m_pop.size());
         return m_pop[static_cast<unsigned int>(i)];
     }
 

@@ -829,7 +829,7 @@ void test_population() noexcept  //!OCLINT
 
     //Individuals lose energy through metabolism
     {
-        population p(pop_param{1,1,0.1,2});
+        population p;
         for (auto & ind : p.get_v_ind())
         {
             ind.set_energy(2);
@@ -888,11 +888,11 @@ void test_population() noexcept  //!OCLINT
 
     //Sporulating individuals do not get detected when looking for dividing individual
     {
-        population s;
-        set_ind_en(s.get_ind(0),get_ind_tr_en(s, 0));
-        assert(get_dividing_individuals(s)[0] == 0);
-        s.get_ind(0).set_phen(phenotype::sporulating);
-        assert(get_dividing_individuals(s).empty());
+        population p;
+        set_ind_en(p.get_ind(0),get_ind_tr_en(p, 0));
+        assert(get_dividing_individuals(p)[0] == 0);
+        p.get_ind(0).set_phen(phenotype::sporulating);
+        assert(get_dividing_individuals(p).empty());
     }
 
     //Sporulating individuals cannot reproduce
@@ -948,14 +948,14 @@ void test_population() noexcept  //!OCLINT
         unsigned int pop_size = 5;
         //The pop does not have a grid with food,
         //so organisms cannot feed
-        population p1 (pop_param{pop_size,1,0.1,0});
-        for(auto& ind : p.get_v_ind())
+        population p1 (pop_size);
+        for(auto& ind : p1.get_v_ind())
         {
             ind.set_energy(0);
         }
         //Only the first individual has enough energy to survive
         //for 1 tick
-        set_ind_en(p1.get_ind(0),p.get_ind(0).get_param().get_metabolic_rate() + 0.001);
+        set_ind_en(p1.get_ind(0),p1.get_ind(0).get_param().get_metabolic_rate() + 0.001);
         assert(p1.get_v_ind().size() == pop_size);
         metabolism_pop(p1);
         death(p1);
@@ -1022,14 +1022,15 @@ void test_population() noexcept  //!OCLINT
     //A pop can generate numbers from a normal distribution for mutation step
     //with mean 0 and variance 0.1 by default
     {
-        population s;
+        population p;
         double mean = 0;
         int sampling_size = 10000;
         for(int i = 0 ; i != sampling_size; i++ )
-            mean += mut_step(s);
+            mean += mut_step(p);
         mean /= sampling_size;
         assert(mean < 0.01 && mean > -0.01);
     }
+
     //A pop can generate numbers from a bernoulli distribution to see if mutation happens or not
     //0.01 by default
     {
