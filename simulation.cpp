@@ -6,23 +6,35 @@
 
 simulation::simulation(sim_param param):
     m_pop(param.get_pop_param()),
-    m_e{param.get_env_param()}
+    m_e{param.get_env_param()},
+    m_meta_param{param.get_meta_param()}
 {
 
 }
 
 void dispersal(simulation &s)
 {
-    select_new_pop(s.get_pop());
-    fund_pop(s.get_pop());
-    place_start_cells(s.get_pop());
+    fund_new_pop(s.get_pop());
     reset_env(s.get_env());
+    s.reset_timesteps();
 }
 
 
-void exec(simulation& s, int n_tick) noexcept
+void exec_cycle(simulation& s) noexcept
 {
-    while(s.get_tick() != n_tick){tick(s);}
+    while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
+    {tick(s);}
+
+}
+
+void exec(simulation& s) noexcept
+{
+    while(s.get_cycle() != s.get_meta_param().get_n_cycles())
+    {
+        exec_cycle(s);
+        dispersal(s);
+        s.tick_cycles();
+    }
 }
 
 void feeding(simulation& s)
@@ -87,7 +99,7 @@ int tick(simulation& s)
     }
     degradation_metabolite(s.get_env());
     diffusion(s.get_env());
-    s.update_sim_timer();
+    s.tick_timesteps();
     return time;
 }
 
@@ -110,6 +122,8 @@ void test_simulation()//!OCLINT tests may be many
         double spore_advantage = 10.0;
         double repr_trsh = 0.1;
         double metab_degr_rate = 0.01;
+        int n_cycles = 42;
+        int cycle_duration = 5;
 
         sim_param s_p(pop_size,
                       exp_new_pop_size,
@@ -122,7 +136,10 @@ void test_simulation()//!OCLINT tests may be many
                       base_disp_prob,
                       spore_advantage,
                       repr_trsh,
-                      metab_degr_rate);
+                      metab_degr_rate,
+                      n_cycles,
+                      cycle_duration
+                  );
         simulation s(s_p);
         //tests for pop_param
         assert(s.get_pop().get_v_ind().size() == pop_size);
@@ -147,6 +164,9 @@ void test_simulation()//!OCLINT tests may be many
 
         assert(s.get_env().get_param().get_metab_degr_rate() - metab_degr_rate < 0.0001 &&
                s.get_env().get_param().get_metab_degr_rate() - metab_degr_rate > -0.0001);
+        //test for simulation meta param
+        assert(s.get_meta_param().get_n_cycles() == n_cycles);
+        assert(s.get_meta_param().get_cycle_duration() == cycle_duration);
     }
 
 
@@ -477,7 +497,7 @@ void test_simulation()//!OCLINT tests may be many
     //A simulation is initialized with a m_tick = 0;
     {
         simulation s;
-        assert(s.get_tick() == 0);
+        assert(s.get_timestep() == 0);
     }
 
     //After each tick the simulation updates its m_tick
@@ -486,19 +506,71 @@ void test_simulation()//!OCLINT tests may be many
         simulation s;
         for(int i = 0; i != 3; i++)
         {
-            assert(s.get_tick() == i);
+            assert(s.get_timestep() == i);
             tick(s);
         }
     }
 
-    //A simulation can be run for a certain amount of ticks
+    //A simulation runs a cycle for a certain amount of ticks stated in it s parameters
     {
-        simulation s;
-        auto n_ticks = 100;
-        exec(s, n_ticks);
-        assert(s.get_tick() - n_ticks == 0);
+        auto n_cycles = 1;
+        auto cycle_duration = 1;
+        meta_param m{ n_cycles, cycle_duration};
+        sim_param sp{ env_param(), m, pop_param()};
+        simulation s{sp};
+        exec_cycle(s);
+        assert(s.get_timestep() == cycle_duration);
     }
 
+    //A simulation can be run for the amount of cycles stated in its parameters
+    {
+        auto n_cycles = 1;
+        auto cycle_duration = 1;
+        pop_param p{101};
+        meta_param m{ n_cycles, cycle_duration};
+        sim_param sp{ env_param(), m, p};
+        simulation s{sp};
+        exec(s);
+        assert(s.get_cycle() == n_cycles);
+    }
+
+    //After the exec_cycle the time_step timer is reset
+    {
+        auto n_cycles = 1;
+        auto cycle_duration = 1;
+        pop_param p{101};
+        meta_param m{ n_cycles, cycle_duration};
+        sim_param sp{ env_param(), m, p};
+        simulation s{sp};
+        //As the parameters indicate only one cycle will be executed
+        exec(s);
+        assert(s.get_cycle() == n_cycles);
+        assert(s.get_timestep() == 0);
+    }
+
+    //After each cycle a new population(max 100 individuals
+    //is created from the previous one(see population tests)
+    //and the environment is reset
+    //(similar to dispersal() test)
+    {
+        auto n_cycles = 1;
+        auto cycle_duration = 1;
+        meta_param m{ n_cycles, cycle_duration};
+        pop_param p{101};
+        sim_param sp{ env_param(), m, p};
+        simulation s{sp};
+        auto init_env = s.get_env();
+        //Run a few ticks to make sure env is different from original
+        for(int i = 0; i != 1; i++)
+        {
+            tick(s);
+        }
+        assert(s.get_env() != init_env);
+        //As the parameters indicate only one cycle will be executed
+        exec(s);
+        assert(s.get_pop().get_pop_size() - s.get_pop().get_param().get_exp_new_pop_size() == 0);
+        assert(s.get_env() == init_env);
+    }
 
     //Spores do not feed
     {

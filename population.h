@@ -108,8 +108,11 @@ bool division(population& s) noexcept;
 ///has been calculated with calc_tot_disp_pop()
 void displace_inds(std::vector<individual>& population) noexcept;
 
+///Selects a new population of founders, swaps it with the old and positions them in hexagon patter
+void fund_new_pop(population& s) noexcept;
+
 ///The new population becomes the actual population, the old population is cancelled
-void fund_pop(population& s) noexcept;
+void place_new_pop(population& s) noexcept;
 
 ///finds the indexes of the individuals ready to divide
 std::vector<int> get_dividing_individuals(const population& p) noexcept;

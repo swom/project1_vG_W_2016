@@ -18,8 +18,13 @@ public:
            float scale = 10);
   ~sim_view();
 
-  /// Run the game until the window is closed
+  /// Run the sim until the window is closed
+  /// or simulation is finished
   void exec() noexcept;
+
+  ///Same as exec_cycle for simulation but
+  /// processes event and shows() every tick
+  bool exec_cycle_visual(simulation &s) noexcept;
 
   ///Returns const ref to m_grid_view
   const  grid_view& get_grid_view() const noexcept {return m_grid_view;}
@@ -85,6 +90,12 @@ public:
   ///Parses input to see if metab concentrations need to be shown on the grid
   void show_metab_input(sf::Event& event);
 
+  ///Parses input to see if simulation logic has to stop
+  void start_stop_input(const sf::Event& event) noexcept;
+
+  ///Parses input to see if simulation logic has to stop
+  void stop_input_ends(const sf::Event& event) noexcept;
+
   ///Processes when keyboard input for zooming is given
   void zoom_k_input_starts(const sf::Event& event) noexcept;
 
@@ -136,6 +147,10 @@ private:
   ///The times the size of individuals and their coordinates are increased
   /// This is necessary to not show fractions of pixels, default 10
   float m_scale;
+
+  ///Flag that signal if the logic is active or stopped and sim_view only shows
+  /// Simulation strts stopped;
+  bool m_stop = false;
 
   /// The window to draw to
   sf::RenderWindow m_window;

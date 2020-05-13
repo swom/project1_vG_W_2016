@@ -6,6 +6,7 @@ debug/grn.o
 debug/ind_param.o
 debug/individual.o
 debug/main.o
+debug/meta_param.o
 debug/phenotype.o
 debug/pop_param.o
 debug/population.o

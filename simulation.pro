@@ -8,6 +8,7 @@ HEADERS += \
     grn.h \
     ind_param.h \
     individual.h \
+    meta_param.h \
     phenotype.h \
     pop_param.h \
     population.h \
@@ -25,6 +26,7 @@ SOURCES += \
     ind_param.cpp \
     individual.cpp \
     main.cpp \
+    meta_param.cpp \
     phenotype.cpp \
     pop_param.cpp \
     population.cpp \
@@ -52,7 +54,7 @@ LIBS += -fopenmp
 
 # Hanno's code does not compile cleanly under g++
 # A warning is an error
-#QMAKE_CXXFLAGS += -Werror
+# QMAKE_CXXFLAGS += -Werror
 
 # Debug and release settings
 CONFIG += debug_and_release

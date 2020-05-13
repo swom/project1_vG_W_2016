@@ -135,10 +135,11 @@ void displace_inds(std::vector<individual>& pop) noexcept
     }
 }
 
-void fund_pop(population &s) noexcept
+void fund_new_pop(population& p) noexcept
 {
-    s.get_v_ind().swap(s.get_new_v_ind());
-    s.get_new_v_ind().clear();
+    select_new_pop(p);
+    place_new_pop(p);
+    place_start_cells(p);
 }
 
 std::vector<int> get_dividing_individuals(const population &p) noexcept
@@ -352,6 +353,12 @@ void place_start_cells(population &p) noexcept
     }
 }
 
+void place_new_pop(population &s) noexcept
+{
+    s.get_v_ind().swap(s.get_new_v_ind());
+    s.get_new_v_ind().clear();
+}
+
 std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
 possible_collisions(individual focal_ind, std::vector<individual>& pop)
 {
@@ -432,6 +439,7 @@ void reset_pop(population& p) noexcept
 
 void select_new_pop(population &p)
 {
+    assert(!p.get_v_ind().empty());
     assert(p.get_new_v_ind().empty());
     while(true)
     {
@@ -1169,7 +1177,7 @@ void test_population() noexcept  //!OCLINT
         select_new_pop(p);
         assert(p.get_new_v_ind().size() == new_pop_size);
         assert(p.get_v_ind().size() == pop_size);
-        fund_pop(p);
+        place_new_pop(p);
         assert(p.get_new_v_ind().size() == 0);
         assert(p.get_v_ind().size() == new_pop_size);
     }
@@ -1179,9 +1187,7 @@ void test_population() noexcept  //!OCLINT
         unsigned int pop_size = 1000;
         unsigned int new_pop_size = 100;
         population p(pop_param{pop_size,new_pop_size});
-        select_new_pop(p);
-        fund_pop(p);
-        place_start_cells(p);
+        fund_new_pop(p);
         auto n_hex_l = count_hex_layers(p.get_pop_size());
         auto v_modulus = modulus_of_btw_ind_angles(p, M_PI/ (6 * n_hex_l));
         for(auto ind_modulus : v_modulus)

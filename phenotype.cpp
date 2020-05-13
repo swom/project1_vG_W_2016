@@ -15,7 +15,7 @@ std::string to_str(phenotype this_ind_type)
   return "[Unknown environment_type]";
 }
 
-void test_individual_type()
+void test_phenotype()
 {
 #ifndef NDEBUG
   // Conversion to string

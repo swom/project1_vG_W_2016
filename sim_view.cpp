@@ -70,14 +70,30 @@ void sim_view::exec() noexcept
 {
     while (m_window.isOpen())
     {
-        bool must_quit{process_events()};
-        if (must_quit)
-            return;
-        tick(m_sim);
-        show();
+        while(m_sim.get_cycle() != m_sim.get_meta_param().get_n_cycles())
+        {
+            if(exec_cycle_visual(m_sim))
+                return;
+            dispersal(m_sim);
+            m_sim.tick_cycles();
+        }
+        return;
     }
 }
 
+bool sim_view::exec_cycle_visual(simulation& s) noexcept
+{
+    while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
+    {
+        bool must_quit{process_events()};
+        if (must_quit)
+            return true;
+        if(!m_stop)
+            tick(m_sim);
+        show();
+    }
+    return false;
+}
 void sim_view::k_pan() noexcept
 {
     m_view.move(0,m_pan_step * m_pan_up);
@@ -171,6 +187,7 @@ bool sim_view::process_events()
             pan_k_input_starts(event);
             show_food_input(event);
             show_metab_input(event);
+            start_stop_input(event);
             break;
         case sf::Event::KeyReleased:
             zoom_k_input_ends(event);
@@ -259,6 +276,17 @@ void sim_view::show_metab_input(sf::Event& event)
         m_grid_view.show_metab_conc();
     }
 }
+void sim_view::start_stop_input(const sf::Event& event) noexcept
+{
+    if (event.key.code == sf::Keyboard::S)
+    {
+        if(m_stop)
+        m_stop = false;
+        else
+        m_stop = true;
+    }
+}
+
 
 void sim_view::zoom_k_input_ends(const sf::Event &event) noexcept
 {
@@ -298,7 +326,7 @@ void test_sim_view()//!OCLINT tests may be many
     //A window starts showing simulation from tick 0
     {
         const sim_view v;
-        assert(v.get_sim().get_tick() == 0);
+        assert(v.get_sim().get_timestep() == 0);
     }
 
     //A sim_view has a member variable that is a sf::View

@@ -2,6 +2,7 @@
 #define SIM_PARAMETERS_H
 #include"env_param.h"
 #include"pop_param.h"
+#include"meta_param.h"
 
 class sim_param
 {
@@ -17,25 +18,36 @@ public:
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
               double reproduction_prob = 0.1,
-              double metab_degrad_rate = 0.01);
+              double metab_degrad_rate = 0.01
+            , int n_cycles = 1, int cycle_duration = 2000);
 
-
-    ///Gets const reference to population parameter
-    const pop_param& get_pop_param() const noexcept {return m_pop_param;}
+    sim_param(env_param e, meta_param m, pop_param p);
 
     ///Gets const reference to population parameter
     const env_param& get_env_param() const noexcept {return m_env_param;}
 
-private:
+    ///Gets const reference to metaparameters
+    const meta_param& get_meta_param() const noexcept {return  m_meta_param;}
 
-    ///Parameters concerning the population of individuals
-    pop_param m_pop_param;
+    ///Gets const reference to population parameter
+    const pop_param& get_pop_param() const noexcept {return m_pop_param;}
+
+
+private:
 
     ///Parameters for the environment
     env_param m_env_param;
 
+    ///Parameters concerning the simulation, such as duration, number of replicates etc
+    meta_param m_meta_param;
+
+    ///Parameters concerning the population of individuals
+    pop_param m_pop_param;
+
+
+
 };
 
-void test_sim_parameters() noexcept;
+void test_sim_param() noexcept;
 
 #endif // SIM_PARAMETERS_H

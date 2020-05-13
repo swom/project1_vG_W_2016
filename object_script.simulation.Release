@@ -6,6 +6,7 @@ release/grn.o
 release/ind_param.o
 release/individual.o
 release/main.o
+release/meta_param.o
 release/phenotype.o
 release/pop_param.o
 release/population.o
