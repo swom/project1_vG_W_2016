@@ -7,7 +7,7 @@ class env_param
 public:
     env_param(int grid_side = 1,
               double diff_coeff = 0.1,
-              double init_food = 1.0,
+              double init_food = 10.0,
               double metab_degrad_rate = 0.01);
 
 

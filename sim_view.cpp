@@ -68,17 +68,16 @@ void sim_view::draw_inds() noexcept
 
 void sim_view::exec() noexcept
 {
-    while (m_window.isOpen())
+
+    while(m_sim.get_cycle() != m_sim.get_meta_param().get_n_cycles())
     {
-        while(m_sim.get_cycle() != m_sim.get_meta_param().get_n_cycles())
-        {
-            if(exec_cycle_visual(m_sim))
-                return;
-            dispersal(m_sim);
-            m_sim.tick_cycles();
-        }
-        return;
+        if(exec_cycle_visual(m_sim))
+            break;
+        dispersal(m_sim);
+        m_sim.tick_cycles();
     }
+    m_window.close();
+    return;
 }
 
 bool sim_view::exec_cycle_visual(simulation& s) noexcept
@@ -281,9 +280,9 @@ void sim_view::start_stop_input(const sf::Event& event) noexcept
     if (event.key.code == sf::Keyboard::S)
     {
         if(m_stop)
-        m_stop = false;
+            m_stop = false;
         else
-        m_stop = true;
+            m_stop = true;
     }
 }
 

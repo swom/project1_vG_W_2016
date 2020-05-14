@@ -139,7 +139,7 @@ void test_simulation()//!OCLINT tests may be many
                       metab_degr_rate,
                       n_cycles,
                       cycle_duration
-                  );
+                      );
         simulation s(s_p);
         //tests for pop_param
         assert(s.get_pop().get_v_ind().size() == pop_size);
@@ -342,16 +342,32 @@ void test_simulation()//!OCLINT tests may be many
 
     //If nothing else happens, food should constantly decrease when cells are feeding
     {
-        simulation s (sim_param{2, 1, 0, 3, 0.1, 5});
+        meta_param m{};
+        pop_param p{2,
+                    1,
+                    0.1,
+                    0.01,
+                    0.1,
+                    0.01,
+                    10,
+                    1
+                   };
+        env_param e{3,
+                    0.1,
+                    p.get_ind_param().get_treshold_energy() * 10
+                   };
+        simulation s (sim_param{e,m,p});
+
         auto food_begin =
                 std::accumulate(s.get_env().get_grid().begin(),
-                                s.get_env().get_grid().end(), 0.0,
+                                s.get_env().get_grid().end(),
+                                0.0,
                                 [](double sum, const env_grid_cell& c)
         {return sum + c.get_food();});
 
         //The simulation will last long enough  for the individuals to reproduce
         auto sim_time = s.get_pop().get_ind(0).get_param().get_treshold_energy() /
-                s.get_pop().get_ind(0).get_param().get_uptake_rate() + 5;
+                s.get_pop().get_ind(0).get_param().get_uptake_rate() * 2;
 
         auto init_pop_size =  s.get_pop().get_v_ind().size();
 
@@ -386,7 +402,6 @@ void test_simulation()//!OCLINT tests may be many
             assert(balance_uptake < 0.0001 && balance_uptake > -0.0001);
 
             metabolism_pop(s.get_pop());
-            death(s.get_pop());
             division(s.get_pop());
             manage_static_collisions(s.get_pop());
 
@@ -482,9 +497,9 @@ void test_simulation()//!OCLINT tests may be many
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().get_v_ind().size();
         s.get_pop().get_ind(1).set_energy(get_ind_tr_en(s.get_pop(), 1)
-                                      + s.get_pop().get_ind(1).get_param().get_metabolic_rate()
-                                      + 0.01
-                                      - s.get_pop().get_ind(1).get_param().get_uptake_rate());
+                                          + s.get_pop().get_ind(1).get_param().get_metabolic_rate()
+                                          + 0.01
+                                          - s.get_pop().get_ind(1).get_param().get_uptake_rate());
         feeding(s);
         metabolism_pop(s.get_pop());
         division(s.get_pop());
@@ -557,7 +572,8 @@ void test_simulation()//!OCLINT tests may be many
         auto cycle_duration = 1;
         meta_param m{ n_cycles, cycle_duration};
         pop_param p{101};
-        sim_param sp{ env_param(), m, p};
+        env_param e{3};
+        sim_param sp{e, m, p};
         simulation s{sp};
         auto init_env = s.get_env();
         //Run a few ticks to make sure env is different from original
@@ -669,7 +685,7 @@ void test_simulation()//!OCLINT tests may be many
         response(s);
         for(auto& ind : s.get_pop().get_v_ind())
         {
-            assert(is_sporulating(ind));
+            assert(is_active(ind));
         }
 
         //The values of food and metabolite in the grid_cell

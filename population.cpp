@@ -651,7 +651,7 @@ void test_population() noexcept  //!OCLINT
     //and redistribute their remaining energy to their daughter cells
     {
         population s;
-        auto repr_excess_en = 3;
+        auto repr_excess_en = s.get_ind(0).get_param().get_treshold_energy();
         //This ind will reproduce with extra energy
         set_ind_en(s.get_ind(0), repr_excess_en);
 
@@ -1031,7 +1031,7 @@ void test_population() noexcept  //!OCLINT
     }
 
     //A pop can generate numbers from a bernoulli distribution to see if mutation happens or not
-    //0.01 by default
+    //0.0015 by default
     {
         population p;
         double mean = 0;
@@ -1039,7 +1039,7 @@ void test_population() noexcept  //!OCLINT
         for(int i = 0 ; i != sampling_size; i++ )
             mean += mut_happens(p);
         mean /= sampling_size;
-        assert(mean < 0.011 && mean > 0.009);
+        assert(mean - p.get_param().get_mu_p()< 0.0011 && mean - p.get_param().get_mu_p() > -0.001);
     }
 
     //The sum of weight of an individual after many rounds of mutation

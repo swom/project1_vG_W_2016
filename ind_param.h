@@ -5,8 +5,8 @@
 class ind_param
 {
 public:
-    ind_param(double radius  = 0.5,
-              double treshold_energy = 3,
+    ind_param(double radius  = 0.8,
+              double treshold_energy = 10,
               double uptake_rate = 0.1,
               double metabolic_rate = 0.01,
               int transformation_time = 5,

@@ -8,11 +8,11 @@ public:
     pop_param(unsigned int start_pop_size = 1,
               unsigned int exp_new_pop_size = 1,
               double min_dist = 0.1,
-              double mutation_prob = 0.01,
+              double mutation_prob = 0.0015,
               double mutation_step = 0.1,
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
-              double reproduction_prob = 0.1,
+              double reproduction_prob = 0.5,
               ind_param ind_parameters = ind_param());
 
 

@@ -44,23 +44,24 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #ifndef LOGIC_ONLY
     if(args.size() > 1 && args[1] == "--visual")
     {
-        env_param e{30,0.1,20,0.1};
-        meta_param m{3, 300};
+        env_param e{120, 0.1,20,0.1};
+        meta_param m{100, 300};
         pop_param p{1, 100};
         sim_view v(sim_param{e, m, p});
+        std::cout << "view: ";
         auto start = std::chrono::high_resolution_clock::now();
         v.exec();
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
-        std::cout << "view: " << duration.count() << "s" << std::endl;
+        std::cout << duration.count() << "s" << std::endl;
 
         simulation s{sim_param{e, m, p}};
+        std::cout << "logic: ";
         start = std::chrono::high_resolution_clock::now();
         exec(s);
         stop = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float> (stop - start);
-        std::cout << "logic: " << duration.count() << "s" << std::endl;
-
+        std::cout << duration.count() << "s" << std::endl;
 
         //        int sim_time = 0;
         //        while (v.get_window().isOpen())

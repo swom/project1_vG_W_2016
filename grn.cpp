@@ -10,8 +10,8 @@ GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output, double weights):
   m_THidden(n_hidden,0),
   m_TOutput(n_output,0),
   m_ExInput(n_input,0),
-  m_ExHidden(n_hidden,false),
-  m_ExOutput(n_output,false)
+  m_ExHidden(n_hidden,true),
+  m_ExOutput(n_output,true)
 {
 
 }
@@ -334,9 +334,9 @@ void test_GRN()//!OCLINT , tests may be long
     for(auto input : g.get_input_nodes())
       assert(input < 0.00001 && input > -0.00001);
     for(auto hidden : g.get_hidden_nodes())
-      assert(hidden < 0.00001 && hidden > -0.00001);
+      assert(hidden);
     for(auto output : g.get_output_nodes())
-      assert(output < 0.00001 && output > -0.00001);
+      assert(output);
   }
 
   //All weights in H2O connection can be set to a value
@@ -467,8 +467,7 @@ void test_GRN()//!OCLINT , tests may be long
     jordi_response_mech(g);
     for(auto output : g.get_output_nodes())
       {
-        assert(output < 0.00001
-               && output > -0.00001);
+        assert(output);
       }
   }
 
