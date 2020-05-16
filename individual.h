@@ -22,7 +22,8 @@ public:
                double uptake_rate = 0.1, double metabolic_rate = 0.01,
                phenotype phenotype = phenotype::active,
                int sporulation_timer = 0, int transformation_time = 5,
-               double wiggle_room = 0.01, double metab_secretion_rate = 0.1);
+               double wiggle_room = 0.01, double metab_secretion_rate = 0.1,
+               double spor_metab_rate = 0.5);
 
     individual(ind_param ind_param,
                double x_pos = 0,
@@ -236,7 +237,7 @@ bool is_sporulating(const individual& i) noexcept;
 bool is_spore(const individual& i) noexcept;
 
 ///Individuals lose energry due to metabolism
-void metabolism(individual& i) noexcept;
+void active_metabolism(individual& i) noexcept;
 
 ///Mutates the GRN of an individual
 /// ///For now requires to get distribution and rng from somewhere else
@@ -267,6 +268,9 @@ void set_pos(individual& i, std::pair<double, double> pos)  noexcept;
 
 ///Changes an ind_type of an individual from living to sporulating
 void starts_sporulation(individual& i);
+
+///Applies metabolism of sporulating individuals
+void sporulating_metabolism(individual& i) noexcept;
 
 ///Checks and updates the timer of sporulating individuals
 /// and changes them into spores if they have sporulated long enough

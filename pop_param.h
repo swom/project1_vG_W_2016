@@ -13,12 +13,16 @@ public:
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
               double reproduction_prob = 0.5,
+              double death_rate = 0.0,
               ind_param ind_parameters = ind_param());
 
 
     ///Returns the value of the variable m_base_fitness that indicates
     /// the basal fitness/dispersal probability of an individual
     double get_base_disp_prob() const noexcept {return m_base_disp_prob;}
+
+    ///Returns the death rate of the individuals in the population
+    double get_death_rate() const noexcept {return m_death_prob;}
 
     ///Returns the number of individuals that should be present
     ///  in the new funding population
@@ -54,6 +58,9 @@ private:
 
     ///The base dispersal probability of an individual(so when it is active or sporulating)
     double m_base_disp_prob;
+
+    ///The death rate of the individual
+    double m_death_prob;
 
     ///The expected size of a newly funded population
     unsigned int m_exp_new_pop_size;

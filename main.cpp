@@ -44,8 +44,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #ifndef LOGIC_ONLY
     if(args.size() > 1 && args[1] == "--visual")
     {
-        env_param e{120, 0.1,20,0.1};
-        meta_param m{100, 300};
+        env_param e{200, 0.01,10,0.1};
+        meta_param m{10000, 1000};
         pop_param p{1, 100};
         sim_view v(sim_param{e, m, p});
         std::cout << "view: ";

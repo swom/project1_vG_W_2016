@@ -9,15 +9,19 @@ public:
               double treshold_energy = 10,
               double uptake_rate = 0.1,
               double metabolic_rate = 0.01,
+              double spor_metabolic_rate = 0.5,
               int transformation_time = 5,
               double wiggle_room = 0.01,
-              double metab_secretion_rate = 0.1);
+              double metab_secretion_rate = 1);
 
     ///gets the metabolic rate of an individual
     double get_metabolic_rate() const noexcept {return m_metabolic_rate;}
 
     ///Gets the rate of secretion of metabolite
     double get_metab_secr_rate() const noexcept{return m_metab_secr_rate;}
+
+    ///gets the metabolic rate of a sporulating individual
+    double get_spor_metabolic_rate() const noexcept {return m_spor_metabolic_rate;}
 
     ///gets radius of individual
     double get_radius() const noexcept {return m_radius;}
@@ -47,6 +51,9 @@ private:
 
     ///Radius of an individual, individuals are considered circular
     double m_radius;
+
+    ///Metabolic rate for sporulating individuals
+    double m_spor_metabolic_rate;
 
     ///number of time steps the individual needs
     ///to go through to sporulate, if it is alive at

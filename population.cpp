@@ -12,6 +12,17 @@ population::population(pop_param pop_parameters):
     }
 }
 
+void active_metabolism_pop(population &p)
+{
+    for(auto& ind : p.get_v_ind())
+    {
+        if(ind.get_phen() != phenotype::active)
+            continue;
+
+        active_metabolism(ind);
+    }
+}
+
 bool all_ind_are_drawn(const population& s) noexcept
 {
     return std::all_of(s.get_v_ind().begin(), s.get_v_ind().end(),
@@ -89,31 +100,29 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
 }
 
 //not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
-void death(population &s) noexcept
+void death(population &p) noexcept
 {
-    s.get_v_ind().erase(std::remove_if(s.get_v_ind().begin(),s.get_v_ind().end(),
-                                     [](individual const &i){ return is_dead(i);})
-            ,s.get_v_ind().end());
+    starvation(p);
 }
 
-bool division(population &s) noexcept
+bool division(population &p) noexcept
 {
-    auto  div_inds  = get_dividing_individuals(s);
+    auto  div_inds  = get_dividing_individuals(p);
     std::uniform_real_distribution<double> repr_prob(0,1);
 
     if(!div_inds.empty())
         for(size_t i = 0; i != div_inds.size(); i++)
         {
             int div_ind = div_inds[i];
-            if(repr_prob(s.get_rng()) < s.get_param().get_repr_p())
+            if(repr_prob(p.get_rng()) < p.get_param().get_repr_p())
             {
 
-                divides(s.get_ind(div_ind),
-                        s.get_v_ind(),
-                        repr_angle(s),
-                        s.get_rng(),
-                        create_bernoulli_dist(s.get_param().get_mu_p()),
-                        create_normal_dist(0,s.get_param().get_mu_st())
+                divides(p.get_ind(div_ind),
+                        p.get_v_ind(),
+                        repr_angle(p),
+                        p.get_rng(),
+                        create_bernoulli_dist(p.get_param().get_mu_p()),
+                        create_normal_dist(0,p.get_param().get_mu_st())
                         );
             }
         }
@@ -252,22 +261,19 @@ int manage_static_collisions(population &p)
 
     int time =
             p.get_relax()(p.get_v_ind().begin(), p.get_v_ind().end(),
-                           [](const individual& i)
-                           // individual to particle_t conversion
+                          [](const individual& i)
+                          // individual to particle_t conversion
     { return particle_t{ glm::vec2{i.get_x(), i.get_y()}, static_cast<float>(i.get_param().get_radius()) }; },
-                           [](individual& i, const particle_t& p)
+    [](individual& i, const particle_t& p)
     { i.set_x(p.pos.x); i.set_y(p.pos.y); i.get_param().set_radius(p.radius); }
-                          );
+            );
     return time;
 }
 
 void metabolism_pop(population &p)
 {
-    for(auto& ind : p.get_v_ind())
-    {
-        if(ind.get_phen() != phenotype::spore)
-            metabolism(ind);
-    }
+    active_metabolism_pop(p);
+    spor_metabolism_pop(p);
 }
 
 std::vector<double> modulus_of_btw_ind_angles(population &p, double ang_rad)
@@ -353,10 +359,10 @@ void place_start_cells(population &p) noexcept
     }
 }
 
-void place_new_pop(population &s) noexcept
+void place_new_pop(population &p) noexcept
 {
-    s.get_v_ind().swap(s.get_new_v_ind());
-    s.get_new_v_ind().clear();
+    p.get_v_ind().swap(p.get_new_v_ind());
+    p.get_new_v_ind().clear();
 }
 
 std::pair<std::vector<individual>::iterator,std::vector<individual>::iterator>
@@ -428,13 +434,13 @@ void reset_drawn_fl_new_pop(population &p) noexcept
 
 void reset_pop(population& p) noexcept
 {
-   p.get_v_ind().resize(p.get_param().get_pop_start_size());
-   place_start_cells(p);
-   for(auto& ind : p.get_v_ind())
-   {
-       ind.set_phen(phenotype::active);
-       ind.get_grn() = GRN{};
-   }
+    p.get_v_ind().resize(p.get_param().get_pop_start_size());
+    place_start_cells(p);
+    for(auto& ind : p.get_v_ind())
+    {
+        ind.set_phen(phenotype::active);
+        ind.get_grn() = GRN{};
+    }
 }
 
 void select_new_pop(population &p)
@@ -467,6 +473,15 @@ void set_ind_en(individual& i, double en)
     i.set_energy(en);
 }
 
+
+void senescence(population& p) noexcept
+{
+    p.get_v_ind().erase(
+                std::remove_if (p.get_v_ind().begin(), p.get_v_ind().end(), [&p](const individual& i)
+    {return create_unif_dist(0,1)(p.get_rng()) < p.get_param().get_death_rate();})
+                ,p.get_v_ind().end());
+}
+
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator last)
 {
     std::sort(start,last,
@@ -474,6 +489,24 @@ void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<ind
     {return lhs.get_x() < rhs.get_x();});
 }
 
+void spor_metabolism_pop(population &p)
+{
+    for(auto& ind : p.get_v_ind())
+    {
+        if(ind.get_phen() != phenotype::sporulating)
+            continue;
+
+        sporulating_metabolism(ind);
+    }
+}
+
+void starvation(population& p) noexcept
+{
+    p.get_v_ind().erase(
+                std::remove_if(p.get_v_ind().begin(),p.get_v_ind().end(),
+                               [](individual const &i){ return is_dead(i);})
+            ,p.get_v_ind().end());
+}
 
 void test_population() noexcept  //!OCLINT
 {
@@ -849,6 +882,49 @@ void test_population() noexcept  //!OCLINT
         );
         assert(after_en_tot < init_en_tot);
     }
+
+    //In Jordi's version individual lose energy only during sporulations
+    {
+        population p;
+        for (auto & ind : p.get_v_ind())
+        {
+            ind.set_energy(2);
+        }
+        double init_en_tot = std::accumulate
+                (
+                    p.get_v_ind().begin(),
+                    p.get_v_ind().end(),0.0,
+                    [](double sum,const individual& i){return sum + i.get_energy();}
+        );
+        for(const auto& ind : p.get_v_ind())
+        {
+            assert(ind.get_phen() == phenotype::active);
+
+        }
+        spor_metabolism_pop(p);
+        double after_en_tot = std::accumulate
+                (
+                    p.get_v_ind().begin(),
+                    p.get_v_ind().end(),0.0,
+                    [](double sum,const individual& i){return sum + i.get_energy();}
+        );
+        assert(after_en_tot - init_en_tot < 0.00001 &&
+               after_en_tot - init_en_tot > -0.00001);
+        for( auto& ind : p.get_v_ind())
+        {
+            ind.set_phen(phenotype::sporulating);
+
+        }
+        spor_metabolism_pop(p);
+        after_en_tot = std::accumulate
+                (
+                    p.get_v_ind().begin(),
+                    p.get_v_ind().end(),0.0,
+                    [](double sum,const individual& i){return sum + i.get_energy();}
+        );
+
+        assert(after_en_tot < init_en_tot);
+    }
     //Spores do not get detected when looking for dividing individual
     {
         population p;
@@ -936,12 +1012,42 @@ void test_population() noexcept  //!OCLINT
         assert(p.get_ind(0).get_spo_timer() != init_timer + 2);
     }
 
-    //Individuals that die are removed from the population
+    //Individuals in a population will die with a certain probability
+    //given by the population parameters
+    {
+        int pop_size = 100;
+        int replicates = 30000;
+        double death_rate = 0.1;
+        pop_param pp {static_cast<unsigned int>(pop_size),
+                    1,
+                    0.1,
+                    0.0015,
+                    0.1,
+                    0.01,
+                    10,
+                    0.5,
+                    death_rate};
+        auto mean = 0.0;
+        population p(pp);
+
+        for( int i  = 0; i != replicates; i++)
+        {
+            senescence(p);
+            mean += p.get_pop_size();
+            p.get_v_ind().resize(pp.get_pop_start_size());
+        }
+        mean /= replicates;
+        auto balance = pop_size - (mean + pop_size * pp.get_death_rate());
+        assert( balance < 0.01 &&
+                balance > -0.01);
+    }
+
+    //Individuals that starve are removed from the population
     {
         population p;
         p.get_ind(0).set_energy(0);//the only individual in this sim has 0 energy, thus it will die
         assert(p.get_pop_size() == 1);
-        death(p);
+        starvation(p);
         assert(p.get_v_ind().empty() && p.get_pop_size() == 0);
 
         unsigned int pop_size = 5;
@@ -957,11 +1063,11 @@ void test_population() noexcept  //!OCLINT
         set_ind_en(p1.get_ind(0),p1.get_ind(0).get_param().get_metabolic_rate() + 0.001);
         assert(p1.get_v_ind().size() == pop_size);
         metabolism_pop(p1);
-        death(p1);
+        starvation(p1);
         assert(p1.get_pop_size() == 1);
         //then at the second tick the only individual left dies
         metabolism_pop(p1);
-        death(p1);
+        starvation(p1);
         assert(p1.get_v_ind().empty() && p.get_pop_size() == 0);
     }
 
@@ -979,6 +1085,7 @@ void test_population() noexcept  //!OCLINT
         mean /= 1000;
         assert(mean < 1.01 && mean > 0.99 );
     }
+
     //A pop can generate numbers from a uniform distribution
     //between 0 and 2PI
     {

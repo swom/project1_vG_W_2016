@@ -7,11 +7,12 @@ individual::individual(double x_pos, double y_pos,
                        double treshold_energy, double uptake_rate, double metabolic_rate,
                        phenotype phenotype, int sporulation_timer,
                        int transformation_time, double wiggle_room,
-                       double metab_secretion_rate):
+                       double metab_secretion_rate, double spor_metab_rate):
     m_ind_param{radius,
                 treshold_energy,
                 uptake_rate,
                 metabolic_rate,
+                spor_metab_rate,
                 transformation_time,
                 wiggle_room,
                 metab_secretion_rate},
@@ -215,7 +216,7 @@ bool is_spore(const individual& i) noexcept
 }
 
 
-void metabolism(individual& i) noexcept
+void active_metabolism(individual& i) noexcept
 {
     if(i.get_energy() >= i.get_param().get_metabolic_rate())
     {i.change_en(-i.get_param().get_metabolic_rate());}
@@ -226,6 +227,17 @@ void metabolism(individual& i) noexcept
     {
         sporulation(i);
     }
+
+}
+
+void sporulating_metabolism(individual& i) noexcept
+{
+
+        if(i.get_energy() >= i.get_param().get_spor_metabolic_rate())
+        {i.change_en(-i.get_param().get_spor_metabolic_rate());}
+        else
+        {i.set_energy(0);}
+        sporulation(i);
 
 }
 
@@ -362,7 +374,7 @@ void test_individual()//!OCLINT tests may be many
         assert(i.get_param().get_metabolic_rate() - 0.01 < 0.000001
                && i.get_param().get_metabolic_rate() - 0.01 > -0.000001);
         double metabolic_rate = 2;
-        individual i2(0,0,0,0,0,0,metabolic_rate);
+        individual i2(ind_param{0.8,10,0.1,metabolic_rate});
         assert(i2.get_param().get_metabolic_rate() - metabolic_rate < 0.000001
                && i2.get_param().get_metabolic_rate() - metabolic_rate > -0.000001);
 
@@ -379,7 +391,7 @@ void test_individual()//!OCLINT tests may be many
     //An individual is initialized with a treshold level of energy
     {
         double treshold_energy = 3;
-        individual i(0,0,0,0,treshold_energy);
+        individual i(ind_param{0, treshold_energy});
         assert(i.get_param().get_treshold_energy() - treshold_energy < 0.00000001);
     }
 
@@ -404,7 +416,8 @@ void test_individual()//!OCLINT tests may be many
 
     //Energy after reproduction should be half of the excess of energy
     {
-        individual i(0,0,0,4,2);//this individual should have energy in excess = 2
+        auto treshold = 2.0;
+        individual i(0,0,0,treshold * 2, treshold);//this individual should have energy in excess = treshold
         //after division
         double excess_energy = i.get_energy() - i.get_param().get_treshold_energy();
         auto split_energy = i.split_excess_energy();
@@ -572,20 +585,39 @@ void test_individual()//!OCLINT tests may be many
     }
 
 
-    //individuals lose energy due to their metabolism
+    //Active individuals lose energy due to their metabolism
     {
         individual i(0,0,0,1);
         auto init_en = i.get_energy();
-        metabolism(i);
+        active_metabolism(i);
+        auto en_after = i.get_energy();
+        assert(init_en > en_after);
+    }
+    //Sporulating individuals lose energy due to their metabolism
+    {
+        individual i(0,0,0,1);
+        auto init_en = i.get_energy();
+        i.set_phen(phenotype::sporulating);
+        sporulating_metabolism(i);
         auto en_after = i.get_energy();
         assert(init_en > en_after);
     }
 
-    //An individual's energy cannot go below 0
+    //An active individual's energy cannot go below 0
     {
         individual i(0,0,0,0,0,0);
         assert(i.get_energy() - i.get_param().get_metabolic_rate() < 0);
-        metabolism(i);
+        active_metabolism(i);
+        assert(i.get_energy() < 0.000001
+               && i.get_energy() > -0.0000001);
+    }
+
+    //A sporulating individual's energy cannot go below 0
+    {
+        individual i(0,0,0,0,0,0);
+        i.set_phen(phenotype::sporulating);
+        assert(i.get_energy() - i.get_param().get_spor_metabolic_rate() < 0);
+        sporulating_metabolism(i);
         assert(i.get_energy() < 0.000001
                && i.get_energy() > -0.0000001);
     }
@@ -735,7 +767,7 @@ void test_individual()//!OCLINT tests may be many
         env_grid_cell c(0,i.get_param().get_metabolic_rate());
         feed(i,c);
         assert(!is_dead(i));
-        metabolism(i);
+        active_metabolism(i);
         assert(is_dead(i));
     }
 

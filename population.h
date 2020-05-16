@@ -71,6 +71,10 @@ private:
     relaxation::Relaxation m_relax;
 };
 
+
+///Active individuals lose energy due to their metabolism
+void active_metabolism_pop(population &p);
+
 ///Checks if the entire population has been already drawn for funding the new population
 bool all_ind_are_drawn(const population& s) noexcept;
 
@@ -99,20 +103,20 @@ std::bernoulli_distribution create_bernoulli_dist(double p) noexcept;
 std::normal_distribution<double> create_normal_dist(double m, double v);
 
 ///Removes dead inidviduals from population vector
-void death(population& s) noexcept;
+void death(population& p) noexcept;
 
 ///The individuals in the vector are copied at the end of the pop vector
-bool division(population& s) noexcept;
+bool division(population& p) noexcept;
 
 ///Displaces the individuals after their total displacement
 ///has been calculated with calc_tot_disp_pop()
 void displace_inds(std::vector<individual>& population) noexcept;
 
 ///Selects a new population of founders, swaps it with the old and positions them in hexagon patter
-void fund_new_pop(population& s) noexcept;
+void fund_new_pop(population& p) noexcept;
 
 ///The new population becomes the actual population, the old population is cancelled
-void place_new_pop(population& s) noexcept;
+void place_new_pop(population& p) noexcept;
 
 ///finds the indexes of the individuals ready to divide
 std::vector<int> get_dividing_individuals(const population& p) noexcept;
@@ -142,6 +146,9 @@ int manage_static_collisions(population& p);
 
 ///All inidviduals lose energy due to metabolism
 void metabolism_pop(population& p);
+
+///Only spores lose energy due to metabolism
+void spor_metabolism_pop(population &p);
 
 ///Calculates the modulus of the angles between all the individuals of a population
 ///and a given angle in radiants
@@ -203,6 +210,12 @@ void set_ind_en(individual& i, double en);
 
 ///Sorts individuals in a given range of a vector by increasing x coordinate
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);
+
+///Normal death due to death rate
+void senescence(population& p) noexcept;
+
+///Kills individuals with energy = 0
+void starvation(population& p) noexcept;
 
 void test_population() noexcept;
 #endif // POPULATION_H

@@ -609,10 +609,10 @@ void test_simulation()//!OCLINT tests may be many
         feeding(s);
         metabolism_pop(s.get_pop());
         assert(init_en_ind0 - get_ind_en(s.get_pop(), 0) -
-               s.get_pop().get_ind(0).get_param().get_metabolic_rate() < 0.000001
+               s.get_pop().get_ind(0).get_param().get_spor_metabolic_rate() < 0.000001
                &&
                init_en_ind0 - get_ind_en(s.get_pop(), 0) -
-               s.get_pop().get_ind(0).get_param().get_metabolic_rate() > -0.000001);
+               s.get_pop().get_ind(0).get_param().get_spor_metabolic_rate() > -0.000001);
 
         assert(init_food - s.get_env().get_cell(0).get_food() < 0.000001
                && init_food - s.get_env().get_cell(0).get_food() > -0.000001);
