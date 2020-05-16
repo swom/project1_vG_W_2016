@@ -1275,7 +1275,8 @@ void test_population() noexcept  //!OCLINT
             assert(!is_drawn(ind));
     }
 
-    //After a new population is selected it swapped with the old population
+    //After a new population is selected it
+    //swapped with the old population
     //And the old population is cancelled
     {
         unsigned int pop_size = 1000;
