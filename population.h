@@ -141,6 +141,9 @@ std::vector<std::pair<int, int> > get_sisters_index_offset(const population& p) 
 /// or a vecto of the indexes of the first two colliding cells
 bool has_collision(population& p );
 
+///Death without starvation risk
+void jordi_death(population &p) noexcept;
+
 /// Displaces colliding cells so that they do not collide anymore
 int manage_static_collisions(population& p);
 
@@ -192,6 +195,9 @@ double repr_angle(population& p) noexcept;
 
 ///Resets the drawn flag for all individuals in the new_population vector
 void reset_drawn_fl_new_pop(population& p) noexcept;
+
+///Resets the output nodes of the population so that the spores return active
+void reset_output_nodes_pop(population &p) noexcept;
 
 ///Resets a population to its original parameters
 void reset_pop(population& p) noexcept;

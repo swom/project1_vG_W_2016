@@ -83,6 +83,9 @@ void exec_cycle(simulation& s) noexcept;
 /// All the individuals feed from environment
 void feeding(simulation& s);
 
+///Individuals feed a proportion of total food in their cell not a fixed rate
+void jordi_feeding(simulation& s);
+
 ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);
 

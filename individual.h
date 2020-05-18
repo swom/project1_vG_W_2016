@@ -236,6 +236,9 @@ bool is_sporulating(const individual& i) noexcept;
 ///Checks if an individual is a spore
 bool is_spore(const individual& i) noexcept;
 
+///Individuals feed by a proportion of the total food in their cell
+void jordi_feed(individual& i, env_grid_cell& c) noexcept;
+
 ///Individuals lose energry due to metabolism
 void active_metabolism(individual& i) noexcept;
 

@@ -45,8 +45,26 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     if(args.size() > 1 && args[1] == "--visual")
     {
         env_param e{200, 0.01,10,0.1};
-        meta_param m{10000, 1000};
-        pop_param p{1, 100};
+
+        meta_param m{500,
+                     125};
+
+        ind_param i{0.8,
+                    10,
+                    0.1,
+                    0};
+
+        pop_param p{1,
+                    100,
+                    0.1,
+                    0.0025,
+                    0.1,
+                    0.01,
+                    10,
+                    0.5,
+                    0,
+                    i};
+
         sim_view v(sim_param{e, m, p});
         std::cout << "view: ";
         auto start = std::chrono::high_resolution_clock::now();

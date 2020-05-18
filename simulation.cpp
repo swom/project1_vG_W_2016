@@ -49,6 +49,18 @@ void feeding(simulation& s)
     }
 }
 
+void jordi_feeding(simulation& s)
+{
+    for(auto& ind : s.get_pop().get_v_ind())
+    {
+        auto index_grid = find_grid_index(ind,s.get_env().get_param().get_grid_side());
+        if(index_grid == -100 ||
+                ind.get_phen() != phenotype::active)
+        {continue;}
+        jordi_feed(ind,s.get_env().get_cell(index_grid));
+    }
+}
+
 void reset_sim(simulation& s) noexcept
 {
     reset_env(s.get_env());
@@ -89,10 +101,12 @@ int tick(simulation& s)
 {
     int time = 0;
     response(s);
-    feeding(s);
+    //feeding(s);
+    jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    death(s.get_pop());
+    //death(s.get_pop());
+    jordi_death(s.get_pop());
     if(division(s.get_pop()))
     {
         time += manage_static_collisions(s.get_pop());
@@ -102,6 +116,8 @@ int tick(simulation& s)
     s.tick_timesteps();
     return time;
 }
+
+
 
 
 void test_simulation()//!OCLINT tests may be many
@@ -324,7 +340,6 @@ void test_simulation()//!OCLINT tests may be many
         double food_after_feeding = s.get_env().get_cell(grid_index_ind).get_food();
 
         metabolism_pop(s.get_pop());
-        death(s.get_pop());
         if(division(s.get_pop()))
         {
             manage_static_collisions(s.get_pop());

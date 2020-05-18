@@ -138,6 +138,16 @@ void feed(individual& i, env_grid_cell& c) noexcept
     }
 }
 
+void jordi_feed(individual& i, env_grid_cell& c) noexcept
+{
+
+    auto food_moved = i.get_param().get_uptake_rate() * c.get_food();
+    c.set_food_change(-food_moved);
+    c.increment_food();
+    i.change_en(food_moved);
+
+}
+
 
 int find_grid_index(const individual& i, double grid_side)
 {
@@ -233,11 +243,11 @@ void active_metabolism(individual& i) noexcept
 void sporulating_metabolism(individual& i) noexcept
 {
 
-        if(i.get_energy() >= i.get_param().get_spor_metabolic_rate())
-        {i.change_en(-i.get_param().get_spor_metabolic_rate());}
-        else
-        {i.set_energy(0);}
-        sporulation(i);
+    if(i.get_energy() >= i.get_param().get_spor_metabolic_rate())
+    {i.change_en(-i.get_param().get_spor_metabolic_rate());}
+    else
+    {i.set_energy(0);}
+    sporulation(i);
 
 }
 

@@ -88,7 +88,9 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
         if (must_quit)
             return true;
         if(!m_stop)
+        {
             tick(m_sim);
+        }
         show();
     }
     return false;

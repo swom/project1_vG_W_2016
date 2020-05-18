@@ -99,10 +99,12 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
     return std::normal_distribution<double>{m, v};
 }
 
-//not sure this is the fastest implementation, maybe sawp and pop_back is still faster?
+
+
 void death(population &p) noexcept
 {
     starvation(p);
+    senescence(p);
 }
 
 bool division(population &p) noexcept
@@ -255,6 +257,12 @@ bool has_collision(population &p)
     return false;
 }
 
+void jordi_death(population &p) noexcept
+{
+    //starvation(p);
+    senescence(p);
+}
+
 int manage_static_collisions(population &p)
 {
     using relaxation::particle_t;
@@ -362,6 +370,7 @@ void place_start_cells(population &p) noexcept
 void place_new_pop(population &p) noexcept
 {
     p.get_v_ind().swap(p.get_new_v_ind());
+    reset_output_nodes_pop(p);
     p.get_new_v_ind().clear();
 }
 
@@ -425,6 +434,14 @@ double repr_angle(population &p) noexcept
     return create_unif_dist(0, 2 * M_PI)(p.get_rng());
 }
 
+void reset_output_nodes_pop(population &p) noexcept
+{
+    for(auto& ind : p.get_v_ind())
+    {
+        ind.get_grn().set_all_out_nodes(true);
+        ind.set_phen(phenotype::active);
+    }
+}
 
 void reset_drawn_fl_new_pop(population &p) noexcept
 {
@@ -478,7 +495,7 @@ void senescence(population& p) noexcept
 {
     p.get_v_ind().erase(
                 std::remove_if (p.get_v_ind().begin(), p.get_v_ind().end(), [&p](const individual& i)
-    {return create_unif_dist(0,1)(p.get_rng()) < p.get_param().get_death_rate();})
+    {return !is_spore(i) && create_unif_dist(0,1)(p.get_rng()) < p.get_param().get_death_rate();})
                 ,p.get_v_ind().end());
 }
 
