@@ -76,7 +76,7 @@ void sim_view::exec() noexcept
         dispersal(m_sim);
         m_sim.tick_cycles();
     }
-    m_window.close();
+    //m_window.close();
     return;
 }
 

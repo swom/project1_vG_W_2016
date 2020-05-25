@@ -46,7 +46,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         env_param e{200, 0.01,10,0.1};
 
-        meta_param m{500,
+        meta_param m{50,
                      125};
 
         ind_param i{0.8,
@@ -57,7 +57,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         pop_param p{1,
                     100,
                     0.1,
-                    0.0025,
+                    0.025,
                     0.1,
                     0.01,
                     10,
