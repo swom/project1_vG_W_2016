@@ -259,7 +259,6 @@ bool has_collision(population &p)
 
 void jordi_death(population &p) noexcept
 {
-    //starvation(p);
     senescence(p);
 }
 
@@ -1319,5 +1318,7 @@ void test_population() noexcept  //!OCLINT
             assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
         assert(!has_collision(p));
     }
+
+
 #endif
 }

@@ -1,6 +1,8 @@
 #ifndef ENV_PARAM_H
 #define ENV_PARAM_H
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 class env_param
 {
@@ -26,6 +28,8 @@ public:
     ///Gets the degradation coefficient
     const double& get_degr_coeff() const noexcept {return m_metab_degradation_rate;}
 
+    ///Sets the diffusion coefficient
+
 private:
 
     /// The diffusion coefficient of substances in the grid
@@ -40,6 +44,16 @@ private:
     ///The rate at which metabolite degrades
     double m_metab_degradation_rate;
 };
+
+bool operator==(const env_param& lhs, const env_param& rhs) noexcept;
+
+std::ostream& operator<<(std::ostream& os, const env_param& p);
+
+std::ifstream& operator>>(std::ifstream& is, env_param& p);
+
+env_param load_env_parameters( const std::string& filename);
+
+void save_env_parameters( const env_param& p, const std::string& filename);
 
 void test_env_param() noexcept;
 

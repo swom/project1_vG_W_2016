@@ -12,12 +12,12 @@ void test() {
     test_env_param();
     test_grid_view();
     test_GRN();
+    test_ind_param();
     test_individual();
     test_phenotype();
     test_meta_param();
     test_pop_param();
     test_population();
-    test_sim_param();
     test_simulation();
     test_sim_view();
     test_sim_param();

@@ -1,6 +1,8 @@
 #ifndef IND_PARAM_H
 #define IND_PARAM_H
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 class ind_param
 {
@@ -70,6 +72,21 @@ private:
     /// to be detected, implemented to speed up collision management
     double m_wiggle_room;
 };
+
+//Compares two instantiations of ind_param
+bool operator==(const ind_param& lhs, const ind_param& rhs) noexcept;
+
+//Prints the ind_param to terminal
+std::ostream& operator<<(std::ostream& os, const ind_param& p);
+
+//Initializes a instance p from a file stream
+std::ifstream& operator>>(std::ifstream& is, ind_param& p);
+
+//Initializes a instance p from a filename
+ind_param load_ind_parameters( const std::string& filename);
+
+//Saves an instance of ind_param to a file name
+void save_ind_parameters( const ind_param& p, const std::string& filename);
 
 void test_ind_param() noexcept;
 

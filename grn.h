@@ -90,9 +90,6 @@ public:
   ///(that is created in individual in working circumstances)
   void set_inputs(std::vector<double> inputs);
 
-//  ///Sets the values of the m_prev_hid_val vector
-//  void set_prev_hid_val(std::vector<bool> hid_val);
-
 private:
   std::vector<std::vector<double> > m_ConI2H;	// Connections from Input to Hidden layer
   std::vector<std::vector<double> > m_ConH2H;	// Connections from Hidden to Hidden layer
@@ -162,9 +159,6 @@ void mutation(GRN& g, std::minstd_rand& rng,
 
 ///Counts the number of connections in a network
 int n_connections(const GRN& g) noexcept;
-
-// ///Stores the values of hidden layer in m_prev_hid_val vector
-// void store_hid_val(GRN& g) noexcept;
 
 ///Sums the weights of hidden to hidden connections
 double sum_I2H(const GRN& g) noexcept;

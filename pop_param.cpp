@@ -47,6 +47,137 @@ pop_param::pop_param(unsigned int start_pop_size,
     assert(m_start_pop_size >= 0);
 }
 
+
+std::ostream& operator<<(std::ostream& os, const pop_param& p)
+{
+    os << p.get_mu_p() << " , "
+       << p.get_mu_st() << " , "
+       << p.get_repr_p() << " , "
+       << p.get_spo_adv() << " , "
+       << p.get_min_dist() << " , "
+       << p.get_death_rate() << " , "
+       << p.get_base_disp_prob() << " , "
+       << p.get_pop_start_size() << " , "
+       << p.get_exp_new_pop_size();
+    return os;
+}
+
+std::ifstream& operator >>(std::ifstream& is, pop_param& p)
+{
+    unsigned int start_pop_size;
+    unsigned int exp_new_pop_size;
+    double min_dist;
+    double mutation_prob;
+    double mutation_step;
+    double base_disp_prob;
+    double spore_advantage;
+    double reproduction_prob;
+    double death_rate;
+    std::string dummy; // To remove the annotation in the file
+
+    is      >> mutation_prob >> dummy
+            >> mutation_step >> dummy
+            >> reproduction_prob >> dummy
+            >> spore_advantage >> dummy
+            >> min_dist >> dummy
+            >> death_rate >> dummy
+            >> base_disp_prob >> dummy
+            >> start_pop_size >> dummy
+            >> exp_new_pop_size;
+
+ p =     pop_param {start_pop_size,
+         exp_new_pop_size,
+         min_dist,
+         mutation_prob,
+         mutation_step,
+         base_disp_prob,
+         spore_advantage,
+         reproduction_prob,
+         death_rate
+        };
+
+    return is;
+}
+
+bool operator==(const pop_param& lhs, const pop_param& rhs) noexcept
+{
+    return
+            lhs.get_mu_p() == rhs.get_mu_p()
+            && lhs.get_mu_st() == rhs.get_mu_st()
+            && lhs.get_repr_p() == rhs.get_repr_p()
+            && lhs.get_spo_adv() == rhs.get_spo_adv()
+            && lhs.get_min_dist() == rhs.get_min_dist()
+            && lhs.get_death_rate() == rhs.get_death_rate()
+            && lhs.get_base_disp_prob() == rhs.get_base_disp_prob()
+            && lhs.get_pop_start_size() == rhs.get_pop_start_size()
+            && lhs.get_exp_new_pop_size() == rhs.get_exp_new_pop_size()
+            ;
+}
+
+bool operator!=(const pop_param& lhs, const pop_param& rhs) noexcept
+{
+    return
+            !(lhs == rhs);
+}
+
+void save_pop_parameters(
+        const pop_param& p,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    f << p.get_mu_p()  << " , " <<
+         p.get_mu_st() << " , " <<
+         p.get_repr_p() << " , " <<
+         p.get_spo_adv() << " , " <<
+         p.get_min_dist() << " , " <<
+         p.get_death_rate() << " , " <<
+         p.get_base_disp_prob() << " , " <<
+         p.get_pop_start_size() << " , " <<
+         p.get_exp_new_pop_size();
+}
+
+pop_param load_pop_parameters(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    unsigned int start_pop_size;
+    unsigned int exp_new_pop_size;
+    double min_dist;
+    double mutation_prob;
+    double mutation_step;
+    double base_disp_prob;
+    double spore_advantage;
+    double reproduction_prob;
+    double death_rate;
+    std::string dummy; // To remove the annotation in the file
+
+    f
+            >> mutation_prob >> dummy
+            >> mutation_step >> dummy
+            >> reproduction_prob >> dummy
+            >> spore_advantage >> dummy
+            >> min_dist >> dummy
+            >> death_rate >> dummy
+            >> base_disp_prob >> dummy
+            >> start_pop_size >> dummy
+            >> exp_new_pop_size;
+
+    pop_param p{start_pop_size,
+                exp_new_pop_size,
+                min_dist,
+                mutation_prob,
+                mutation_step,
+                base_disp_prob,
+                spore_advantage,
+                reproduction_prob,
+                death_rate
+               };
+
+    return p;
+}
+
 void test_pop_param() noexcept  //!OCLINT
 {
 
@@ -69,5 +200,46 @@ void test_pop_param() noexcept  //!OCLINT
         unsigned int exp_pop_size = 100;
         pop_param p{1, exp_pop_size};
         assert(p.get_exp_new_pop_size() == exp_pop_size);
+    }
+
+    //It is possible to save and load ind parameters from a file
+    {
+        unsigned int start_pop_size = 1;
+        unsigned int exp_new_pop_size = 1;
+        double min_dist = 0.1;
+        double mutation_prob = 0.0015;
+        double mutation_step = 0.1;
+        double base_disp_prob = 0.01;
+        double spore_advantage = 10.0;
+        double reproduction_prob = 0.5;
+        double death_rate = 0.0;
+        pop_param p{
+            start_pop_size,
+                    exp_new_pop_size,
+                    min_dist,
+                    mutation_prob,
+                    mutation_step,
+                    base_disp_prob,
+                    spore_advantage,
+                    reproduction_prob,
+                    death_rate
+        };
+
+        //Test load and save
+        const std::string filename = "pop_param.csv";
+        save_pop_parameters(p, filename);
+        const pop_param q = load_pop_parameters(filename);
+        assert(p == q);
+        //Test >> operator overload
+        std::ifstream f(filename);
+        pop_param s;
+        f >> s;
+        assert(s == p);
+    }
+
+    {
+        const ind_param p;
+        std::ostringstream s;
+        s << p;
     }
 }

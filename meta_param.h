@@ -1,11 +1,14 @@
 #ifndef META_PARAM_H
 #define META_PARAM_H
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 class meta_param
 {
 public:
-    meta_param(int n_cycles = 1, int cycle_duration = 2000);
+    meta_param(int n_cycles = 1,
+               int cycle_duration = 200);
 
     ///Returns number of cycles for which the simulation will last
     int get_n_cycles() const noexcept {return m_n_cycles;}
@@ -23,6 +26,22 @@ private:
     int m_n_cycles;
 
 };
+
+
+//Shows metaparameters in terminal
+std::ostream& operator<<(std::ostream& os, const meta_param& p);
+
+//Instantiates a meta_param from terminal
+std::ifstream& operator>> (std::ifstream& is, meta_param& p);
+
+//Compares two instantiations of metaparameters to see if they are equal
+bool operator==(const meta_param& lhs, const meta_param& rhs) noexcept;
+
+//Loads metaparameters from a given file name
+meta_param load_meta_parameters( const std::string& filename);
+
+//Saves the parameters to a given file name
+void save_meta_parameters( const meta_param& p, const std::string& filename);
 
 void test_meta_param() noexcept;
 #endif // META_PARAM_H

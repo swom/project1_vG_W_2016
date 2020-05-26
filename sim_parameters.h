@@ -4,6 +4,8 @@
 #include"pop_param.h"
 #include"meta_param.h"
 
+#include <iostream>
+
 class sim_param
 {
 public:
@@ -32,6 +34,9 @@ public:
     ///Gets const reference to population parameter
     const pop_param& get_pop_param() const noexcept {return m_pop_param;}
 
+    ///Gets const reference to ind parameter
+    const ind_param& get_ind_param() const noexcept {return m_ind_param;}
+
 
 private:
 
@@ -44,9 +49,25 @@ private:
     ///Parameters concerning the population of individuals
     pop_param m_pop_param;
 
+    ///Parameters pertaining individuals
+    ind_param m_ind_param;
+
 
 
 };
+
+//Shows sim_param in terminal
+std::ostream& operator<<(std::ostream& os, const sim_param& p);
+
+//Compares two instantiations of sim_param to see if they are equal
+bool operator==(const sim_param& lhs, const sim_param& rhs) noexcept;
+
+//Loads sim_param from a given file name
+sim_param load_sim_parameters( const std::string& filename);
+
+//Saves the sim parameters to a given file name
+void save_sim_parameters( const sim_param& p, const std::string& filename);
+
 
 void test_sim_param() noexcept;
 

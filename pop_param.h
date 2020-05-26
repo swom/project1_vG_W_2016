@@ -85,6 +85,21 @@ private:
     unsigned int m_start_pop_size;
 };
 
+//Prints parameters to ostream
+std::ostream& operator<<(std::ostream& os, const pop_param& p);
+
+//Initializes an instance of pop_param from istream
+std::ifstream& operator >>(std::ifstream& is, pop_param& p);
+
+//Compares two instantiations of pop_param
+bool operator==(const pop_param& lhs, const pop_param& rhs) noexcept;
+
+//Loads the population parameters from a given file name
+pop_param load_pop_parameters(const std::string& filename );
+
+//Saves the population parameters to a given file name
+void save_pop_parameters(const pop_param& p, const std::string& filename);
+
 void test_pop_param() noexcept;
 
 #endif // POP_PARAM_H

@@ -208,7 +208,7 @@ void draw_flag_reset(individual& i);
 ///the grid_cell at grid[0] is at position(x,y) = (-grid_side/2, -grid_side/2)
 int find_grid_index(const individual &i, double grid_side) ;
 
-///An individual increases its energy depleting food
+///An individual increases its energy depleting  with a costant rate
 void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///returns the position of the second daughter cell just outside the mother
