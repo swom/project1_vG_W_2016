@@ -1,4 +1,12 @@
+#ifndef LOGIC_ONLY
+
 #include "sim_view.h"
+
+#else
+
+#include "simulation.h"
+
+#endif
 
 #include <cassert>
 #include <chrono>
@@ -68,6 +76,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                     0.5,
                     0,
                     i};
+#ifndef LOGIC_ONLY
 
         sim_view v(sim_param{e, m, p});
         std::cout << "view: ";
@@ -76,7 +85,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout << duration.count() << "s" << std::endl;
-
+#endif
         simulation s{sim_param{e, m, p}};
         std::cout << "logic: ";
         start = std::chrono::high_resolution_clock::now();
