@@ -21,4 +21,7 @@ module load Qt5
 module load gompi
 qmake simulation_logic_only.pro
 make 
-./simulation_logic_only
+echo "seed: "$1
+echo "output filename: "$2
+./simulation_logic_only $1 $2
+
