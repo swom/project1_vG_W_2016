@@ -17,6 +17,8 @@
 #SBATCH --mem=1G
 #SBATCH --job-name=run
 #SBATCH --output=run.log
-module load OpenMPI
-
+module load Qt5
+module load gompi
+qmake simulation_logic_only.pro
+make 
 ./simulation_logic_only
