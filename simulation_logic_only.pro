@@ -39,6 +39,8 @@ SOURCES += \
 INCLUDEPATH += libs
 HEADERS += $$PWD/libs/hrtree/*.hpp
 
+SOURCES += $$PWD/libs/glm/detail/glm.cpp
+DEFINES += LOGIC_ONLY
 
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17
@@ -49,8 +51,8 @@ CONFIG += resources_big
 QMAKE_CXXFLAGS += -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
 
 #Allow to compile Hanno's code
-QMAKE_CXXFLAGS += -fopenmp
-LIBS += -fopenmp
+#QMAKE_CXXFLAGS += -fopenmp
+#LIBS += -fopenmp
 
 # Hanno's code does not compile cleanly under g++
 # A warning is an error
