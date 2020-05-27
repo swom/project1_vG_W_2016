@@ -16,7 +16,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 #SBATCH --job-name=run
-#SBATCH --output=run.log
+#SBATCH --output=run_%j.log
 module load Qt5
 module load gompi
 qmake simulation_logic_only.pro
