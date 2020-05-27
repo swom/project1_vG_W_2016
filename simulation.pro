@@ -75,7 +75,7 @@ QT += core gui
 # SFML, default compiling
 # GNU/Linux
 unix:!macx {
-  #LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+  LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
   CONFIG(debug, debug|release) {
     # gcov
