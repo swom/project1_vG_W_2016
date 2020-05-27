@@ -10,7 +10,9 @@ void test() {
     test_env_grid_cell();
     test_environment();
     test_env_param();
+#ifndef LOGIC_ONLY
     test_grid_view();
+#endif
     test_GRN();
     test_ind_param();
     test_individual();
@@ -19,7 +21,9 @@ void test() {
     test_pop_param();
     test_population();
     test_simulation();
+#ifndef LOGIC_ONLY
     test_sim_view();
+#endif
     test_sim_param();
 }
 
