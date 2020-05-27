@@ -1,3 +1,4 @@
+#ifndef LOGIC_ONLY
 #ifndef GRID_VIEW_H
 #define GRID_VIEW_H
 #include "SFML/Graphics.hpp"
@@ -78,3 +79,4 @@ private:
 
 void test_grid_view() noexcept;
 #endif // GRID_VIEW_H
+#endif

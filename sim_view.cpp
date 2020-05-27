@@ -1,3 +1,4 @@
+#ifndef LOGIC_ONLY
 #include "sim_view.h"
 #include <SFML/Graphics.hpp>
 #include <cmath>
@@ -390,3 +391,4 @@ void test_sim_view()//!OCLINT tests may be many
 
 #endif
 }
+#endif

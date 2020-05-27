@@ -1,3 +1,5 @@
+#ifndef LOGIC_ONLY
+
 #include "grid_view.h"
 
 #include <cassert>
@@ -156,3 +158,4 @@ void test_grid_view() noexcept
     }
 
 }
+#endif
