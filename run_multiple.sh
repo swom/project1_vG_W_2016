@@ -23,7 +23,8 @@
 #
 # simulation_logic_only [seed] [output filename]
 
-
-sbatch run.sh 1 output_1.txt
-sbatch run.sh 2 output_2.txt
- 
+for i in $(seq 1 10)
+do
+  echo $i
+  sbatch run.sh $i "output_$i.txt"
+done 
