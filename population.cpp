@@ -1319,6 +1319,30 @@ void test_population() noexcept  //!OCLINT
         assert(!has_collision(p));
     }
 
+    //Descent to a common funder can be tracked
+    {
+        auto pop_size = 2;
+        population p(pop_size);
+        //Very bad and clunky way to make
+        //all individuals reproduce
+        for(auto& ind : p.get_v_ind())
+        {
+            divides(ind,
+                    p.get_v_ind(),
+                    0,
+                    p.get_rng(),
+                    create_bernoulli_dist(1),
+                    create_normal_dist(1,0));
+        }
+        assert(pop_size * 2 == p.get_pop_size());
+        auto& p_vec = p.get_v_ind();
+        //Very bad and clunky way to check for sistercells
+        //to have the same ancestor vector
+        for(int i = 0; i != pop_size; i++)
+        {
+            assert(p_vec[i].get_ancestor() == p_vec[i + pop_size].get_ancestor());
+        }
+    }
 
 #endif
 }

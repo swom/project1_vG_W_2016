@@ -45,6 +45,10 @@ public:
     ///Displaces an individual based on its m_x_displacement and m_y_displacement values
     void displace() noexcept { change_x(m_x_displacement); change_y(m_y_displacement); reset_displacement();}
 
+    ///Gets const ref to the vector of IDs of funders from previous cycles from
+    /// whih individual is descending
+    const std::vector<int>& get_ancestor() const noexcept {return m_ancestor;}
+
     ///Gets the flag that signal if the individual has been drawn to be member of the new pop
     bool get_drawn_flag() const noexcept {return m_is_drawn;}
 
@@ -130,6 +134,9 @@ public:
     void y_displacement(double y_displacement) noexcept {m_y_displacement += y_displacement;}
 
 private:
+
+    ///The line of ancestor funders from previous cycles from which the individual descend
+    std::vector<int> m_ancestor;
 
     ///The parameters of the individual
     ind_param m_ind_param;

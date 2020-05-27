@@ -98,8 +98,11 @@ void determine_phen(individual& i) noexcept
 
 
 
-void divides(individual& i, std::vector<individual>& pop, double repr_angle,
-             std::minstd_rand& rng, std::bernoulli_distribution mu_p,
+void divides(individual& i,
+             std::vector<individual>& pop,
+             double repr_angle,
+             std::minstd_rand& rng,
+             std::bernoulli_distribution mu_p,
              std::normal_distribution<double> mu_st)
 {
     double offs_init_en = i.split_excess_energy();
@@ -925,6 +928,12 @@ void test_individual()//!OCLINT tests may be many
     {
         individual i;
         assert(i.get_param().get_metabolic_rate() > -123456789);
+    }
+
+    //It is possible to retrieve the line of funders from which an individual derives
+    {
+        individual i;
+        assert(!(i.get_ancestor().size() < 0));
     }
 
 #endif
