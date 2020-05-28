@@ -475,6 +475,7 @@ void select_new_pop(population &p)
 {
     assert(!p.get_v_ind().empty());
     assert(p.get_new_v_ind().empty());
+    std::shuffle(p.get_v_ind().begin(),p.get_v_ind().end(),p.get_rng());
     while(true)
     {
         for(auto& ind : p.get_v_ind())

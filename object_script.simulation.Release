@@ -1,3 +1,5 @@
+release/demographic_cycle.o
+release/demographic_sim.o
 release/env_grid_cell.o
 release/env_param.o
 release/environment.o

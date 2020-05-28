@@ -1,3 +1,5 @@
+debug/demographic_cycle.o
+debug/demographic_sim.o
 debug/env_grid_cell.o
 debug/env_param.o
 debug/environment.o

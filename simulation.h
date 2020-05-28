@@ -1,11 +1,13 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
-#include <vector>
-#include <random>
+#include "demographic_sim.h"
 #include "environment.h"
 #include "individual.h"
 #include "population.h"
 #include "sim_parameters.h"
+
+#include <vector>
+#include <random>
 
 class simulation
 {
