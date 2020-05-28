@@ -36,7 +36,6 @@ pop_param::pop_param(unsigned int start_pop_size,
         abort();
 #endif
     }
-#endif
     assert(m_base_disp_prob > -0.000001);
     assert(m_exp_new_pop_size >= 0);
     assert(m_min_init_dist_btw_inds > -0.000001);
@@ -45,6 +44,8 @@ pop_param::pop_param(unsigned int start_pop_size,
     assert(m_repr_prob > -0.000001 && m_repr_prob < 1.0000001);
     assert(m_spore_advantage > -0.000001);
     assert(m_start_pop_size >= 0);
+#endif
+
 }
 
 
