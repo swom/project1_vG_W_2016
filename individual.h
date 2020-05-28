@@ -49,6 +49,10 @@ public:
     /// whih individual is descending
     const std::vector<int>& get_ancestor() const noexcept {return m_ancestor;}
 
+    ///Gets ref to the vector of IDs of funders from previous cycles from
+    /// whih individual is descending
+    std::vector<int>& get_ancestor() noexcept {return m_ancestor;}
+
     ///Gets the flag that signal if the individual has been drawn to be member of the new pop
     bool get_drawn_flag() const noexcept {return m_is_drawn;}
 
@@ -181,6 +185,10 @@ bool operator==(const individual& lhs, const individual& rhs);
 ///Returns true if two individuals are not in the same position
 bool operator!=(const individual& lhs, const individual& rhs);
 
+
+///Individuals lose energry due to metabolism
+void active_metabolism(individual& i) noexcept;
+
 ///Checks if two individuals are colliding
 bool are_colliding(individual &lhs, individual &rhs) noexcept;
 
@@ -228,6 +236,9 @@ double get_fitness(const individual& i, double base_disp_prob, double spore_adva
 ///Gets the x,y coordinates as a pair
 std::pair<double, double> get_pos(individual& i) noexcept;
 
+///Checks if 2 individuals have the same ancestry
+bool have_same_ancestor(const individual& lhs, const individual& rhs) noexcept;
+
 ///Signals if an individual has to be destroyed
 bool is_dead(const individual &i) noexcept;
 
@@ -246,8 +257,6 @@ bool is_spore(const individual& i) noexcept;
 ///Individuals feed by a proportion of the total food in their cell
 void jordi_feed(individual& i, env_grid_cell& c) noexcept;
 
-///Individuals lose energry due to metabolism
-void active_metabolism(individual& i) noexcept;
 
 ///Mutates the GRN of an individual
 /// ///For now requires to get distribution and rng from somewhere else

@@ -78,6 +78,9 @@ void active_metabolism_pop(population &p);
 ///Checks if the entire population has been already drawn for funding the new population
 bool all_ind_are_drawn(const population& s) noexcept;
 
+///Appends a unique ID to the m_ancestor of each individual in the population
+std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noexcept;
+
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
 int count_hex_layers(int pop_size)  noexcept ;
 

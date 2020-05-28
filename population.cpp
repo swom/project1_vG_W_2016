@@ -6,6 +6,7 @@ population::population(pop_param pop_parameters):
     m_new_pop_tmp_buffer(0, m_pop_param.get_ind_param()),
     m_relax(relaxation::param_t{})
 {
+    assign_ancestor_ID(m_pop).swap(m_pop);
     if(!m_pop.empty())
     {
         place_start_cells(*this);
@@ -27,6 +28,16 @@ bool all_ind_are_drawn(const population& s) noexcept
 {
     return std::all_of(s.get_v_ind().begin(), s.get_v_ind().end(),
                        [](const individual& i) {return is_drawn(i);});
+}
+
+std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noexcept
+{
+    auto new_p = p;
+    for(unsigned int i = 0; i != p.size(); i++ )
+    {
+        new_p[i].get_ancestor().push_back(i);
+    }
+    return new_p;
 }
 
 int count_hex_layers(int pop_size)  noexcept
@@ -150,6 +161,7 @@ void fund_new_pop(population& p) noexcept
 {
     select_new_pop(p);
     place_new_pop(p);
+    assign_ancestor_ID(p.get_v_ind()).swap(p.get_v_ind());
     place_start_cells(p);
 }
 
@@ -1319,6 +1331,78 @@ void test_population() noexcept  //!OCLINT
         assert(!has_collision(p));
     }
 
+    //It is possible to assign a unique ID to each ind in a population
+    {
+        population p;
+        assert(p.get_pop_size() == 1);
+        divides(p.get_ind(0),
+                p.get_v_ind(),
+                0,
+                p.get_rng(),
+                create_bernoulli_dist(0),
+                create_normal_dist(0,0));
+        assert(p.get_pop_size() == 2);
+        assert(have_same_ancestor(p.get_ind(0), p.get_ind(1)));
+        p.get_v_ind() = assign_ancestor_ID(p.get_v_ind());
+        assert(!have_same_ancestor(p.get_ind(0), p.get_ind(1)));
+
+    }
+    //When a population is initialized each ind recieves a unique ancestor ID
+    {
+        int pop_size = 2;
+        population p{pop_size};
+        for (int i = 0; i != p.get_pop_size() - 1; i++)
+            for(int j = i + 1; j != p.get_pop_size(); j++)
+                assert(!have_same_ancestor(p.get_ind(i),p.get_ind(j)));
+    }
+
+    //it is possible to track individuals that have the same ancestry
+    {
+        int pop_size = 2;
+        population p{pop_size};
+        auto ind1 = p.get_ind(0);
+        auto ind2 = p.get_ind(1);
+
+        divides(ind1,
+                p.get_v_ind(),
+                0,
+                p.get_rng(),
+                create_bernoulli_dist(0),
+                create_normal_dist(0,0));
+        //The new ind is at the .back() of the individuals vector
+        assert(p.get_pop_size() == pop_size + 1);
+        auto& ind3 = p.get_v_ind().back();
+        assert( have_same_ancestor(ind1, ind3) );
+        assert( !have_same_ancestor(ind2, ind3) );
+
+    }
+    //When a pop is funded a new ancestor ID is assigned to each funder individual
+    {
+        population p;
+        //store ancestor_IDs of actual population
+        std::vector<std::vector<int>> p_ancestor_IDs;
+        for(const auto& ind : p.get_v_ind())
+        {
+            p_ancestor_IDs.push_back(ind.get_ancestor());
+        }
+
+        //Fund new pop
+        fund_new_pop(p);
+
+        //store ancestor_IDs of NEW population
+        std::vector<std::vector<int>> new_p_ancestor_IDs;
+        for(const auto& ind : p.get_v_ind())
+        {
+            new_p_ancestor_IDs.push_back(ind.get_ancestor());
+        }
+
+        assert(p_ancestor_IDs.size() == new_p_ancestor_IDs.size());
+        for(size_t i = 0; i != p_ancestor_IDs.size(); i++)
+            for(size_t j = 0; j != new_p_ancestor_IDs.size(); j++)
+            {
+                assert(p_ancestor_IDs[i] != new_p_ancestor_IDs[j]);
+            }
+    }
 
 
 #endif

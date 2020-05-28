@@ -52,6 +52,20 @@ bool operator!=(const individual& lhs, const individual& rhs)
     return !(lhs == rhs);
 }
 
+void active_metabolism(individual& i) noexcept
+{
+    if(i.get_energy() >= i.get_param().get_metabolic_rate())
+    {i.change_en(-i.get_param().get_metabolic_rate());}
+    else
+    {i.set_energy(0);}
+
+    if(i.get_phen() == phenotype::sporulating )
+    {
+        sporulation(i);
+    }
+
+}
+
 bool are_colliding(individual &lhs, individual &rhs) noexcept
 {
     auto radii_sum = lhs.get_param().get_radius() + rhs.get_param().get_radius();
@@ -228,39 +242,6 @@ bool is_spore(const individual& i) noexcept
     return i.get_phen() == phenotype::spore;
 }
 
-
-void active_metabolism(individual& i) noexcept
-{
-    if(i.get_energy() >= i.get_param().get_metabolic_rate())
-    {i.change_en(-i.get_param().get_metabolic_rate());}
-    else
-    {i.set_energy(0);}
-
-    if(i.get_phen() == phenotype::sporulating )
-    {
-        sporulation(i);
-    }
-
-}
-
-void sporulating_metabolism(individual& i) noexcept
-{
-
-    if(i.get_energy() >= i.get_param().get_spor_metabolic_rate())
-    {i.change_en(-i.get_param().get_spor_metabolic_rate());}
-    else
-    {i.set_energy(0);}
-    sporulation(i);
-
-}
-
-void mutates(individual& i, std::minstd_rand& rng,
-             std::bernoulli_distribution& mu_p,
-             std::normal_distribution<double> mu_st) noexcept
-{
-    mutation(i.get_grn(), rng, mu_p, mu_st);
-}
-
 double half_overlap(const individual& lhs, const individual& rhs) noexcept
 {
     auto dist = distance(lhs,rhs);
@@ -278,6 +259,18 @@ double half_overlap(const individual& lhs, const individual& rhs) noexcept
     //their dist is equal to sum of radiuses
     //(in which case they should not pass through this function)
     return lhs.get_param().get_wiggle_room() + (sum_of_radiuses - dist)  / 2;
+}
+
+bool have_same_ancestor(const individual& lhs, const individual& rhs) noexcept
+{
+   return lhs.get_ancestor() == rhs.get_ancestor();
+}
+
+void mutates(individual& i, std::minstd_rand& rng,
+             std::bernoulli_distribution& mu_p,
+             std::normal_distribution<double> mu_st) noexcept
+{
+    mutation(i.get_grn(), rng, mu_p, mu_st);
 }
 
 void responds(individual& i, const env_grid_cell& c)
@@ -317,13 +310,6 @@ void set_pos(individual& i, std::pair<double, double> pos)  noexcept
     i.set_y(pos.second);
 }
 
-void starts_sporulation(individual& i)
-{
-    assert(is_active(i));
-    assert(i.get_spo_timer() == 0);
-    i.set_phen(phenotype::sporulating);
-}
-
 void sporulation(individual& i) noexcept
 {
 
@@ -337,11 +323,28 @@ void sporulation(individual& i) noexcept
 
 }
 
+void sporulating_metabolism(individual& i) noexcept
+{
+
+    if(i.get_energy() >= i.get_param().get_spor_metabolic_rate())
+    {i.change_en(-i.get_param().get_spor_metabolic_rate());}
+    else
+    {i.set_energy(0);}
+    sporulation(i);
+
+}
 
 double squared_distance(const individual& lhs, const individual& rhs) noexcept
 {
     return (lhs.get_x() - rhs.get_x()) * (lhs.get_x() - rhs.get_x())
             + (lhs.get_y() - rhs.get_y()) * (lhs.get_y() - rhs.get_y());
+}
+
+void starts_sporulation(individual& i)
+{
+    assert(is_active(i));
+    assert(i.get_spo_timer() == 0);
+    i.set_phen(phenotype::sporulating);
 }
 
 bool will_sporulate(individual& i) noexcept
@@ -930,10 +933,19 @@ void test_individual()//!OCLINT tests may be many
         assert(i.get_param().get_metabolic_rate() > -123456789);
     }
 
+    //An individual has a vector that stores the IDs of its ancestors
     //It is possible to retrieve the line of funders from which an individual derives
     {
         individual i;
         assert(!(i.get_ancestor().size() < 0));
+    }
+
+
+    //It is possible to check if two individuals have the same ancestor
+    {
+        individual i1;
+        auto i2 = i1;
+        assert(have_same_ancestor(i1, i2));
     }
 
 #endif
