@@ -96,6 +96,10 @@ void secretion_metabolite(simulation& s)
     }
 }
 
+void store_demographics( simulation& s) noexcept
+{
+    s.set_demo_sim(update_demographics(s));
+}
 
 int tick(simulation& s)
 {
@@ -117,8 +121,12 @@ int tick(simulation& s)
     return time;
 }
 
-
-
+demographic_sim update_demographics(const simulation& s) noexcept
+{
+    auto d_s = s.get_demo_sim();
+    d_s.get_demo_cycles().push_back(demographics(s.get_pop()));
+    return d_s;
+}
 
 void test_simulation()//!OCLINT tests may be many
 {
@@ -734,6 +742,17 @@ void test_simulation()//!OCLINT tests may be many
             assert(!is_active(ind));
             assert(is_sporulating(ind));
         }
+    }
+    //It is possible to store the demographics
+    //of the population contained in a simulation
+    //at a certain point in time in a vector
+    {
+        simulation s;
+        auto demo_sim_length = s.get_demo_sim().get_demo_cycles().size();
+        store_demographics(s);
+        auto demo_sim_length2 = s.get_demo_sim().get_demo_cycles().size();
+        assert(demo_sim_length != demo_sim_length2);
+        assert(demo_sim_length + 1 == demo_sim_length2);
     }
 #endif
 }

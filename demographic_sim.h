@@ -10,6 +10,13 @@ public:
 
     ///Returns const ref to vector m_demo_cycles
     const std::vector<demographic_cycle>& get_demo_cycles() const noexcept {return m_demo_cycles;}
+
+    ///Returns ref to vector m_demo_cycles
+    std::vector<demographic_cycle>& get_demo_cycles()  noexcept {return m_demo_cycles;}
+
+    ///Instantiates m_demo_cycles to a new vector
+    void set_demo_cycles(const std::vector<demographic_cycle>& v_d_c) noexcept {m_demo_cycles = v_d_c;}
+
 private:
     std::vector<demographic_cycle> m_demo_cycles;
 };

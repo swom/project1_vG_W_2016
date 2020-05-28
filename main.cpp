@@ -15,7 +15,8 @@
 
 
 void test() {
-    test_demographic_sim;
+    test_demographic_cycle();
+    test_demographic_sim();
     test_env_grid_cell();
     test_environment();
     test_env_param();

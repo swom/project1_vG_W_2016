@@ -100,6 +100,7 @@ env_param load_env_parameters(
 
 void test_env_param() noexcept //!OCLINT
 {
+    //env_param object can be loaded and saved to a given file name
     {
         int grid_side = 666;
         double diff_coeff = 0.12;

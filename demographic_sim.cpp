@@ -6,7 +6,7 @@ demographic_sim::demographic_sim()
 
 }
 
-void test_demographic_sim()
+void test_demographic_sim()//!OCLINT
 {
     //demographic_sim has contains a vector
     //of demographic_cycle objects
@@ -14,4 +14,6 @@ void test_demographic_sim()
         demographic_sim d_s;
         assert(d_s.get_demo_cycles().size() >= 0);
     }
+
+
 }
