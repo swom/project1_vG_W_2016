@@ -3,6 +3,9 @@ release/demographic_sim.o
 release/env_grid_cell.o
 release/env_param.o
 release/environment.o
+release/funder_data.o
+release/funders.o
+release/funders_success.o
 release/grid_view.o
 release/grn.o
 release/ind_param.o

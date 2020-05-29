@@ -6,6 +6,9 @@ HEADERS += \
     env_grid_cell.h \
     env_param.h \
     environment.h \
+    funder_data.h \
+    funders.h \
+    funders_success.h \
     grid_view.h \
     grn.h \
     ind_param.h \
@@ -25,6 +28,9 @@ SOURCES += \
     env_grid_cell.cpp \
     env_param.cpp \
     environment.cpp \
+    funder_data.cpp \
+    funders.cpp \
+    funders_success.cpp \
     grid_view.cpp \
     grn.cpp \
     ind_param.cpp \

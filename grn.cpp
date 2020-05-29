@@ -16,6 +16,26 @@ GRN::GRN(size_t n_input, size_t n_hidden, size_t n_output, double weights):
 
 }
 
+bool operator==(const GRN& lhs, const GRN& rhs)
+{
+    return
+            lhs.get_H2H() == rhs.get_H2H()
+            && lhs.get_H2O() == rhs.get_H2O()
+            && lhs.get_I2H() == rhs.get_I2H()
+            && lhs.get_hid_tresh() == rhs.get_hid_tresh()
+            && lhs.get_out_tresh() == rhs.get_out_tresh()
+            && lhs.get_hidden_nodes() == rhs.get_hidden_nodes();
+    //We do not look at input and output nodes since they might vary
+    //depending on the status of the simulation
+    //this might be true also for hidden nodes,
+    //but not before the first time step of a cycle
+}
+
+bool operator!=(const GRN& lhs, const GRN& rhs)
+{
+    return !(lhs == rhs);
+}
+
 void GRN::set_hid_node(int index_node, bool state)
 {m_ExHidden[static_cast<unsigned int>(index_node)] = state;}
 

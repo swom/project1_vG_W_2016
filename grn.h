@@ -103,6 +103,14 @@ private:
   std::vector<bool> m_ExOutput;			// Expression during 'development'
 };
 
+///Compares two GRNs to see if all their states,
+/// except input and output nodes are the same
+bool operator==(const GRN& lhs, const GRN& rhs);
+
+///Checks two GRNs to see if at least one of their states,
+/// except input and output nodes are not the same
+bool operator!=(const GRN& lhs, const GRN& rhs);
+
 ///Input nodes update the states of output nodes
 std::vector<double> hid_updates_hid(GRN& g) noexcept;
 

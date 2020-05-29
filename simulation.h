@@ -2,6 +2,7 @@
 #define SIMULATION_H
 #include "demographic_sim.h"
 #include "environment.h"
+#include "funders_success.h"
 #include "individual.h"
 #include "population.h"
 #include "sim_parameters.h"
@@ -28,6 +29,12 @@ public:
 
     ///Gets the reference to environment of a simulation
     environment& get_env() noexcept {return m_e;}
+
+    ///Gets const ref to the funders_success object
+    const funders_success& get_funders_success() const noexcept {return m_funder_success;}
+
+    ///Gets ref to the funders_success object
+    funders_success& get_funders_success() noexcept {return m_funder_success;}
 
     ///Gets the const reference to meta parameters
     const meta_param get_meta_param() const noexcept {return m_meta_param;}
@@ -61,6 +68,12 @@ private:
 
     ///Counts the number of cycles the simulation has gone through
     int m_executed_cycles = 0;
+
+    ///Data structures storing the funders of various cycles:
+    /// their ancestor_ID
+    /// their GRNs
+    /// their success(how much of their lineage constitutes the final population)
+    funders_success m_funder_success;
 
     ///The vector of individuals representing a population
     population m_pop;
@@ -105,17 +118,20 @@ void feeding(simulation& s);
 ///Individuals feed a proportion of total food in their cell not a fixed rate
 void jordi_feeding(simulation& s);
 
-///All individuals secrete metabolite into environment
-void secretion_metabolite(simulation& s);
-
-///Changes the demographic cycle object with a mroe recent one
-void store_demographics(simulation &s) noexcept;
+///Stores ancestor_ID and GRN of funders of a cycle in funders_success
+funders_success prepare_funders(const simulation& s);
 
 ///Resets a simulation to its initial conditions
 void reset_sim(simulation& s) noexcept;
 
 ///Individuals read input from environment and determine their own phenotype
 void response(simulation& s);
+
+///All individuals secrete metabolite into environment
+void secretion_metabolite(simulation& s);
+
+///Changes the demographic cycle object with a mroe recent one
+void store_demographics(simulation &s) noexcept;
 
  ///Runs all the necessary actions for a timestep to happen
 int tick(simulation& s);

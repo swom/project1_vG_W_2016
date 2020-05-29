@@ -20,6 +20,9 @@ void test() {
     test_env_grid_cell();
     test_environment();
     test_env_param();
+    test_funder_data();
+    test_funders();
+    test_funders_success();
 #ifndef LOGIC_ONLY
     test_grid_view();
 #endif

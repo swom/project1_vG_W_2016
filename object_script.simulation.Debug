@@ -3,6 +3,9 @@ debug/demographic_sim.o
 debug/env_grid_cell.o
 debug/env_param.o
 debug/environment.o
+debug/funder_data.o
+debug/funders.o
+debug/funders_success.o
 debug/grid_view.o
 debug/grn.o
 debug/ind_param.o

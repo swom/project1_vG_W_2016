@@ -26,9 +26,11 @@ void dispersal(simulation &s)
 
 void exec_cycle(simulation& s) noexcept
 {
+    s.get_funders_success() = prepare_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
     {tick(s);}
     store_demographics(s);
+
 }
 
 void exec(simulation& s) noexcept
@@ -74,6 +76,20 @@ void jordi_feeding(simulation& s)
         {continue;}
         jordi_feed(ind,s.get_env().get_cell(index_grid));
     }
+}
+
+funders_success prepare_funders(const simulation& s)
+{
+    assert(s.get_timestep() == 0);
+    assert(s.get_pop().get_pop_size() <= 100);
+    funders_success f_s = s.get_funders_success();
+    funders f;
+    for(const auto& ind : s.get_pop().get_v_ind())
+    {
+        f.get_v_funder_data().push_back(funder_data{ind});
+    }
+    f_s.get_v_funders().push_back(f);
+    return f_s;
 }
 
 void reset_sim(simulation& s) noexcept
@@ -805,6 +821,54 @@ void test_simulation()//!OCLINT tests may be many
         auto d_s = load_demographic_sim(expected_file_name);
         assert(d_s == s.get_demo_sim());
 
+    }
+
+    //A simulation is initialized with a funders_success  object
+    {
+        simulation s;
+        assert(s.get_funders_success().get_v_funders().size() >= 0);
+    }
+
+    //It is possible to store the ancestor_ID and GRN of the
+    //individuals composing a population at the start of the cycle
+    //updating the funders_success member of simulation
+    {
+        int cycle_duration = 50;
+        meta_param m{0, cycle_duration};
+        env_param e;
+        pop_param p;
+        sim_param s_p{e,m,p};
+
+        simulation s{s_p};
+        auto zero_cycle_funders = prepare_funders(s).get_v_funders().begin();
+        exec_cycle(s);
+        dispersal(s);
+        auto first_cycle_funders = prepare_funders(s).get_v_funders().begin() + 1;
+        assert(zero_cycle_funders != first_cycle_funders);
+
+    }
+
+    //Every cycle the funders are stored
+    {
+        int n_cycles = 2;
+        int cycle_duration = 50;
+        meta_param m{n_cycles, cycle_duration};
+        env_param e;
+        pop_param p;
+        sim_param s_p{e,m,p};
+
+        simulation s{s_p};
+        //the first cycle is funded by a single individual
+        exec_cycle(s);
+        dispersal(s);
+        auto first_cycle_funders_size = s.get_funders_success().get_v_funders().size();
+        exec_cycle(s);
+        dispersal(s);
+        auto second_cycle_funder_size = s.get_funders_success().get_v_funders().size();
+
+        assert(first_cycle_funders_size != second_cycle_funder_size);
+        assert(s.get_funders_success().get_v_funders().begin() !=
+                s.get_funders_success().get_v_funders().begin() + 1);
     }
 #endif
 }
