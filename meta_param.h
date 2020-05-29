@@ -8,13 +8,16 @@ class meta_param
 {
 public:
     meta_param(int n_cycles = 1,
-               int cycle_duration = 200);
+               int cycle_duration = 200, int seed = 1);
 
     ///Returns number of cycles for which the simulation will last
     int get_n_cycles() const noexcept {return m_n_cycles;}
 
     ///Returns number of ticks per cycle
     int get_cycle_duration() const noexcept {return m_cycle_duration;}
+
+    ///Returns the seed
+    int get_seed() const noexcept {return  m_seed;}
 
 private:
 
@@ -24,6 +27,9 @@ private:
     ///The number of cycles of funding and growing
     /// of individual colonies that will be simulated
     int m_n_cycles;
+
+    ///The seed with which the rng of the simulation will be seeded
+    int m_seed;
 
 };
 

@@ -21,6 +21,13 @@ private:
     std::vector<demographic_cycle> m_demo_cycles;
 };
 
+///Compares two demographic_sim objects to check that their
+/// demographic_cycles vector are the same
+bool operator==(const demographic_sim& lhs, const demographic_sim& rhs) noexcept;
+
+///Loads a demographic_sim object froma a given filename
+demographic_sim load_demographic_sim(const std::string& filename);
+
 ///Saves the object demographic_sim to a given filename
 void save_demographic_sim(const demographic_sim& p, const std::string& filename);
 

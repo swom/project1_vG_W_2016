@@ -3,9 +3,11 @@
 
 
 meta_param::meta_param( int n_cycles,
-                        int cycle_duration):
+                        int cycle_duration,
+                        int seed):
     m_cycle_duration{cycle_duration},
-    m_n_cycles{n_cycles}
+    m_n_cycles{n_cycles},
+    m_seed{seed}
 {
     assert(m_n_cycles > 0);
     assert(m_cycle_duration > 0);
@@ -15,14 +17,17 @@ std::ifstream& operator>> (std::ifstream& is, meta_param& p)
 {
     int n_cycles;
     int cycle_duration;
+    int seed;
     std::string dummy; // To remove the annotation in the file
 
     is
             >> n_cycles >> dummy
-            >> cycle_duration;
+            >> cycle_duration >> dummy
+            >> seed;
 
     p = meta_param {n_cycles,
-            cycle_duration};
+            cycle_duration,
+            seed};
 
     return is;
 }
@@ -30,7 +35,8 @@ std::ifstream& operator>> (std::ifstream& is, meta_param& p)
 std::ostream& operator<<(std::ostream& os, const meta_param& p)
 {
     os << p.get_n_cycles() << " , "
-       << p.get_cycle_duration();
+       << p.get_cycle_duration() << " , "
+       << p.get_seed();
 
     return os;
 }
@@ -40,7 +46,7 @@ bool operator==(const meta_param& lhs, const meta_param& rhs) noexcept
     return
             lhs.get_n_cycles() == rhs.get_n_cycles()
             && lhs.get_cycle_duration() == rhs.get_cycle_duration()
-            ;
+            && lhs.get_seed() == rhs.get_seed();
 }
 
 void save_meta_parameters(
@@ -50,7 +56,8 @@ void save_meta_parameters(
 {
     std::ofstream f(filename);
     f << p.get_n_cycles() << " , " <<
-         p.get_cycle_duration();
+         p.get_cycle_duration() << " , " <<
+         p.get_seed();
 }
 
 meta_param load_meta_parameters(
@@ -60,14 +67,17 @@ meta_param load_meta_parameters(
     std::ifstream f(filename);
     int n_cycles;
     int cycle_duration;
+    int seed;
     std::string dummy; // To remove the annotation in the file
 
     f
             >> n_cycles >> dummy
-            >> cycle_duration;
+            >> cycle_duration >> dummy
+            >> seed;
 
     meta_param p{n_cycles,
-                cycle_duration};
+                cycle_duration,
+                seed};
     return p;
 }
 
@@ -88,12 +98,20 @@ void test_meta_param() noexcept
         meta_param m{1, cycle_duration};
         assert(m.get_cycle_duration() == cycle_duration);
     }
+    //A simulation's meta parameters object can be initialized
+    //with a seed number
+    {
+        int seed = 1;
+        meta_param m{1, 1, seed};
+        assert(m.get_seed() == seed);
+    }
 
     //Meta parameters can be saved and loaded correctly
     {
         int n_cycle = 34736;
         int cycle_duration = 3267;
-        meta_param p{ n_cycle, cycle_duration};
+        int seed = 3287;
+        meta_param p{ n_cycle, cycle_duration, seed};
         const std::string filename = "meta_param.csv";
         save_meta_parameters(p, filename);
         const meta_param q = load_meta_parameters(filename);

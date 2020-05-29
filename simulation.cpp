@@ -3,6 +3,10 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string>
+#include <fstream>
 
 simulation::simulation(sim_param param):
     m_pop(param.get_pop_param()),
@@ -24,7 +28,7 @@ void exec_cycle(simulation& s) noexcept
 {
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
     {tick(s);}
-
+    store_demographics(s);
 }
 
 void exec(simulation& s) noexcept
@@ -35,8 +39,19 @@ void exec(simulation& s) noexcept
         dispersal(s);
         s.tick_cycles();
     }
+
+    std::string name =
+            "sim_demographic_s" +
+            std::to_string(s.get_meta_param().get_seed()) +
+            ".csv";
+
+    save_demographic_sim(s.get_demo_sim(),name);
 }
 
+inline bool exists (const std::string& name) {
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
+}
 void feeding(simulation& s)
 {
     for(auto& ind : s.get_pop().get_v_ind())
@@ -753,6 +768,43 @@ void test_simulation()//!OCLINT tests may be many
         auto demo_sim_length2 = s.get_demo_sim().get_demo_cycles().size();
         assert(demo_sim_length != demo_sim_length2);
         assert(demo_sim_length + 1 == demo_sim_length2);
+    }
+
+    //At the end of each cycle the demographics are stored
+    {
+        int n_cycles = 2;
+        int cycle_duration = 1;
+        meta_param m{n_cycles, cycle_duration};
+        env_param e;
+        pop_param p;
+        sim_param s_p{e,m,p};
+
+        simulation s{s_p};
+        auto init_demo_cycle = s.get_demo_sim().get_demo_cycles().size();
+        assert(init_demo_cycle == 0);
+        exec_cycle(s);
+        auto one_demo_cycle = s.get_demo_sim().get_demo_cycles().size();
+        assert(one_demo_cycle == 1);
+    }
+
+    //At the end of the simulation the demographic is saved in a file
+    {
+        int n_cycles = 2;
+        int cycle_duration = 1;
+        meta_param m{n_cycles, cycle_duration};
+        env_param e;
+        pop_param p;
+        sim_param s_p{e,m,p};
+
+        simulation s{s_p};
+        std::string expected_file_name =
+                "sim_demographic_s" + std::to_string(s.get_meta_param().get_seed()) + ".csv";
+        exec(s);
+
+        assert(exists(expected_file_name));
+        auto d_s = load_demographic_sim(expected_file_name);
+        assert(d_s == s.get_demo_sim());
+
     }
 #endif
 }

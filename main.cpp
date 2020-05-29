@@ -55,7 +55,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     // In release mode, all asserts are removed from the code
     assert(1 == 2);
 #endif
-#ifndef LOGIC_ONLY
     if(args.size() > 1 && args[1] == "--visual")
     {
         env_param e{200, 0.01,10,0.1};
@@ -95,36 +94,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         stop = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float> (stop - start);
         std::cout << duration.count() << "s" << std::endl;
-
-        //        int sim_time = 0;
-        //        while (v.get_window().isOpen())
-        //          {
-        //            bool must_quit{v.process_events()};
-        //            if (must_quit)
-        //              return 0;
-        //            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        //              {
-        //                sim_time++;
-        //                tick(v.get_sim());
-        //              }
-        //            if(sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-        //              {
-        //               reset_sim(v.get_sim());
-        //               v.prepare_pop();
-        //              }
-        //            v.show();
-        //          }
-    }
-#endif
-    {
-        simulation s(sim_param{1,1,0.1,20,0.1,1});
-        int time_now = 0;
-        int time_limit = 200;
-        while(time_now != time_limit)
-        {
-            tick(s);
-            time_now++;
-        }
     }
 
     return 0;

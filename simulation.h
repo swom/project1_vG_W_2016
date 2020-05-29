@@ -94,6 +94,11 @@ void exec_cycle(simulation& s) noexcept;
 ///Overload that uses the simulation meta parameters
 void exec_cycle(simulation& s) noexcept;
 
+///Checks if a file with a given name exists(not tested=
+///Taken from:
+///https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
+inline bool exists (const std::string& name);
+
 /// All the individuals feed from environment
 void feeding(simulation& s);
 
