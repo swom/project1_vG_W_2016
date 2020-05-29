@@ -21,5 +21,8 @@ private:
     std::vector<demographic_cycle> m_demo_cycles;
 };
 
+///Saves the object demographic_sim to a given filename
+void save_demographic_sim(const demographic_sim& p, const std::string& filename);
+
 void test_demographic_sim();
 #endif // DEMOGRAPHIC_SIM_H
