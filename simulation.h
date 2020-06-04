@@ -92,6 +92,11 @@ private:
 
 };
 
+///Adds a new vector of funders to the funders_success vector
+void add_new_funders(simulation& s) noexcept;
+
+///Calculates the success of each funder at the end of a cycle
+funders calc_funders_success(const simulation& s);
 
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
@@ -119,7 +124,7 @@ void feeding(simulation& s);
 void jordi_feeding(simulation& s);
 
 ///Stores ancestor_ID and GRN of funders of a cycle in funders_success
-funders_success prepare_funders(const simulation& s);
+funders prepare_funders(const simulation& s);
 
 ///Resets a simulation to its initial conditions
 void reset_sim(simulation& s) noexcept;

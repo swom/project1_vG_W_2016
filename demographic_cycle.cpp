@@ -11,16 +11,16 @@ demographic_cycle::demographic_cycle(int n_actives,
 
 }
 
-std::ostream& operator<<(std::ostream& os, const demographic_cycle& p)
+std::ostream& operator<<(std::ostream& os, const demographic_cycle& d_c)
 {
-    os << p.get_n_actives() << " , "
-       << p.get_n_spores() << " , "
-       << p.get_n_sporulating() << std::endl;
+    os << d_c.get_n_actives() << " , "
+       << d_c.get_n_spores() << " , "
+       << d_c.get_n_sporulating() << std::endl;
     ;
     return os;
 }
 
-std::ifstream& operator>>(std::ifstream& is, demographic_cycle& p)
+std::ifstream& operator>>(std::ifstream& is, demographic_cycle& d_c)
 {
 
     int n_spores;
@@ -32,7 +32,7 @@ std::ifstream& operator>>(std::ifstream& is, demographic_cycle& p)
             n_spores >> dummy >>
             n_sporulating;
 
-    p = demographic_cycle {n_actives,
+    d_c = demographic_cycle {n_actives,
             n_spores,
             n_sporulating
 };
@@ -67,18 +67,18 @@ demographic_cycle load_demographic_cycle(
         )
 {
     std::ifstream f(filename);
-    demographic_cycle p{0,0,0};
-    f >> p;
-    return p;
+    demographic_cycle d_c{0,0,0};
+    f >> d_c;
+    return d_c;
 }
 
 void save_demographic_cycle(
-        const demographic_cycle& p,
+        const demographic_cycle& d_c,
         const std::string& filename
         )
 {
     std::ofstream f(filename);
-    f << p;
+    f << d_c;
 }
 
 
@@ -164,12 +164,13 @@ void test_demographic_cycle() noexcept
                     n_sporulating};
         //Make two to check that it writes them in
         // 2 different lines
-        demographic_cycle p1{n_actives,
-                    n_spores,
-                    n_sporulating};
+        demographic_cycle p1{n_actives + 1,
+                    n_spores + 1,
+                    n_sporulating + 1};
         std::ofstream s(filename);
         s << p << p1;
         const demographic_cycle q = load_demographic_cycle(filename);
         assert(p == q);
+
     }
 }

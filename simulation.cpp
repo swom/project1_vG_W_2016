@@ -16,6 +16,33 @@ simulation::simulation(sim_param param):
 
 }
 
+void add_new_funders(simulation& s) noexcept
+{
+    s.get_funders_success().get_v_funders().push_back(prepare_funders(s));
+}
+
+void add_success_funders(simulation& s) noexcept
+{
+    s.get_funders_success().get_v_funders().back() = calc_funders_success(s);
+}
+
+funders calc_funders_success(const simulation& s)
+{
+    auto funders = s.get_funders_success().get_v_funders().back();
+    for(auto& funder : funders.get_v_funder_data())
+    {
+        assert(funder.get_success() == 0);
+        double n_descendants =
+                std::count_if(s.get_pop().get_v_ind().begin(),
+                      s.get_pop().get_v_ind().end(),
+                      [&funder](const individual i)
+        {return i.get_ancestor() == funder.get_ancestor_ID();});
+        auto success = n_descendants / s.get_pop().get_pop_size();
+        funder.set_success(success);
+    }
+    return funders;
+}
+
 void dispersal(simulation &s)
 {
     fund_new_pop(s.get_pop());
@@ -26,9 +53,11 @@ void dispersal(simulation &s)
 
 void exec_cycle(simulation& s) noexcept
 {
-    s.get_funders_success() = prepare_funders(s);
+
+    add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
     {tick(s);}
+    add_success_funders(s);
     store_demographics(s);
 
 }
@@ -48,12 +77,17 @@ void exec(simulation& s) noexcept
             ".csv";
 
     save_demographic_sim(s.get_demo_sim(),name);
+
+    std::string f_name =
+            "funders_success_s" + std::to_string(s.get_meta_param().get_seed()) + ".csv";
+    save_funders_success(s.get_funders_success(), f_name);
 }
 
 inline bool exists (const std::string& name) {
   struct stat buffer;
   return (stat (name.c_str(), &buffer) == 0);
 }
+
 void feeding(simulation& s)
 {
     for(auto& ind : s.get_pop().get_v_ind())
@@ -78,18 +112,17 @@ void jordi_feeding(simulation& s)
     }
 }
 
-funders_success prepare_funders(const simulation& s)
+funders prepare_funders(const simulation& s)
 {
     assert(s.get_timestep() == 0);
     assert(s.get_pop().get_pop_size() <= 100);
-    funders_success f_s = s.get_funders_success();
     funders f;
     for(const auto& ind : s.get_pop().get_v_ind())
     {
         f.get_v_funder_data().push_back(funder_data{ind});
     }
-    f_s.get_v_funders().push_back(f);
-    return f_s;
+    f.set_cycle(s.get_cycle());
+    return f;
 }
 
 void reset_sim(simulation& s) noexcept
@@ -595,7 +628,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         auto n_cycles = 1;
         auto cycle_duration = 1;
-        pop_param p{101};
+        pop_param p{100};
         meta_param m{ n_cycles, cycle_duration};
         sim_param sp{ env_param(), m, p};
         simulation s{sp};
@@ -607,7 +640,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         auto n_cycles = 1;
         auto cycle_duration = 1;
-        pop_param p{101};
+        pop_param p{100};
         meta_param m{ n_cycles, cycle_duration};
         sim_param sp{ env_param(), m, p};
         simulation s{sp};
@@ -625,7 +658,7 @@ void test_simulation()//!OCLINT tests may be many
         auto n_cycles = 1;
         auto cycle_duration = 1;
         meta_param m{ n_cycles, cycle_duration};
-        pop_param p{101};
+        pop_param p{100};
         env_param e{3};
         sim_param sp{e, m, p};
         simulation s{sp};
@@ -636,6 +669,8 @@ void test_simulation()//!OCLINT tests may be many
             tick(s);
         }
         assert(s.get_env() != init_env);
+        //Reset tick timer to avoid crushing on assert  from prepare_funders()
+        s.reset_timesteps();
         //As the parameters indicate only one cycle will be executed
         exec(s);
         assert(s.get_pop().get_pop_size() - s.get_pop().get_param().get_exp_new_pop_size() == 0);
@@ -826,24 +861,25 @@ void test_simulation()//!OCLINT tests may be many
     //A simulation is initialized with a funders_success  object
     {
         simulation s;
-        assert(s.get_funders_success().get_v_funders().size() >= 0);
+        assert(s.get_funders_success().get_v_funders().size() >= 0u);
     }
 
     //It is possible to store the ancestor_ID and GRN of the
     //individuals composing a population at the start of the cycle
     //updating the funders_success member of simulation
     {
+        int n_cycles = 1;
         int cycle_duration = 50;
-        meta_param m{0, cycle_duration};
+        meta_param m{n_cycles, cycle_duration};
         env_param e;
         pop_param p;
         sim_param s_p{e,m,p};
 
         simulation s{s_p};
-        auto zero_cycle_funders = prepare_funders(s).get_v_funders().begin();
+        auto zero_cycle_funders = prepare_funders(s);
         exec_cycle(s);
         dispersal(s);
-        auto first_cycle_funders = prepare_funders(s).get_v_funders().begin() + 1;
+        auto first_cycle_funders = prepare_funders(s);
         assert(zero_cycle_funders != first_cycle_funders);
 
     }
@@ -870,6 +906,78 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_funders_success().get_v_funders().begin() !=
                 s.get_funders_success().get_v_funders().begin() + 1);
     }
+
+    //The success of each funder can be calculated
+    //The success of a funder is equal to:
+    // the fractions of individuals with its same ancestor_ID
+    // over the total number of individuals of the population
+    {
+        int n_cycles = 1;
+        int cycle_duration = 1;
+        meta_param m_p{n_cycles, cycle_duration};
+
+        unsigned int pop_size = 3;
+        pop_param p_p{pop_size};
+        sim_param s_p{env_param{}, m_p, p_p};
+        simulation s{s_p};
+
+        add_new_funders(s);
+
+        auto funders_with_success = calc_funders_success(s);
+        const auto& funders = funders_with_success.get_v_funder_data();
+
+        for(const auto& funder : funders)
+        assert(funder.get_success() == 1.0/pop_size);
+
+        assert(std::equal(funders.begin(), funders.end(), funders.begin()));
+    }
+
+    ///The success of each funder is calculated at the end of each cycle
+    {
+        int n_cycles = 1;
+        int cycle_duration = 1;
+        meta_param m_p{n_cycles, cycle_duration};
+
+        unsigned int pop_size = 3;
+        pop_param p_p{pop_size};
+        sim_param s_p{env_param{}, m_p, p_p};
+        simulation s{s_p};
+
+        auto pre_cycle_funders = prepare_funders(s);
+        exec_cycle(s);
+
+
+        assert(s.get_funders_success().get_v_funders().back() !=
+               pre_cycle_funders);
+
+        const auto& funders =
+                s.get_funders_success().get_v_funders().back().get_v_funder_data();
+
+        for(const auto& funder : funders)
+        assert(funder.get_success() == 1.0/pop_size);
+
+    }
+
+    //At the end of the simulation the funders_success is saved in a file
+    {
+        int n_cycles = 2;
+        int cycle_duration = 1;
+        meta_param m{n_cycles, cycle_duration};
+        env_param e;
+        pop_param p;
+        sim_param s_p{e,m,p};
+
+        simulation s{s_p};
+        std::string expected_file_name =
+                "funders_success_s" + std::to_string(s.get_meta_param().get_seed()) + ".csv";
+        exec(s);
+
+        assert(exists(expected_file_name));
+        auto f_s = load_funders_success(expected_file_name);
+        assert(f_s == s.get_funders_success());
+
+    }
+
 #endif
 }
 
