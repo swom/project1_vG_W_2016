@@ -72,7 +72,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         auto seed = std::stoi(std::string{args[1]});
 
-        meta_param m{500,
+        meta_param m{10,
                      125,
                      seed};
     }
