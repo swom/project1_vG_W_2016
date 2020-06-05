@@ -49,8 +49,8 @@ SOURCES += \
 
 INCLUDEPATH += libs
 HEADERS += $$PWD/libs/hrtree/*.hpp
-
 SOURCES += $$PWD/libs/glm/detail/glm.cpp
+
 DEFINES += LOGIC_ONLY
 
 CONFIG += c++17

@@ -18,7 +18,7 @@
 #SBATCH --job-name=run
 #SBATCH --output=run_%j.log
 module load Qt5
-module load gompi
+module load gompic/2019b
 qmake simulation_logic_only.pro
 make 
 echo "seed: "$1
