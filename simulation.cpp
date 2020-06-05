@@ -929,7 +929,8 @@ void test_simulation()//!OCLINT tests may be many
         const auto& funders = funders_with_success.get_v_funder_data();
 
         for(const auto& funder : funders)
-        assert(funder.get_success() == 1.0/pop_size);
+        assert(funder.get_success() - 1.0/pop_size < 0.00001
+               && funder.get_success() - 1.0/pop_size > -0.00001);
 
         assert(std::equal(funders.begin(), funders.end(), funders.begin()));
     }
@@ -956,8 +957,8 @@ void test_simulation()//!OCLINT tests may be many
                 s.get_funders_success().get_v_funders().back().get_v_funder_data();
 
         for(const auto& funder : funders)
-        assert(funder.get_success() == 1.0/pop_size);
-
+            assert(funder.get_success() - 1.0/pop_size < 0.00001
+                   && funder.get_success() - 1.0/pop_size > -0.00001);
     }
 
     //At the end of the simulation the funders_success is saved in a file
