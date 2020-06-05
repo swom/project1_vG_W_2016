@@ -64,6 +64,19 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 10,
                 0.1};
 
+    if (
+            args.size() > 1
+            && args[1][0] == 's'
+            && std::isdigit(args[1][1])
+            )
+    {
+        auto seed = std::stoi(std::string{args[1]});
+
+        meta_param m{100,
+                     125,
+                     seed};
+    }
+
     meta_param m{100,
                  125};
 
@@ -98,7 +111,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
     }
-else if (args.size() == 1)
+    else if (args.size() == 1)
     {
 
         simulation s{sim_param{e, m, p}};
