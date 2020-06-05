@@ -72,7 +72,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         auto seed = std::stoi(std::string{args[1]});
 
-        meta_param m{100,
+        meta_param m{500,
                      125,
                      seed};
     }
@@ -111,7 +111,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
     }
-    else if (args.size() == 1)
+    else
     {
 
         simulation s{sim_param{e, m, p}};
