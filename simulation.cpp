@@ -79,7 +79,9 @@ void exec(simulation& s) noexcept
     save_demographic_sim(s.get_demo_sim(),name);
 
     std::string f_name =
-            "funders_success_s" + std::to_string(s.get_meta_param().get_seed()) + ".csv";
+            "funders_success_s" +
+            std::to_string(s.get_meta_param().get_seed()) +
+            ".csv";
     save_funders_success(s.get_funders_success(), f_name);
 }
 
