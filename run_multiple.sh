@@ -28,7 +28,7 @@ module load gompi
 make clean
 qmake simulation_logic_only.pro
 make 
-for i in $(seq 1 2)
+for i in $(seq 1 100)
 do
   echo $i
   sbatch run.sh $i 

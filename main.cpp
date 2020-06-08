@@ -74,13 +74,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         auto seed = std::stoi(std::string{args[1][1]});
 
-        m = meta_param {10,
+        m = meta_param {500,
                 125,
                 seed};
     }
     else
     {
-        m = meta_param {10,
+        m = meta_param {500,
                 125};
     }
 
