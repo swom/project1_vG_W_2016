@@ -64,21 +64,25 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 10,
                 0.1};
 
+    meta_param m;
+
     if (
             args.size() > 1
             && args[1][0] == 's'
             && std::isdigit(args[1][1])
             )
     {
-        auto seed = std::stoi(std::string{args[1]});
+        auto seed = std::stoi(std::string{args[1][1]});
 
-        meta_param m{10,
-                     125,
-                     seed};
+        m = meta_param {10,
+                125,
+                seed};
     }
-
-    meta_param m{100,
-                 125};
+    else
+    {
+        m = meta_param {100,
+                125};
+    }
 
     ind_param i{0.8,
                 10,
