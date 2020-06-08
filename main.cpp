@@ -80,7 +80,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else
     {
-        m = meta_param {100,
+        m = meta_param {10,
                 125};
     }
 
