@@ -17,10 +17,7 @@
 #SBATCH --mem=1G
 #SBATCH --job-name=run
 #SBATCH --output=run_%j.log
-module load Qt5
-module load gompic/2019b
-qmake simulation_logic_only.pro
-make 
+
 echo "seed: "$1
 ./simulation_logic_only s$1 
 
