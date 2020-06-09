@@ -72,7 +72,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
             && std::isdigit(args[1][1])
             )
     {
-        auto seed = std::stoi(std::string{args[1][1]});
+        std::string s_seed;
+        for(size_t i = 1; i != args[1].size(); i++)
+        {
+           s_seed += args[1][i];
+        }
+        auto seed = std::stoi(s_seed);
 
         m = meta_param {500,
                 125,
