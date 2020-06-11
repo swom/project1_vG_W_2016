@@ -87,9 +87,6 @@ private:
     ///The timer that keeps track of how many timesteps we are in the simulation
     int m_sim_timesteps = 0;
 
-    ///The random number generator of simulation(used for everything)
-    std::minstd_rand m_rng;
-
 };
 
 ///Adds a new vector of funders to the funders_success vector

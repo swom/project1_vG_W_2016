@@ -13,7 +13,7 @@ simulation::simulation(sim_param param):
     m_e{param.get_env_param()},
     m_meta_param{param.get_meta_param()}
 {
-
+ m_pop.get_rng().seed(m_meta_param.get_seed());
 }
 
 void add_new_funders(simulation& s) noexcept
@@ -32,12 +32,16 @@ funders calc_funders_success(const simulation& s)
     for(auto& funder : funders.get_v_funder_data())
     {
         assert(funder.get_success() == 0);
+
         double n_descendants =
-                std::count_if(s.get_pop().get_v_ind().begin(),
-                      s.get_pop().get_v_ind().end(),
-                      [&funder](const individual i)
+                std::count_if(
+                    s.get_pop().get_v_ind().begin(),
+                    s.get_pop().get_v_ind().end(),
+                    [&funder](const individual i)
         {return i.get_ancestor() == funder.get_ancestor_ID();});
+
         auto success = n_descendants / s.get_pop().get_pop_size();
+
         funder.set_success(success);
     }
     return funders;
@@ -86,8 +90,8 @@ void exec(simulation& s) noexcept
 }
 
 inline bool exists (const std::string& name) {
-  struct stat buffer;
-  return (stat (name.c_str(), &buffer) == 0);
+    struct stat buffer;
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 void feeding(simulation& s)
@@ -929,8 +933,8 @@ void test_simulation()//!OCLINT tests may be many
         const auto& funders = funders_with_success.get_v_funder_data();
 
         for(const auto& funder : funders)
-        assert(funder.get_success() - 1.0/pop_size < 0.00001
-               && funder.get_success() - 1.0/pop_size > -0.00001);
+            assert(funder.get_success() - 1.0/pop_size < 0.00001
+                   && funder.get_success() - 1.0/pop_size > -0.00001);
 
         assert(std::equal(funders.begin(), funders.end(), funders.begin()));
     }
@@ -951,7 +955,7 @@ void test_simulation()//!OCLINT tests may be many
 
 
         assert(s.get_funders_success().get_v_funders().back() !=
-               pre_cycle_funders);
+                pre_cycle_funders);
 
         const auto& funders =
                 s.get_funders_success().get_v_funders().back().get_v_funder_data();
@@ -979,6 +983,24 @@ void test_simulation()//!OCLINT tests may be many
         auto f_s = load_funders_success(expected_file_name);
         assert(f_s == s.get_funders_success());
 
+    }
+
+    //A simulation with a certain seed in metaparameters initializes the
+    //Random number generator of population to that seed
+    {
+        int seed = 42;
+        meta_param m{
+            1,
+            1,
+            seed
+        };
+        env_param e;
+        pop_param p;
+        sim_param s_p{e, m, p};
+        simulation s{s_p};
+        auto ref_rng = std::minstd_rand();
+        ref_rng.seed(seed);
+        assert(s.get_pop().get_rng() == ref_rng);
     }
 
 #endif
