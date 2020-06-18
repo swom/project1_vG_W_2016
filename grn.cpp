@@ -37,6 +37,15 @@ GRN::GRN(std::vector<std::vector<double> > ConI2H,
 
 }
 
+GRN::GRN(std::vector<int> nodes_per_layer):
+    m_layers(nodes_per_layer.size())
+{
+    for(size_t i = 0 ; i != m_layers.size(); i++)
+    {
+        m_layers[i] = layer{nodes_per_layer[i]};
+    }
+}
+
 bool operator==(const GRN& lhs, const GRN& rhs)
 {
     return
@@ -889,4 +898,16 @@ void test_GRN()//!OCLINT , tests may be long
         assert( g == g1);
     }
 #endif
+
+    //A GRN can be initialized by a vector of inds
+    //specifying how many nodes will compose each layer
+    {
+        std::vector<int> layers{1,2,3};
+        GRN g{layers};
+        for(int i  = 0; i != g.get_n_layers(); i++)
+        {
+            assert(g.get_layers()[i].get_nodes().size() == static_cast<unsigned int>(layers[i]));
+        }
+
+    }
 }

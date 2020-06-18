@@ -30,6 +30,8 @@ void test() {
     test_ind_param();
     test_individual();
     test_phenotype();
+    test_layer();
+    test_node();
     test_meta_param();
     test_pop_param();
     test_population();
@@ -75,7 +77,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         std::string s_seed;
         for(size_t i = 1; i != args[1].size(); i++)
         {
-           s_seed += args[1][i];
+            s_seed += args[1][i];
         }
         auto seed = std::stoi(s_seed);
 

@@ -51,7 +51,7 @@ void dispersal(simulation &s)
 {
     fund_new_pop(s.get_pop());
     reset_env(s.get_env());
-    s.reset_timesteps();
+//    s.reset_timesteps();
 }
 
 
@@ -63,6 +63,7 @@ void exec_cycle(simulation& s) noexcept
     {tick(s);}
     add_success_funders(s);
     store_demographics(s);
+    dispersal(s);
 
 }
 
@@ -71,7 +72,7 @@ void exec(simulation& s) noexcept
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
         exec_cycle(s);
-        dispersal(s);
+        s.reset_timesteps();
         s.tick_cycles();
     }
 
@@ -884,7 +885,7 @@ void test_simulation()//!OCLINT tests may be many
         simulation s{s_p};
         auto zero_cycle_funders = prepare_funders(s);
         exec_cycle(s);
-        dispersal(s);
+        s.reset_timesteps();
         auto first_cycle_funders = prepare_funders(s);
         assert(zero_cycle_funders != first_cycle_funders);
 
@@ -902,10 +903,10 @@ void test_simulation()//!OCLINT tests may be many
         simulation s{s_p};
         //the first cycle is funded by a single individual
         exec_cycle(s);
-        dispersal(s);
+        s.reset_timesteps();
         auto first_cycle_funders_size = s.get_funders_success().get_v_funders().size();
         exec_cycle(s);
-        dispersal(s);
+        s.reset_timesteps();
         auto second_cycle_funder_size = s.get_funders_success().get_v_funders().size();
 
         assert(first_cycle_funders_size != second_cycle_funder_size);

@@ -1,3 +1,4 @@
+release/connection.o
 release/demographic_cycle.o
 release/demographic_sim.o
 release/env_grid_cell.o
@@ -10,8 +11,10 @@ release/grid_view.o
 release/grn.o
 release/ind_param.o
 release/individual.o
+release/layer.o
 release/main.o
 release/meta_param.o
+release/node.o
 release/phenotype.o
 release/pop_param.o
 release/population.o

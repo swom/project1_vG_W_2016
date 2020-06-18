@@ -1,3 +1,4 @@
+debug/connection.o
 debug/demographic_cycle.o
 debug/demographic_sim.o
 debug/env_grid_cell.o
@@ -10,8 +11,10 @@ debug/grid_view.o
 debug/grn.o
 debug/ind_param.o
 debug/individual.o
+debug/layer.o
 debug/main.o
 debug/meta_param.o
+debug/node.o
 debug/phenotype.o
 debug/pop_param.o
 debug/population.o

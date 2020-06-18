@@ -1,5 +1,6 @@
 #ifndef GRN_H
 #define GRN_H
+#include "layer.h"
 #include <vector>
 #include <random>
 #include <iostream>
@@ -23,6 +24,8 @@ public:
         int n_input,
         int n_output)
     ;
+
+    GRN(std::vector<int> nodes_per_layer);
 
     ///Gets the constant reference to connection from input to hidden layer
     const std::vector<std::vector<double> >& get_I2H() const noexcept {return m_ConI2H;}
@@ -59,6 +62,12 @@ public:
 
     ///Gets ref to tresholds of hidden nodes
     std::vector<double>& get_hid_tresh() noexcept {return m_THidden;}
+
+    ///Gets const ref to the vector of layers
+    const std::vector<layer>& get_layers() const noexcept {return m_layers;}
+
+    ///Gets the size of the layer vector
+    int get_n_layers() const noexcept{ return static_cast<int>(m_layers.size());}
 
     ///Gets const reference output layer states
     const std::vector<bool>& get_output_nodes() const noexcept {return  m_ExOutput;}
@@ -117,6 +126,12 @@ private:
     std::vector<double> m_ExInput;		// Expression during 'development'
     std::vector<bool> m_ExHidden;			// Expression during 'development'
     std::vector<bool> m_ExOutput;			// Expression during 'development'
+
+    /// NEW ARCHITECTURE
+    /// This part will eventually substitute the previous private members
+    /// and override all functions associated with them
+
+    std::vector<layer> m_layers;
 };
 
 ///Compares two GRNs to see if all their states,
@@ -133,7 +148,7 @@ bool operator!=(const GRN& lhs, const GRN& rhs);
 /// and the network saved in the file is the same as the network in the
 /// program
 /// NO CHECKS are implemented to make sure this is the case
-/// it will need a parses to do so
+/// it will need a parser to do so
 std::ifstream& operator>>(std::ifstream& is, GRN& p);
 
 ///Writes weights and tresholds and states to a stream
