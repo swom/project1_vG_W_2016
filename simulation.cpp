@@ -13,7 +13,7 @@ simulation::simulation(sim_param param):
     m_e{param.get_env_param()},
     m_meta_param{param.get_meta_param()}
 {
- m_pop.get_rng().seed(m_meta_param.get_seed());
+    m_pop.get_rng().seed(m_meta_param.get_seed());
 }
 
 void add_new_funders(simulation& s) noexcept
@@ -51,7 +51,6 @@ void dispersal(simulation &s)
 {
     fund_new_pop(s.get_pop());
     reset_env(s.get_env());
-//    s.reset_timesteps();
 }
 
 
@@ -993,6 +992,8 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{
             1,
             1,
+            1,
+            1,
             seed
         };
         env_param e;
@@ -1004,6 +1005,21 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_pop().get_rng() == ref_rng);
     }
 
+    //Every cycle environmental parameters change
+    //With a certain magnitude within a given range
+    {
+        env_param e;
+        pop_param p;
+        auto range_of_env_change = 0.1;
+        auto magnitude_of_env_change = range_of_env_change / 10;
+        meta_param m {1, 1,
+                      range_of_env_change, magnitude_of_env_change, 1};
+        sim_param s_p{e, m, p};
+        simulation s{s_p};
+
+        exec_cycle(s);
+        assert(e != s.get_env().get_param());
+    }
 #endif
 }
 
