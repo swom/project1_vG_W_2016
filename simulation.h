@@ -95,6 +95,9 @@ void add_new_funders(simulation& s) noexcept;
 ///Calculates the success of each funder at the end of a cycle
 funders calc_funders_success(const simulation& s);
 
+///Changes the environemtnal parameters of a simulation based on its metaparameters
+void change_env(simulation& s) noexcept;
+
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
 

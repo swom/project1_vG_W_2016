@@ -897,7 +897,6 @@ void test_GRN()//!OCLINT , tests may be long
         g1 = load_grn(filename);
         assert( g == g1);
     }
-#endif
 
     //A GRN can be initialized by a vector of inds
     //specifying how many nodes will compose each layer
@@ -911,3 +910,4 @@ void test_GRN()//!OCLINT , tests may be long
 
     }
 }
+#endif

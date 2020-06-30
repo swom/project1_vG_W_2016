@@ -138,7 +138,7 @@ void degradation_metabolite(environment& e) noexcept
 {
     for(auto& grid_cell : e.get_grid())
     {
-        metabolite_degrades(grid_cell, e.get_param().get_degr_coeff());
+        metabolite_degrades(grid_cell, e.get_param().get_degr_rate());
     }
 }
 
@@ -266,7 +266,7 @@ void reset_env(environment& e)
     e = environment(e.get_param().get_grid_side(),
                     e.get_param().get_diff_coeff(),
                     e.get_param().get_init_food(),
-                    e.get_param().get_metab_degr_rate());
+                    e.get_param().get_degr_rate());
 }
 
 void reset_env(environment& e, int grid_side, double diff_coeff, double food)

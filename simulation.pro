@@ -3,6 +3,7 @@
 HEADERS += \
     connection.h \
     demographic_cycle.h \
+    demographic_cycle.h \
     demographic_sim.h \
     env_grid_cell.h \
     env_param.h \

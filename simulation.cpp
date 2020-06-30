@@ -47,6 +47,12 @@ funders calc_funders_success(const simulation& s)
     return funders;
 }
 
+void change_env(simulation& s) noexcept
+{
+    auto new_env_param = change_env_param_incr(s.get_env().get_param());
+    s.get_env().set_param(new_env_param);
+}
+
 void dispersal(simulation &s)
 {
     fund_new_pop(s.get_pop());
@@ -71,6 +77,7 @@ void exec(simulation& s) noexcept
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
         exec_cycle(s);
+        change_env(s);
         s.reset_timesteps();
         s.tick_cycles();
     }
@@ -256,8 +263,8 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_env().get_param().get_init_food() - init_food < 0.0001 &&
                s.get_env().get_param().get_init_food() - init_food > -0.0001);
 
-        assert(s.get_env().get_param().get_metab_degr_rate() - metab_degr_rate < 0.0001 &&
-               s.get_env().get_param().get_metab_degr_rate() - metab_degr_rate > -0.0001);
+        assert(s.get_env().get_param().get_degr_rate() - metab_degr_rate < 0.0001 &&
+               s.get_env().get_param().get_degr_rate() - metab_degr_rate > -0.0001);
         //test for simulation meta param
         assert(s.get_meta_param().get_n_cycles() == n_cycles);
         assert(s.get_meta_param().get_cycle_duration() == cycle_duration);
@@ -537,8 +544,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         double degradation_rate = 0.314;
         simulation s(sim_param{0,0,0,0,0,0,0,0,0,0,0,degradation_rate});
-        assert(s.get_env().get_param().get_metab_degr_rate() - degradation_rate < 0.000001 &&
-               s.get_env().get_param().get_metab_degr_rate() - degradation_rate > -0.000001);
+        assert(s.get_env().get_param().get_degr_rate() - degradation_rate < 0.000001 &&
+               s.get_env().get_param().get_degr_rate() - degradation_rate > -0.000001);
     }
     //Every time step the individuals produce new metabolite and metabolite degrades in grid_cells
     {
@@ -573,7 +580,7 @@ void test_simulation()//!OCLINT tests may be many
         {return sum + i.get_param().get_metab_secr_rate();});
 
         double tot_degradation =
-                s.get_env().get_grid_size() * s.get_env().get_param().get_metab_degr_rate();
+                s.get_env().get_grid_size() * s.get_env().get_param().get_degr_rate();
 
         auto metab_balance =
                 tot_metab_before - tot_degradation + tot_production - tot_metab_after;
@@ -992,8 +999,6 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{
             1,
             1,
-            1,
-            1,
             seed
         };
         env_param e;
@@ -1006,19 +1011,75 @@ void test_simulation()//!OCLINT tests may be many
     }
 
     //Every cycle environmental parameters change
-    //With a certain magnitude within a given range
     {
-        env_param e;
-        pop_param p;
+
         auto range_of_env_change = 0.1;
         auto magnitude_of_env_change = range_of_env_change / 10;
-        meta_param m {1, 1,
-                      range_of_env_change, magnitude_of_env_change, 1};
+        env_param e{
+            1,
+            0.1,
+            0,
+            0,
+            range_of_env_change,
+                    magnitude_of_env_change};
+        pop_param p;
+        meta_param m;
         sim_param s_p{e, m, p};
         simulation s{s_p};
 
-        exec_cycle(s);
+        exec(s);
         assert(e != s.get_env().get_param());
+    }
+
+    //Env param can be changed in a simulation
+    //Based on meta params
+    {
+        auto range_of_env_change = 0.1;
+        auto magnitude_of_env_change = range_of_env_change / 10;
+        env_param e_p{
+            1,
+            0.1,
+            0,
+            0,
+            range_of_env_change,
+                    magnitude_of_env_change};
+        pop_param p;
+        meta_param m;
+        sim_param s_p{e_p, m, p};
+        simulation s{s_p};
+
+        int repeats = 10000;
+        double prev_deg_rate = e_p.get_degr_rate();
+        double prev_diff_coeff = e_p.get_diff_coeff();
+        double prev_metab_deg_rate = e_p.get_degr_rate();
+
+        for(int i  = 0 ; i != repeats; i++)
+        {
+            change_env(s);
+            auto deg_rate = s.get_env().get_param().get_degr_rate();
+            auto diff_coeff = s.get_env().get_param().get_diff_coeff();
+            auto metab_deg_rate = s.get_env().get_param().get_degr_rate();
+
+            assert(deg_rate < e_p.get_degr_rate() + range_of_env_change
+                   && deg_rate > e_p.get_degr_rate() - range_of_env_change
+                   && diff_coeff < e_p.get_diff_coeff() + range_of_env_change
+                   && diff_coeff > e_p.get_diff_coeff() - range_of_env_change
+                   && metab_deg_rate < e_p.get_degr_rate() + range_of_env_change
+                   && metab_deg_rate > e_p.get_degr_rate() - range_of_env_change);
+
+            assert( (deg_rate >= prev_deg_rate + magnitude_of_env_change ||
+                     deg_rate <= prev_deg_rate - magnitude_of_env_change)
+                    && (diff_coeff >= prev_diff_coeff + magnitude_of_env_change ||
+                        diff_coeff <= prev_diff_coeff - magnitude_of_env_change)
+                    && (metab_deg_rate >= prev_metab_deg_rate + magnitude_of_env_change ||
+                        metab_deg_rate <= prev_metab_deg_rate - magnitude_of_env_change));
+
+            prev_deg_rate = deg_rate;
+            prev_diff_coeff = diff_coeff;
+            prev_metab_deg_rate = metab_deg_rate;
+        }
+
+
     }
 #endif
 }

@@ -36,6 +36,9 @@ public:
     ///Returns constant reference to the parameters
     const env_param get_param() const noexcept {return m_env_param;}
 
+    ///Sets new env_param
+    void set_param(const env_param& e_p) noexcept {m_env_param = e_p;}
+
 private:
     env_param m_env_param;
     std::vector<env_grid_cell> m_grid;

@@ -4,13 +4,9 @@
 
 meta_param::meta_param(int n_cycles,
                        int cycle_duration,
-                       double magnitude_env_change,
-                       double range_env_change,
                        int seed):
     m_cycle_duration{cycle_duration},
     m_n_cycles{n_cycles},
-    m_magnitude_env_change{magnitude_env_change},
-    m_range_env_change{range_env_change},
     m_seed{seed}
 {
     assert(m_n_cycles > 0);
@@ -21,22 +17,16 @@ std::ifstream& operator>> (std::ifstream& is, meta_param& p)
 {
     int n_cycles;
     int cycle_duration;
-    double magnitude_env_change;
-    double range_env_change;
     int seed;
     std::string dummy; // To remove the annotation in the file
 
     is
             >> n_cycles >> dummy
             >> cycle_duration >> dummy
-            >> magnitude_env_change >> dummy
-            >> range_env_change >> dummy
             >> seed;
 
     p = meta_param {n_cycles,
             cycle_duration,
-            magnitude_env_change,
-            range_env_change,
             seed};
 
     return is;
@@ -46,8 +36,6 @@ std::ostream& operator<<(std::ostream& os, const meta_param& p)
 {
     os << p.get_n_cycles() << " , "
        << p.get_cycle_duration() << " , "
-       << p.get_magnitude_env_change() << " , "
-       << p.get_range_env_change() << " , "
        << p.get_seed();
 
     return os;
@@ -58,8 +46,6 @@ bool operator==(const meta_param& lhs, const meta_param& rhs) noexcept
     return
             lhs.get_n_cycles() == rhs.get_n_cycles()
             && lhs.get_cycle_duration() == rhs.get_cycle_duration()
-            && lhs.get_magnitude_env_change() == rhs.get_magnitude_env_change()
-            && lhs.get_range_env_change() == rhs.get_range_env_change()
             && lhs.get_seed() == rhs.get_seed();
 }
 
@@ -104,7 +90,7 @@ void test_meta_param() noexcept
     //with a seed number
     {
         int seed = 1;
-        meta_param m{1, 1, 1, 1, seed};
+        meta_param m{1, 1, seed};
         assert(m.get_seed() == seed);
     }
 
@@ -112,10 +98,8 @@ void test_meta_param() noexcept
     {
         int n_cycle = 34736;
         int cycle_duration = 3267;
-        double magnitude_env_change = 3215;
-        double range_env_change = 5698;
         int seed = 3287;
-        meta_param p{ n_cycle, cycle_duration, magnitude_env_change, range_env_change, seed};
+        meta_param p{ n_cycle, cycle_duration, seed};
         const std::string filename = "meta_param.csv";
         save_meta_parameters(p, filename);
         const meta_param q = load_meta_parameters(filename);
@@ -132,23 +116,6 @@ void test_meta_param() noexcept
         s << p;
     }
 
-    //Meta parameters are intialized with:
-    //Range of change parameter: dictating the range of env chenge from one
-    //Generation to the other
-    //Magnitude of change: dictating the minimum amount of change from one generaiton
-    //To the other
-    {
-        auto range_of_env_change = 0.1;
-        auto magnitude_of_env_change = range_of_env_change / 10;
-        meta_param m {
-            1,
-            1,
-            magnitude_of_env_change,
-                    range_of_env_change,
-                    1};
 
-        assert(m.get_range_env_change() == range_of_env_change &&
-               m.get_magnitude_env_change() == magnitude_of_env_change);
-    }
 
 }
