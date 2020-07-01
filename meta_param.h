@@ -9,7 +9,13 @@ class meta_param
 public:
     meta_param(int n_cycles = 1,
                int cycle_duration = 200,
-               int seed = 1);
+               int seed = 1,
+               int change_frequency = 0);
+
+    ///Returns after how many generations
+    ///  the parameters of  environment
+    ///  and population will change
+    int get_change_freq() const noexcept {return m_change_frequency;}
 
     ///Returns number of cycles for which the simulation will last
     int get_n_cycles() const noexcept {return m_n_cycles;}
@@ -21,6 +27,9 @@ public:
     int get_seed() const noexcept {return  m_seed;}
 
 private:
+
+    ///Indicates how often the environment and population parameters will change
+    int m_change_frequency;
 
     ///The number of timesteps executed in one colony cycle
     int m_cycle_duration;

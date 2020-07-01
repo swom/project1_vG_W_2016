@@ -45,6 +45,9 @@ public:
     ///Gets the vector containing all the individuals of the population
      population& get_pop() noexcept {return m_pop;}
 
+     ///Returns ref to rng
+     std::minstd_rand& get_rng() noexcept  {return m_rng;}
+
     ///Gets the number of ticks in the simulation
     int get_timestep() const noexcept {return m_sim_timesteps;}
 
@@ -86,6 +89,9 @@ private:
 
     ///The timer that keeps track of how many timesteps we are in the simulation
     int m_sim_timesteps = 0;
+
+    ///Random number generator
+    std::minstd_rand m_rng;
 
 };
 

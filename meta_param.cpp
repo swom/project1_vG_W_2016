@@ -4,7 +4,9 @@
 
 meta_param::meta_param(int n_cycles,
                        int cycle_duration,
-                       int seed):
+                       int seed,
+                       int change_frequency):
+    m_change_frequency{change_frequency},
     m_cycle_duration{cycle_duration},
     m_n_cycles{n_cycles},
     m_seed{seed}
@@ -18,16 +20,19 @@ std::ifstream& operator>> (std::ifstream& is, meta_param& p)
     int n_cycles;
     int cycle_duration;
     int seed;
+    int change_frequency;
     std::string dummy; // To remove the annotation in the file
 
     is
             >> n_cycles >> dummy
             >> cycle_duration >> dummy
-            >> seed;
+            >> seed >> dummy
+            >> change_frequency;
 
     p = meta_param {n_cycles,
             cycle_duration,
-            seed};
+            seed,
+            change_frequency};
 
     return is;
 }
@@ -36,7 +41,8 @@ std::ostream& operator<<(std::ostream& os, const meta_param& p)
 {
     os << p.get_n_cycles() << " , "
        << p.get_cycle_duration() << " , "
-       << p.get_seed();
+       << p.get_seed() << " , "
+       << p.get_change_freq();
 
     return os;
 }
@@ -46,7 +52,8 @@ bool operator==(const meta_param& lhs, const meta_param& rhs) noexcept
     return
             lhs.get_n_cycles() == rhs.get_n_cycles()
             && lhs.get_cycle_duration() == rhs.get_cycle_duration()
-            && lhs.get_seed() == rhs.get_seed();
+            && lhs.get_seed() == rhs.get_seed()
+            && lhs.get_change_freq() == rhs.get_change_freq();
 }
 
 void save_meta_parameters(
@@ -92,6 +99,13 @@ void test_meta_param() noexcept
         int seed = 1;
         meta_param m{1, 1, seed};
         assert(m.get_seed() == seed);
+    }
+
+    //Metaparameters can be initialized with a change_frequency value
+    {
+        int change_frequency = 3;
+        meta_param m{1,1,1, change_frequency};
+        assert(m.get_change_freq() == change_frequency);
     }
 
     //Meta parameters can be saved and loaded correctly

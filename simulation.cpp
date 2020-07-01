@@ -13,6 +13,7 @@ simulation::simulation(sim_param param):
     m_e{param.get_env_param()},
     m_meta_param{param.get_meta_param()}
 {
+    m_rng.seed(m_meta_param.get_seed());
     m_pop.get_rng().seed(m_meta_param.get_seed());
 }
 
@@ -49,7 +50,7 @@ funders calc_funders_success(const simulation& s)
 
 void change_env(simulation& s) noexcept
 {
-    auto new_env_param = change_env_param_incr(s.get_env().get_param());
+    auto new_env_param = change_env_param_incr(s.get_env().get_param(),s.get_rng());
     s.get_env().set_param(new_env_param);
 }
 
@@ -77,7 +78,13 @@ void exec(simulation& s) noexcept
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
         exec_cycle(s);
-        change_env(s);
+        if(s.get_cycle() != 0
+                && s.get_meta_param().get_change_freq() != 0
+                && s.get_cycle() % s.get_meta_param().get_change_freq() == 0
+                )
+        {
+            change_env(s);
+        }
         s.reset_timesteps();
         s.tick_cycles();
     }
@@ -1010,20 +1017,27 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_pop().get_rng() == ref_rng);
     }
 
-    //Every cycle environmental parameters change
+    //Every cycle multiple of the change_frequency metaparameter
+    // environmental parameters change
     {
 
         auto range_of_env_change = 0.1;
-        auto magnitude_of_env_change = range_of_env_change / 10;
+        auto magnitude_of_env_change = 10.0;
         env_param e{
             1,
             0.1,
             0,
             0,
-            range_of_env_change,
-                    magnitude_of_env_change};
+            magnitude_of_env_change,
+            range_of_env_change
+                    };
         pop_param p;
-        meta_param m;
+        int change_frequency = 1;
+        meta_param m{change_frequency + 1,
+                     1,
+                     1,
+                     change_frequency
+                    };
         sim_param s_p{e, m, p};
         simulation s{s_p};
 
@@ -1032,53 +1046,70 @@ void test_simulation()//!OCLINT tests may be many
     }
 
     //Env param can be changed in a simulation
-    //Based on meta params
+    //Based on env params
     {
         auto range_of_env_change = 0.1;
-        auto magnitude_of_env_change = range_of_env_change / 10;
-        env_param e_p{
-            1,
-            0.1,
-            0,
-            0,
-            range_of_env_change,
-                    magnitude_of_env_change};
+        auto magnitude_of_env_change =  10.0;
+        env_param e_p{1, 0.1, 0, 0,
+                      magnitude_of_env_change,
+                              range_of_env_change};
         pop_param p;
         meta_param m;
         sim_param s_p{e_p, m, p};
         simulation s{s_p};
-
         int repeats = 10000;
-        double prev_deg_rate = e_p.get_degr_rate();
-        double prev_diff_coeff = e_p.get_diff_coeff();
-        double prev_metab_deg_rate = e_p.get_degr_rate();
 
         for(int i  = 0 ; i != repeats; i++)
         {
+            auto prev_env = s.get_env();
+            double prev_deg_rate = prev_env.get_param().get_degr_rate();
+            double prev_diff_coeff =  prev_env.get_param().get_diff_coeff();
+
             change_env(s);
+
             auto deg_rate = s.get_env().get_param().get_degr_rate();
             auto diff_coeff = s.get_env().get_param().get_diff_coeff();
-            auto metab_deg_rate = s.get_env().get_param().get_degr_rate();
 
-            assert(deg_rate < e_p.get_degr_rate() + range_of_env_change
-                   && deg_rate > e_p.get_degr_rate() - range_of_env_change
-                   && diff_coeff < e_p.get_diff_coeff() + range_of_env_change
-                   && diff_coeff > e_p.get_diff_coeff() - range_of_env_change
-                   && metab_deg_rate < e_p.get_degr_rate() + range_of_env_change
-                   && metab_deg_rate > e_p.get_degr_rate() - range_of_env_change);
+            assert(deg_rate < prev_env.get_param().get_range_metab_degr_change().max()
+                   && deg_rate > prev_env.get_param().get_range_metab_degr_change().min());
 
-            assert( (deg_rate >= prev_deg_rate + magnitude_of_env_change ||
-                     deg_rate <= prev_deg_rate - magnitude_of_env_change)
-                    && (diff_coeff >= prev_diff_coeff + magnitude_of_env_change ||
-                        diff_coeff <= prev_diff_coeff - magnitude_of_env_change)
-                    && (metab_deg_rate >= prev_metab_deg_rate + magnitude_of_env_change ||
-                        metab_deg_rate <= prev_metab_deg_rate - magnitude_of_env_change));
+            assert(diff_coeff < prev_env.get_param().get_range_diff_coeff_change().max()
+                   && diff_coeff >  prev_env.get_param().get_range_diff_coeff_change().min()) ;
 
-            prev_deg_rate = deg_rate;
-            prev_diff_coeff = diff_coeff;
-            prev_metab_deg_rate = metab_deg_rate;
+            assert( deg_rate >= prev_deg_rate + prev_env.get_param().get_min_step_degr_change() ||
+                    deg_rate <= prev_deg_rate - prev_env.get_param().get_min_step_degr_change());
+
+            assert(diff_coeff >= prev_diff_coeff + prev_env.get_param().get_min_step_diff_change() ||
+                   diff_coeff <= prev_diff_coeff - prev_env.get_param().get_min_step_diff_change());
         }
+    }
 
+    //Env changes with a frequency dictated by the metaparameters
+    //frequency_of_change value
+    {
+        auto frequency_of_change = 2;
+        auto n_cycles = frequency_of_change +1;
+        //environment will only change once
+
+        meta_param m{n_cycles,
+                    1,
+                    1,
+                    frequency_of_change};
+
+        auto range_of_env_change = 0.1;
+        auto magnitude_of_env_change = 10.0;
+        env_param e{1,
+                    0.1,
+                    0.1,
+                    0.1,
+                    magnitude_of_env_change,
+                            range_of_env_change};
+        pop_param p{};
+        sim_param s_p{e,m,p};
+        simulation s{s_p};
+        auto prev_env = s.get_env();
+        exec(s);
+        assert(prev_env != s.get_env());
 
     }
 #endif

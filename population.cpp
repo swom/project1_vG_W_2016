@@ -1377,6 +1377,7 @@ void test_population() noexcept  //!OCLINT
         assert( !have_same_ancestor(ind2, ind3) );
 
     }
+
     //When a pop is funded a new ancestor ID is assigned to each funder individual
     {
         population p;

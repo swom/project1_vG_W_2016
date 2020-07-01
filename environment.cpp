@@ -263,10 +263,10 @@ bool is_same_cell(int column, int row) noexcept
 
 void reset_env(environment& e)
 {
-    e = environment(e.get_param().get_grid_side(),
-                    e.get_param().get_diff_coeff(),
-                    e.get_param().get_init_food(),
-                    e.get_param().get_degr_rate());
+    e.get_grid() =
+            std::vector<env_grid_cell>(
+                static_cast<unsigned int>(e.get_grid_size()),
+                env_grid_cell{0,e.get_param().get_init_food()});
 }
 
 void reset_env(environment& e, int grid_side, double diff_coeff, double food)
