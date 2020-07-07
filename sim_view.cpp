@@ -74,7 +74,14 @@ void sim_view::exec() noexcept
     {
         if(exec_cycle_visual(m_sim))
             break;
-        dispersal(m_sim);
+        if(m_sim.get_cycle() != 0
+                && m_sim.get_meta_param().get_change_freq() != 0
+                && m_sim.get_cycle() % m_sim.get_meta_param().get_change_freq() == 0
+                )
+        {
+            change_env(m_sim);
+            change_pop(m_sim);
+        }
         m_sim.tick_cycles();
     }
     //m_window.close();
@@ -94,6 +101,7 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
         }
         show();
     }
+    dispersal(m_sim);
     return false;
 }
 void sim_view::k_pan() noexcept

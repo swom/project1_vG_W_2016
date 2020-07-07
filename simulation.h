@@ -104,6 +104,9 @@ funders calc_funders_success(const simulation& s);
 ///Changes the environemtnal parameters of a simulation based on its metaparameters
 void change_env(simulation& s) noexcept;
 
+///Changes the population(only the individual) parameters of a simulation based on its metaparameters
+void change_pop( simulation& s);
+
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
 

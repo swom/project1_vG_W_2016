@@ -92,7 +92,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else
     {
         m = meta_param {500,
-                125,
+                50,
                 0,
                 1};
     }
@@ -122,6 +122,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout << duration.count() << "s" << std::endl;
+        std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
 #endif
 
     }

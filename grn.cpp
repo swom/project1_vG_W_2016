@@ -909,5 +909,5 @@ void test_GRN()//!OCLINT , tests may be long
         }
 
     }
-}
 #endif
+}
