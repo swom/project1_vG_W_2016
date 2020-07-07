@@ -13,6 +13,17 @@ population::population(pop_param pop_parameters):
     }
 }
 
+bool operator== (const population& lhs, const population& rhs)
+{
+    return lhs.get_param() == rhs.get_param()
+            && lhs.get_v_ind() == rhs.get_v_ind();
+}
+
+bool operator!=  (const population& lhs, const population& rhs)
+{
+    return !(lhs == rhs);
+}
+
 void active_metabolism_pop(population &p)
 {
     for(auto& ind : p.get_v_ind())
@@ -60,9 +71,11 @@ double calc_angle_3_pos(std::pair<double, double> P1,
     return M_PI + std::abs(angle1 -angle2);
 }
 
-bool calc_tot_displ_pop(std::vector<individual>& pop)
+bool calc_tot_displ_pop(population& population)
 {
+    std::vector<individual>& pop = population.get_v_ind();
     bool has_collision = false;
+    auto wiggle_room = population.get_param().get_wiggle_room();
     //Sort the pop vector by increasing x
     sort_inds_by_x_inc(pop.begin(), pop.end());
 
@@ -81,10 +94,10 @@ bool calc_tot_displ_pop(std::vector<individual>& pop)
         for ( auto j = range_y.first ; j != range_y.second; ++j)
         {
             if(j->is_focal()){continue;}
-            if (are_colliding(*focal_ind_address, *j))
+            if (are_colliding(*focal_ind_address, *j, wiggle_room))
             {
                 assert(!j->is_focal());
-                add_displacement(*focal_ind_address, *j);
+                add_displacement(*focal_ind_address, *j, wiggle_room);
                 has_collision = true;
             }
         }
@@ -95,6 +108,16 @@ bool calc_tot_displ_pop(std::vector<individual>& pop)
     return has_collision;
 }
 
+std::vector<individual> change_inds( population& p)
+{
+    std::vector<individual> new_p_v = p.get_v_ind();
+    auto new_ind_param = change_ind_param(p.get_param().get_ind_param(), p.get_rng());
+    for(auto& individual : new_p_v)
+    {
+        individual.set_param(new_ind_param);
+    }
+    return new_p_v;
+}
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept
 {
     return std::uniform_real_distribution<double>(a,b);
@@ -127,7 +150,7 @@ bool division(population &p) noexcept
         for(size_t i = 0; i != div_inds.size(); i++)
         {
             int div_ind = div_inds[i];
-            if(repr_prob(p.get_rng()) < p.get_param().get_repr_p())
+            if(repr_prob(p.get_rng()) < p.get_ind(div_ind).get_param().get_repr_prob())
             {
 
                 divides(p.get_ind(div_ind),
@@ -235,6 +258,7 @@ bool has_collision(population &p)
     auto pop = p.get_v_ind();
     //Sort the pop vector by increasing x
     sort_inds_by_x_inc(pop.begin(), pop.end());
+    auto wiggle_room =  p.get_param().get_wiggle_room();
 
     for ( auto i = pop.begin(); i != pop.end(); ++i)
     {
@@ -254,7 +278,7 @@ bool has_collision(population &p)
         {
             //if j is the focal individual skip collision
             if(j->is_focal()){continue;}
-            if (are_colliding(*focal_ind_address, *j))
+            if (are_colliding(*focal_ind_address, *j, wiggle_room))
             {
 #ifndef NDEBUG
                 assert(!j->is_focal());
@@ -869,7 +893,7 @@ void test_population() noexcept  //!OCLINT
         no_complete_overlap(s);
         assert(has_collision(s));
 
-        calc_tot_displ_pop(s.get_v_ind());
+        calc_tot_displ_pop(s);
         for(auto& ind : s.get_v_ind())
         {ind.displace();}
 
@@ -882,7 +906,7 @@ void test_population() noexcept  //!OCLINT
         population s(7);
         assert(!has_collision(s));
         //add 1 individual overlapping with central individual
-        s.get_v_ind().emplace_back(individual(0,0));
+        s.get_v_ind().emplace_back(individual(ind_param{},0,0));
         assert(has_collision(s));
         manage_static_collisions(s);
         assert(!has_collision(s));
@@ -1350,7 +1374,7 @@ void test_population() noexcept  //!OCLINT
     }
     //When a population is initialized each ind recieves a unique ancestor ID
     {
-        int pop_size = 2;
+        unsigned int pop_size = 2;
         population p{pop_size};
         for (int i = 0; i != p.get_pop_size() - 1; i++)
             for(int j = i + 1; j != p.get_pop_size(); j++)
@@ -1360,7 +1384,7 @@ void test_population() noexcept  //!OCLINT
     //it is possible to track individuals that have the same ancestry
     {
         int pop_size = 2;
-        population p{pop_size};
+        population p{static_cast<int>(pop_size)};
         auto ind1 = p.get_ind(0);
         auto ind2 = p.get_ind(1);
 
@@ -1404,6 +1428,16 @@ void test_population() noexcept  //!OCLINT
             {
                 assert(p_ancestor_IDs[i] != new_p_ancestor_IDs[j]);
             }
+    }
+
+    //A population's individuals can be changed by
+    //Swapping their metaparameters
+    {
+        ind_param i{};
+        pop_param pp{};
+        population p{pp};
+        auto new_p = change_inds(p);
+        assert(p.get_v_ind() != new_p);
     }
 
 

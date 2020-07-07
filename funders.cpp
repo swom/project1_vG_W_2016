@@ -31,7 +31,7 @@ std::ostream& operator<<(std::ostream& os, const funders& f)
 std::ifstream& operator>>(std::ifstream& is, funders& f)
 {
     funders tmp;
-    individual ind;
+    individual ind{ind_param{}};
     funder_data f_d{ind};
     std::string dummy;
     int cycle_number = -123;

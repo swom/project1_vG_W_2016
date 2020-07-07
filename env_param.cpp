@@ -5,7 +5,7 @@ env_param::env_param(int grid_side,
                      double diff_coeff,
                      double init_food,
                      double metab_degrad_rate,
-                     double min_step_proportion,
+                     double min_change_fraction,
                      double range_env_change):
     m_diff_coeff{diff_coeff},
     m_grid_side{grid_side},
@@ -22,20 +22,18 @@ env_param::env_param(int grid_side,
     assert(m_init_food > -0.000000000001);
     assert(m_metab_degradation_rate > -0.000000001 &&
            m_metab_degradation_rate < 1.000000001);
-    if(m_range_metab_degr_change.min() < 0)
+    assert(min_change_fraction > -0.0000000000001);
+    assert(m_range_metab_degr_change.min() > -0.0000000001);
+    assert(m_range_diff_coeff_change.min() > -0.0000000001);
+
+    if(min_change_fraction == 0)
     {
-        auto max_metab_deg_range = 2 * range_env_change;
-        m_range_metab_degr_change =
-                std::uniform_real_distribution<double>(0, max_metab_deg_range);
+        m_step_min_degr_change = 0;
+        m_step_min_diff_change = 0;
     }
-    if(m_range_diff_coeff_change.min() < 0)
-    {
-        auto max_diff_coeff_range = 2 * range_env_change;
-        m_range_metab_degr_change =
-                std::uniform_real_distribution<double>(0, max_diff_coeff_range);
-    }
-    m_step_min_diff_change = (m_range_diff_coeff_change.max() - m_range_diff_coeff_change.min()) / min_step_proportion;
-    m_step_min_degr_change = (m_range_metab_degr_change.max() - m_range_metab_degr_change.min()) / min_step_proportion;
+    else
+    m_step_min_diff_change = (m_range_diff_coeff_change.max() - m_range_diff_coeff_change.min()) / min_change_fraction;
+    m_step_min_degr_change = (m_range_metab_degr_change.max() - m_range_metab_degr_change.min()) / min_change_fraction;
 }
 
 std::ostream& operator<<(std::ostream& os, const env_param& p)
@@ -159,7 +157,7 @@ void test_env_param() noexcept //!OCLINT
         double init_food = 14.0;
         double metab_degrad_rate = 0.066;
         double min_step_env_change = 0.36;
-        double env_change_range = 0.3;
+        double env_change_range = 0.003;
 
         env_param p{grid_side,
                     diff_coeff,
@@ -193,7 +191,7 @@ void test_env_param() noexcept //!OCLINT
     //To the other
     {
         auto range_of_env_change = 0.1;
-        auto magnitude_of_env_change = range_of_env_change / 10;
+        auto magnitude_of_env_change = 10.0;
         env_param e {
             1,
             1,
@@ -219,9 +217,9 @@ void test_env_param() noexcept //!OCLINT
         std::random_device r;
         std::minstd_rand rng{r()};
 
-        double magnitude_of_change = 10;
-        double range_of_change =  3;
-        env_param e{1, 0.1, 0.1, 0.1,
+        double magnitude_of_change = 3;
+        double range_of_change =  0.5;
+        env_param e{1, 1, 1, 1,
                     magnitude_of_change,
                             range_of_change
                    };

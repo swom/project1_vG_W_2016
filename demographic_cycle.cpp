@@ -103,7 +103,7 @@ void test_demographic_cycle() noexcept
         int n_spores = 2;
         int n_sporulating = 3;
         int n_actives = 4;
-        individual ind;
+        individual ind{ind_param{}};
 
         ind.set_phen(phenotype::spore);
         for(int i = 0; i != n_spores; i++)

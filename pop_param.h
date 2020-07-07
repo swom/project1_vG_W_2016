@@ -12,8 +12,8 @@ public:
               double mutation_step = 0.1,
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
-              double reproduction_prob = 0.5,
               double death_rate = 0.0,
+              double wiggle_room = 0.00001,
               ind_param ind_parameters = ind_param());
 
 
@@ -43,13 +43,14 @@ public:
     ///Gets the starting size of the population
     unsigned int get_pop_start_size() const noexcept {return m_start_pop_size;}
 
-    ///Gets the probability of reproducing
-    double get_repr_p() const noexcept {return m_repr_prob;}
-
     ///Returns the variable m_spore_advantage that indicates
     ///how many times a spore is more likely to get dispersed
     ///than the other phenotypes
     double get_spo_adv() const noexcept {return m_spore_advantage;}
+
+    ///Gets the she space for which individuals are allowed to overlap before it is considered
+    /// an actual collision
+    double get_wiggle_room() const noexcept {return m_wiggle_room;}
 
 private:
 
@@ -75,14 +76,15 @@ private:
     ///The variance of the gaussian from which the size of the mutation is drawn
     double m_mutation_step;
 
-    ///The probability that an individual will reproduce
-    double m_repr_prob;
-
     ///The factor for which the dispersal probability is multiplied if the individual is a spore
     double m_spore_advantage;
 
     ///The initial starting size of the population
     unsigned int m_start_pop_size;
+
+    ///The space for which individuals are allowed to overlap before it is considered
+    /// an actual collision
+    double m_wiggle_room;
 };
 
 //Prints parameters to ostream

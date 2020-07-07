@@ -94,7 +94,7 @@ double calc_angle_3_pos(std::pair<double, double> P1,
                         std::pair<double, double> P3);
 
 ///Calculates the total displacement of each individual in the population if there are collisions
-bool calc_tot_displ_pop(std::vector<individual>& population);
+bool calc_tot_displ_pop(population& population);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;

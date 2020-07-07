@@ -12,7 +12,7 @@ public:
               double diff_coeff = 0.1,
               double init_food = 10.0,
               double metab_degrad_rate = 0.01,
-              double min_step_env_change = 0.5,
+              double min_change_fraction = 1, // the nth fraction of the range which is going to be the minimum step
               double range_env_change = 0);
 
 

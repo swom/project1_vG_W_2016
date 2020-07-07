@@ -111,7 +111,7 @@ void test_funder_data() noexcept
     {
         std::vector<int> ancestor_ID(2,2);
         GRN grn{1,2,1};
-        individual i;
+        individual i{ind_param{}};
         i.get_grn() = grn;
         i.get_ancestor() = ancestor_ID;
         funder_data f_d{i};
@@ -122,7 +122,7 @@ void test_funder_data() noexcept
 
     //A funder object is initialized with a success member = 0
     {
-        individual i;
+        individual i{ind_param{}};
         funder_data f {i};
         assert(f.get_success() == 0);
     }
@@ -131,7 +131,7 @@ void test_funder_data() noexcept
     {
         std::vector<int> ancestor_ID(2,2);
         GRN grn{1,2,1};
-        individual i;
+        individual i{ind_param{}};
         i.get_grn() = grn;
         i.get_ancestor() = ancestor_ID;
         funder_data f_d{i};

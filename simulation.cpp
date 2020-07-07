@@ -262,8 +262,7 @@ void test_simulation()//!OCLINT tests may be many
                s.get_pop().get_param().get_base_disp_prob() - base_disp_prob > -0.00001);
         assert(s.get_pop().get_param().get_spo_adv() - spore_advantage < 0.0001 &&
                s.get_pop().get_param().get_spo_adv() - spore_advantage > -0.0001);
-        assert(s.get_pop().get_param().get_repr_p() - repr_trsh < 0.0001 &&
-               s.get_pop().get_param().get_repr_p() - repr_trsh > -0.0001);
+
         //tests for env param
         assert(s.get_env().get_param().get_diff_coeff() - diff_coeff < 0.00001 &&
                s.get_env().get_param().get_diff_coeff() - diff_coeff > -0.00001);

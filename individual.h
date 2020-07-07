@@ -17,15 +17,15 @@ class individual
 {
 public:
 
-    individual(double x_pos = 0, double y_pos = 0, double radius  = 0.5,
-               double energy = 0.1, double treshold_energy = 3,
-               double uptake_rate = 0.1, double metabolic_rate = 0.01,
-               phenotype phenotype = phenotype::active,
-               int sporulation_timer = 0, int transformation_time = 5,
-               double wiggle_room = 0.01, double metab_secretion_rate = 0.1,
-               double spor_metab_rate = 0.5);
+//    individual(double x_pos = 0, double y_pos = 0, double radius  = 0.5,
+//               double energy = 0.1, double treshold_energy = 3,
+//               double uptake_rate = 0.1, double metabolic_rate = 0.01,
+//               phenotype phenotype = phenotype::active,
+//               int sporulation_timer = 0, int transformation_time = 5,
+//               double wiggle_room = 0.01, double metab_secretion_rate = 0.1,
+//               double spor_metab_rate = 0.5);
 
-    individual(ind_param ind_param,
+    individual(ind_param ind_parameters = ind_param(),
                double x_pos = 0,
                double y_pos = 0,
                double energy = 0.1,
@@ -114,6 +114,9 @@ public:
     ///sets the energy of an individual
     void set_energy(double new_energy) {m_energy = new_energy;}
 
+    ///Sets the param of the individual to a new ind_param object
+    void set_param(const ind_param& param) noexcept {m_ind_param = param;}
+
     ///Sets the type of an individual
     void set_phen(phenotype type) {m_phenotype = type;}
 
@@ -190,13 +193,13 @@ bool operator!=(const individual& lhs, const individual& rhs);
 void active_metabolism(individual& i) noexcept;
 
 ///Checks if two individuals are colliding
-bool are_colliding(individual &lhs, individual &rhs) noexcept;
+bool are_colliding(individual &lhs, individual &rhs, double wiggle_room) noexcept;
 
 ///Calculates how much individuals need to be displaced to not overlap
-std::pair<double, double> get_displacement(const individual &lhs, const individual &rhs) noexcept;
+std::pair<double, double> get_displacement(const individual &lhs, const individual &rhs, double wiggle_room) noexcept;
 
 ///Adds a x and y displacement component to lhs and rhs displacement so that lhs and rhs do not overlap
-void add_displacement(individual& lhs, individual& rhs) noexcept;
+void add_displacement(individual& lhs, individual& rhs, double wiggle_room) noexcept;
 
 /// Finds the distance between two individuals
 double distance(const individual& lhs, const individual& rhs) noexcept;
@@ -266,7 +269,7 @@ void mutates(individual& i, std::minstd_rand& rng,
              std::normal_distribution<double> mu_st) noexcept;
 
 ///Finds the overlap between two individuals
-double half_overlap(const individual& lhs, const individual& rhs) noexcept;
+double half_overlap(const individual& lhs, const individual& rhs, double wiggle_room) noexcept;
 
 ///Reverts a sporulating individual back to living (and resets the timer)
 void reverts(individual& i) noexcept;
