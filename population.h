@@ -34,8 +34,11 @@ public:
     ///Gets the vector containing all the individuals of the population
     std::vector<individual>& get_new_v_ind() noexcept {return m_new_pop_tmp_buffer;}
 
-     ///Gets const ref to parameters
+    ///Gets const ref to parameters
     const pop_param& get_param() const noexcept {return m_pop_param;}
+
+    ///Gets const ref to parameters
+    pop_param& get_param()  noexcept {return m_pop_param;}
 
     ///Gets the vector containing all the individuals of the population
     const std::vector<individual>& get_v_ind() const noexcept {return m_pop;}
@@ -95,6 +98,11 @@ double calc_angle_3_pos(std::pair<double, double> P1,
 
 ///Calculates the total displacement of each individual in the population if there are collisions
 bool calc_tot_displ_pop(population& population);
+
+///Creates a new vector of individual
+///which is the same population with
+//different params of the individuals in the population
+std::vector<individual> change_inds( population &p);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;

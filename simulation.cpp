@@ -50,8 +50,16 @@ funders calc_funders_success(const simulation& s)
 
 void change_env(simulation& s) noexcept
 {
+    if(s.get_env().get_param().get_min_step_degr_change() == 0
+            && s.get_env().get_param().get_min_step_diff_change() == 0)
+        return;
     auto new_env_param = change_env_param_incr(s.get_env().get_param(),s.get_rng());
     s.get_env().set_param(new_env_param);
+}
+
+void change_pop( simulation& s)
+{
+    s.get_pop().get_v_ind() = change_inds(s.get_pop());
 }
 
 void dispersal(simulation &s)
@@ -84,6 +92,7 @@ void exec(simulation& s) noexcept
                 )
         {
             change_env(s);
+            change_pop(s);
         }
         s.reset_timesteps();
         s.tick_cycles();
@@ -1020,13 +1029,13 @@ void test_simulation()//!OCLINT tests may be many
     // environmental parameters change
     {
 
-        auto range_of_env_change = 0.1;
+        auto range_of_env_change = 0.01;
         auto magnitude_of_env_change = 10.0;
         env_param e{
             1,
             0.1,
-            0,
-            0,
+            0.1,
+            0.1,
             magnitude_of_env_change,
             range_of_env_change
                     };
@@ -1047,16 +1056,16 @@ void test_simulation()//!OCLINT tests may be many
     //Env param can be changed in a simulation
     //Based on env params
     {
-        auto range_of_env_change = 0.1;
+        auto range_of_env_change = 0.01;
         auto magnitude_of_env_change =  10.0;
-        env_param e_p{1, 0.1, 0, 0,
+        env_param e_p{1, 0.1, 0.1, 0.1,
                       magnitude_of_env_change,
                               range_of_env_change};
         pop_param p;
         meta_param m;
         sim_param s_p{e_p, m, p};
         simulation s{s_p};
-        int repeats = 10000;
+        int repeats = 100;
 
         for(int i  = 0 ; i != repeats; i++)
         {
@@ -1083,7 +1092,7 @@ void test_simulation()//!OCLINT tests may be many
         }
     }
 
-    //Env changes with a frequency dictated by the metaparameters
+    //Env_param and ind_param changes with a frequency dictated by the metaparameters
     //frequency_of_change value
     {
         auto frequency_of_change = 2;
@@ -1095,7 +1104,7 @@ void test_simulation()//!OCLINT tests may be many
                     1,
                     frequency_of_change};
 
-        auto range_of_env_change = 0.1;
+        auto range_of_env_change = 0.01;
         auto magnitude_of_env_change = 10.0;
         env_param e{1,
                     0.1,
@@ -1107,8 +1116,10 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
         simulation s{s_p};
         auto prev_env = s.get_env();
+        auto prev_pop = s.get_pop().get_v_ind();
         exec(s);
         assert(prev_env != s.get_env());
+        assert(prev_pop != s.get_pop().get_v_ind());
 
     }
 #endif

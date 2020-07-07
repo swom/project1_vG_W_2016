@@ -31,6 +31,9 @@ public:
     ///Get ind parameters
     const ind_param& get_ind_param() const noexcept {return m_ind_param;}
 
+    ///Get ind parameters
+    ind_param& get_ind_param() noexcept {return m_ind_param;}
+
     ///Get minimum distance between individuals at the start of the simulation
     double get_min_dist() const noexcept {return m_min_init_dist_btw_inds;}
 

@@ -17,14 +17,6 @@ class individual
 {
 public:
 
-//    individual(double x_pos = 0, double y_pos = 0, double radius  = 0.5,
-//               double energy = 0.1, double treshold_energy = 3,
-//               double uptake_rate = 0.1, double metabolic_rate = 0.01,
-//               phenotype phenotype = phenotype::active,
-//               int sporulation_timer = 0, int transformation_time = 5,
-//               double wiggle_room = 0.01, double metab_secretion_rate = 0.1,
-//               double spor_metab_rate = 0.5);
-
     individual(ind_param ind_parameters = ind_param(),
                double x_pos = 0,
                double y_pos = 0,

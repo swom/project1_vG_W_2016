@@ -2,29 +2,6 @@
 #include <cassert>
 #include <cmath>
 
-//individual::individual(double x_pos, double y_pos,
-//                       double radius, double energy,
-//                       double treshold_energy, double uptake_rate, double metabolic_rate,
-//                       phenotype phenotype, int sporulation_timer,
-//                       int transformation_time, double wiggle_room,
-//                       double metab_secretion_rate, double spor_metab_rate):
-//    m_ind_param{radius,
-//                treshold_energy,
-//                uptake_rate,
-//                metabolic_rate,
-//                spor_metab_rate,
-//                transformation_time,
-//                wiggle_room,
-//                metab_secretion_rate},
-//    m_x{x_pos},
-//    m_y{y_pos},
-//    m_energy{energy},
-//    m_phenotype{phenotype},
-//    m_sporulation_timer{sporulation_timer}
-//{
-
-//}
-
 individual::individual(ind_param ind_parameters,
                        double x_pos,
                        double y_pos,

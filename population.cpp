@@ -112,6 +112,7 @@ std::vector<individual> change_inds( population& p)
 {
     std::vector<individual> new_p_v = p.get_v_ind();
     auto new_ind_param = change_ind_param(p.get_param().get_ind_param(), p.get_rng());
+    p.get_param().get_ind_param() = new_ind_param; //This is horrible and is going to make me cry
     for(auto& individual : new_p_v)
     {
         individual.set_param(new_ind_param);
@@ -1431,7 +1432,7 @@ void test_population() noexcept  //!OCLINT
     }
 
     //A population's individuals can be changed by
-    //Swapping their metaparameters
+    //Swapping their ind_params with new ones
     {
         ind_param i{};
         pop_param pp{};
