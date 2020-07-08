@@ -1,6 +1,5 @@
 #ifndef GRN_H
 #define GRN_H
-#include "layer.h"
 #include <vector>
 #include <random>
 #include <iostream>
@@ -63,12 +62,6 @@ public:
     ///Gets ref to tresholds of hidden nodes
     std::vector<double>& get_hid_tresh() noexcept {return m_THidden;}
 
-    ///Gets const ref to the vector of layers
-    const std::vector<layer>& get_layers() const noexcept {return m_layers;}
-
-    ///Gets the size of the layer vector
-    int get_n_layers() const noexcept{ return static_cast<int>(m_layers.size());}
-
     ///Gets const reference output layer states
     const std::vector<bool>& get_output_nodes() const noexcept {return  m_ExOutput;}
 
@@ -126,12 +119,6 @@ private:
     std::vector<double> m_ExInput;		// Expression during 'development'
     std::vector<bool> m_ExHidden;			// Expression during 'development'
     std::vector<bool> m_ExOutput;			// Expression during 'development'
-
-    /// NEW ARCHITECTURE
-    /// This part will eventually substitute the previous private members
-    /// and override all functions associated with them
-
-    std::vector<layer> m_layers;
 };
 
 ///Compares two GRNs to see if all their states,

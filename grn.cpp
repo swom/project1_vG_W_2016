@@ -37,14 +37,6 @@ GRN::GRN(std::vector<std::vector<double> > ConI2H,
 
 }
 
-GRN::GRN(std::vector<int> nodes_per_layer):
-    m_layers(nodes_per_layer.size())
-{
-    for(size_t i = 0 ; i != m_layers.size(); i++)
-    {
-        m_layers[i] = layer{nodes_per_layer[i]};
-    }
-}
 
 bool operator==(const GRN& lhs, const GRN& rhs)
 {
