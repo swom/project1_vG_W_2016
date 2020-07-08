@@ -88,8 +88,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else
     {
-        m = meta_param {30,
-                50,
+        m = meta_param {3,
+                1,
                 0,
                 1};
     }

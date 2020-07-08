@@ -890,16 +890,5 @@ void test_GRN()//!OCLINT , tests may be long
         assert( g == g1);
     }
 
-    //A GRN can be initialized by a vector of inds
-    //specifying how many nodes will compose each layer
-    {
-        std::vector<int> layers{1,2,3};
-        GRN g{layers};
-        for(int i  = 0; i != g.get_n_layers(); i++)
-        {
-            assert(g.get_layers()[i].get_nodes().size() == static_cast<unsigned int>(layers[i]));
-        }
-
-    }
 #endif
 }
