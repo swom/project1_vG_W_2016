@@ -41,7 +41,7 @@ void save_demographic_sim(
     int cycle_number = 0;
     for(const auto& demo_cycle : d_s.get_demo_cycles())
     {
-        f << cycle_number << " , " << demo_cycle;
+        f << cycle_number << " , " << demo_cycle << std::endl;
         cycle_number++;
     }
 }

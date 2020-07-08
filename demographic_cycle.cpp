@@ -21,7 +21,7 @@ std::ostream& operator<<(std::ostream& os, const demographic_cycle& d_c)
        << d_c.get_n_spores() << " , "
        << d_c.get_n_sporulating();
     os << d_c.get_env_param() << " , ";
-    os << d_c.get_ind_param() << " , ";
+    os << d_c.get_ind_param();
     return os;
 }
 
