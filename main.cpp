@@ -71,8 +71,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
     meta_param m;
 
-    if (
-            args.size() > 1
+    if (args.size() > 1
             && args[1][0] == 's'
             && std::isdigit(args[1][1])
             )
@@ -112,9 +111,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
     if(args.size() > 1 && args[1] == "--visual")
     {
-
 #ifndef LOGIC_ONLY
-
         sim_view v(sim_param{e, m, p});
         std::cout << "view: ";
         auto start = std::chrono::high_resolution_clock::now();
@@ -124,11 +121,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         std::cout << duration.count() << "s" << std::endl;
         std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
 #endif
-
     }
     else
     {
-
         simulation s{sim_param{e, m, p}};
         std::cout << "logic: ";
         auto start = std::chrono::high_resolution_clock::now();
@@ -139,6 +134,5 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
 
     return 0;
-
 }
 

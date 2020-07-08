@@ -48,6 +48,12 @@ funders calc_funders_success(const simulation& s)
     return funders;
 }
 
+void change_conditions(simulation& s) noexcept
+{
+    change_env(s);
+    change_pop(s);
+}
+
 void change_env(simulation& s) noexcept
 {
     if(s.get_env().get_param().get_min_step_degr_change() == 0
@@ -217,7 +223,7 @@ int tick(simulation& s)
 demographic_sim update_demographics(const simulation& s) noexcept
 {
     auto d_s = s.get_demo_sim();
-    d_s.get_demo_cycles().push_back(demographics(s.get_pop()));
+    d_s.get_demo_cycles().push_back(demographics(s.get_pop(), s.get_env().get_param()));
     return d_s;
 }
 
@@ -1037,14 +1043,14 @@ void test_simulation()//!OCLINT tests may be many
             0.1,
             0.1,
             magnitude_of_env_change,
-            range_of_env_change
-                    };
+                    range_of_env_change
+        };
         pop_param p;
         int change_frequency = 1;
         meta_param m{change_frequency + 1,
-                     1,
-                     1,
-                     change_frequency
+                    1,
+                    1,
+                    change_frequency
                     };
         sim_param s_p{e, m, p};
         simulation s{s_p};
@@ -1121,6 +1127,19 @@ void test_simulation()//!OCLINT tests may be many
         assert(prev_env != s.get_env());
         assert(prev_pop != s.get_pop().get_v_ind());
 
+    }
+
+    //Each cycle env_param and ind_param will be stored in the demographic cycle
+    //That will be use to store the particular parameters that can change throughout the simulation
+    {
+        simulation s;
+        demographic_cycle d_c = demographics(s.get_pop(), s.get_env().get_param());
+        assert(d_c.get_ind_param() == s.get_pop().get_param().get_ind_param());
+        assert(d_c.get_env_param() == s.get_env().get_param());
+        change_env(s);
+        change_pop(s);
+        demographic_cycle d_c1 = demographics(s.get_pop(), s.get_env().get_param());
+        assert(d_c != d_c1);
     }
 #endif
 }

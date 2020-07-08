@@ -101,6 +101,10 @@ void add_new_funders(simulation& s) noexcept;
 ///Calculates the success of each funder at the end of a cycle
 funders calc_funders_success(const simulation& s);
 
+///Changes the conditions for the individuals in the simulation
+/// Both environemntal and individual
+void change_conditions(simulation& s) noexcept;
+
 ///Changes the environemtnal parameters of a simulation based on its metaparameters
 void change_env(simulation& s) noexcept;
 

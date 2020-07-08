@@ -20,7 +20,7 @@ demographic_sim load_demographic_sim(
 {
     std::ifstream f(filename);
     demographic_sim d_s;
-    demographic_cycle d_c{0,0,0};
+    demographic_cycle d_c{0,0,0, env_param{}, ind_param{}};
     std::string dummy;
     while(f >> dummy)//Skips the cycle number
     {
@@ -58,13 +58,16 @@ void test_demographic_sim()//!OCLINT
     //demographic_sim object can be loaded and saved to a given file name
     {
 
-
+env_param e;
+ind_param i;
         int n_spores = 2;
         int n_sporulating = 3;
         int n_actives = 4;
         demographic_cycle ex{n_actives,
                     n_spores,
-                    n_sporulating};
+                    n_sporulating,
+                            e,
+                            i};
 
         demographic_sim p;
         int lenght_demo_sim = 3;

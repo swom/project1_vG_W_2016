@@ -1,14 +1,21 @@
 #ifndef DEMOGRAPHIC_CYCLE_H
 #define DEMOGRAPHIC_CYCLE_H
 #include "population.h"
+#include "environment.h"
 
 class demographic_cycle
 {
 public:
     demographic_cycle(int n_actives,
                       int n_spores,
-                      int n_sporulating);
+                      int n_sporulating,
+                      env_param env_p,
+                      ind_param ind_p);
 
+    ///Returns const ref to env_param
+    const env_param& get_env_param() const noexcept {return m_env_param;}
+    ///Returns const ref to ind_param
+    const ind_param& get_ind_param() const noexcept {return m_ind_param;}
     ///Returns number of spores
     int get_n_spores() const noexcept {return m_n_spores;}
     ///Returns number of sporulating
@@ -24,7 +31,15 @@ private:
     int m_n_spores;
     ///number of sporulating individuals in the pop at that moment
     int m_n_sporulating;
+
+    ///The env_param that are set in the simulation when
+    /// The demographic_cycle is instantiated
+    env_param m_env_param;
+    ///The ind_param that are set in the simulation when
+    /// The demographic_cycle is instantiated
+    ind_param m_ind_param;
 };
+
 ///Prints a demographic_cycle object to an output stream
 std::ostream& operator<<(std::ostream& os, const demographic_cycle& p);
 
@@ -34,8 +49,20 @@ std::ifstream& operator>>(std::ifstream& is, demographic_cycle& p);
 ///Compares 2 demographic cycle objects to see if all their memebers are equal
 bool operator==(const demographic_cycle& lhs, const demographic_cycle& rhs) noexcept;
 
+///Compares 2 demographic cycle objects to see if they are not equal
+bool operator!=(const demographic_cycle& lhs, const demographic_cycle& rhs) noexcept;
+
+///Counts number of active individuals in a population
+int count_active(const population& pop);
+
+///Counts the number of spores in a population
+int count_spores(const population& pop);
+
+///Counts the number of sporulating individuals in a population
+int count_sporulating(const population& pop);
+
 ///Returns a demographic cycle object storing data about a population
-demographic_cycle demographics(const population& p) noexcept;
+demographic_cycle demographics(const population&p, const env_param&e) noexcept;
 
 ///Instantiate a demographic_cycle object from a given file name
 demographic_cycle load_demographic_cycle(const std::string& filename);
