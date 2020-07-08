@@ -102,6 +102,7 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
         show();
     }
     dispersal(m_sim);
+    s.reset_timesteps();
     return false;
 }
 void sim_view::k_pan() noexcept
