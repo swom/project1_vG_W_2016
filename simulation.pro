@@ -1,7 +1,6 @@
 # Entry point for user
 
 HEADERS += \
-    connection.h \
     demographic_cycle.h \
     demographic_cycle.h \
     demographic_sim.h \
@@ -15,9 +14,7 @@ HEADERS += \
     grn.h \
     ind_param.h \
     individual.h \
-    layer.h \
     meta_param.h \
-    node.h \
     phenotype.h \
     pop_param.h \
     population.h \
@@ -27,7 +24,6 @@ HEADERS += \
     simulation.h
 
 SOURCES += \
-    connection.cpp \
     demographic_cycle.cpp \
     demographic_sim.cpp \
     env_grid_cell.cpp \
@@ -40,10 +36,8 @@ SOURCES += \
     grn.cpp \
     ind_param.cpp \
     individual.cpp \
-    layer.cpp \
     main.cpp \
     meta_param.cpp \
-    node.cpp \
     phenotype.cpp \
     pop_param.cpp \
     population.cpp \

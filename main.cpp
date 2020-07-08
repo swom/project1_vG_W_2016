@@ -30,8 +30,6 @@ void test() {
     test_ind_param();
     test_individual();
     test_phenotype();
-    test_layer();
-    test_node();
     test_meta_param();
     test_pop_param();
     test_population();
@@ -90,8 +88,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else
     {
-        m = meta_param {500,
-                125,
+        m = meta_param {30,
+                50,
                 0,
                 1};
     }
