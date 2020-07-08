@@ -19,9 +19,9 @@ std::ostream& operator<<(std::ostream& os, const demographic_cycle& d_c)
 {
     os << d_c.get_n_actives() << " , "
        << d_c.get_n_spores() << " , "
-       << d_c.get_n_sporulating();
+       << d_c.get_n_sporulating() << " , ";
     os << d_c.get_env_param() << " , ";
-    os << d_c.get_ind_param();
+    os << d_c.get_ind_param() << std::endl;
     return os;
 }
 
@@ -206,9 +206,9 @@ void test_demographic_cycle() noexcept
                             46,
                             58,
                             env_param{42,
-                                      424,
+                                      0.424,
                                       42,
-                                      42},
+                                      0.42},
                                             ind_param{42,
                                                       42,
                                                       42,
@@ -234,9 +234,9 @@ void test_demographic_cycle() noexcept
                     n_spores + 1,
                     n_sporulating + 1,
                     env_param{42,
-                              424,
+                              0.424,
                               42,
-                              42},
+                              0.42},
                              ind_param{42,
                                        42,
                                        42,

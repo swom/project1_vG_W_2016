@@ -31,9 +31,10 @@ env_param::env_param(int grid_side,
         m_step_min_degr_change = 0;
         m_step_min_diff_change = 0;
     }
-    else
-    m_step_min_diff_change = (m_range_diff_coeff_change.max() - m_range_diff_coeff_change.min()) / min_change_fraction;
-    m_step_min_degr_change = (m_range_metab_degr_change.max() - m_range_metab_degr_change.min()) / min_change_fraction;
+    else{
+        m_step_min_diff_change = (m_range_diff_coeff_change.max() - m_range_diff_coeff_change.min()) / min_change_fraction;
+        m_step_min_degr_change = (m_range_metab_degr_change.max() - m_range_metab_degr_change.min()) / min_change_fraction;
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const env_param& p)
@@ -41,9 +42,12 @@ std::ostream& operator<<(std::ostream& os, const env_param& p)
     os << p.get_grid_side() << " , "
        << p.get_init_food() << " , "
        << p.get_diff_coeff()  << " , "
-       << p.get_degr_rate() << " , "
-       << (p.get_range_diff_coeff_change().max() - p.get_range_diff_coeff_change().min()) / p.get_min_step_diff_change()
-       << " , "
+       << p.get_degr_rate() << " , ";
+    if(p.get_min_step_diff_change() == 0)
+        os << 0;
+    else
+        os  << (p.get_range_diff_coeff_change().max() - p.get_range_diff_coeff_change().min()) / p.get_min_step_diff_change();
+    os << " , "
        << (p.get_range_diff_coeff_change().max() - p.get_range_diff_coeff_change().min()) / 2.0
           ;
     return os;
