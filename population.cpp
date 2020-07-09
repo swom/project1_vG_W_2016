@@ -108,17 +108,17 @@ bool calc_tot_displ_pop(population& population)
     return has_collision;
 }
 
-std::vector<individual> change_inds( population& p)
+std::vector<individual> change_inds(const population& p, const ind_param& new_ind_params)
 {
     std::vector<individual> new_p_v = p.get_v_ind();
-    auto new_ind_param = change_ind_param(p.get_param().get_ind_param(), p.get_rng());
-    p.get_param().get_ind_param() = new_ind_param; //This is horrible and is going to make me cry
+
     for(auto& individual : new_p_v)
     {
-        individual.set_param(new_ind_param);
+        individual.set_param(new_ind_params);
     }
     return new_p_v;
 }
+
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept
 {
     return std::uniform_real_distribution<double>(a,b);
@@ -1437,7 +1437,7 @@ void test_population() noexcept  //!OCLINT
         ind_param i{};
         pop_param pp{};
         population p{pp};
-        auto new_p = change_inds(p);
+        auto new_p = change_inds(p, change_ind_param_unif(i, p.get_rng()));
         assert(p.get_v_ind() != new_p);
     }
 

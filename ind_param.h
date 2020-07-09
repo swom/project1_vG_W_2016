@@ -150,7 +150,7 @@ std::ostream& operator<<(std::ostream& os, const ind_param& p);
 std::ifstream& operator>>(std::ifstream& is, ind_param& p);
 
 ///Changes the individual parameters based on their ranges of change
-ind_param change_ind_param(ind_param i, std::minstd_rand& rng);
+ind_param change_ind_param_unif(ind_param i, std::minstd_rand& rng);
 
 ///Changes the parameter of reproduction probability based on range and change
 double change_ind_repr_prob(ind_param& i, std::minstd_rand& rng);

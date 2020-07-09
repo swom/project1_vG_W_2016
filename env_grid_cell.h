@@ -75,7 +75,7 @@ double food_flux(const env_grid_cell& lhs, const env_grid_cell& rhs)  noexcept;
 
 ///Given the vector of food differences with the neighbors and the diffusion coefficient
 /// Calculates how much food the cell will give away
-double calc_food_flux(const env_grid_cell& cell, double av_food_flux, double diffusion_coeff) noexcept;
+double calc_food_flux(const env_grid_cell& cell, double av_food_delta, double diffusion_coeff) noexcept;
 
 ///Given the vector of food differences with the neighbors and the diffusion coefficient
 /// Calculates how much metabolite the cell will give away

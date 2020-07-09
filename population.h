@@ -102,7 +102,7 @@ bool calc_tot_displ_pop(population& population);
 ///Creates a new vector of individual
 ///which is the same population with
 //different params of the individuals in the population
-std::vector<individual> change_inds( population &p);
+std::vector<individual> change_inds(const population &p, const ind_param &new_ind_params);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;

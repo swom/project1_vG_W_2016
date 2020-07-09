@@ -189,7 +189,7 @@ double change_ind_spor_metab(ind_param& i, std::minstd_rand& rng)
 
 
 
-ind_param change_ind_param( ind_param i,  std::minstd_rand& rng)
+ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
 {
 
     i.set_uptake_rate(change_ind_uptake(i, rng));
@@ -276,7 +276,7 @@ void test_ind_param() noexcept  //!OCLINT
     {
         std::minstd_rand rng;
         ind_param i{};
-        auto new_i = change_ind_param(i,rng);
+        auto new_i = change_ind_param_unif(i,rng);
         assert( i != new_i);
     }
 
@@ -321,7 +321,7 @@ void test_ind_param() noexcept  //!OCLINT
         int repeats = 100;
         for( int i = 0; i != repeats; i++)
         {
-            new_i = change_ind_param(i_p,rng);
+            new_i = change_ind_param_unif(i_p,rng);
             auto uptake_delta = new_i.get_uptake_rate() - i_p.get_uptake_rate();
             assert(uptake_delta * uptake_delta >= uptake_step  * uptake_step);
             auto repr_prob_delta = new_i.get_repr_prob() - i_p.get_repr_prob();

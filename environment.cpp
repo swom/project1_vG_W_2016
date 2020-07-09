@@ -3,19 +3,6 @@
 #include <cassert>
 #include <numeric>
 
-environment::environment(int grid_side, double diff_coeff, double init_food, double metab_deg_rate):
-    m_env_param{
-        grid_side,
-        diff_coeff,
-        init_food,
-        metab_deg_rate
-        },
-    m_grid(static_cast<unsigned int>(m_env_param.get_grid_side() * m_env_param.get_grid_side()),
-           env_grid_cell(0,m_env_param.get_init_food()))
-{
-    find_neighbors_all_grid(*this);
-}
-
 environment::environment(env_param env_parameters):
     m_env_param(env_parameters),
     m_grid(
@@ -46,21 +33,18 @@ bool operator != (const environment& lhs, const environment& rhs) noexcept
 void calc_change_food(environment& e, int index_focal_cell) noexcept
 {
     auto& focal_gridcell = e.get_cell(index_focal_cell);
-    auto v_food_fluxes = get_neighbors_food_fluxes(focal_gridcell, e);
-    if(std::none_of(v_food_fluxes.begin(), v_food_fluxes.end(),
-                    [](double f){return  f > 0.000001 || f < -0.000001;}))
-    {
-        assert(focal_gridcell.get_food_change() < 0.000001 &&
-               focal_gridcell.get_food_change() > -0.000001);
-        return;
-    }
-    auto av_food_flux =
-            std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
-            (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
+    auto v_food_deltas = get_neighbors_food_deltas(focal_gridcell, e);
+
+    double av_food_delta;
+    if(v_food_deltas.empty())
+        av_food_delta = 0.0;
+    else
+        av_food_delta = std::accumulate(v_food_deltas.begin(),v_food_deltas.end(),0.0) /
+                v_food_deltas.size();
 
     auto in_out_flux_food =
             calc_food_flux(focal_gridcell,
-                           av_food_flux,
+                           av_food_delta,
                            e.get_param().get_diff_coeff());
 
     focal_gridcell.set_food_change(in_out_flux_food);
@@ -103,7 +87,7 @@ void calc_diffusion_food(environment& e) noexcept
     for(size_t i = 0; i != e.get_grid().size(); i++)
     {
         auto& focal_gridcell = e.get_grid()[i];
-        auto v_food_fluxes = get_neighbors_food_fluxes(focal_gridcell, e);
+        auto v_food_fluxes = get_neighbors_food_deltas(focal_gridcell, e);
         auto av_food_flux =
                 std::accumulate(v_food_fluxes.begin(),v_food_fluxes.end(),0.0) /
                 (v_food_fluxes.empty() ? 1 : v_food_fluxes.size());
@@ -223,7 +207,7 @@ double food_balance(const std::vector<env_grid_cell>& lhs, const std::vector<env
     return grid_food - grid_new_food;
 }
 
-std::vector<double> get_neighbors_food_fluxes(const env_grid_cell& c, const environment &e) noexcept
+std::vector<double> get_neighbors_food_deltas(const env_grid_cell& c, const environment &e) noexcept
 {
     std::vector<double> v_food_deltas;
     for(auto neighbor : c.get_v_neighbors())
@@ -271,7 +255,7 @@ void reset_env(environment& e)
 
 void reset_env(environment& e, int grid_side, double diff_coeff, double food)
 {
-    e = environment(grid_side, diff_coeff, food);
+    e = environment(env_param{grid_side,diff_coeff,food});
 }
 
 void test_environment()//!OCLINT tests may be many
@@ -283,7 +267,7 @@ void test_environment()//!OCLINT tests may be many
     //value are irrelevant is just to see if the command
     //is called properly
     {
-        environment e;
+        environment e{env_param{}};
         assert(static_cast<int>(e.get_grid().size()) > -123456789);
     }
 
@@ -293,24 +277,24 @@ void test_environment()//!OCLINT tests may be many
     //constituting the environment
     {
         int n = 2;
-        environment e(n);
+        environment e(env_param{n});
         assert(e.get_grid_size() == 2 * 2);
     }
 
     //One can get the gride side's size
     {
         int side = 42;
-        environment e(side);
+        environment e(env_param{side});
         assert(e.get_param().get_grid_side() == side );
     }
 
     //An environment is initialized by default with
     //all his gridcells with the same amount of food
     {
-        environment g;
-        for (auto& cell : g.get_grid())
+        environment e{env_param{}};
+        for (auto& cell : e.get_grid())
         {
-            for(auto& comparison_cell :g.get_grid())
+            for(auto& comparison_cell :e.get_grid())
             {
                 assert(cell.get_food() - comparison_cell.get_food() < 0.00001);
             }
@@ -320,8 +304,8 @@ void test_environment()//!OCLINT tests may be many
     //An environment is initialized by default with
     //all his gridcells with the 0 metabolite
     {
-        environment g;
-        for (auto& cell : g.get_grid())
+        environment e{env_param{}};
+        for (auto& cell : e.get_grid())
         {
             assert(cell.get_metab() < 0.000001
                    || cell.get_metab() > -0.000001);
@@ -331,24 +315,24 @@ void test_environment()//!OCLINT tests may be many
     //An environment is initialized by default with
     //all his gridcells with 1 food
     {
-        environment g;
-        for (auto& cell : g.get_grid())
+        environment e;
+        for (auto& cell : e.get_grid())
         {
             assert(cell.get_food() - 1 < 0.000001
                    || cell.get_food() -1 > -0.000001);
         }
     }
 
-    //An environment is initialized with a specific diffusion coefficient
-    //same for food and metabolite (this might change in the future)
-    //0 by default
+    //An environment is initialized with a specific food and metabolite diffusion coefficient
+    //0.1 by default
     {
+
         environment e;
-        assert(e.get_param().get_diff_coeff() < 0.000001
-               && e.get_param().get_diff_coeff() > -0.000001);
+        assert(e.get_param().get_diff_coeff() - 0.1 < 0.000001
+               && e.get_param().get_diff_coeff() - 0.1 > -0.000001);
 
         double diff_coeff = 0.14;
-        environment e1(1, diff_coeff);
+        environment e1(env_param{1, diff_coeff});
         assert(e1.get_param().get_diff_coeff() - diff_coeff < 0.0001 &&
                e1.get_param().get_diff_coeff() - diff_coeff > -0.0001);
     }
@@ -358,7 +342,7 @@ void test_environment()//!OCLINT tests may be many
     {
         auto env_side = 3;
         auto env_size = 3 * 3;
-        environment e3x3(3);//3x3 env just to have some actual neighbours
+        environment e3x3{env_param{3}};//3x3 env just to have some actual neighbours
         for(int i = 0; i != e3x3.get_grid_size(); i++)
         {
             assert(e3x3.get_cell(i).get_v_neighbors()
@@ -417,14 +401,15 @@ void test_environment()//!OCLINT tests may be many
     {
         //Check for case in which exiting food >= cell_food
         //And therefore exiting food = cell_food
+        double init_food = 3.0;
         double diffusion_coeff = 1;
         double av_diff = - 1;//Three neighbours each with 1 food less than focal cell
-        environment e(2,diffusion_coeff);
+        environment e(env_param{2, diffusion_coeff, init_food});
         auto c = e.get_cell(0);
         //Check for case in which exiting food < cell_food
         //-> exiting food = cell_food * av_difference * diffusion_coeff * neighbors_
         diffusion_coeff = 0.1;
-        auto predicted_flux = av_diff * diffusion_coeff * c.get_food() * c.get_v_neighbors().size();
+        auto predicted_flux = av_diff * diffusion_coeff * c.get_v_neighbors().size();
         assert(calc_food_flux(c,av_diff,diffusion_coeff) -
                predicted_flux < 0.000001 &&
                calc_food_flux(c,av_diff,diffusion_coeff) -
@@ -438,15 +423,16 @@ void test_environment()//!OCLINT tests may be many
     {
         //Check for case in which exiting metab >= cell_metab
         //And therefore exiting metab = cell_metab
+        double init_metab = 3.0;
         double diffusion_coeff = 1;
         double av_diff = - 1;//Three neighbours each with 1 metab less than focal cell
-        environment e(2,diffusion_coeff);
+        environment e(env_param{2,diffusion_coeff});
         auto c = e.get_cell(0);
+        c.set_metab(init_metab);
         //Check for case in which exiting metab < cell_metab
         //-> exiting metab = cell_metab * av_difference * diffusion_coeff * neighbors_
         diffusion_coeff = 0.1;
-        auto predicted_flux = av_diff * diffusion_coeff *
-                c.get_metab() * c.get_v_neighbors().size();
+        auto predicted_flux = av_diff * diffusion_coeff *  c.get_v_neighbors().size();
 
         assert(calc_metab_flux(c,av_diff,diffusion_coeff) -
                predicted_flux < 0.000001 &&
@@ -456,7 +442,12 @@ void test_environment()//!OCLINT tests may be many
 
     //A cell with more substance than its neighbours diffuses food to them
     {
-        environment e(3, 0.1, 0);
+        auto grid_side = 3;
+        auto diff_coeff = 0.1;
+        auto init_food = 0.0;
+        environment e{env_param{grid_side,
+                        diff_coeff,
+                        init_food}};
         auto focal_cell_index = 4;
         e.get_cell(focal_cell_index).set_food(1);
         e.get_cell(focal_cell_index).set_metab(1);
@@ -497,7 +488,12 @@ void test_environment()//!OCLINT tests may be many
 
     //A cell with less food than its neighbours  receives food
     {
-        environment e(3, 0.1, 4);
+        auto grid_side = 3;
+        auto diff_coeff = 0.1;
+        auto init_food = 4.0;
+        environment e{env_param{grid_side,
+                        diff_coeff,
+                        init_food}};
         auto focal_cell_index = 4;
         e.get_cell(focal_cell_index).set_food(1);
 
@@ -536,7 +532,10 @@ void test_environment()//!OCLINT tests may be many
 
     //A cell with less metab than its neighbours  receives metab
     {
-        environment e(3, 0.1);
+        auto grid_side = 3;
+        auto diff_coeff = 0.1;
+        environment e{env_param{grid_side,
+                        diff_coeff}};
         //Let's add metabolite to all grid_cells
         double metab_value = 4;
         for(auto& cell: e.get_grid()){cell.set_metab(metab_value);}
@@ -580,7 +579,12 @@ void test_environment()//!OCLINT tests may be many
     //Diffusion does not change the total amount of substance present in a system
     {
         //for food
-        environment e(3, 0.1, 4);
+        auto grid_side = 3;
+        auto diff_coeff = 0.1;
+        auto init_food = 4.0;
+        environment e{env_param{grid_side,
+                        diff_coeff,
+                        init_food}};
         auto focal_cell_index = 4;
         e.get_cell(focal_cell_index).set_food(1);
         e.get_cell(focal_cell_index).set_metab(1);
@@ -614,9 +618,18 @@ void test_environment()//!OCLINT tests may be many
 
     //The metabolite in all grid_cells can be depleted by the degradation rate
     {
+        auto grid_side = 2;
+        auto diff_coeff = 0.0;
+        auto init_food = 1.0;
         double degradation_coeff = 0.14;
+
+        environment e{env_param{grid_side,
+                        diff_coeff,
+                        init_food,
+                        degradation_coeff,
+                               0.0,
+                               0.0}};
         double init_metab_per_cell = degradation_coeff;
-        environment e(2,0,1,degradation_coeff);
         double tot_metab = 0;
         for(auto& grid_cell : e.get_grid())
         {
@@ -659,8 +672,8 @@ void test_environment()//!OCLINT tests may be many
     {
         environment e;
         auto e1 = e;
-        environment e2(10);
-        environment e3(1,0.2);
+        environment e2(env_param{10});
+        environment e3(env_param{1,0.2});
         assert(e == e1 );
         assert(e != e2 && e != e3 && e2 != e3);
         e1.get_cell(0).set_food(42);
@@ -695,9 +708,11 @@ void test_environment()//!OCLINT tests may be many
     //with set size, diffusion coefficent and food
     {
         auto init_grid_side = 2;
-        auto init_diff_coeff = 1;
-        auto init_food = 2;
-        environment e(init_grid_side, init_diff_coeff, init_food);
+        auto init_diff_coeff = 1.0;
+        auto init_food = 2.0;
+        environment e(env_param{init_grid_side,
+                                init_diff_coeff,
+                                init_food});
         environment e2 = e;
 
         auto grid_side = 42;

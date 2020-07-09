@@ -59,13 +59,20 @@ void change_env(simulation& s) noexcept
     if(s.get_env().get_param().get_min_step_degr_change() == 0
             && s.get_env().get_param().get_min_step_diff_change() == 0)
         return;
-    auto new_env_param = change_env_param_incr(s.get_env().get_param(),s.get_rng());
+    auto new_env_param = change_env_param_unif(s.get_env().get_param(),s.get_rng());
     s.get_env().set_param(new_env_param);
 }
 
 void change_pop( simulation& s)
 {
-    s.get_pop().get_v_ind() = change_inds(s.get_pop());
+    auto& p = s.get_pop();
+    const auto new_ind_param = change_ind_param_unif(p.get_param().get_ind_param(), p.get_rng());
+
+    ///Change ind_param object contained in pop_param
+    p.get_param().get_ind_param() = new_ind_param;
+
+    ///Change ind_params of all inds in pop
+    p.get_v_ind() = change_inds(p,new_ind_param);
 }
 
 void dispersal(simulation &s)
@@ -145,6 +152,24 @@ void jordi_feeding(simulation& s)
         {continue;}
         jordi_feed(ind,s.get_env().get_cell(index_grid));
     }
+}
+
+std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::string& filename)
+{
+    std::vector<std::pair<env_param, ind_param>> random_conditions;
+    env_param env;
+    ind_param ind;
+    std::string dummy;
+    std::ifstream is{filename};
+    while(is >> env
+          && is >> dummy
+          && is >> ind)
+    {
+        random_conditions.push_back({env,
+                                    ind});
+    }
+
+    return random_conditions;
 }
 
 funders prepare_funders(const simulation& s)
@@ -244,7 +269,7 @@ void test_simulation()//!OCLINT tests may be many
         double base_disp_prob = 0.01;
         double spore_advantage = 10.0;
         double repr_trsh = 0.1;
-        double metab_degr_rate = 0.01;
+        double metab_degr_rate = 0.1;
         int n_cycles = 42;
         int cycle_duration = 5;
 
@@ -564,7 +589,7 @@ void test_simulation()//!OCLINT tests may be many
     //A simulation is initiallized with a degradation rate
     {
         double degradation_rate = 0.314;
-        simulation s(sim_param{0,0,0,0,0,0,0,0,0,0,0,degradation_rate});
+        simulation s(sim_param{0,0,0,0,1,0,0,0,0,0,0,degradation_rate});
         assert(s.get_env().get_param().get_degr_rate() - degradation_rate < 0.000001 &&
                s.get_env().get_param().get_degr_rate() - degradation_rate > -0.000001);
     }
@@ -572,7 +597,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         double degradation_rate = 0.314;
         double init_metab = degradation_rate;
-        simulation s(sim_param{1,0,0,1,0,0,0,0,0,0,0,degradation_rate});
+        simulation s(sim_param{1,0,0,1,1,0,0,0,0,0,0,degradation_rate});
 
         for(auto& grid_cell : s.get_env().get_grid())
         {
@@ -1140,6 +1165,30 @@ void test_simulation()//!OCLINT tests may be many
         change_pop(s);
         demographic_cycle d_c1 = demographics(s.get_pop(), s.get_env().get_param());
         assert(d_c != d_c1);
+    }
+
+    //It is possible to load the random conditions in a vector
+    {
+        //Make a random conditions .csv file
+        env_param env;
+        ind_param ind;
+        std::minstd_rand rng;
+        std::string filename{"test_random_conditions.csv"};
+        std::ofstream os{filename};
+
+        std::vector<std::pair<env_param,ind_param>> saved_random_conditions;
+        int repeats = 3;
+        for(int i = 0; i != repeats; i++)
+        {
+            saved_random_conditions.push_back({change_env_param_unif(env, rng),
+                                               change_ind_param_unif(ind, rng)});
+            os << saved_random_conditions.back().first << " , "
+               << saved_random_conditions.back().second << std::endl;
+        }
+
+        auto loaded_random_conditions = load_random_conditions(filename);
+        //assert( loaded_random_conditions == saved_random_conditions);
+
     }
 #endif
 }

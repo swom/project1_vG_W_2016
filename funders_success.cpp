@@ -16,7 +16,6 @@ bool operator==(const funders_success& lhs, const funders_success& rhs) noexcept
 std::ifstream& operator>>(std::ifstream& is, funders_success& f_s)
 {
     funders f;
-    std::string dummy;
     while(is >> f)
     {
         f_s.get_v_funders().push_back(f);

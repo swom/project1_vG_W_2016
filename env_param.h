@@ -11,9 +11,9 @@ public:
     env_param(int grid_side = 1,
               double diff_coeff = 0.1,
               double init_food = 10.0,
-              double metab_degrad_rate = 0.01,
-              double min_change_fraction = 1, // the nth fraction of the range which is going to be the minimum step
-              double range_env_change = 0);
+              double metab_degrad_rate = 0.1,
+              double min_change_fraction = 0, // the nth fraction of the range which is going to be the minimum step
+              double range_env_change = 0.05);
 
 
     ///Returns the diffusion coefficient
@@ -97,7 +97,7 @@ std::ifstream& operator>>(std::ifstream& is, env_param& p);
 
 ///Returns a new env_param that is a changed version of the
 /// variable env_param modified following the magnitude and range values
-env_param change_env_param_incr(const env_param& e, std::minstd_rand &rng) noexcept;
+env_param change_env_param_unif(const env_param& e, std::minstd_rand &rng) noexcept;
 
 env_param load_env_parameters( const std::string& filename);
 

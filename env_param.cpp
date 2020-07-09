@@ -53,7 +53,7 @@ std::ostream& operator<<(std::ostream& os, const env_param& p)
     return os;
 }
 
-std::ifstream& operator>>(std::ifstream& is, env_param& p)
+std::ifstream& operator>>(std::ifstream& is, env_param& e)
 {
     int grid_side;
     double diff_coeff;
@@ -61,6 +61,8 @@ std::ifstream& operator>>(std::ifstream& is, env_param& p)
     double metab_degrad_rate;
     double min_step_env_change;
     double range_env_change;
+    double min_range;
+    double max_range;
 
     std::string dummy; // To remove the annotation in the file
     is >>
@@ -69,9 +71,11 @@ std::ifstream& operator>>(std::ifstream& is, env_param& p)
             diff_coeff >>dummy >>
             metab_degrad_rate >> dummy >>
             min_step_env_change >> dummy >>
-            range_env_change;
+            range_env_change >> dummy >>
+            min_range >> dummy >>
+            max_range;
 
-    p = env_param {grid_side,
+    e = env_param {grid_side,
             diff_coeff,
             init_food,
             metab_degrad_rate,
@@ -84,21 +88,20 @@ std::ifstream& operator>>(std::ifstream& is, env_param& p)
 
 bool operator==(const env_param& lhs, const env_param& rhs) noexcept
 {
-    return
-            (lhs.get_grid_side() - rhs.get_grid_side() < 0.0001
-             && lhs.get_grid_side() - rhs.get_grid_side() > -0.0001)
-            && (lhs.get_init_food() - rhs.get_init_food() < 0.0001
-                && lhs.get_init_food() - rhs.get_init_food() > -0.0001)
-            && (lhs.get_degr_rate() - rhs.get_degr_rate() < 0.0001
-                && lhs.get_degr_rate() - rhs.get_degr_rate() > -0.0001)
-            && (lhs.get_diff_coeff() - rhs.get_diff_coeff() < 0.0001
-                && lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.0001)
-            && (lhs.get_min_step_degr_change() - rhs.get_min_step_degr_change() < 0.0001
-                && lhs.get_min_step_degr_change() - rhs.get_min_step_degr_change() > -0.0001)
-            && (lhs.get_min_step_diff_change() - rhs.get_min_step_diff_change() < 0.0001
-                && lhs.get_min_step_diff_change() - rhs.get_min_step_diff_change() > -0.0001)
-            && lhs.get_range_diff_coeff_change() == rhs.get_range_diff_coeff_change()
-            && lhs.get_range_metab_degr_change() == rhs.get_range_metab_degr_change()
+    auto grid = (lhs.get_grid_side() == rhs.get_grid_side());
+    auto food = (lhs.get_init_food() - rhs.get_init_food() < 0.0001
+        && lhs.get_init_food() - rhs.get_init_food() > -0.0001);
+    auto degr = (lhs.get_degr_rate() - rhs.get_degr_rate() < 0.0001
+        && lhs.get_degr_rate() - rhs.get_degr_rate() > -0.0001);
+    auto diff =  (lhs.get_diff_coeff() - rhs.get_diff_coeff() < 0.0001
+        && lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.0001);
+    auto min_step_degr = (lhs.get_min_step_degr_change() - rhs.get_min_step_degr_change() < 0.0001
+        && lhs.get_min_step_degr_change() - rhs.get_min_step_degr_change() > -0.0001);
+    auto min_step_diff = (lhs.get_min_step_diff_change() - rhs.get_min_step_diff_change() < 0.0001
+        && lhs.get_min_step_diff_change() - rhs.get_min_step_diff_change() > -0.0001);
+    auto range_diff_min =  lhs.get_range_diff_coeff_change() == rhs.get_range_diff_coeff_change();
+    auto range_degr_min = lhs.get_range_metab_degr_change() == rhs.get_range_metab_degr_change();
+    return grid && food && degr && diff && min_step_degr && min_step_diff && range_diff_min && range_degr_min
             ;
 }
 
@@ -107,7 +110,7 @@ bool operator!=( const env_param& lhs, const env_param& rhs) noexcept
     return !(lhs == rhs);
 }
 
-env_param change_env_param_incr(const env_param& e, std::minstd_rand& rng) noexcept
+env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexcept
 {
     auto e1 = e;
     auto new_diff_coeff = e1.get_diff_coeff();
@@ -115,18 +118,22 @@ env_param change_env_param_incr(const env_param& e, std::minstd_rand& rng) noexc
     auto new_degr_rate = e1.get_degr_rate();
     auto old_degr_rate = e.get_degr_rate();
 
+    do
+        {
+            new_diff_coeff = e1.get_range_diff_coeff_change()(rng);
+        }
     while(new_diff_coeff < old_diff_coeff + e.get_min_step_diff_change()
-          && new_diff_coeff > old_diff_coeff - e.get_min_step_diff_change())
-    {
-        new_diff_coeff = e1.get_range_diff_coeff_change()(rng);
-    }
+          && new_diff_coeff > old_diff_coeff - e.get_min_step_diff_change());
+
     e1.set_diff_coeff(new_diff_coeff);
 
-    while(new_degr_rate < old_degr_rate + e.get_min_step_degr_change()
-          && new_degr_rate > old_degr_rate - e.get_min_step_degr_change())
+    do
     {
         new_degr_rate = e1.get_range_metab_degr_change()(rng);
     }
+    while(new_degr_rate < old_degr_rate + e.get_min_step_degr_change()
+          && new_degr_rate > old_degr_rate - e.get_min_step_degr_change());
+
     e1.set_metab_degr(new_degr_rate);
 
     return e1;
@@ -236,7 +243,7 @@ void test_env_param() noexcept //!OCLINT
         for( int i = 0;  i != repeats; i++)
         {
             auto e_prev = e;
-            e = change_env_param_incr(e, rng);
+            e = change_env_param_unif(e, rng);
             auto deg_rate = e.get_degr_rate();
             auto diff_coeff = e.get_diff_coeff();
 
