@@ -243,7 +243,7 @@ double half_overlap(const individual& lhs, const individual& rhs , double wiggle
 
 bool have_same_ancestor(const individual& lhs, const individual& rhs) noexcept
 {
-   return lhs.get_ancestor() == rhs.get_ancestor();
+    return lhs.get_ancestor() == rhs.get_ancestor();
 }
 
 void mutates(individual& i, std::minstd_rand& rng,
@@ -370,7 +370,7 @@ void test_individual()//!OCLINT tests may be many
         assert(i.get_param().get_metabolic_rate() - 0.01 < 0.000001
                && i.get_param().get_metabolic_rate() - 0.01 > -0.000001);
         double metabolic_rate = 2;
-        individual i2(ind_param{0.8,10,0.1,0.05,metabolic_rate});
+        individual i2(ind_param{0.8,10,0.1,0.1,0.002,metabolic_rate});
         assert(i2.get_param().get_metabolic_rate() - metabolic_rate < 0.000001
                && i2.get_param().get_metabolic_rate() - metabolic_rate > -0.000001);
 
@@ -685,7 +685,9 @@ void test_individual()//!OCLINT tests may be many
         individual i;
         assert(i.get_param().get_transformation_time() == 5);
         auto transformation_time = 42;
-        individual i2(ind_param{0,0,0,0,0,0,0,0,0,
+        individual i2(ind_param{0.1, 0.1, 0.1, 0.1,
+                                0.01, 0.01, 0.5, 0.5,
+                                0.07,0.5,0.5,0.07,
                                 transformation_time},
                       0,0,0,
                       phenotype::sporulating);

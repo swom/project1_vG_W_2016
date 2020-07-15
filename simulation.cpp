@@ -56,17 +56,14 @@ void change_conditions(simulation& s) noexcept
 
 void change_env(simulation& s) noexcept
 {
-    if(s.get_env().get_param().get_min_step_degr_change() == 0
-            && s.get_env().get_param().get_min_step_diff_change() == 0)
-        return;
-    auto new_env_param = change_env_param_unif(s.get_env().get_param(),s.get_rng());
+    auto new_env_param = change_env_param_norm(s.get_env().get_param(),s.get_rng());
     s.get_env().set_param(new_env_param);
 }
 
 void change_pop( simulation& s)
 {
     auto& p = s.get_pop();
-    const auto new_ind_param = change_ind_param_unif(p.get_param().get_ind_param(), p.get_rng());
+    const auto new_ind_param = change_ind_param_norm(p.get_param().get_ind_param(), p.get_rng());
 
     ///Change ind_param object contained in pop_param
     p.get_param().get_ind_param() = new_ind_param;
@@ -166,7 +163,7 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
           && is >> ind)
     {
         random_conditions.push_back({env,
-                                    ind});
+                                     ind});
     }
 
     return random_conditions;
@@ -1060,16 +1057,7 @@ void test_simulation()//!OCLINT tests may be many
     // environmental parameters change
     {
 
-        auto range_of_env_change = 0.01;
-        auto magnitude_of_env_change = 10.0;
-        env_param e{
-            1,
-            0.1,
-            0.1,
-            0.1,
-            magnitude_of_env_change,
-                    range_of_env_change
-        };
+        env_param e{};
         pop_param p;
         int change_frequency = 1;
         meta_param m{change_frequency + 1,
@@ -1087,11 +1075,15 @@ void test_simulation()//!OCLINT tests may be many
     //Env param can be changed in a simulation
     //Based on env params
     {
-        auto range_of_env_change = 0.01;
-        auto magnitude_of_env_change =  10.0;
+        auto mean_diff_coeff = 0.1;
+        auto mean_degr_coeff = 0.1;
+        auto var_degr_rate = mean_degr_coeff / 3 - 0.01;
+        auto var_diff_coeff = mean_diff_coeff / 3 - 0.01;
         env_param e_p{1, 0.1, 0.1, 0.1,
-                      magnitude_of_env_change,
-                              range_of_env_change};
+                      mean_diff_coeff,
+                              mean_degr_coeff,
+                              var_diff_coeff,
+                              var_degr_rate};
         pop_param p;
         meta_param m;
         sim_param s_p{e_p, m, p};
@@ -1108,18 +1100,8 @@ void test_simulation()//!OCLINT tests may be many
 
             auto deg_rate = s.get_env().get_param().get_degr_rate();
             auto diff_coeff = s.get_env().get_param().get_diff_coeff();
-
-            assert(deg_rate < prev_env.get_param().get_range_metab_degr_change().max()
-                   && deg_rate > prev_env.get_param().get_range_metab_degr_change().min());
-
-            assert(diff_coeff < prev_env.get_param().get_range_diff_coeff_change().max()
-                   && diff_coeff >  prev_env.get_param().get_range_diff_coeff_change().min()) ;
-
-            assert( deg_rate >= prev_deg_rate + prev_env.get_param().get_min_step_degr_change() ||
-                    deg_rate <= prev_deg_rate - prev_env.get_param().get_min_step_degr_change());
-
-            assert(diff_coeff >= prev_diff_coeff + prev_env.get_param().get_min_step_diff_change() ||
-                   diff_coeff <= prev_diff_coeff - prev_env.get_param().get_min_step_diff_change());
+            assert(prev_deg_rate != deg_rate);
+            assert(prev_diff_coeff != diff_coeff);
         }
     }
 
@@ -1135,14 +1117,16 @@ void test_simulation()//!OCLINT tests may be many
                     1,
                     frequency_of_change};
 
-        auto range_of_env_change = 0.01;
-        auto magnitude_of_env_change = 10.0;
-        env_param e{1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    magnitude_of_env_change,
-                            range_of_env_change};
+        auto mean_diff_coeff = 0.1;
+        auto mean_degr_coeff = 0.1;
+        auto var_degr_rate = mean_degr_coeff / 3 - 0.01;
+        auto var_diff_coeff = mean_diff_coeff / 3 - 0.01;
+        env_param e{1, 0.1, 0.1, 0.1,
+                    mean_diff_coeff,
+                            mean_degr_coeff,
+                            var_diff_coeff,
+                            var_degr_rate};
+
         pop_param p{};
         sim_param s_p{e,m,p};
         simulation s{s_p};
@@ -1151,7 +1135,6 @@ void test_simulation()//!OCLINT tests may be many
         exec(s);
         assert(prev_env != s.get_env());
         assert(prev_pop != s.get_pop().get_v_ind());
-
     }
 
     //Each cycle env_param and ind_param will be stored in the demographic cycle
@@ -1176,18 +1159,16 @@ void test_simulation()//!OCLINT tests may be many
         std::string filename{"test_random_conditions.csv"};
         std::ofstream os{filename};
 
-        std::vector<std::pair<env_param,ind_param>> saved_random_conditions;
-        int repeats = 3;
-        for(int i = 0; i != repeats; i++)
-        {
-            saved_random_conditions.push_back({change_env_param_unif(env, rng),
-                                               change_ind_param_unif(ind, rng)});
-            os << saved_random_conditions.back().first << " , "
-               << saved_random_conditions.back().second << std::endl;
-        }
+        std::vector<std::pair<env_param,ind_param>> rand_conditions_saved;
 
-        auto loaded_random_conditions = load_random_conditions(filename);
-        //assert( loaded_random_conditions == saved_random_conditions);
+        rand_conditions_saved.push_back({change_env_param_norm(env, rng),
+                                           change_ind_param_norm(ind, rng)});
+        os << rand_conditions_saved.back().first << " , "
+           << rand_conditions_saved.back().second << std::endl;
+
+
+        auto random_conditions_loaded = load_random_conditions(filename);
+        assert( random_conditions_loaded == rand_conditions_saved);
 
     }
 #endif

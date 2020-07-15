@@ -381,7 +381,7 @@ void test_environment()//!OCLINT tests may be many
                               e.get_param().get_grid_side(),focal_cell_index).empty());
 
         //the central grid_cell in a 3x3 grid (index = 4) should have 8 neighbors
-        environment e3x3(3);
+        environment e3x3(env_param{3});
         focal_cell_index = 4;
         assert(
                     find_neighbors
@@ -626,9 +626,7 @@ void test_environment()//!OCLINT tests may be many
         environment e{env_param{grid_side,
                         diff_coeff,
                         init_food,
-                        degradation_coeff,
-                               0.0,
-                               0.0}};
+                        degradation_coeff}};
         double init_metab_per_cell = degradation_coeff;
         double tot_metab = 0;
         for(auto& grid_cell : e.get_grid())

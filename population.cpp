@@ -136,9 +136,10 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
 
 
 
-void death(population &p) noexcept
+std::vector<individual> death(population &p) noexcept
 {
-    starvation(p);
+    auto new_inds = p.get_v_ind();
+    new_inds = starvation(new_inds);
     senescence(p);
 }
 
@@ -554,12 +555,14 @@ void spor_metabolism_pop(population &p)
     }
 }
 
-void starvation(population& p) noexcept
+std::vector<individual> starvation(const std::vector<individual>& p) noexcept
 {
-    p.get_v_ind().erase(
-                std::remove_if(p.get_v_ind().begin(),p.get_v_ind().end(),
+    auto new_p = p;
+    new_p.erase(
+                std::remove_if(new_p.begin(),new_p.end(),
                                [](individual const &i){ return is_dead(i);})
-            ,p.get_v_ind().end());
+            ,new_p.end());
+    return new_p;
 }
 
 void test_population() noexcept  //!OCLINT
@@ -1070,7 +1073,7 @@ void test_population() noexcept  //!OCLINT
     //given by the population parameters
     {
         int pop_size = 100;
-        int replicates = 30000;
+        int replicates = 1000;
         double death_rate = 0.1;
         pop_param pp {static_cast<unsigned int>(pop_size),
                     1,
@@ -1079,21 +1082,21 @@ void test_population() noexcept  //!OCLINT
                     0.1,
                     0.01,
                     10,
-                    0.5,
                     death_rate};
         auto mean = 0.0;
         population p(pp);
+        std::vector<individual> post_senescence_pop;
 
         for( int i  = 0; i != replicates; i++)
         {
             senescence(p);
             mean += p.get_pop_size();
-            p.get_v_ind().resize(pp.get_pop_start_size());
+            p.get_v_ind().resize(pop_size);
         }
         mean /= replicates;
         auto balance = pop_size - (mean + pop_size * pp.get_death_rate());
-        assert( balance < 0.01 &&
-                balance > -0.01);
+        assert( balance < 0.1 &&
+                balance > -0.1);
     }
 
     //Individuals that starve are removed from the population
@@ -1101,7 +1104,7 @@ void test_population() noexcept  //!OCLINT
         population p;
         p.get_ind(0).set_energy(0);//the only individual in this sim has 0 energy, thus it will die
         assert(p.get_pop_size() == 1);
-        starvation(p);
+        p.get_v_ind() = starvation(p.get_v_ind());
         assert(p.get_v_ind().empty() && p.get_pop_size() == 0);
 
         unsigned int pop_size = 5;
@@ -1117,27 +1120,12 @@ void test_population() noexcept  //!OCLINT
         set_ind_en(p1.get_ind(0),p1.get_ind(0).get_param().get_metabolic_rate() + 0.001);
         assert(p1.get_v_ind().size() == pop_size);
         metabolism_pop(p1);
-        starvation(p1);
+        p1.get_v_ind() = starvation(p1.get_v_ind());
         assert(p1.get_pop_size() == 1);
         //then at the second tick the only individual left dies
         metabolism_pop(p1);
-        starvation(p1);
+        p1.get_v_ind() = starvation(p1.get_v_ind());
         assert(p1.get_v_ind().empty() && p.get_pop_size() == 0);
-    }
-
-    //A pop is initialized with a random number generator
-    {
-        population p;
-        std::uniform_int_distribution u_d(0,2);
-        double mean = 0;
-        //Draw a thousands times from a uniform dist between 0 and 2
-        for(int i = 0; i != 1000; i++)
-        {
-            mean += u_d(p.get_rng());
-        }
-        //calculate mean of the drawn values
-        mean /= 1000;
-        assert(mean < 1.01 && mean > 0.99 );
     }
 
     //A pop can generate numbers from a uniform distribution
@@ -1295,7 +1283,7 @@ void test_population() noexcept  //!OCLINT
     //used to see which ind is drawn at dispersal
     {
         population s;
-        int sample_size = 100000;
+        int sample_size = 1000;
         double mean = 0;
         for(int i = 0; i != sample_size; i++)
         {
@@ -1437,7 +1425,7 @@ void test_population() noexcept  //!OCLINT
         ind_param i{};
         pop_param pp{};
         population p{pp};
-        auto new_p = change_inds(p, change_ind_param_unif(i, p.get_rng()));
+        auto new_p = change_inds(p, change_ind_param_norm(i, p.get_rng()));
         assert(p.get_v_ind() != new_p);
     }
 

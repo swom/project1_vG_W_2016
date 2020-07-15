@@ -11,16 +11,19 @@ public:
     ind_param(double radius  = 0.8,
               double treshold_energy = 10,
               double uptake_rate = 0.1,
-              double uptake_range = 0.05,
+              double uptake_rate_mean = 0.1,
+              double uptake_rate_var = 0.02,
               double metabolic_rate = 0.01,
               double reproduction_prob = 0.5,
-              double reproduction_range = 0.25,
+              double reproduction_prob_mean = 0.5,
+              double reproduction_prob_var = 0.07,
               double spor_metabolic_rate = 0.5,
-              double spor_metab_range = 0.25,
+              double spor_metabolic_rate_mean = 0.5,
+              double spor_metabolic_rate_var = 0.07,
               int transformation_time = 5,
+              int transformation_time_mean = 5,
               int transformation_range = 2,
-              double metab_secretion_rate = 1,
-              double range_on_change_ratio = 10);
+              double metab_secretion_rate = 1);
 
     ///gets the metabolic rate of an individual
     double get_metabolic_rate() const noexcept {return m_metabolic_rate;}
@@ -32,48 +35,41 @@ public:
     double get_spor_metabolic_rate() const noexcept {return m_spor_metabolic_rate;}
 
     ///Gets const ref to the range of all the possible sporulation metabolism values
-    const std::uniform_real_distribution<double>& get_spor_metabolic_range() const noexcept
-    {return m_spor_metabolic_range;}
+    double get_spor_metabolic_rate_mean() const noexcept {return m_mean_spor_metabolic_rate;}
 
     ///Gets ref to the range of all the possible sporulation metabolism values
-    std::uniform_real_distribution<double>& get_spor_metabolic_range() noexcept
-    {return m_spor_metabolic_range;}
+    double get_spor_metabolic_rate_var() const noexcept {return m_var_spor_metabolic_rate;}
 
     ///gets radius of individual
     double get_radius() const noexcept {return m_radius;}
-
-    ///Gets the ratio of the span of the range over the minimum change allowed
-    /// of all the possible changeing values, except transformation time
-    double get_range_on_change_ratio() const noexcept {return m_range_on_change_ratio;}
 
     ///Gets the reproduction probability of an ind once sufficient energy is gathered
     double get_repr_prob() const noexcept {return m_repr_prob;}
 
     ///Gets const ref to the range of all the possible reproduction prob values
-    const std::uniform_real_distribution<double>& get_repr_range() const noexcept {return m_repr_prob_range;}
+    double get_repr_prob_mean() const noexcept {return m_mean_repr_prob;}
 
     ///Gets const ref to the range of all the possible reproduction prob values
-    std::uniform_real_distribution<double>& get_repr_range() noexcept {return m_repr_prob_range;}
+    double get_repr_prob_var() const noexcept {return m_var_repr_prob;}
 
     ///Gets the time it takes to transform into a spore
     int get_transformation_time() const noexcept {return m_transformation_time;}
 
-    ///Gets const ref to the range of all the possible transformation/sporulation times
-    const std::uniform_int_distribution<int>& get_transformation_range() const noexcept
-    {return m_transformation_range;}
+    ///Gets the mean value of all possible transformation time values
+    int get_transformation_time_mean() const noexcept {return m_transformation_time;}
 
-    ///Gets const ref to the range of all the possible transformation/sporulation times
-    std::uniform_int_distribution<int>& get_transformation_range() noexcept
+    ///Gets range of all the possible transformation/sporulation times
+    int get_transformation_range() const noexcept
     {return m_transformation_range;}
 
     ///gets the food uptake_rate of an individual
     double get_uptake_rate() const noexcept {return m_uptake_rate;}
 
     ///Gets const ref to the range of all the possible uptake values
-    const std::uniform_real_distribution<double>& get_uptake_range() const noexcept {return  m_uptake_range;}
+    double get_uptake_mean() const noexcept {return  m_mean_uptake_rate;}
 
     ///Gets const ref to the range of all the possible uptake values
-    std::uniform_real_distribution<double>& get_uptake_range() noexcept {return  m_uptake_range;}
+    double get_uptake_var() const noexcept {return  m_var_uptake_rate;}
 
     ///gets the treshold energy at which an individual reproduces
     double get_treshold_energy() const noexcept {return m_treshold_energy;}
@@ -104,40 +100,58 @@ private:
     ///Radius of an individual, individuals are considered circular
     double m_radius;
 
-    ///The ratio between total range span of a variable and the minimum change that
-    /// that variable can undergo(e.g. = 10 means that the variable will change at least
-    /// of a tenth of the delta between max and min of the range)
-    /// P.S. this ratio is not applied to transformation time for now
-    double m_range_on_change_ratio;
-
-    ///Probability of reproduction once sufficient energy has been gathered
+    ///The current probability of reproduction once sufficient energy has been gathered
     double m_repr_prob;
 
-    ///The range of possible reproduction probabilities
-    std::uniform_real_distribution<double> m_repr_prob_range;
+    ///The mean of the normal distribution
+    /// encompassing all possible values
+    /// of reproduction probabilities
+    double m_mean_repr_prob;
+
+    /// The variance of the normal distribution
+    /// encompassing all possible values
+    /// of reproduction porbability
+    double m_var_repr_prob;
 
     ///Metabolic rate for sporulating individuals
     double m_spor_metabolic_rate;
 
-    ///The range of possible sporulation metabolic rates
-    std::uniform_real_distribution<double> m_spor_metabolic_range;
+    ///The mean of the normal distribution
+    /// encompassing all possible values
+    /// of sporulation metabolic rate
+    double m_mean_spor_metabolic_rate;
+
+    /// The variance of the normal distribution
+    /// encompassing all possible values
+    /// of sporulation metabolic rate
+    double m_var_spor_metabolic_rate;
 
     ///number of time steps the individual needs
     ///to go through to sporulate, if it is alive at
     ///m_transformation time + 1 it will become a spore
     int m_transformation_time;
 
+    ///Mean of the possible sporulation times
+    int m_mean_transformation_time;
+
     ///The possible range of sporulation time values
-    std::uniform_int_distribution<int> m_transformation_range;
+    /// mean - range, mean + range
+    int m_transformation_range;
 
     ///The level of energy required to divide
     double m_treshold_energy;
 
-    ///The rate of food uptake, the conversion of food into energy is = 1
+    ///The current rate of food uptake, the conversion of food into energy is = 1
     double m_uptake_rate;
 
-    ///The possible range of uptake values
-    std::uniform_real_distribution<double> m_uptake_range;
+    ///The mean of the normal distribution encompassing all possible values
+    /// of the rate of food uptake, the conversion of food into energy is = 1
+    double m_mean_uptake_rate;
+
+    /// The variance of the normal distribution encompassing all possible values
+    /// of rate of food uptake, the conversion of food into energy is = 1
+    double m_var_uptake_rate;
+
 };
 
 //Compares two instantiations of ind_param
@@ -149,17 +163,9 @@ std::ostream& operator<<(std::ostream& os, const ind_param& p);
 //Initializes a instance p from a file stream
 std::ifstream& operator>>(std::ifstream& is, ind_param& p);
 
-///Changes the individual parameters based on their ranges of change
-ind_param change_ind_param_unif(ind_param i, std::minstd_rand& rng);
-
-///Changes the parameter of reproduction probability based on range and change
-double change_ind_repr_prob(ind_param& i, std::minstd_rand& rng);
-
-///Changes the parameter of sporulation metabolism based on range and change
-double change_ind_spor_metab(ind_param& i, std::minstd_rand& rng);
-
-///Changes the parameter of uptake rate based on range and change
-double change_ind_uptake(ind_param& i, std::minstd_rand& rng);
+///Changes the current parameters of individuals drawing from random distribution
+/// That are specified in the parameters themselves (I know it's bad!!!!)
+ind_param change_ind_param_norm( ind_param i,  std::minstd_rand& rng);
 
 //Initializes a instance p from a filename
 ind_param load_ind_parameters( const std::string& filename);

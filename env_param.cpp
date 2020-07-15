@@ -5,16 +5,18 @@ env_param::env_param(int grid_side,
                      double diff_coeff,
                      double init_food,
                      double metab_degrad_rate,
-                     double min_change_fraction,
-                     double range_env_change):
+                     double mean_diff_coeff,
+                     double mean_degr_rate,
+                     double var_diff_coeff,
+                     double var_degr_coeff):
     m_diff_coeff{diff_coeff},
     m_grid_side{grid_side},
     m_init_food{init_food},
     m_metab_degradation_rate{metab_degrad_rate},
-    m_range_diff_coeff_change{(diff_coeff - range_env_change),
-                              (diff_coeff + range_env_change)},
-    m_range_metab_degr_change{(metab_degrad_rate - range_env_change),
-                              (metab_degrad_rate + range_env_change)}
+    m_mean_diff_coeff{mean_diff_coeff},
+    m_mean_degr_rate{mean_degr_rate},
+    m_var_diff_coeff{var_diff_coeff},
+    m_var_degr_rate{var_degr_coeff}
 {
     assert(m_diff_coeff > -0.000000000001 &&
            m_diff_coeff < 1.000000000001);
@@ -22,34 +24,25 @@ env_param::env_param(int grid_side,
     assert(m_init_food > -0.000000000001);
     assert(m_metab_degradation_rate > -0.000000001 &&
            m_metab_degradation_rate < 1.000000001);
-    assert(min_change_fraction > -0.0000000000001);
-    assert(m_range_metab_degr_change.min() > -0.0000000001);
-    assert(m_range_diff_coeff_change.min() > -0.0000000001);
-
-    if(min_change_fraction == 0)
-    {
-        m_step_min_degr_change = 0;
-        m_step_min_diff_change = 0;
-    }
-    else{
-        m_step_min_diff_change = (m_range_diff_coeff_change.max() - m_range_diff_coeff_change.min()) / min_change_fraction;
-        m_step_min_degr_change = (m_range_metab_degr_change.max() - m_range_metab_degr_change.min()) / min_change_fraction;
-    }
+    assert(m_var_degr_rate > -0.00000001);
+    assert(m_var_diff_coeff > -0.00000001);
+    assert(m_mean_degr_rate > -0.00000001);
+    assert(m_mean_diff_coeff > -0.00000001);
+    assert(m_mean_diff_coeff - m_var_diff_coeff * 3 > -0.0000000000001);
+    assert(m_mean_degr_rate - m_var_degr_rate * 3 > -0.0000000001);
 }
 
-std::ostream& operator<<(std::ostream& os, const env_param& p)
+std::ostream& operator<<(std::ostream& os, const env_param& e)
 {
-    os << p.get_grid_side() << " , "
-       << p.get_init_food() << " , "
-       << p.get_diff_coeff()  << " , "
-       << p.get_degr_rate() << " , ";
-    if(p.get_min_step_diff_change() == 0)
-        os << 0;
-    else
-        os  << (p.get_range_diff_coeff_change().max() - p.get_range_diff_coeff_change().min()) / p.get_min_step_diff_change();
-    os << " , "
-       << (p.get_range_diff_coeff_change().max() - p.get_range_diff_coeff_change().min()) / 2.0
-          ;
+    os << e.get_grid_side() << " , "
+       << e.get_init_food() << " , "
+       << e.get_diff_coeff()  << " , "
+       << e.get_degr_rate() << " , "
+       << e.get_mean_diff_coeff() << " , "
+       << e.get_mean_degr_rate() << " , "
+       << e.get_var_diff_coeff() << " , "
+       << e.get_var_degr_rate();
+
     return os;
 }
 
@@ -59,10 +52,10 @@ std::ifstream& operator>>(std::ifstream& is, env_param& e)
     double diff_coeff;
     double init_food;
     double metab_degrad_rate;
-    double min_step_env_change;
-    double range_env_change;
-    double min_range;
-    double max_range;
+    double mean_diff_coeff;
+    double mean_degr_rate;
+    double var_diff_coeff;
+    double var_degr_coeff;
 
     std::string dummy; // To remove the annotation in the file
     is >>
@@ -70,18 +63,21 @@ std::ifstream& operator>>(std::ifstream& is, env_param& e)
             init_food >> dummy >>
             diff_coeff >>dummy >>
             metab_degrad_rate >> dummy >>
-            min_step_env_change >> dummy >>
-            range_env_change >> dummy >>
-            min_range >> dummy >>
-            max_range;
+            mean_diff_coeff >> dummy >>
+            mean_degr_rate >> dummy >>
+            var_diff_coeff >> dummy >>
+            var_degr_coeff;
 
-    e = env_param {grid_side,
+    e = env_param {
+            grid_side,
             diff_coeff,
             init_food,
             metab_degrad_rate,
-            min_step_env_change,
-            range_env_change
-};
+            mean_diff_coeff,
+            mean_degr_rate,
+            var_diff_coeff,
+            var_degr_coeff}
+            ;
 
     return is;
 }
@@ -90,18 +86,13 @@ bool operator==(const env_param& lhs, const env_param& rhs) noexcept
 {
     auto grid = (lhs.get_grid_side() == rhs.get_grid_side());
     auto food = (lhs.get_init_food() - rhs.get_init_food() < 0.0001
-        && lhs.get_init_food() - rhs.get_init_food() > -0.0001);
+                 && lhs.get_init_food() - rhs.get_init_food() > -0.0001);
     auto degr = (lhs.get_degr_rate() - rhs.get_degr_rate() < 0.0001
-        && lhs.get_degr_rate() - rhs.get_degr_rate() > -0.0001);
+                 && lhs.get_degr_rate() - rhs.get_degr_rate() > -0.0001);
     auto diff =  (lhs.get_diff_coeff() - rhs.get_diff_coeff() < 0.0001
-        && lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.0001);
-    auto min_step_degr = (lhs.get_min_step_degr_change() - rhs.get_min_step_degr_change() < 0.0001
-        && lhs.get_min_step_degr_change() - rhs.get_min_step_degr_change() > -0.0001);
-    auto min_step_diff = (lhs.get_min_step_diff_change() - rhs.get_min_step_diff_change() < 0.0001
-        && lhs.get_min_step_diff_change() - rhs.get_min_step_diff_change() > -0.0001);
-    auto range_diff_min =  lhs.get_range_diff_coeff_change() == rhs.get_range_diff_coeff_change();
-    auto range_degr_min = lhs.get_range_metab_degr_change() == rhs.get_range_metab_degr_change();
-    return grid && food && degr && diff && min_step_degr && min_step_diff && range_diff_min && range_degr_min
+                  && lhs.get_diff_coeff() - rhs.get_diff_coeff() > -0.0001);
+
+    return grid && food && degr && diff
             ;
 }
 
@@ -110,29 +101,17 @@ bool operator!=( const env_param& lhs, const env_param& rhs) noexcept
     return !(lhs == rhs);
 }
 
-env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexcept
+env_param change_env_param_norm(const env_param e, std::minstd_rand& rng) noexcept
 {
     auto e1 = e;
-    auto new_diff_coeff = e1.get_diff_coeff();
-    auto old_diff_coeff = e.get_diff_coeff();
-    auto new_degr_rate = e1.get_degr_rate();
-    auto old_degr_rate = e.get_degr_rate();
 
-    do
-        {
-            new_diff_coeff = e1.get_range_diff_coeff_change()(rng);
-        }
-    while(new_diff_coeff < old_diff_coeff + e.get_min_step_diff_change()
-          && new_diff_coeff > old_diff_coeff - e.get_min_step_diff_change());
+    auto new_diff_coeff = std::normal_distribution<double>{e.get_mean_diff_coeff(),
+            e.get_var_diff_coeff()}(rng);
 
     e1.set_diff_coeff(new_diff_coeff);
 
-    do
-    {
-        new_degr_rate = e1.get_range_metab_degr_change()(rng);
-    }
-    while(new_degr_rate < old_degr_rate + e.get_min_step_degr_change()
-          && new_degr_rate > old_degr_rate - e.get_min_step_degr_change());
+    auto new_degr_rate = std::normal_distribution<double>{e.get_mean_degr_rate(),
+            e.get_var_degr_rate()}(rng);
 
     e1.set_metab_degr(new_degr_rate);
 
@@ -167,15 +146,19 @@ void test_env_param() noexcept //!OCLINT
         double diff_coeff = 0.12;
         double init_food = 14.0;
         double metab_degrad_rate = 0.066;
-        double min_step_env_change = 0.36;
-        double env_change_range = 0.003;
+        double mean_diff_coeff = 0.223;
+        double mean_degr_rate = 0.456;
+        double var_diff_coeff = 0.05;
+        double var_degr_rate = 0.012;
 
         env_param p{grid_side,
                     diff_coeff,
                     init_food,
                     metab_degrad_rate,
-                    min_step_env_change,
-                    env_change_range};
+                    mean_diff_coeff,
+                    mean_degr_rate,
+                    var_diff_coeff,
+                    var_degr_rate};
 
         //Test load and save
         const std::string filename = "env_param.csv";
@@ -194,69 +177,49 @@ void test_env_param() noexcept //!OCLINT
         s << p;
     }
 
-    //Environment parameters are intialized with:
-    //Range of change parameter: dictating the range of env chenge from one
-    //Generation to the other
-    //Magnitude of change:  the fraction of the possible values range
-    //dictating the minimum amount of change from one generaiton
-    //To the other
-    {
-        auto range_of_env_change = 0.1;
-        auto magnitude_of_env_change = 10.0;
-        env_param e {
-            1,
-            1,
-            1,
-            1,
-            magnitude_of_env_change,
-                    range_of_env_change,
-        };
-
-        auto range_diff_change = (e.get_range_diff_coeff_change().max() - e.get_range_diff_coeff_change().min()) / 2.0;
-        auto range_metab_degr_change = (e.get_range_metab_degr_change().max() - e.get_range_metab_degr_change().min()) / 2.0;
-        assert(range_diff_change - range_of_env_change < 0.0001
-               && range_diff_change - range_of_env_change > -0.0001
-               && range_metab_degr_change - range_of_env_change < 0.0001
-               && range_metab_degr_change - range_of_env_change > -0.0001
-               && range_diff_change * 2 / e.get_min_step_diff_change() == magnitude_of_env_change);
-    }
-
-
-    //Environmental parameters can be changed based on
-    //Two values: magnitude of change and absolute range of change
+    ///Environmental parameters can be changed
+    /// by modifying the m_metab_degradation_rate and m_diffusion_coefficient
+    /// The new values of these two members are drawn from a normal distribution
+    /// with mean and variance specified by:
+    /// m_mean_diff_coeff & m_var_diff_coeff
+    /// m_mean_degr_rate & m_var_degr_rate
     {
         std::random_device r;
         std::minstd_rand rng{r()};
 
-        double magnitude_of_change = 3;
-        double range_of_change =  0.5;
-        env_param e{1, 1, 1, 1,
-                    magnitude_of_change,
-                            range_of_change
-                   };
-
-        double prev_deg_rate = e.get_degr_rate();
-        double prev_diff_coeff = e.get_diff_coeff();
+        auto mean_diff_coeff = 0.1;
+        auto mean_degr_coeff = 0.1;
+        auto var_degr_rate = mean_degr_coeff / 3 - 0.01;
+        auto var_diff_coeff = mean_diff_coeff / 3 - 0.01;
+        env_param e{1, 0.1, 0.1, 0.1,
+                    mean_diff_coeff,
+                            mean_degr_coeff,
+                            var_diff_coeff,
+                            var_degr_rate};
 
         int repeats = 1000;
+
+        double mean_of_diff_coefficients = e.get_diff_coeff();
+        std::vector<double> variance_vector_diff_coeff{mean_of_diff_coefficients};
+        double mean_of_degr_rates = e.get_degr_rate();
+        std::vector<double> variance_vector_degr_rate{mean_of_degr_rates};
 
         for( int i = 0;  i != repeats; i++)
         {
             auto e_prev = e;
-            e = change_env_param_unif(e, rng);
-            auto deg_rate = e.get_degr_rate();
-            auto diff_coeff = e.get_diff_coeff();
-
+            e = change_env_param_norm(e, rng);
+            mean_of_diff_coefficients += e.get_diff_coeff();
+            mean_of_degr_rates += e.get_degr_rate();
+            variance_vector_diff_coeff.push_back( e.get_diff_coeff());
+            variance_vector_degr_rate.push_back(e.get_degr_rate());
             assert(e != e_prev);
-
-            assert (deg_rate >= prev_deg_rate + e.get_min_step_degr_change() ||
-                    deg_rate <= prev_deg_rate - e.get_min_step_degr_change());
-
-            assert (diff_coeff >= prev_diff_coeff + e.get_min_step_diff_change() ||
-                    diff_coeff <= prev_diff_coeff - e.get_min_step_diff_change());
-
-            prev_deg_rate = deg_rate;
-            prev_diff_coeff = diff_coeff;
         }
+        mean_of_diff_coefficients /= repeats;
+        mean_of_degr_rates /= repeats;
+
+        assert(mean_diff_coeff - mean_of_diff_coefficients < 0.01
+               && mean_diff_coeff - mean_of_diff_coefficients > -0.01);
+        assert(mean_degr_coeff - mean_of_degr_rates < 0.01
+               && mean_degr_coeff - mean_of_degr_rates > -0.01);
     }
 }

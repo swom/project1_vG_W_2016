@@ -63,8 +63,10 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.1,
                 10,
                 0.1,
-                10,
-                0.05
+                0.1,
+                0.1,
+                0.02,
+                0.02
                };
 
     meta_param m;

@@ -4,59 +4,76 @@
 ind_param::ind_param(double radius,
                      double treshold_energy,
                      double uptake_rate,
-                     double uptake_range,
+                     double uptake_rate_mean,
+                     double uptake_rate_var,
                      double metabolic_rate,
                      double reproduction_prob,
-                     double reproduction_range,
+                     double reproduction_prob_mean,
+                     double reproduction_prob_var,
                      double spor_metabolic_rate,
-                     double spor_metab_range,
+                     double spor_metabolic_rate_mean,
+                     double spor_metabolic_rate_var,
                      int transformation_time,
+                     int transformation_time_mean,
                      int transformation_range,
-                     double metab_secretion_rate,
-                     double range_on_change_ratio):
+                     double metab_secretion_rate):
     m_metabolic_rate{metabolic_rate},
     m_metab_secr_rate{metab_secretion_rate},
     m_radius{radius},
-    m_range_on_change_ratio{range_on_change_ratio},
     m_repr_prob{reproduction_prob},
-    m_repr_prob_range{m_repr_prob - reproduction_range, m_repr_prob + reproduction_range},
+    m_mean_repr_prob{reproduction_prob_mean},
+    m_var_repr_prob{reproduction_prob_var},
     m_spor_metabolic_rate{spor_metabolic_rate},
-    m_spor_metabolic_range{m_spor_metabolic_rate - spor_metab_range, m_spor_metabolic_rate + spor_metab_range},
+    m_mean_spor_metabolic_rate{spor_metabolic_rate_mean},
+    m_var_spor_metabolic_rate{spor_metabolic_rate_var},
     m_transformation_time{transformation_time},
-    m_transformation_range{m_transformation_time - transformation_range, m_transformation_time + transformation_range},
+    m_mean_transformation_time{transformation_time_mean},
+    m_transformation_range{transformation_range},
     m_treshold_energy{treshold_energy},
     m_uptake_rate{uptake_rate},
-    m_uptake_range{m_uptake_rate - uptake_range, m_uptake_rate + uptake_range}
+    m_mean_uptake_rate{uptake_rate_mean},
+    m_var_uptake_rate{uptake_rate_var}
 {
     assert(m_metabolic_rate > -0.000001);
     assert(m_metab_secr_rate > -0.000001);
     assert(m_radius > -0.000001);
-    assert(reproduction_prob < 1.0000001 && reproduction_prob > -0.0000000001 );
+    assert(reproduction_prob < 1.0000001
+           && reproduction_prob > -0.0000000001 );
+    assert(m_mean_repr_prob > -0.00000001 && m_mean_repr_prob < 1.00001);
+    assert(m_var_repr_prob > -0.00000001 && m_var_repr_prob < 1.00001);
+    assert(m_var_repr_prob < m_mean_repr_prob / 3.0);
+    assert(m_spor_metabolic_rate > -0.0001);
+    assert(m_mean_spor_metabolic_rate > -0.000001);
+    assert(m_var_spor_metabolic_rate > -0.000001);
+    assert(m_var_spor_metabolic_rate < m_mean_spor_metabolic_rate / 3.0);
     assert(m_transformation_time > 0);
+    assert(m_mean_transformation_time - m_transformation_range > -0.0000001);
     assert(m_treshold_energy > -0.000001);
     assert(m_uptake_rate > -0.000001);
-    assert(m_range_on_change_ratio > -0.0000001);
-    assert(m_repr_prob_range.min() > -0.0000001);
-    assert(m_spor_metabolic_range.min() > -0.0000001);
-    assert(m_transformation_range.min() > -0.0000001);
-    assert(m_uptake_range.min() > -0.0000001);
+    assert(m_mean_uptake_rate > -0.00001);
+    assert(m_var_uptake_rate > -0.0001);
+    assert(m_var_uptake_rate < m_mean_uptake_rate / 3.0);
 }
 
 std::ostream& operator<<(std::ostream& os, const ind_param& p)
 {
     os << p.get_radius()
        << " , " << p.get_uptake_rate()
-       << " , " << (p.get_uptake_range().max() - p.get_uptake_range().min()) / 2
+       << " , " << p.get_uptake_mean()
+       << " , " << p.get_uptake_var()
        << " , " << p.get_metabolic_rate()
        << " , " << p.get_metab_secr_rate()
        << " , " << p.get_repr_prob()
-       << " , " << (p.get_repr_range().max() - p.get_repr_range().min()) / 2
+       << " , " << p.get_repr_prob_mean()
+       << " , " << p.get_repr_prob_var()
        << " , " << p.get_treshold_energy()
        << " , " << p.get_spor_metabolic_rate()
-       << " , " << (p.get_spor_metabolic_range().max() - p.get_spor_metabolic_range().min()) / 2
+       << " , " << p.get_spor_metabolic_rate_mean()
+       << " , " << p.get_spor_metabolic_rate_var()
        << " , " << p.get_transformation_time()
-       << " , " << (p.get_transformation_range().max() - p .get_transformation_range().min()) / 2
-       << " , " << p.get_range_on_change_ratio()
+       << " , " << p.get_transformation_time_mean()
+       << " , " << p.get_transformation_range()
+       << " , " << p.get_metab_secr_rate()
           ;
     return os;
 }
@@ -67,45 +84,56 @@ std::ifstream& operator>>(std::ifstream& is, ind_param& p)
     double radius;
     double treshold_energy;
     double uptake_rate;
-    double uptake_range;
+    double uptake_rate_mean;
+    double uptake_rate_var;
     double metabolic_rate;
-    double reproduction_probability;
-    double reproduction_range;
+    double reproduction_prob;
+    double reproduction_prob_mean;
+    double reproduction_prob_var;
     double spor_metabolic_rate;
-    double spor_metabolic_range;
+    double spor_metabolic_rate_mean;
+    double spor_metabolic_rate_var;
     int transformation_time;
+    int transformation_time_mean;
     int transformation_range;
     double metab_secretion_rate;
-    double range_on_change_ratio;
     std::string dummy; // To remove the annotation in the file
     is
             >> radius >> dummy
             >> uptake_rate >> dummy
-            >> uptake_range >> dummy
+            >> uptake_rate_mean >> dummy
+            >> uptake_rate_var >> dummy
             >> metabolic_rate >> dummy
             >> metab_secretion_rate >> dummy
-            >> reproduction_probability >> dummy
-            >> reproduction_range >> dummy
+            >> reproduction_prob >> dummy
+            >> reproduction_prob_mean >> dummy
+            >> reproduction_prob_var >> dummy
             >> treshold_energy >> dummy
             >> spor_metabolic_rate >> dummy
-            >> spor_metabolic_range >> dummy
+            >> spor_metabolic_rate_mean >> dummy
+            >> spor_metabolic_rate_var >> dummy
             >> transformation_time >> dummy
+            >> transformation_time_mean >> dummy
             >> transformation_range >> dummy
-            >> range_on_change_ratio;
+            >> metab_secretion_rate
+            ;
 
     p = ind_param {radius,
             treshold_energy,
             uptake_rate,
-            uptake_range,
+            uptake_rate_mean,
+            uptake_rate_var,
             metabolic_rate,
-            reproduction_probability,
-            reproduction_range,
+            reproduction_prob,
+            reproduction_prob_mean,
+            reproduction_prob_var,
             spor_metabolic_rate,
-            spor_metabolic_range,
+            spor_metabolic_rate_mean,
+            spor_metabolic_rate_var,
             transformation_time,
+            transformation_time_mean,
             transformation_range,
             metab_secretion_rate,
-            range_on_change_ratio
 };
 
     return is;
@@ -113,21 +141,49 @@ std::ifstream& operator>>(std::ifstream& is, ind_param& p)
 
 bool operator==(const ind_param& lhs, const ind_param& rhs) noexcept
 {
-    return
-            lhs.get_radius() == rhs.get_radius()
-            && lhs.get_treshold_energy() == rhs.get_treshold_energy()
-            && lhs.get_uptake_rate() == rhs.get_uptake_rate()
-            && lhs.get_uptake_range() == rhs.get_uptake_range()
-            && lhs.get_metabolic_rate() == rhs.get_metabolic_rate()
-            && lhs.get_repr_prob() == rhs.get_repr_prob()
-            && lhs.get_repr_range() == rhs.get_repr_range()
-            && lhs.get_metab_secr_rate() == rhs.get_metab_secr_rate()
-            && lhs.get_spor_metabolic_rate() == rhs.get_spor_metabolic_rate()
-            && lhs.get_spor_metabolic_range() == rhs.get_spor_metabolic_range()
-            && lhs.get_transformation_time() == rhs.get_transformation_time()
-            && lhs.get_transformation_range() == rhs.get_transformation_range()
-            && lhs.get_range_on_change_ratio() == rhs.get_range_on_change_ratio()
-            ;
+    auto radius = lhs.get_radius() - rhs.get_radius() < 0.00001
+            && lhs.get_radius() - rhs.get_radius() > -0.00001 ;
+    auto trheshold = lhs.get_treshold_energy() - rhs.get_treshold_energy() < 0.00001
+            && lhs.get_treshold_energy() - rhs.get_treshold_energy() > -0.00001;
+    auto uptake = lhs.get_uptake_rate() - rhs.get_uptake_rate() < 0.0001
+            && lhs.get_uptake_rate() - rhs.get_uptake_rate() > -0.0001;
+    auto uptake_mean =  lhs.get_uptake_mean() - rhs.get_uptake_mean() < 0.0001
+            && lhs.get_uptake_mean() - rhs.get_uptake_mean() > -0.0001;
+    auto uptake_var =  lhs.get_uptake_var() - rhs.get_uptake_var() < 0.00001
+            &&  lhs.get_uptake_var() - rhs.get_uptake_var() > -0.00001;
+    auto repr_prob = lhs.get_repr_prob() -  rhs.get_repr_prob() < 0.00001
+            && lhs.get_repr_prob() -  rhs.get_repr_prob() > -0.00001;
+    auto repr_prob_mean = lhs.get_repr_prob_mean() -  rhs.get_repr_prob_mean() < 0.00001
+            && lhs.get_repr_prob_mean() -  rhs.get_repr_prob_mean() > -0.00001;
+    auto repr_prob_var = lhs.get_repr_prob_var() -  rhs.get_repr_prob_var() < 0.00001
+            && lhs.get_repr_prob_var() -  rhs.get_repr_prob_var() > -0.00001;
+    auto metab_rate = lhs.get_metabolic_rate() - rhs.get_metabolic_rate() < 0.00001
+            && lhs.get_metabolic_rate() - rhs.get_metabolic_rate() > -0.00001;
+    auto metab_secr_rate = lhs.get_metab_secr_rate() - rhs.get_metab_secr_rate() < 0.00001
+            && lhs.get_metab_secr_rate() - rhs.get_metab_secr_rate() > -0.00001;
+    auto spo_metab_rate = lhs.get_spor_metabolic_rate() - rhs.get_spor_metabolic_rate() < 0.00001
+            && lhs.get_spor_metabolic_rate() - rhs.get_spor_metabolic_rate() > -0.00001;
+    auto spo_metab_rate_mean = lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() < 0.0001
+            && lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() > -0.0001;
+    auto spo_metab_rate_var =  lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() < 0.00001
+             && lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() >  -0.00001;
+    auto transformation_time = lhs.get_transformation_time() == rhs.get_transformation_time()
+            && lhs.get_transformation_time_mean() == rhs.get_transformation_time_mean()
+            && lhs.get_transformation_range() == rhs.get_transformation_range();
+    return radius
+            && uptake
+            && uptake_mean
+            && uptake_var
+            && trheshold
+            && repr_prob
+            && repr_prob_mean
+            && repr_prob_var
+            && metab_rate
+            && metab_secr_rate
+            && spo_metab_rate
+            && spo_metab_rate_mean
+            && spo_metab_rate_var
+            && transformation_time;
 }
 
 bool operator!=(const ind_param& lhs, const ind_param& rhs) noexcept
@@ -135,70 +191,22 @@ bool operator!=(const ind_param& lhs, const ind_param& rhs) noexcept
     return !(lhs==rhs);
 }
 
-double change_ind_uptake(ind_param& i, std::minstd_rand& rng)
-{
-    auto old_uptake = i.get_uptake_rate();
-    auto new_uptake = i.get_uptake_rate();
-    auto uptake_step =
-            (i.get_uptake_range().max() - i.get_uptake_range().min())
-            / i.get_range_on_change_ratio();
-
-    while ( true ) {
-        new_uptake = i.get_uptake_range()(rng);
-        if(new_uptake > old_uptake + uptake_step
-                || new_uptake < old_uptake - uptake_step)
-        {
-            return new_uptake;
-        }
-    }
-}
-
-double change_ind_repr_prob(ind_param& i, std::minstd_rand& rng)
-{
-    auto old_repr_prob = i.get_repr_prob();
-    auto new_repr_prob = i.get_repr_prob();
-    auto repr_step =
-            (i.get_repr_range().max() - i.get_repr_range().min())
-            / i.get_range_on_change_ratio();
-
-    while ( true ) {
-        new_repr_prob = i.get_repr_range()(rng);
-        if(new_repr_prob > old_repr_prob + repr_step
-                || new_repr_prob < old_repr_prob - repr_step )
-        {
-            return new_repr_prob;
-        }
-    }
-}
-
-double change_ind_spor_metab(ind_param& i, std::minstd_rand& rng)
-{
-    auto old_spor_metab = i.get_spor_metabolic_rate();
-    auto new_spor_metab = i.get_spor_metabolic_rate();
-    auto spor_metab_step =
-            (i.get_spor_metabolic_range().max() - i.get_spor_metabolic_range().min())
-            / i.get_range_on_change_ratio();
-
-    while ( true ) {
-        new_spor_metab = i.get_spor_metabolic_range()(rng);
-        if(new_spor_metab > old_spor_metab + spor_metab_step
-                ||new_spor_metab < old_spor_metab - spor_metab_step )
-            return new_spor_metab;
-    }
-}
-
-
-
-ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
+ind_param change_ind_param_norm( ind_param i,  std::minstd_rand& rng)
 {
 
-    i.set_uptake_rate(change_ind_uptake(i, rng));
+    i.set_uptake_rate( std::normal_distribution<double>{i.get_uptake_mean(),
+                                                        i.get_uptake_var()}(rng));
 
-    i.set_spor_metabolic_rate(change_ind_spor_metab(i, rng));
+    i.set_spor_metabolic_rate(std::normal_distribution<double>{i.get_spor_metabolic_rate_mean(),
+                                                               i.get_spor_metabolic_rate_var()}(rng));
 
-    i.set_repr_prob(change_ind_repr_prob(i,rng));
+    i.set_repr_prob(std::normal_distribution<double>{i.get_repr_prob_mean(),
+                                                     i.get_repr_prob_var()}(rng));
 
-    i.set_transformation_time(i.get_transformation_range()(rng));
+    i.set_transformation_time(std::uniform_int_distribution<int>{i.get_transformation_time_mean() - i.get_transformation_range(),
+                                                                 i.get_transformation_time_mean() + i.get_transformation_range()}
+                              (rng)
+                              );
 
     return i;
 }
@@ -226,33 +234,39 @@ void test_ind_param() noexcept  //!OCLINT
 {
     //It is possible to save and load ind parameters from a file
     {
-        double radius  = 0.9;
-        double treshold_energy = 15;
-        double uptake_rate = 0.12;
-        double uptake_range = uptake_rate / 2;
-        double metabolic_rate = 0.031;
-        double reproduction_prob = 0.123456;
-        double reproduction_range = reproduction_prob / 2;
-        double spor_metabolic_rate = 0.8;
-        double spor_metabolic_range  = reproduction_prob / 2;
-        int transformation_time = 7;
-        int transformation_range = transformation_time / 2;
-        double metab_secretion_rate = 2;
-        double range_on_change_ratio = 10;
+        double radius  = 0.8;
+        double treshold_energy = 10;
+        double uptake_rate = 0.1;
+        double uptake_rate_mean = 0.1;
+        double uptake_rate_var = 0.02;
+        double metabolic_rate = 0.01;
+        double reproduction_prob = 0.5;
+        double reproduction_prob_mean = 0.5;
+        double reproduction_prob_var = 0.07;
+        double spor_metabolic_rate = 0.5;
+        double spor_metabolic_rate_mean = 0.5;
+        double spor_metabolic_rate_var = 0.07;
+        int transformation_time = 5;
+        int transformation_time_mean = 5;
+        int transformation_range = 2;
+        double metab_secretion_rate = 1;
         ind_param p{
             radius,
                     treshold_energy,
                     uptake_rate,
-                    uptake_range,
+                    uptake_rate_mean,
+                    uptake_rate_var,
                     metabolic_rate,
-                    spor_metabolic_rate,
-                    spor_metabolic_range,
                     reproduction_prob,
-                    reproduction_range,
+                    reproduction_prob_mean,
+                    reproduction_prob_var,
+                    spor_metabolic_rate,
+                    spor_metabolic_rate_mean,
+                    spor_metabolic_rate_var,
                     transformation_time,
+                    transformation_time_mean,
                     transformation_range,
-                    metab_secretion_rate,
-                    range_on_change_ratio
+                    metab_secretion_rate
         };
         const std::string filename = "ind_param.csv";
         save_ind_parameters(p, filename);
@@ -276,7 +290,7 @@ void test_ind_param() noexcept  //!OCLINT
     {
         std::minstd_rand rng;
         ind_param i{};
-        auto new_i = change_ind_param_unif(i,rng);
+        auto new_i = change_ind_param_norm(i,rng);
         assert( i != new_i);
     }
 
@@ -286,50 +300,63 @@ void test_ind_param() noexcept  //!OCLINT
     // will always change with a minimum step of 40/10 = 4
     {
         std::minstd_rand rng;
-        double radius  = 0.9;
-        double treshold_energy = 15;
-        double uptake_rate = 0.12;
-        double uptake_range = uptake_rate / 2;
-        double metabolic_rate = 0.031;
-        double reproduction_prob = 0.123456;
-        double reproduction_range = reproduction_prob / 2;
-        double spor_metabolic_rate = 0.8;
-        double spor_metabolic_range  = reproduction_prob / 2;
-        int transformation_time = 7;
-        int transformation_range = transformation_time / 2;
-        double metab_secretion_rate = 2;
-        double range_on_change_ratio = 10;
-        ind_param i_p {radius,
+        double radius  = 0.8;
+        double treshold_energy = 10;
+        double uptake_rate = 0.1;
+        double uptake_rate_mean = 0.1;
+        double uptake_rate_var = 0.02;
+        double metabolic_rate = 0.01;
+        double reproduction_prob = 0.5;
+        double reproduction_prob_mean = 0.5;
+        double reproduction_prob_var = 0.07;
+        double spor_metabolic_rate = 0.5;
+        double spor_metabolic_rate_mean = 0.5;
+        double spor_metabolic_rate_var = 0.07;
+        int transformation_time = 5;
+        int transformation_time_mean = 5;
+        int transformation_range = 2;
+        double metab_secretion_rate = 1;
+        ind_param i_p{
+            radius,
                     treshold_energy,
                     uptake_rate,
-                    uptake_range,
+                    uptake_rate_mean,
+                    uptake_rate_var,
                     metabolic_rate,
                     reproduction_prob,
-                    reproduction_range,
+                    reproduction_prob_mean,
+                    reproduction_prob_var,
                     spor_metabolic_rate,
-                    spor_metabolic_range,
+                    spor_metabolic_rate_mean,
+                    spor_metabolic_rate_var,
                     transformation_time,
+                    transformation_time_mean,
                     transformation_range,
-                    metab_secretion_rate,
-                    range_on_change_ratio
-                      };
-        auto uptake_step = (i_p.get_uptake_range().max() - i_p.get_uptake_range().min()) / i_p.get_range_on_change_ratio();
-        auto spor_metab_step =
-                (i_p.get_spor_metabolic_range().max() - i_p.get_spor_metabolic_range().min()) / i_p.get_range_on_change_ratio();
-        auto repr_step = (i_p.get_repr_range().max() - i_p.get_repr_range().min()) / i_p.get_range_on_change_ratio();
-        auto new_i = i_p;
-        int repeats = 100;
+                    metab_secretion_rate
+        };
+
+        int repeats = 1000;
+
+        double initialized_uptake_rate_mean = uptake_rate_mean;
+        double initialized_repr_prob_mean = reproduction_prob_mean;
+        double initialized_spor_metab_mean = spor_metabolic_rate_mean;
+
         for( int i = 0; i != repeats; i++)
         {
-            new_i = change_ind_param_unif(i_p,rng);
-            auto uptake_delta = new_i.get_uptake_rate() - i_p.get_uptake_rate();
-            assert(uptake_delta * uptake_delta >= uptake_step  * uptake_step);
-            auto repr_prob_delta = new_i.get_repr_prob() - i_p.get_repr_prob();
-            assert( repr_prob_delta * repr_prob_delta >= repr_step * repr_step);
-            auto spor_metabolic_rate_delta =
-                    new_i.get_spor_metabolic_rate() - i_p.get_spor_metabolic_rate();
-            assert( spor_metabolic_rate_delta * spor_metabolic_rate_delta >=
-                    spor_metab_step * spor_metab_step );
+            i_p = change_ind_param_norm(i_p,rng);
+            initialized_repr_prob_mean += i_p.get_repr_prob();
+            initialized_spor_metab_mean += i_p.get_spor_metabolic_rate();
+            initialized_uptake_rate_mean += i_p.get_uptake_mean();
         }
+        initialized_repr_prob_mean /= repeats;
+        initialized_spor_metab_mean /= repeats;
+        initialized_uptake_rate_mean /= repeats;
+
+        assert(initialized_repr_prob_mean - reproduction_prob_mean < 0.01
+               && initialized_repr_prob_mean - reproduction_prob_mean > -0.01);
+        assert(initialized_spor_metab_mean - spor_metabolic_rate < 0.01
+               && initialized_spor_metab_mean - spor_metabolic_rate > -0.01);
+        assert(initialized_uptake_rate_mean - uptake_rate_mean < 0.01
+               && initialized_uptake_rate_mean - uptake_rate_mean > -0.01);
     }
 }

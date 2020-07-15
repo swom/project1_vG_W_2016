@@ -106,7 +106,8 @@ funders calc_funders_success(const simulation& s);
 void change_conditions(simulation& s) noexcept;
 
 ///Changes the environemtnal parameters of a simulation based on its metaparameters
-void change_env(simulation& s) noexcept;
+/// drawing from a random distribution
+void change_env_unif(simulation& s) noexcept;
 
 ///Changes the population(only the individual) parameters of a simulation based on its metaparameters
 void change_pop( simulation& s);
