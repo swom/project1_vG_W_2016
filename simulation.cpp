@@ -72,6 +72,20 @@ void change_pop( simulation& s)
     p.get_v_ind() = change_inds(p,new_ind_param);
 }
 
+void change_params(simulation& s, const env_param& e, const ind_param& i)
+{
+    s.get_env().set_param(e);
+
+    auto& p = s.get_pop();
+
+    ///Change ind_param object contained in pop_param
+    p.get_param().get_ind_param() = i;
+
+    ///Change ind_params of all inds in pop
+    p.get_v_ind() = change_inds(p,i);
+
+}
+
 void dispersal(simulation &s)
 {
     fund_new_pop(s.get_pop());
@@ -200,6 +214,19 @@ void response(simulation& s)
             continue;
         }
         responds(ind, s.get_env().get_cell(index));
+    }
+}
+
+void run_random_conditions(simulation& s,
+                           const std::vector<std::pair<env_param, ind_param>>& random_conditions)
+{
+    auto test_pop = s.get_pop().get_v_ind();
+    for(const auto & condition : random_conditions)
+    {
+        change_params(s, condition.first, condition.second);
+        exec_cycle(s);
+        s.reset_timesteps();
+        s.get_pop().get_v_ind() = test_pop;
     }
 }
 
@@ -1150,6 +1177,7 @@ void test_simulation()//!OCLINT tests may be many
         assert(d_c != d_c1);
     }
 
+
     //It is possible to load the random conditions in a vector
     {
         //Make a random conditions .csv file
@@ -1161,15 +1189,79 @@ void test_simulation()//!OCLINT tests may be many
 
         std::vector<std::pair<env_param,ind_param>> rand_conditions_saved;
 
-        rand_conditions_saved.push_back({change_env_param_norm(env, rng),
-                                           change_ind_param_norm(ind, rng)});
-        os << rand_conditions_saved.back().first << " , "
-           << rand_conditions_saved.back().second << std::endl;
+        int repeats = 2;
+
+        for(int i = 0; i != repeats; i++)
+        {
+            rand_conditions_saved.push_back({change_env_param_norm(env, rng),
+                                             change_ind_param_norm(ind, rng)});
+            os << rand_conditions_saved.back().first << " , "
+               << rand_conditions_saved.back().second << std::endl;
+        }
+
 
 
         auto random_conditions_loaded = load_random_conditions(filename);
         assert( random_conditions_loaded == rand_conditions_saved);
 
+    }
+
+    //It is possible to run a population against multiple random conditions
+    //And store their demogrphics in a file
+    {
+        //Create random conditions
+        env_param env;
+        ind_param ind;
+        std::minstd_rand rng;
+        std::vector<std::pair<env_param,ind_param>> rand_conditions_vector;
+
+        int repeats = 2;
+
+        for(int i = 0; i != repeats; i++)
+        {
+            rand_conditions_vector.push_back({change_env_param_norm(env, rng),
+                                              change_ind_param_norm(ind, rng)});
+        }
+
+        pop_param p{100};
+        env_param e{100};
+        meta_param m{};
+        simulation s{sim_param{e,m,p}};
+        run_random_conditions(s, rand_conditions_vector);
+        assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
+                          s.get_demo_sim().get_demo_cycles().begin(),
+                          [](const std::pair<env_param, ind_param>& r,
+                          const demographic_cycle& d)
+        {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
+               );
+
+    }
+    //It is possible to change param of a simulation with other
+    //taken from a random condition vector
+    {
+
+        //Create random conditions
+        env_param env;
+        ind_param ind;
+        std::minstd_rand rng;
+        std::vector<std::pair<env_param,ind_param>> rand_conditions;
+        int repeats = 2;
+
+        for(int i = 0; i != repeats; i++)
+        {
+            rand_conditions.push_back({change_env_param_norm(env, rng),
+                                       change_ind_param_norm(ind, rng)});
+        }
+
+        simulation s;
+        for(const auto& rand_condition : rand_conditions)
+        {
+            assert(s.get_env().get_param() != rand_condition.first
+                    && s.get_pop().get_param().get_ind_param() != rand_condition.second);
+            change_params(s,rand_condition.first, rand_condition.second);
+            assert(s.get_env().get_param() == rand_condition.first
+                   && s.get_pop().get_param().get_ind_param() == rand_condition.second);
+        }
     }
 #endif
 }

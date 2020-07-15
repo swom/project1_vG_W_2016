@@ -107,10 +107,14 @@ void change_conditions(simulation& s) noexcept;
 
 ///Changes the environemtnal parameters of a simulation based on its metaparameters
 /// drawing from a random distribution
-void change_env_unif(simulation& s) noexcept;
+void change_env(simulation& s) noexcept;
 
 ///Changes the population(only the individual) parameters of a simulation based on its metaparameters
 void change_pop( simulation& s);
+
+///Changes the parameters of the simulation given two objects of the env_ and ind_
+/// parameter classes
+void change_params(simulation& s, const env_param& e, const ind_param& i);
 
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
@@ -142,6 +146,10 @@ void reset_sim(simulation& s) noexcept;
 
 ///Individuals read input from environment and determine their own phenotype
 void response(simulation& s);
+
+///Runs a poplation from a simulation against a series of random conditions
+void run_random_conditions(simulation& s,
+                           const std::vector<std::pair<env_param, ind_param>>& random_conditions);
 
 ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);
