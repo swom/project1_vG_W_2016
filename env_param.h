@@ -88,8 +88,18 @@ std::ostream& operator<<(std::ostream& os, const env_param& p);
 std::ifstream& operator>>(std::ifstream& is, env_param& p);
 
 ///Returns a new env_param that is a changed version of the
-/// variable env_param modified following the magnitude and range values
-env_param change_env_param_norm(const env_param e, std::minstd_rand &rng) noexcept;
+/// given env_param
+/// whith new values drawn from a normal distribution
+/// with mean and variance as indicated by the m_mean* and m_var* members
+env_param change_env_param_norm(const env_param& e, std::minstd_rand &rng) noexcept;
+
+///Returns a new env_param that is a changed version of the
+/// given env_param
+/// whith new values drawn from a uniform distribution
+/// with mean as indicated by the m_mean* members
+/// and range = m_mean* -/+ 3 * m_var* members
+env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexcept;
+
 
 env_param load_env_parameters( const std::string& filename);
 

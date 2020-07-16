@@ -8,10 +8,12 @@ demographic_sim::demographic_sim()
 
 bool operator==(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 {
-    return
-            std::equal(lhs.get_demo_cycles().begin(),
-                       lhs.get_demo_cycles().end(),
-                       rhs.get_demo_cycles().begin());
+    return lhs.get_demo_cycles() == rhs.get_demo_cycles();
+}
+
+bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
+{
+  return !(lhs == rhs);
 }
 
 demographic_sim load_demographic_sim(

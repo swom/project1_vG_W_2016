@@ -72,6 +72,11 @@ void change_pop( simulation& s)
     p.get_v_ind() = change_inds(p,new_ind_param);
 }
 
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions(int number, int seed)
+{
+
+}
+
 void change_params(simulation& s, const env_param& e, const ind_param& i)
 {
     s.get_env().set_param(e);
@@ -153,6 +158,17 @@ void feeding(simulation& s)
     }
 }
 
+simulation get_no_demographic_copy(const simulation& s)
+{
+    simulation new_s{sim_param{s.get_env().get_param(),
+                    s.get_meta_param(),
+                    s.get_pop().get_param()
+                              }
+                    };
+    new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
+    return new_s;
+}
+
 void jordi_feeding(simulation& s)
 {
     for(auto& ind : s.get_pop().get_v_ind())
@@ -225,9 +241,15 @@ void run_random_conditions(simulation& s,
     {
         change_params(s, condition.first, condition.second);
         exec_cycle(s);
+        s.tick_cycles();
         s.reset_timesteps();
         s.get_pop().get_v_ind() = test_pop;
     }
+    std::string name =
+            "random_cond_sim_demographic_s" +
+            std::to_string(s.get_meta_param().get_seed()) +
+            ".csv";
+    save_demographic_sim(s.get_demo_sim() ,name);
 }
 
 void secretion_metabolite(simulation& s)
@@ -1207,7 +1229,7 @@ void test_simulation()//!OCLINT tests may be many
     }
 
     //It is possible to run a population against multiple random conditions
-    //And store their demogrphics in a file
+    //And store their demographics in a file
     {
         //Create random conditions
         env_param env;
@@ -1223,9 +1245,17 @@ void test_simulation()//!OCLINT tests may be many
                                               change_ind_param_norm(ind, rng)});
         }
 
+        ///Run against the random conditions
         pop_param p{100};
         env_param e{100};
-        meta_param m{};
+        int seed_ID = 1234567890;
+        std::string filename =
+                "random_cond_sim_demographic_s" +
+                std::to_string(seed_ID) +
+                ".csv";
+        meta_param m{1,
+                    1,
+                    seed_ID};
         simulation s{sim_param{e,m,p}};
         run_random_conditions(s, rand_conditions_vector);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
@@ -1234,6 +1264,8 @@ void test_simulation()//!OCLINT tests may be many
                           const demographic_cycle& d)
         {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
                );
+        auto demo_sim = load_demographic_sim(filename);
+        assert(demo_sim == s.get_demo_sim());
 
     }
     //It is possible to change param of a simulation with other
@@ -1263,6 +1295,37 @@ void test_simulation()//!OCLINT tests may be many
                    && s.get_pop().get_param().get_ind_param() == rand_condition.second);
         }
     }
+
+    //A simulation can be instantiated given another simulation.
+    //With the same population and environment,
+    //but with empty data vectors for demographics
+    {
+        env_param e{5};
+        pop_param p{100,100};
+        meta_param m{2,1,5,2};
+        simulation s{sim_param{e,m,p}};
+        exec_cycle(s);
+        assert(!s.get_demo_sim().get_demo_cycles().empty());
+        simulation new_s = get_no_demographic_copy(s);
+        assert(s.get_env() == new_s.get_env());
+        assert(s.get_pop() == new_s.get_pop());
+        assert(s.get_meta_param() == new_s.get_meta_param());
+        assert(s.get_demo_sim() != new_s.get_demo_sim());
+        assert(new_s.get_demo_sim().get_demo_cycles().empty());
+    }
+
+    //It is possible to create and save a certain amount of random conditions
+    //generated with a random number generator with a given seed
+    {
+        int n_random_conditions = 2;
+        int seed = 55;
+        auto rand_cond = create_rand_conditions(n_random_conditions,
+                                                seed);
+        auto rand_cond2 = create_rand_conditions(n_random_conditions,
+                                                 seed);
+        assert(rand_cond == rand_cond2);
+    }
+
 #endif
 }
 

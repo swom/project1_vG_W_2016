@@ -57,6 +57,9 @@ public:
     ///Sets the m_demo_sim to a new demographic_sim object
     void set_demo_sim( const demographic_sim& d_s) noexcept {m_demo_sim = d_s;}
 
+    ///Sets the metaparameters of the simualtion given a metaparameter object
+    void set_meta_param(const meta_param& m) noexcept {m_meta_param = m;}
+
     ///Ticks the counter of cycles up by oneù
     void tick_cycles() noexcept {++m_executed_cycles;}
 

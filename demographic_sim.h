@@ -25,6 +25,10 @@ private:
 /// demographic_cycles vector are the same
 bool operator==(const demographic_sim& lhs, const demographic_sim& rhs) noexcept;
 
+///Compares two demographic_sim objects to check that their
+/// demographic_cycles vector are NOT the same
+bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept;
+
 ///Loads a demographic_sim object froma a given filename
 demographic_sim load_demographic_sim(const std::string& filename);
 

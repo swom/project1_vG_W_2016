@@ -166,7 +166,7 @@ bool operator==(const ind_param& lhs, const ind_param& rhs) noexcept
     auto spo_metab_rate_mean = lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() < 0.0001
             && lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() > -0.0001;
     auto spo_metab_rate_var =  lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() < 0.00001
-             && lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() >  -0.00001;
+            && lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() >  -0.00001;
     auto transformation_time = lhs.get_transformation_time() == rhs.get_transformation_time()
             && lhs.get_transformation_time_mean() == rhs.get_transformation_time_mean()
             && lhs.get_transformation_range() == rhs.get_transformation_range();
@@ -203,8 +203,37 @@ ind_param change_ind_param_norm( ind_param i,  std::minstd_rand& rng)
     i.set_repr_prob(std::normal_distribution<double>{i.get_repr_prob_mean(),
                                                      i.get_repr_prob_var()}(rng));
 
-    i.set_transformation_time(std::uniform_int_distribution<int>{i.get_transformation_time_mean() - i.get_transformation_range(),
-                                                                 i.get_transformation_time_mean() + i.get_transformation_range()}
+    ///This is a binomial distribution as it is the discrete equivalent of the normal distribution
+    /// an offset is required as the binomial alway goes from 0 to the number of trials
+    auto rnd_numb =
+            std::binomial_distribution<>{(i.get_transformation_range() * 2) + 1, 0.5}(rng);
+    auto offset = i.get_transformation_time_mean() - i.get_transformation_range();
+    i.set_transformation_time(rnd_numb + offset);
+
+    return i;
+}
+
+ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
+{
+
+    i.set_uptake_rate( std::uniform_real_distribution<double>{
+                           i.get_uptake_mean() - 3 * i.get_uptake_var(),
+                           i.get_uptake_mean() + 3 * i.get_uptake_var()
+                       }(rng));
+
+    i.set_spor_metabolic_rate(std::uniform_real_distribution<double>{
+                                  i.get_spor_metabolic_rate_mean() - 3 * i.get_spor_metabolic_rate_var(),
+                                  i.get_spor_metabolic_rate_mean() + 3 * i.get_spor_metabolic_rate_var()
+                              }(rng));
+
+    i.set_repr_prob(std::uniform_real_distribution<double>{
+                        i.get_repr_prob_mean() - 3 * i.get_repr_prob_var(),
+                        i.get_repr_prob_mean() + 3 * i.get_repr_prob_var()
+                    }(rng));
+
+    i.set_transformation_time(std::uniform_int_distribution<int>{
+                                  i.get_transformation_time_mean() - i.get_transformation_range(),
+                                  i.get_transformation_time_mean() + i.get_transformation_range()}
                               (rng)
                               );
 
@@ -294,10 +323,10 @@ void test_ind_param() noexcept  //!OCLINT
         assert( i != new_i);
     }
 
-    //Parameters will always change by a minimum amount dictated by the range_on_change_ratio
-    // e.g. : if  range_on_change_ratio = 10, then
-    // a parameter with range(max param possible value - min param possible value) = 40
-    // will always change with a minimum step of 40/10 = 4
+    ///Parameters can be changed both according a normal or uniform distribution
+    ///If normal the variance members (m_var*) are use as the variance of the normal
+    /// If uniform the variance members (m_var*) are used to determine the range
+    /// range = [ m_mean - 3 * m_var, m_mean + 3 * m_var]
     {
         std::minstd_rand rng;
         double radius  = 0.8;
@@ -316,7 +345,7 @@ void test_ind_param() noexcept  //!OCLINT
         int transformation_time_mean = 5;
         int transformation_range = 2;
         double metab_secretion_rate = 1;
-        ind_param i_p{
+        ind_param i_p_n{
             radius,
                     treshold_energy,
                     uptake_rate,
@@ -337,26 +366,58 @@ void test_ind_param() noexcept  //!OCLINT
 
         int repeats = 1000;
 
-        double initialized_uptake_rate_mean = uptake_rate_mean;
-        double initialized_repr_prob_mean = reproduction_prob_mean;
-        double initialized_spor_metab_mean = spor_metabolic_rate_mean;
+        double normal_uptake_rate_mean = uptake_rate_mean;
+        double normal_repr_prob_mean = reproduction_prob_mean;
+        double normal_spor_metab_mean = spor_metabolic_rate_mean;
+        double normal_transformation_time_mean = transformation_time;
+        double unif_uptake_rate_mean = uptake_rate_mean;
+        double unif_repr_prob_mean = reproduction_prob_mean;
+        double unif_spor_metab_mean = spor_metabolic_rate_mean;
+        double unif_transformation_time_mean = transformation_time;
 
         for( int i = 0; i != repeats; i++)
         {
-            i_p = change_ind_param_norm(i_p,rng);
-            initialized_repr_prob_mean += i_p.get_repr_prob();
-            initialized_spor_metab_mean += i_p.get_spor_metabolic_rate();
-            initialized_uptake_rate_mean += i_p.get_uptake_mean();
-        }
-        initialized_repr_prob_mean /= repeats;
-        initialized_spor_metab_mean /= repeats;
-        initialized_uptake_rate_mean /= repeats;
+            i_p_n = change_ind_param_norm(i_p_n,rng);
+            normal_repr_prob_mean += i_p_n.get_repr_prob();
+            normal_spor_metab_mean += i_p_n.get_spor_metabolic_rate();
+            normal_uptake_rate_mean += i_p_n.get_uptake_rate();
+            normal_transformation_time_mean += i_p_n.get_transformation_time();
 
-        assert(initialized_repr_prob_mean - reproduction_prob_mean < 0.01
-               && initialized_repr_prob_mean - reproduction_prob_mean > -0.01);
-        assert(initialized_spor_metab_mean - spor_metabolic_rate < 0.01
-               && initialized_spor_metab_mean - spor_metabolic_rate > -0.01);
-        assert(initialized_uptake_rate_mean - uptake_rate_mean < 0.01
-               && initialized_uptake_rate_mean - uptake_rate_mean > -0.01);
+            i_p_n = change_ind_param_unif(i_p_n,rng);
+            unif_repr_prob_mean += i_p_n.get_repr_prob();
+            unif_spor_metab_mean += i_p_n.get_spor_metabolic_rate();
+            unif_uptake_rate_mean += i_p_n.get_uptake_rate();
+            unif_transformation_time_mean += i_p_n.get_transformation_time();
+        }
+
+        normal_repr_prob_mean /= repeats;
+        normal_spor_metab_mean /= repeats;
+        normal_uptake_rate_mean /= repeats;
+        normal_transformation_time_mean /= repeats;
+
+        unif_repr_prob_mean /= repeats;
+        unif_spor_metab_mean /= repeats;
+        unif_uptake_rate_mean /= repeats;
+        unif_transformation_time_mean /= repeats;
+
+        assert(normal_repr_prob_mean - reproduction_prob_mean < 0.01
+               && normal_repr_prob_mean - reproduction_prob_mean > -0.01);
+        assert(normal_spor_metab_mean - spor_metabolic_rate < 0.01
+               && normal_spor_metab_mean - spor_metabolic_rate > -0.01);
+        assert( normal_uptake_rate_mean - uptake_rate_mean < 0.01
+                &&  normal_uptake_rate_mean - uptake_rate_mean > -0.01);
+        //Very coarse grained
+        assert(normal_transformation_time_mean - transformation_time < 1
+               && normal_transformation_time_mean - transformation_time > -1);
+
+        assert(unif_repr_prob_mean - reproduction_prob_mean < 0.01
+               && unif_repr_prob_mean - reproduction_prob_mean > -0.01);
+        assert(unif_spor_metab_mean - spor_metabolic_rate < 0.01
+               && unif_spor_metab_mean - spor_metabolic_rate > -0.01);
+        assert( unif_uptake_rate_mean - uptake_rate_mean < 0.01
+                &&  unif_uptake_rate_mean - uptake_rate_mean > -0.01);
+        //Very coarse grained
+        assert(unif_transformation_time_mean - transformation_time < 1
+               && unif_transformation_time_mean - transformation_time > -1);
     }
 }

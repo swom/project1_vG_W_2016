@@ -56,7 +56,7 @@ public:
     int get_transformation_time() const noexcept {return m_transformation_time;}
 
     ///Gets the mean value of all possible transformation time values
-    int get_transformation_time_mean() const noexcept {return m_transformation_time;}
+    int get_transformation_time_mean() const noexcept {return m_mean_transformation_time;}
 
     ///Gets range of all the possible transformation/sporulation times
     int get_transformation_range() const noexcept
@@ -163,9 +163,20 @@ std::ostream& operator<<(std::ostream& os, const ind_param& p);
 //Initializes a instance p from a file stream
 std::ifstream& operator>>(std::ifstream& is, ind_param& p);
 
-///Changes the current parameters of individuals drawing from random distribution
-/// That are specified in the parameters themselves (I know it's bad!!!!)
+///Returns a new ind_param that is a changed version of the
+/// given ind_param
+/// whith new values drawn from a normal distribution
+/// with mean and variance as indicated by the m_mean* and m_var* members
 ind_param change_ind_param_norm( ind_param i,  std::minstd_rand& rng);
+
+///Returns a new ind_param that is a changed version of the
+/// given ind_param
+/// whith new values drawn from a uniform distribution
+/// with mean as indicated by the m_mean* members
+/// and range = m_mean* -/+ 3 * m_var* members
+/// EXCEPT for m_transformation_time that uses m_mean -/+ m_range
+/// without multiplication
+ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng);
 
 //Initializes a instance p from a filename
 ind_param load_ind_parameters( const std::string& filename);

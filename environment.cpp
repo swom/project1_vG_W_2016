@@ -17,12 +17,8 @@ environment::environment(env_param env_parameters):
 bool operator == (const environment& lhs, const environment& rhs) noexcept
 {
 
-    return lhs.get_grid_size() == rhs.get_grid_size() &&
-            lhs.get_param().get_diff_coeff() - rhs.get_param().get_diff_coeff() < 0.00001 &&
-            lhs.get_param().get_diff_coeff() - rhs.get_param().get_diff_coeff() > -0.00001 &&
-            std::equal(lhs.get_grid().begin(),lhs.get_grid().end(),
-                       rhs.get_grid().begin(),rhs.get_grid().end(),
-                       [](const env_grid_cell& l, const env_grid_cell& r) {return l == r;});
+    return  lhs.get_param() == rhs.get_param()
+            && lhs.get_grid() == rhs.get_grid();
 }
 
 bool operator != (const environment& lhs, const environment& rhs) noexcept

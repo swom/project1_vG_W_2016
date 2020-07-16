@@ -73,7 +73,13 @@ private:
     ///Hilbert tree collision manager
     relaxation::Relaxation m_relax;
 };
+///Checks if two populations are the same.
+///  If they have the same parameters and the same individuals.
+bool operator== (const population& lhs, const population& rhs);
 
+///Checks if two populations are not the same.
+/// If they don't have the same parameters or the same individuals.
+bool operator!= (const population& lhs, const population& rhs);
 
 ///Active individuals lose energy due to their metabolism
 void active_metabolism_pop(population &p);
