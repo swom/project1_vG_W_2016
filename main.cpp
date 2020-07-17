@@ -111,7 +111,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     auto rand_cond  =  create_rand_conditions_unif(e,
                                                    i,
                                                    1.5,
-                                                   2,
+                                                   10,
                                                    0);
 
     if(args.size() > 1 && args[1] == "--visual")
@@ -133,11 +133,14 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         std::cout << "logic: ";
         auto start = std::chrono::high_resolution_clock::now();
         exec(s);
-        simulation rand_s = no_demographic_copy(s);
-        run_random_conditions(rand_s, rand_cond);
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
+        simulation rand_s = no_demographic_copy(s);
+        run_random_conditions(rand_s, rand_cond);
+        stop = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::duration<float>(stop - start);
         std::cout << duration.count() << "s" << std::endl;
+
     }
 
     return 0;
