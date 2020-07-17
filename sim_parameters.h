@@ -21,7 +21,7 @@ public:
               double spore_advantage = 10.0,
               double reproduction_prob = 0.1,
               double metab_degrad_rate = 0.1
-            , int n_cycles = 1, int cycle_duration = 2000);
+            , int n_cycles = 1, int cycle_duration = 2);
 
     sim_param(env_param e, meta_param m, pop_param p);
 

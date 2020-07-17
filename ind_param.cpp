@@ -240,6 +240,29 @@ ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
     return i;
 }
 
+ind_param resize_ind_param(const ind_param& i, double amplitude)
+{
+    ind_param ind{
+        i.get_radius(),
+                i.get_treshold_energy(),
+                i.get_uptake_rate(),
+                i.get_uptake_mean(),
+                i.get_uptake_var() * amplitude,
+                i.get_metabolic_rate(),
+                i.get_repr_prob(),
+                i.get_repr_prob_mean(),
+                i.get_repr_prob_var() * amplitude,
+                i.get_spor_metabolic_rate(),
+                i.get_spor_metabolic_rate_mean(),
+                i.get_spor_metabolic_rate_var() * amplitude,
+                i.get_transformation_time(),
+                i.get_transformation_time_mean(),
+                static_cast<int>( i.get_transformation_range() * amplitude),
+                i.get_metab_secr_rate()
+    };
+    return ind;
+}
+
 void save_ind_parameters(
         const ind_param& p,
         const std::string& filename
@@ -419,5 +442,24 @@ void test_ind_param() noexcept  //!OCLINT
         //Very coarse grained
         assert(unif_transformation_time_mean - transformation_time < 1
                && unif_transformation_time_mean - transformation_time > -1);
+    }
+
+    /// It is possible to create ind_param object
+    /// starting from initial ones,
+    /// that have a wider range of possible values
+    {
+        ind_param i;
+        double amplitude = 1.5;
+
+        auto i2 = resize_ind_param(i,amplitude);
+
+        assert(i.get_repr_prob_var() - (i2.get_repr_prob_var() / amplitude) < 0.00001
+               && i.get_repr_prob_var() - (i2.get_repr_prob_var() / amplitude) > -0.00001);
+        assert(i.get_uptake_var() - (i2.get_uptake_var() / amplitude) < 0.00001
+               && i.get_uptake_var() - (i2.get_uptake_var() / amplitude) > -0.00001);
+        assert(i.get_spor_metabolic_rate_var() - (i2.get_spor_metabolic_rate_var() / amplitude) < 0.00001
+               && i.get_spor_metabolic_rate_var() - (i2.get_spor_metabolic_rate_var() / amplitude) > -0.00001);
+        assert(i.get_transformation_range() - (i2.get_transformation_range() / amplitude) < 0.00001
+               && i.get_transformation_range() - (i2.get_transformation_range() / amplitude) > -0.00001);
     }
 }

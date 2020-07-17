@@ -13,7 +13,6 @@ public:
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
               double death_rate = 0.0,
-              double wiggle_room = 0.00001,
               ind_param ind_parameters = ind_param());
 
 

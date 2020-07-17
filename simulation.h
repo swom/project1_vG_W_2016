@@ -119,6 +119,14 @@ void change_pop( simulation& s);
 /// parameter classes
 void change_params(simulation& s, const env_param& e, const ind_param& i);
 
+
+///Creates a vector of random conditions given parameter classes and how much wider
+/// can be the oscillation of the new random conditions
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
+                                                                         const ind_param& i,
+                                                                         double amplitude,
+                                                                         int repeats,
+                                                                         int seed);
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
 
@@ -140,6 +148,10 @@ void feeding(simulation& s);
 
 ///Individuals feed a proportion of total food in their cell not a fixed rate
 void jordi_feeding(simulation& s);
+
+/// Makes a copy of a simulation but erases
+/// the funder_success and demographic sim vectors
+simulation no_demographic_copy(const simulation& s);
 
 ///Stores ancestor_ID and GRN of funders of a cycle in funders_success
 funders prepare_funders(const simulation& s);

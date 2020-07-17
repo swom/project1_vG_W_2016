@@ -72,9 +72,27 @@ void change_pop( simulation& s)
     p.get_v_ind() = change_inds(p,new_ind_param);
 }
 
-std::vector<std::pair<env_param, ind_param>> create_rand_conditions(int number, int seed)
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
+                                                                         const ind_param& i,
+                                                                         double amplitude,
+                                                                         int repeats,
+                                                                         int seed)
 {
+    std::minstd_rand rng;
+    rng.seed(seed);
 
+    std::vector<std::pair<env_param, ind_param>> random_conditions;
+
+    auto env = resize_env_param(e, amplitude);
+    auto ind = resize_ind_param(i, amplitude);
+
+    for(int r = 0; r != repeats; r++)
+    {
+        random_conditions.push_back({change_env_param_unif(env, rng),
+                                   change_ind_param_unif(ind, rng)});
+    }
+
+    return random_conditions;
 }
 
 void change_params(simulation& s, const env_param& e, const ind_param& i)
@@ -146,6 +164,7 @@ inline bool exists (const std::string& name) {
     return (stat (name.c_str(), &buffer) == 0);
 }
 
+
 void feeding(simulation& s)
 {
     for(auto& ind : s.get_pop().get_v_ind())
@@ -158,16 +177,6 @@ void feeding(simulation& s)
     }
 }
 
-simulation get_no_demographic_copy(const simulation& s)
-{
-    simulation new_s{sim_param{s.get_env().get_param(),
-                    s.get_meta_param(),
-                    s.get_pop().get_param()
-                              }
-                    };
-    new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
-    return new_s;
-}
 
 void jordi_feeding(simulation& s)
 {
@@ -197,6 +206,17 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
     }
 
     return random_conditions;
+}
+
+simulation no_demographic_copy(const simulation& s)
+{
+    simulation new_s{sim_param{s.get_env().get_param(),
+                    s.get_meta_param(),
+                    s.get_pop().get_param()
+                              }
+                    };
+    new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
+    return new_s;
 }
 
 funders prepare_funders(const simulation& s)
@@ -1228,6 +1248,28 @@ void test_simulation()//!OCLINT tests may be many
 
     }
 
+    ///It is possible to run a simulation for a normal amount of time and then
+    /// run it against random conditions
+    {
+        env_param e;
+        meta_param m;
+        pop_param p;
+        simulation s{sim_param{e,m,p}};
+        exec(s);
+
+        double amplitude = 1.5;
+        int repeats = 2;
+        int seed = 0;
+        auto rand_cond = create_rand_conditions_unif(s.get_env().get_param(),
+                                    s.get_pop().get_param().get_ind_param(),
+                                    amplitude,
+                                    repeats,
+                                    seed);
+
+        auto s_rand = no_demographic_copy(s);
+        run_random_conditions(s, rand_cond);
+    }
+
     //It is possible to run a population against multiple random conditions
     //And store their demographics in a file
     {
@@ -1254,8 +1296,8 @@ void test_simulation()//!OCLINT tests may be many
                 std::to_string(seed_ID) +
                 ".csv";
         meta_param m{1,
-                    1,
-                    seed_ID};
+                     1,
+                     seed_ID};
         simulation s{sim_param{e,m,p}};
         run_random_conditions(s, rand_conditions_vector);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
@@ -1301,12 +1343,12 @@ void test_simulation()//!OCLINT tests may be many
     //but with empty data vectors for demographics
     {
         env_param e{5};
-        pop_param p{100,100};
+        pop_param p{2};
         meta_param m{2,1,5,2};
         simulation s{sim_param{e,m,p}};
         exec_cycle(s);
         assert(!s.get_demo_sim().get_demo_cycles().empty());
-        simulation new_s = get_no_demographic_copy(s);
+        simulation new_s = no_demographic_copy(s);
         assert(s.get_env() == new_s.get_env());
         assert(s.get_pop() == new_s.get_pop());
         assert(s.get_meta_param() == new_s.get_meta_param());
@@ -1314,17 +1356,32 @@ void test_simulation()//!OCLINT tests may be many
         assert(new_s.get_demo_sim().get_demo_cycles().empty());
     }
 
-    //It is possible to create and save a certain amount of random conditions
-    //generated with a random number generator with a given seed
+    /// It is possible to create and save a certain amount of random conditions
+    /// giving the base env_ and ind_ param, and how much larger the range of variation
+    /// is going to be proportionally.
+    /// It is possible also to decide the seed
+    /// of the random number generator for consistency across
+    /// different runs.
     {
         int n_random_conditions = 2;
         int seed = 55;
-        auto rand_cond = create_rand_conditions(n_random_conditions,
-                                                seed);
-        auto rand_cond2 = create_rand_conditions(n_random_conditions,
-                                                 seed);
+        env_param e;
+        ind_param i;
+        auto amplitude = 1.0; //the range will stay the same
+        auto rand_cond = create_rand_conditions_unif(e,
+                                                     i,
+                                                     amplitude,
+                                                     n_random_conditions,
+                                                     seed);
+        auto rand_cond2 = create_rand_conditions_unif(e,
+                                                      i,
+                                                      amplitude,
+                                                      n_random_conditions,
+                                                      seed);
+        assert(static_cast<unsigned int>(n_random_conditions) == rand_cond.size());
         assert(rand_cond == rand_cond2);
     }
+
 
 #endif
 }

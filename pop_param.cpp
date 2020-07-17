@@ -12,7 +12,6 @@ pop_param::pop_param(unsigned int start_pop_size,
                      double base_disp_prob,
                      double spore_advantage,
                      double death_rate,
-                     double wiggle_room,
                      class ind_param ind_parameters):
     m_ind_param{ind_parameters},
     m_base_disp_prob{base_disp_prob},
@@ -22,8 +21,7 @@ pop_param::pop_param(unsigned int start_pop_size,
     m_mutation_prob{mutation_prob},
     m_mutation_step{mutation_step},
     m_spore_advantage{spore_advantage},
-    m_start_pop_size{start_pop_size},
-    m_wiggle_room{wiggle_room}
+    m_start_pop_size{start_pop_size}
 {
 #ifndef IS_ON_TRAVIS
     try {

@@ -135,6 +135,20 @@ env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexc
     return e1;
 }
 
+env_param resize_env_param(const env_param& e, double amplitude)
+{
+    env_param env{e.get_grid_side(),
+                e.get_diff_coeff(),
+                e.get_init_food(),
+                e.get_degr_rate(),
+                e.get_mean_diff_coeff(),
+                e.get_mean_degr_rate(),
+                e.get_var_diff_coeff() * amplitude,
+                e.get_var_degr_rate() * amplitude}
+            ;
+    return env;
+}
+
 void save_env_parameters(
         const env_param& p,
         const std::string& filename
@@ -256,5 +270,20 @@ void test_env_param() noexcept //!OCLINT
                && mean_diff_coeff - unif_mean_of_diff_coefficients > -0.01);
         assert(mean_degr_coeff - unif_mean_of_degr_rates < 0.01
                && mean_degr_coeff - unif_mean_of_degr_rates > -0.01);
+    }
+
+    /// It is possible to create env_ param object
+    /// starting from initial ones,
+    /// that have a wider range of possible values
+    {
+        env_param e;
+        double amplitude = 1.50;
+
+        auto e2 = resize_env_param(e, amplitude);
+
+        assert(e.get_var_degr_rate() - (e2.get_var_degr_rate() / amplitude) < 0.00001
+               && e.get_var_degr_rate() - (e2.get_var_degr_rate() / amplitude) > -0.00001);
+        assert(e.get_var_diff_coeff() - (e2.get_var_diff_coeff() / amplitude) < 0.00001
+               && e.get_var_diff_coeff() - (e2.get_var_diff_coeff() / amplitude) > -0.00001);
     }
 }
