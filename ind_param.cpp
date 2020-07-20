@@ -33,7 +33,6 @@ ind_param::ind_param(double radius,
     m_uptake_rate{uptake_rate},
     m_mean_uptake_rate{uptake_rate_mean},
     m_var_uptake_rate{uptake_rate_var}
-  //!OCLINT
 {
     assert(m_metabolic_rate > -0.000001);
     assert(m_metab_secr_rate > -0.000001);
@@ -142,35 +141,49 @@ std::ifstream& operator>>(std::ifstream& is, ind_param& p)
 
 bool operator==(const ind_param& lhs, const ind_param& rhs) noexcept
 {
-    return lhs.get_radius() - rhs.get_radius() < 0.00001
-            && lhs.get_radius() - rhs.get_radius() > -0.00001
-            && lhs.get_treshold_energy() - rhs.get_treshold_energy() < 0.00001
-            && lhs.get_treshold_energy() - rhs.get_treshold_energy() > -0.00001
-            && lhs.get_uptake_rate() - rhs.get_uptake_rate() < 0.0001
-            && lhs.get_uptake_rate() - rhs.get_uptake_rate() > -0.0001
-            && lhs.get_uptake_mean() - rhs.get_uptake_mean() < 0.0001
-            && lhs.get_uptake_mean() - rhs.get_uptake_mean() > -0.0001
-            && lhs.get_uptake_var() - rhs.get_uptake_var() < 0.00001
-            && lhs.get_uptake_var() - rhs.get_uptake_var() > -0.00001
-            && lhs.get_repr_prob() -  rhs.get_repr_prob() < 0.00001
-            && lhs.get_repr_prob() -  rhs.get_repr_prob() > -0.00001
-            && lhs.get_repr_prob_mean() -  rhs.get_repr_prob_mean() < 0.00001
-            && lhs.get_repr_prob_mean() -  rhs.get_repr_prob_mean() > -0.00001
-            && lhs.get_repr_prob_var() -  rhs.get_repr_prob_var() < 0.00001
-            && lhs.get_repr_prob_var() -  rhs.get_repr_prob_var() > -0.00001
-            && lhs.get_metabolic_rate() - rhs.get_metabolic_rate() < 0.00001
-            && lhs.get_metabolic_rate() - rhs.get_metabolic_rate() > -0.00001
-            && lhs.get_metab_secr_rate() - rhs.get_metab_secr_rate() < 0.00001
-            && lhs.get_metab_secr_rate() - rhs.get_metab_secr_rate() > -0.00001
-            && lhs.get_spor_metabolic_rate() - rhs.get_spor_metabolic_rate() < 0.00001
-            && lhs.get_spor_metabolic_rate() - rhs.get_spor_metabolic_rate() > -0.00001
-            && lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() < 0.0001
-            && lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() > -0.0001
-            && lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() < 0.00001
-            && lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() >  -0.00001
-            && lhs.get_transformation_time() == rhs.get_transformation_time()
+    auto radius = lhs.get_radius() - rhs.get_radius() < 0.00001
+            && lhs.get_radius() - rhs.get_radius() > -0.00001 ;
+    auto trheshold = lhs.get_treshold_energy() - rhs.get_treshold_energy() < 0.00001
+            && lhs.get_treshold_energy() - rhs.get_treshold_energy() > -0.00001;
+    auto uptake = lhs.get_uptake_rate() - rhs.get_uptake_rate() < 0.0001
+            && lhs.get_uptake_rate() - rhs.get_uptake_rate() > -0.0001;
+    auto uptake_mean =  lhs.get_uptake_mean() - rhs.get_uptake_mean() < 0.0001
+            && lhs.get_uptake_mean() - rhs.get_uptake_mean() > -0.0001;
+    auto uptake_var =  lhs.get_uptake_var() - rhs.get_uptake_var() < 0.00001
+            &&  lhs.get_uptake_var() - rhs.get_uptake_var() > -0.00001;
+    auto repr_prob = lhs.get_repr_prob() -  rhs.get_repr_prob() < 0.00001
+            && lhs.get_repr_prob() -  rhs.get_repr_prob() > -0.00001;
+    auto repr_prob_mean = lhs.get_repr_prob_mean() -  rhs.get_repr_prob_mean() < 0.00001
+            && lhs.get_repr_prob_mean() -  rhs.get_repr_prob_mean() > -0.00001;
+    auto repr_prob_var = lhs.get_repr_prob_var() -  rhs.get_repr_prob_var() < 0.00001
+            && lhs.get_repr_prob_var() -  rhs.get_repr_prob_var() > -0.00001;
+    auto metab_rate = lhs.get_metabolic_rate() - rhs.get_metabolic_rate() < 0.00001
+            && lhs.get_metabolic_rate() - rhs.get_metabolic_rate() > -0.00001;
+    auto metab_secr_rate = lhs.get_metab_secr_rate() - rhs.get_metab_secr_rate() < 0.00001
+            && lhs.get_metab_secr_rate() - rhs.get_metab_secr_rate() > -0.00001;
+    auto spo_metab_rate = lhs.get_spor_metabolic_rate() - rhs.get_spor_metabolic_rate() < 0.00001
+            && lhs.get_spor_metabolic_rate() - rhs.get_spor_metabolic_rate() > -0.00001;
+    auto spo_metab_rate_mean = lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() < 0.0001
+            && lhs.get_spor_metabolic_rate_mean() - rhs.get_spor_metabolic_rate_mean() > -0.0001;
+    auto spo_metab_rate_var =  lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() < 0.00001
+            && lhs.get_spor_metabolic_rate_var() - rhs.get_spor_metabolic_rate_var() >  -0.00001;
+    auto transformation_time = lhs.get_transformation_time() == rhs.get_transformation_time()
             && lhs.get_transformation_time_mean() == rhs.get_transformation_time_mean()
             && lhs.get_transformation_range() == rhs.get_transformation_range();
+    return radius
+            && uptake
+            && uptake_mean
+            && uptake_var
+            && trheshold
+            && repr_prob
+            && repr_prob_mean
+            && repr_prob_var
+            && metab_rate
+            && metab_secr_rate
+            && spo_metab_rate
+            && spo_metab_rate_mean
+            && spo_metab_rate_var
+            && transformation_time;
 }
 
 bool operator!=(const ind_param& lhs, const ind_param& rhs) noexcept
