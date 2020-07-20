@@ -1,7 +1,7 @@
 library(tidyr)
 library(stringr)
 library(ggplot2)
-demographic = data.frame(cycle = c(), active = c(), spore = c(), sporu = c(), seed = c())
+demographic = data.frame()
 
 for (i in  list.files(path = '.',pattern = "sim_demographic_s*"))
 {
@@ -11,6 +11,8 @@ for (i in  list.files(path = '.',pattern = "sim_demographic_s*"))
   demographic = rbind(replicate,demographic)
 }
 
+n_columns = ncol(demographic)
+demographic = demographic[,-c(5: (n_columns - 1) )]
 colnames(demographic)= c("cycle", "active", "spore", "sporu" , "seed")
 demographic$seed = as.factor(demographic$seed) 
 
