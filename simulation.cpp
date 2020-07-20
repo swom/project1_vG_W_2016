@@ -272,7 +272,10 @@ void run_random_conditions(simulation& s,
     std::string name =
             "random_cond_sim_demographic_s" +
             std::to_string(s.get_meta_param().get_seed()) +
+            "change_" +
+            std::to_string(s.get_meta_param().get_change_freq()) +
             ".csv";
+
     save_demographic_sim(s.get_demo_sim() ,name);
 }
 
