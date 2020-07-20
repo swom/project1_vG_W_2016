@@ -76,7 +76,7 @@ meta_param load_meta_parameters(
     return p;
 }
 
-void test_meta_param() noexcept
+void test_meta_param() noexcept //!OCLINT
 {
 
     //A simulation's meta parameters object can be initialized with a number of cycles

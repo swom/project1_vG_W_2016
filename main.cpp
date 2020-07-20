@@ -15,24 +15,24 @@
 
 
 void test() {
-    //    test_demographic_cycle();
-    //    test_demographic_sim();
-    //    test_env_grid_cell();
-    //    test_environment();
-    //    test_env_param();
-    //    test_funder_data();
-    //    test_funders();
-    //    test_funders_success();
-    //#ifndef LOGIC_ONLY
-    //    test_grid_view();
-    //#endif
-    //    test_GRN();
-    //    test_ind_param();
-    //    test_individual();
-    //    test_phenotype();
-    //    test_meta_param();
-    //    test_pop_param();
-    //    test_population();
+    test_demographic_cycle();
+    test_demographic_sim();
+    test_env_grid_cell();
+    test_environment();
+    test_env_param();
+    test_funder_data();
+    test_funders();
+    test_funders_success();
+#ifndef LOGIC_ONLY
+    test_grid_view();
+#endif
+    test_GRN();
+    test_ind_param();
+    test_individual();
+    test_phenotype();
+    test_meta_param();
+    test_pop_param();
+    test_population();
     test_simulation();
 #ifndef LOGIC_ONLY
     test_sim_view();
@@ -140,7 +140,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         stop = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float>(stop - start);
         std::cout << duration.count() << "s" << std::endl;
-
     }
 
     return 0;
