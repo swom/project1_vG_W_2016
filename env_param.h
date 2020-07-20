@@ -106,7 +106,7 @@ env_param load_env_parameters( const std::string& filename);
 ///Returns a env_param whose variances are the variances
 /// of the given env_param object multiplied
 /// by a factor = amplitude
-env_param resize_env_param(const env_param& e, double amplitude);
+env_param change_range_env_param(const env_param& e, double amplitude);
 
 void save_env_parameters( const env_param& p, const std::string& filename);
 

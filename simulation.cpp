@@ -981,7 +981,11 @@ void test_simulation()//!OCLINT tests may be many
 
         simulation s{s_p};
         std::string expected_file_name =
-                "sim_demographic_s" + std::to_string(s.get_meta_param().get_seed()) + ".csv";
+                "sim_demographic_s" +
+                std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv";
         exec(s);
 
         assert(exists(expected_file_name));
@@ -1102,7 +1106,10 @@ void test_simulation()//!OCLINT tests may be many
 
         simulation s{s_p};
         std::string expected_file_name =
-                "funders_success_s" + std::to_string(s.get_meta_param().get_seed()) + ".csv";
+                "funders_success_s" +
+                std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +".csv";
         exec(s);
 
         assert(exists(expected_file_name));
