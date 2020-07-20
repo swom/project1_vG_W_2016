@@ -12,17 +12,17 @@ public:
               double treshold_energy = 10,
               double uptake_rate = 0.1,
               double uptake_rate_mean = 0.1,
-              double uptake_rate_var = 0.02,
+              double uptake_rate_var = 0.01,
               double metabolic_rate = 0.01,
               double reproduction_prob = 0.5,
               double reproduction_prob_mean = 0.5,
-              double reproduction_prob_var = 0.07,
+              double reproduction_prob_var = 0.01,
               double spor_metabolic_rate = 0.5,
               double spor_metabolic_rate_mean = 0.5,
-              double spor_metabolic_rate_var = 0.07,
+              double spor_metabolic_rate_var = 0.01,
               int transformation_time = 5,
               int transformation_time_mean = 5,
-              int transformation_range = 2,
+              int transformation_range = 1,
               double metab_secretion_rate = 1);
 
     ///gets the metabolic rate of an individual

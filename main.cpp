@@ -65,8 +65,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.1,
                 0.1,
                 0.1,
-                0.02,
-                0.02
+                0.01,
+                0.01
                };
 
     meta_param m;
@@ -83,7 +83,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         }
         auto seed = std::stoi(s_seed);
 
-        m = meta_param {500,
+        m = meta_param {200,
                 125,
                 seed,
                 1};

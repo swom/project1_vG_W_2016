@@ -459,7 +459,7 @@ void test_ind_param() noexcept  //!OCLINT
                && i.get_uptake_var() - (i2.get_uptake_var() / amplitude) > -0.00001);
         assert(i.get_spor_metabolic_rate_var() - (i2.get_spor_metabolic_rate_var() / amplitude) < 0.00001
                && i.get_spor_metabolic_rate_var() - (i2.get_spor_metabolic_rate_var() / amplitude) > -0.00001);
-        assert(i.get_transformation_range() - (i2.get_transformation_range() / amplitude) < 0.00001
-               && i.get_transformation_range() - (i2.get_transformation_range() / amplitude) > -0.00001);
+        assert(i.get_transformation_range() - ( i2.get_transformation_range() / static_cast<int>(amplitude)) < 0.00001
+               && i.get_transformation_range() - (i2.get_transformation_range() / static_cast<int>(amplitude)) > -0.00001);
     }
 }

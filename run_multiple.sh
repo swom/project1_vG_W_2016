@@ -10,7 +10,7 @@
 #   sbatch ./run_multiple.sh
 #
 # Peregrine directives:
-#SBATCH --time=4:00:00
+#SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
@@ -28,7 +28,7 @@ module load gompi
 make clean
 qmake simulation_logic_only.pro
 make 
-for i in $(seq 1 100)
+for i in $(seq 1 20)
 do
   echo $i
   sbatch run.sh $i 
