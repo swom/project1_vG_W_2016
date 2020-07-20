@@ -86,7 +86,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         m = meta_param {200,
                 125,
                 seed,
-                1};
+                0};
     }
     else
     {
@@ -111,7 +111,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     auto rand_cond  =  create_rand_conditions_unif(e,
                                                    i,
                                                    1.5,
-                                                   10,
+                                                   50,
                                                    0);
 
     if(args.size() > 1 && args[1] == "--visual")

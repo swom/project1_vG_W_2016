@@ -83,8 +83,8 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
 
     std::vector<std::pair<env_param, ind_param>> random_conditions;
 
-    auto env = resize_env_param(e, amplitude);
-    auto ind = resize_ind_param(i, amplitude);
+    auto env = change_range_env_param(e, amplitude);
+    auto ind = change_range_ind_param(i, amplitude);
 
     for(int r = 0; r != repeats; r++)
     {
@@ -1298,14 +1298,18 @@ void test_simulation()//!OCLINT tests may be many
         pop_param p{100};
         env_param e{100};
         int seed_ID = 1234567890;
-        std::string filename =
-                "random_cond_sim_demographic_s" +
-                std::to_string(seed_ID) +
-                ".csv";
+
         meta_param m{1,
                      1,
                      seed_ID};
-        simulation s{sim_param{e,m,p}};
+
+        std::string filename =
+                "random_cond_sim_demographic_s" +
+                std::to_string(seed_ID) +
+                "change_" +
+                std::to_string(m.get_change_freq()) +
+                ".csv";simulation s{sim_param{e,m,p}};
+
         run_random_conditions(s, rand_conditions_vector);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           s.get_demo_sim().get_demo_cycles().begin(),
