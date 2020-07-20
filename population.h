@@ -235,11 +235,10 @@ void set_ind_en(individual& i, double en);
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);
 
 ///Normal death due to death rate
-/// THIS IS HORRIBLE
-void senescence(population& p) noexcept;
+void senescence(population &p) noexcept;
 
 ///Kills individuals with energy = 0
-std::vector<individual> starvation(const std::vector<individual> &p) noexcept;
+void starvation(std::vector<individual> &p) noexcept;
 
 void test_population() noexcept;
 #endif // POPULATION_H

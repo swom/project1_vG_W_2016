@@ -138,8 +138,7 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
 
 std::vector<individual> death(population &p) noexcept
 {
-    auto new_inds = p.get_v_ind();
-    new_inds = starvation(new_inds);
+    starvation(p.get_v_ind());
     senescence(p);
 }
 
@@ -555,14 +554,13 @@ void spor_metabolism_pop(population &p)
     }
 }
 
-std::vector<individual> starvation(const std::vector<individual>& p) noexcept
+void starvation( std::vector<individual>& p) noexcept
 {
-    auto new_p = p;
-    new_p.erase(
-                std::remove_if(new_p.begin(),new_p.end(),
-                               [](individual const &i){ return is_dead(i);})
-            ,new_p.end());
-    return new_p;
+
+    p.erase(std::remove_if(
+                p.begin(),p.end(), [](individual const &i){return is_dead(i);}
+            )
+            ,p.end());
 }
 
 void test_population() noexcept  //!OCLINT

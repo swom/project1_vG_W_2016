@@ -90,10 +90,10 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else
     {
-        m = meta_param {20,
+        m = meta_param {10,
                 125,
                 0,
-                1};
+                0};
     }
 
     ind_param i{};
