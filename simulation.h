@@ -68,6 +68,12 @@ public:
 
 private:
 
+    ///The environment class containing the grid where substances(food, metabolite) are
+    environment m_e;
+
+    ///The metaparameters of a simulation: how many cycles, how long each cycle etc.
+    meta_param m_meta_param;
+
     ///Data structure that contains data regarding the demographics
     /// of a population at different points in time of the simulation
     demographic_sim m_demo_sim;
@@ -83,12 +89,6 @@ private:
 
     ///The vector of individuals representing a population
     population m_pop;
-
-    ///The environment class containing the grid where substances(food, metabolite) are
-    environment m_e;
-
-    ///The metaparameters of a simulation: how many cycles, how long each cycle etc.
-    meta_param m_meta_param;
 
     ///The timer that keeps track of how many timesteps we are in the simulation
     int m_sim_timesteps = 0;
@@ -151,7 +151,7 @@ void jordi_feeding(simulation& s);
 
 /// Makes a copy of a simulation but erases
 /// the funder_success and demographic sim vectors
-simulation no_demographic_copy(const simulation& s);
+simulation random_demographic_copy(const simulation& s, int random_conditions);
 
 ///Stores ancestor_ID and GRN of funders of a cycle in funders_success
 funders prepare_funders(const simulation& s);
@@ -163,7 +163,7 @@ void reset_sim(simulation& s) noexcept;
 void response(simulation& s);
 
 ///Runs a poplation from a simulation against a series of random conditions
-void run_random_conditions(simulation& s,
+demographic_sim run_random_conditions(const simulation& s,
                            const std::vector<std::pair<env_param, ind_param>>& random_conditions);
 
 ///All individuals secrete metabolite into environment

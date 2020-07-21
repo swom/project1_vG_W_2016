@@ -11,7 +11,8 @@
 simulation::simulation(sim_param param):
     m_pop(param.get_pop_param()),
     m_e{param.get_env_param()},
-    m_meta_param{param.get_meta_param()}
+    m_meta_param{param.get_meta_param()},
+    m_demo_sim(m_meta_param.get_n_cycles())
 {
     m_rng.seed(m_meta_param.get_seed());
     m_pop.get_rng().seed(m_meta_param.get_seed());
@@ -212,13 +213,16 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
     return random_conditions;
 }
 
-simulation no_demographic_copy(const simulation& s)
+
+simulation random_demographic_copy(const simulation& s,
+                                   int n_random_conditions)
 {
     simulation new_s{sim_param{s.get_env().get_param(),
                     s.get_meta_param(),
                     s.get_pop().get_param()
                               }
                     };
+    new_s.set_demo_sim(demographic_sim{n_random_conditions});
     new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
     return new_s;
 }
@@ -257,26 +261,28 @@ void response(simulation& s)
     }
 }
 
-void run_random_conditions(simulation& s,
+demographic_sim run_random_conditions(const simulation& s,
                            const std::vector<std::pair<env_param, ind_param>>& random_conditions)
 {
-    auto test_pop = s.get_pop().get_v_ind();
+    auto rand_s = random_demographic_copy(s, random_conditions.size());
+    auto test_pop = rand_s.get_pop().get_v_ind();
     for(const auto & condition : random_conditions)
     {
-        change_params(s, condition.first, condition.second);
-        exec_cycle(s);
-        s.tick_cycles();
-        s.reset_timesteps();
-        s.get_pop().get_v_ind() = test_pop;
+        change_params(rand_s, condition.first, condition.second);
+        exec_cycle(rand_s);
+        rand_s.tick_cycles();
+        rand_s.reset_timesteps();
+        rand_s.get_pop().get_v_ind() = test_pop;
     }
     std::string name =
             "random_cond_sim_demographic_s" +
-            std::to_string(s.get_meta_param().get_seed()) +
+            std::to_string(rand_s.get_meta_param().get_seed()) +
             "change_" +
-            std::to_string(s.get_meta_param().get_change_freq()) +
+            std::to_string(rand_s.get_meta_param().get_change_freq()) +
             ".csv";
 
-    save_demographic_sim(s.get_demo_sim() ,name);
+    save_demographic_sim(rand_s.get_demo_sim() ,name);
+    return rand_s.get_demo_sim();
 }
 
 void secretion_metabolite(simulation& s)
@@ -321,7 +327,7 @@ int tick(simulation& s)
 demographic_sim update_demographics(const simulation& s) noexcept
 {
     auto d_s = s.get_demo_sim();
-    d_s.get_demo_cycles().push_back(demographics(s.get_pop(), s.get_env().get_param()));
+    d_s.get_demo_cycles()[s.get_cycle()] = demographics(s.get_pop(), s.get_env().get_param());
     return d_s;
 }
 
@@ -946,11 +952,9 @@ void test_simulation()//!OCLINT tests may be many
     //at a certain point in time in a vector
     {
         simulation s;
-        auto demo_sim_length = s.get_demo_sim().get_demo_cycles().size();
+        simulation s1;
         store_demographics(s);
-        auto demo_sim_length2 = s.get_demo_sim().get_demo_cycles().size();
-        assert(demo_sim_length != demo_sim_length2);
-        assert(demo_sim_length + 1 == demo_sim_length2);
+        assert(s.get_demo_sim().get_demo_cycles()[0] != s1.get_demo_sim().get_demo_cycles()[0]);
     }
 
     //At the end of each cycle the demographics are stored
@@ -963,11 +967,9 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
 
         simulation s{s_p};
-        auto init_demo_cycle = s.get_demo_sim().get_demo_cycles().size();
-        assert(init_demo_cycle == 0);
         exec_cycle(s);
-        auto one_demo_cycle = s.get_demo_sim().get_demo_cycles().size();
-        assert(one_demo_cycle == 1);
+        assert(s.get_demo_sim().get_demo_cycles()[s.get_cycle()] ==
+               demographics(s.get_pop(), s.get_env().get_param()));
     }
 
     //At the end of the simulation the demographic is saved in a file
@@ -1279,9 +1281,7 @@ void test_simulation()//!OCLINT tests may be many
                                     amplitude,
                                     repeats,
                                     seed);
-
-        auto s_rand = no_demographic_copy(s);
-        run_random_conditions(s, rand_cond);
+       run_random_conditions(s, rand_cond);
     }
 
     //It is possible to run a population against multiple random conditions
@@ -1317,15 +1317,15 @@ void test_simulation()//!OCLINT tests may be many
                 std::to_string(m.get_change_freq()) +
                 ".csv";simulation s{sim_param{e,m,p}};
 
-        run_random_conditions(s, rand_conditions_vector);
+       auto rand_demo = run_random_conditions(s, rand_conditions_vector);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
-                          s.get_demo_sim().get_demo_cycles().begin(),
+                          rand_demo.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,
                           const demographic_cycle& d)
         {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
                );
         auto demo_sim = load_demographic_sim(filename);
-        assert(demo_sim == s.get_demo_sim());
+        assert(demo_sim == rand_demo);
 
     }
     //It is possible to change param of a simulation with other
@@ -1357,21 +1357,24 @@ void test_simulation()//!OCLINT tests may be many
     }
 
     //A simulation can be instantiated given another simulation.
-    //With the same population and environment,
-    //but with empty data vectors for demographics
+    //With the same population, an environment,
+    //but with data vectors for demographics as long as
+    //the number of random_conditions
     {
         env_param e{5};
         pop_param p{2};
         meta_param m{2,1,5,2};
+        auto n_rand_cond = 2u;
         simulation s{sim_param{e,m,p}};
         exec_cycle(s);
-        assert(!s.get_demo_sim().get_demo_cycles().empty());
-        simulation new_s = no_demographic_copy(s);
+        assert(s.get_demo_sim().get_demo_cycles()[s.get_cycle()] !=
+               s.get_demo_sim().get_demo_cycles()[s.get_cycle() + 1]);
+        simulation new_s = random_demographic_copy(s, n_rand_cond);
         assert(s.get_env() == new_s.get_env());
         assert(s.get_pop() == new_s.get_pop());
         assert(s.get_meta_param() == new_s.get_meta_param());
         assert(s.get_demo_sim() != new_s.get_demo_sim());
-        assert(new_s.get_demo_sim().get_demo_cycles().empty());
+        assert(new_s.get_demo_sim().get_demo_cycles().size() == n_rand_cond);
     }
 
     /// It is possible to create and save a certain amount of random conditions
