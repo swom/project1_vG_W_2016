@@ -86,7 +86,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         m = meta_param {200,
                 125,
                 seed,
-                1};
+                0};
     }
     else
     {
