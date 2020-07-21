@@ -240,7 +240,7 @@ ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
     return i;
 }
 
-ind_param resize_ind_param(const ind_param& i, double amplitude)
+ind_param change_range_ind_param(const ind_param& i, double amplitude)
 {
     ind_param ind{
         i.get_radius(),
@@ -451,7 +451,7 @@ void test_ind_param() noexcept  //!OCLINT
         ind_param i;
         double amplitude = 1.5;
 
-        auto i2 = resize_ind_param(i,amplitude);
+        auto i2 = change_range_ind_param(i,amplitude);
 
         assert(i.get_repr_prob_var() - (i2.get_repr_prob_var() / amplitude) < 0.00001
                && i.get_repr_prob_var() - (i2.get_repr_prob_var() / amplitude) > -0.00001);

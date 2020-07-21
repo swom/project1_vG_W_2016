@@ -1102,7 +1102,7 @@ void test_population() noexcept  //!OCLINT
         population p;
         p.get_ind(0).set_energy(0);//the only individual in this sim has 0 energy, thus it will die
         assert(p.get_pop_size() == 1);
-        p.get_v_ind() = starvation(p.get_v_ind());
+        starvation(p.get_v_ind());
         assert(p.get_v_ind().empty() && p.get_pop_size() == 0);
 
         unsigned int pop_size = 5;
@@ -1118,11 +1118,11 @@ void test_population() noexcept  //!OCLINT
         set_ind_en(p1.get_ind(0),p1.get_ind(0).get_param().get_metabolic_rate() + 0.001);
         assert(p1.get_v_ind().size() == pop_size);
         metabolism_pop(p1);
-        p1.get_v_ind() = starvation(p1.get_v_ind());
+        starvation(p1.get_v_ind());
         assert(p1.get_pop_size() == 1);
         //then at the second tick the only individual left dies
         metabolism_pop(p1);
-        p1.get_v_ind() = starvation(p1.get_v_ind());
+        starvation(p1.get_v_ind());
         assert(p1.get_v_ind().empty() && p.get_pop_size() == 0);
     }
 

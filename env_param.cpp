@@ -135,7 +135,7 @@ env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexc
     return e1;
 }
 
-env_param resize_env_param(const env_param& e, double amplitude)
+env_param change_range_env_param(const env_param& e, double amplitude)
 {
     env_param env{e.get_grid_side(),
                 e.get_diff_coeff(),
@@ -279,7 +279,7 @@ void test_env_param() noexcept //!OCLINT
         env_param e;
         double amplitude = 1.50;
 
-        auto e2 = resize_env_param(e, amplitude);
+        auto e2 = change_range_env_param(e, amplitude);
 
         assert(e.get_var_degr_rate() - (e2.get_var_degr_rate() / amplitude) < 0.00001
                && e.get_var_degr_rate() - (e2.get_var_degr_rate() / amplitude) > -0.00001);

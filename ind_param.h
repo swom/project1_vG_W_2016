@@ -184,7 +184,7 @@ ind_param load_ind_parameters( const std::string& filename);
 ///Returns a env_param whose variances are the variances
 /// of the given env_param object multiplied
 /// by a factor = amplitude
-ind_param resize_ind_param(const ind_param& i, double amplitude);
+ind_param change_range_ind_param(const ind_param& i, double amplitude);
 
 //Saves an instance of ind_param to a file name
 void save_ind_parameters( const ind_param& p, const std::string& filename);
