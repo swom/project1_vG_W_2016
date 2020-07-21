@@ -124,8 +124,8 @@ void change_params(simulation& s, const env_param& e, const ind_param& i);
 /// can be the oscillation of the new random conditions
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
                                                                          const ind_param& i,
+                                                                         int n_rand_conditions,
                                                                          double amplitude,
-                                                                         int repeats,
                                                                          int seed);
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
@@ -164,7 +164,7 @@ void response(simulation& s);
 
 ///Runs a poplation from a simulation against a series of random conditions
 void run_random_conditions(simulation& s,
-                           const std::vector<std::pair<env_param, ind_param>>& random_conditions);
+                           int n_number_rand_cond, double amplitude);
 
 ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);

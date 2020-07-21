@@ -74,8 +74,8 @@ void change_pop( simulation& s)
 
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
                                                                          const ind_param& i,
+                                                                         int n_rand_conditions,
                                                                          double amplitude,
-                                                                         int repeats,
                                                                          int seed)
 {
     std::minstd_rand rng;
@@ -86,10 +86,10 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
     auto env = change_range_env_param(e, amplitude);
     auto ind = change_range_ind_param(i, amplitude);
 
-    for(int r = 0; r != repeats; r++)
+    for(int r = 0; r != n_rand_conditions; r++)
     {
         random_conditions.push_back({change_env_param_unif(env, rng),
-                                   change_ind_param_unif(ind, rng)});
+                                     change_ind_param_unif(ind, rng)});
     }
 
     return random_conditions;
@@ -156,7 +156,7 @@ void exec(simulation& s) noexcept
 
     std::string f_name =
             "funders_success_s" +
-            std::to_string(s.get_meta_param().get_seed()) +       
+            std::to_string(s.get_meta_param().get_seed()) +
             "change_" +
             std::to_string(s.get_meta_param().get_change_freq()) +
             ".csv";
@@ -258,8 +258,15 @@ void response(simulation& s)
 }
 
 void run_random_conditions(simulation& s,
-                           const std::vector<std::pair<env_param, ind_param>>& random_conditions)
+                           int n_number_rand_cond,
+                           double amplitude)
 {
+    auto random_conditions = create_rand_conditions_unif(s.get_env().get_param(),
+                                                         s.get_pop().get_param().get_ind_param(),
+                                                         n_number_rand_cond,
+                                                         amplitude,
+                                                         0);
+
     auto test_pop = s.get_pop().get_v_ind();
     for(const auto & condition : random_conditions)
     {
@@ -1262,45 +1269,9 @@ void test_simulation()//!OCLINT tests may be many
 
     }
 
-    ///It is possible to run a simulation for a normal amount of time and then
-    /// run it against random conditions
-    {
-        env_param e;
-        meta_param m;
-        pop_param p;
-        simulation s{sim_param{e,m,p}};
-        exec(s);
-
-        double amplitude = 1.5;
-        int repeats = 2;
-        int seed = 0;
-        auto rand_cond = create_rand_conditions_unif(s.get_env().get_param(),
-                                    s.get_pop().get_param().get_ind_param(),
-                                    amplitude,
-                                    repeats,
-                                    seed);
-
-        auto s_rand = no_demographic_copy(s);
-        run_random_conditions(s, rand_cond);
-    }
-
     //It is possible to run a population against multiple random conditions
     //And store their demographics in a file
     {
-        //Create random conditions
-        env_param env;
-        ind_param ind;
-        std::minstd_rand rng;
-        std::vector<std::pair<env_param,ind_param>> rand_conditions_vector;
-
-        int repeats = 2;
-
-        for(int i = 0; i != repeats; i++)
-        {
-            rand_conditions_vector.push_back({change_env_param_norm(env, rng),
-                                              change_ind_param_norm(ind, rng)});
-        }
-
         ///Run against the random conditions
         pop_param p{100};
         env_param e{100};
@@ -1315,9 +1286,19 @@ void test_simulation()//!OCLINT tests may be many
                 std::to_string(seed_ID) +
                 "change_" +
                 std::to_string(m.get_change_freq()) +
-                ".csv";simulation s{sim_param{e,m,p}};
+                ".csv";
 
-        run_random_conditions(s, rand_conditions_vector);
+        simulation s{sim_param{e,m,p}};
+
+        double amplitude = 1;
+        int repeats = 2;
+
+        auto rand_conditions_vector = create_rand_conditions_unif(s.get_env().get_param(),
+                                                                  s.get_pop().get_param().get_ind_param(),
+                                                                  repeats,
+                                                                  amplitude,
+                                                                  0);
+        run_random_conditions(s, repeats, amplitude);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           s.get_demo_sim().get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,
@@ -1388,14 +1369,16 @@ void test_simulation()//!OCLINT tests may be many
         auto amplitude = 1.0; //the range will stay the same
         auto rand_cond = create_rand_conditions_unif(e,
                                                      i,
-                                                     amplitude,
                                                      n_random_conditions,
+                                                     amplitude,
                                                      seed);
+
         auto rand_cond2 = create_rand_conditions_unif(e,
                                                       i,
-                                                      amplitude,
                                                       n_random_conditions,
+                                                      amplitude,
                                                       seed);
+
         assert(static_cast<unsigned int>(n_random_conditions) == rand_cond.size());
         assert(rand_cond == rand_cond2);
     }

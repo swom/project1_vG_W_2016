@@ -58,17 +58,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     // In release mode, all asserts are removed from the code
     assert(1 == 2);
 #endif
-
-    env_param e{200,
-                0.1,
-                10,
-                0.1,
-                0.1,
-                0.1,
-                0.01,
-                0.01
-               };
-
     meta_param m;
 
     if (args.size() > 1
@@ -86,14 +75,14 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         m = meta_param {200,
                 125,
                 seed,
-                0};
+                1};
     }
     else
     {
         m = meta_param {10,
                 125,
                 0,
-                0};
+                1};
     }
 
     ind_param i{};
@@ -108,11 +97,15 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.0,
                 i};
 
-    auto rand_cond  =  create_rand_conditions_unif(e,
-                                                   i,
-                                                   1.5,
-                                                   50,
-                                                   0);
+    env_param e{200,
+                0.1,
+                10,
+                0.1,
+                0.1,
+                0.1,
+                0.01,
+                0.01
+               };
 
     if(args.size() > 1 && args[1] == "--visual")
     {
@@ -130,16 +123,23 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else
     {
         simulation s{sim_param{e, m, p}};
-        std::cout << "logic: ";
         auto start = std::chrono::high_resolution_clock::now();
+
         exec(s);
+
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
+        std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
+
         simulation rand_s = no_demographic_copy(s);
-        run_random_conditions(rand_s, rand_cond);
+
+        int n_random_conditions = 50;
+        double amplitude = 3;
+        run_random_conditions(rand_s, n_random_conditions, amplitude);
+
         stop = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float>(stop - start);
-        std::cout << duration.count() << "s" << std::endl;
+        std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
     }
 
     return 0;
