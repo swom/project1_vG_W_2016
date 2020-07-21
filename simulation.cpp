@@ -279,8 +279,10 @@ void run_random_conditions(simulation& s,
     std::string name =
             "random_cond_sim_demographic_s" +
             std::to_string(s.get_meta_param().get_seed()) +
-            "change_" +
-            std::to_string(s.get_meta_param().get_change_freq()) +
+            "_change_" +
+            std::to_string(s.get_meta_param().get_change_freq())  +
+            "_amplitude_"+
+            std::to_string(amplitude)+
             ".csv";
 
     save_demographic_sim(s.get_demo_sim() ,name);
@@ -1281,23 +1283,27 @@ void test_simulation()//!OCLINT tests may be many
                      1,
                      seed_ID};
 
-        std::string filename =
-                "random_cond_sim_demographic_s" +
-                std::to_string(seed_ID) +
-                "change_" +
-                std::to_string(m.get_change_freq()) +
-                ".csv";
-
         simulation s{sim_param{e,m,p}};
 
         double amplitude = 1;
         int repeats = 2;
 
-        auto rand_conditions_vector = create_rand_conditions_unif(s.get_env().get_param(),
-                                                                  s.get_pop().get_param().get_ind_param(),
-                                                                  repeats,
-                                                                  amplitude,
-                                                                  0);
+        auto rand_conditions_vector = create_rand_conditions_unif(
+                    s.get_env().get_param(),
+                    s.get_pop().get_param().get_ind_param(),
+                    repeats,
+                    amplitude,
+                    0);
+
+        std::string expected_filename =
+                "random_cond_sim_demographic_s" +
+                std::to_string(s.get_meta_param().get_seed()) +
+                "_change_" +
+                std::to_string(s.get_meta_param().get_change_freq())  +
+                "_amplitude_"+
+                std::to_string(amplitude)+
+                ".csv";
+
         run_random_conditions(s, repeats, amplitude);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           s.get_demo_sim().get_demo_cycles().begin(),
@@ -1305,7 +1311,8 @@ void test_simulation()//!OCLINT tests may be many
                           const demographic_cycle& d)
         {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
                );
-        auto demo_sim = load_demographic_sim(filename);
+        assert(exists(expected_filename));
+        auto demo_sim = load_demographic_sim(expected_filename);
         assert(demo_sim == s.get_demo_sim());
 
     }
