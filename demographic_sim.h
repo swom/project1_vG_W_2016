@@ -6,7 +6,7 @@
 class demographic_sim
 {
 public:
-    demographic_sim(int n_cycles = 0);
+    demographic_sim();
 
     ///Returns const ref to vector m_demo_cycles
     const std::vector<demographic_cycle>& get_demo_cycles() const noexcept {return m_demo_cycles;}

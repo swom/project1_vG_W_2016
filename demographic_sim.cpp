@@ -1,10 +1,7 @@
 #include "demographic_sim.h"
 #include<cassert>
 
-demographic_sim::demographic_sim(int n_cycles):
-    m_demo_cycles(n_cycles,
-                  demographic_cycle{0,0,0,env_param{},ind_param{}}
-                  )
+demographic_sim::demographic_sim()
 {
 
 }
