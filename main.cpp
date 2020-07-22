@@ -107,6 +107,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01
                };
 
+    int n_random_conditions = 50;
+    double amplitude = 3;
+
     if(args.size() > 1 && args[1] == "--visual")
     {
 #ifndef LOGIC_ONLY
@@ -131,16 +134,16 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
 
-        int n_random_conditions = 2;
-        double amplitude = 3;
-
-        start = std::chrono::high_resolution_clock::now();
+        auto rand_start = std::chrono::high_resolution_clock::now();
 
         run_random_conditions(s, n_random_conditions, amplitude);
 
         stop = std::chrono::high_resolution_clock::now();
-        duration = std::chrono::duration<float>(stop - start);
+        duration = std::chrono::duration<float>(stop - rand_start);
         std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
+
+        duration = std::chrono::duration<float>(stop - start);
+        std::cout<< "overall time :" << duration.count() << "s" << std::endl;
     }
 
     return 0;
