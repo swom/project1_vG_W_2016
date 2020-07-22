@@ -163,7 +163,7 @@ void reset_sim(simulation& s) noexcept;
 void response(simulation& s);
 
 ///Runs a poplation from a simulation against a series of random conditions
-void run_random_conditions(simulation& s,
+demographic_sim run_random_conditions(const simulation &s,
                            int n_number_rand_cond, double amplitude);
 
 ///All individuals secrete metabolite into environment

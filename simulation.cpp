@@ -1,5 +1,6 @@
 #include "simulation.h"
 #include <cassert>
+#include <chrono>
 #include <numeric>
 #include <algorithm>
 #include <cmath>
@@ -99,13 +100,11 @@ void change_params(simulation& s, const env_param& e, const ind_param& i)
 {
     s.get_env().set_param(e);
 
-    auto& p = s.get_pop();
-
     ///Change ind_param object contained in pop_param
-    p.get_param().get_ind_param() = i;
+    s.get_pop().get_param().get_ind_param() = i;
 
     ///Change ind_params of all inds in pop
-    p.get_v_ind() = change_inds(p,i);
+    s.get_pop().get_v_ind() = change_inds(s.get_pop(),i);
 
 }
 
@@ -257,25 +256,39 @@ void response(simulation& s)
     }
 }
 
-void run_random_conditions(simulation& s,
+demographic_sim run_random_conditions(const simulation& s,
                            int n_number_rand_cond,
                            double amplitude)
 {
-    auto random_conditions = create_rand_conditions_unif(s.get_env().get_param(),
-                                                         s.get_pop().get_param().get_ind_param(),
-                                                         n_number_rand_cond,
-                                                         amplitude,
-                                                         0);
 
-    auto test_pop = s.get_pop().get_v_ind();
+
+    auto random_conditions = create_rand_conditions_unif(
+                s.get_env().get_param(),
+                s.get_pop().get_param().get_ind_param(),
+                n_number_rand_cond,
+                amplitude,
+                0);
+
+    const auto& test_pop = s.get_pop().get_v_ind();
+
+    simulation rand_s = no_demographic_copy(s);
+
     for(const auto & condition : random_conditions)
     {
-        change_params(s, condition.first, condition.second);
-        exec_cycle(s);
-        s.tick_cycles();
-        s.reset_timesteps();
-        s.get_pop().get_v_ind() = test_pop;
+        change_params(rand_s, condition.first, condition.second);
+        auto start = std::chrono::high_resolution_clock::now();
+        exec_cycle(rand_s);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - start);
+        std::cout<< "cycle: " << duration.count() << "\n";
+        rand_s.tick_cycles();
+        rand_s.reset_timesteps();
+        start = std::chrono::high_resolution_clock::now();
+        rand_s.get_pop().get_v_ind() = test_pop;
     }
+
+
+
     std::string name =
             "random_cond_sim_demographic_s" +
             std::to_string(s.get_meta_param().get_seed()) +
@@ -285,7 +298,9 @@ void run_random_conditions(simulation& s,
             std::to_string(amplitude)+
             ".csv";
 
-    save_demographic_sim(s.get_demo_sim() ,name);
+    save_demographic_sim(rand_s.get_demo_sim() ,name);
+
+    return rand_s.get_demo_sim();
 }
 
 void secretion_metabolite(simulation& s)
@@ -1304,16 +1319,16 @@ void test_simulation()//!OCLINT tests may be many
                 std::to_string(amplitude)+
                 ".csv";
 
-        run_random_conditions(s, repeats, amplitude);
+        auto demo_sim = run_random_conditions(s, repeats, amplitude);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
-                          s.get_demo_sim().get_demo_cycles().begin(),
+                          demo_sim.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,
                           const demographic_cycle& d)
         {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
                );
         assert(exists(expected_filename));
-        auto demo_sim = load_demographic_sim(expected_filename);
-        assert(demo_sim == s.get_demo_sim());
+        auto demo_sim_load = load_demographic_sim(expected_filename);
+        assert(demo_sim == demo_sim_load);
 
     }
     //It is possible to change param of a simulation with other

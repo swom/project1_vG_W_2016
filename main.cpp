@@ -79,7 +79,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else
     {
-        m = meta_param {10,
+        m = meta_param {2,
                 125,
                 0,
                 1};
@@ -131,11 +131,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
 
-        simulation rand_s = no_demographic_copy(s);
-
-        int n_random_conditions = 50;
+        int n_random_conditions = 2;
         double amplitude = 3;
-        run_random_conditions(rand_s, n_random_conditions, amplitude);
+
+        start = std::chrono::high_resolution_clock::now();
+
+        run_random_conditions(s, n_random_conditions, amplitude);
 
         stop = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float>(stop - start);
