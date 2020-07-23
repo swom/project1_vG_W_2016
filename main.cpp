@@ -57,7 +57,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
     int seed = 0;
     int change_freq = 1;
-    if (args.size() == 2
+    if (args.size() > 2
             && (args[1] == "--sim" || args[1] == "--rand")
             && args[2][0] == 's'
             && std::isdigit(args[2][1])
@@ -70,9 +70,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         }
         seed = std::stoi(s_seed);
     }
+    else if (args.size() > 2)
+    {
+        abort();
+    }
 
-    meta_param m{200,
-                 125,
+    meta_param m{1,
+                 1,
                  seed, change_freq};
 
     ind_param i{};
