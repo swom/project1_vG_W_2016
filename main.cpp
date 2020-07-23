@@ -75,8 +75,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         abort();
     }
 
-    meta_param m{1,
-                 1,
+    meta_param m{200,
+                 125,
                  seed, change_freq};
 
     ind_param i{};

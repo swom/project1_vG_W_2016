@@ -366,14 +366,16 @@ demographic_sim run_random_conditions(const simulation& s,
                 amplitude,
                 0);
 
-    simulation rand_s = no_demographic_copy(s);
+    auto test_pop = s.get_pop().get_v_ind();
 
-    const auto& test_pop = rand_s.get_pop().get_v_ind();
+    simulation rand_s = no_demographic_copy(s);
+    assert(rand_s.get_pop().get_v_ind() == test_pop);
 
     int counter = 0;
 
     for(const auto & condition : random_conditions)
     {
+        assert(rand_s.get_pop().get_v_ind() == test_pop);
         change_params(rand_s, condition.first, condition.second);
         auto start = std::chrono::high_resolution_clock::now();
         exec_cycle(rand_s);
