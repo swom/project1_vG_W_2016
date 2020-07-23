@@ -1,3 +1,4 @@
+library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
@@ -31,5 +32,12 @@ demographic$change_freq = as.factor(demographic$change_freq)
 demographic$variable = as.factor(demographic$variable)
 
 ggplot(demographic,aes(cycle,value, color = variable)) + 
-  geom_point(alpha = 0.1) 
+  geom_point(alpha = 0.1)  +
+  facet_grid(change_freq ~ .)
 
+
+demographic %>% 
+  subset(variable == "spore") %>% 
+  subset(cycle == max(cycle)) %>% 
+  ggplot(aes(seed,value, color = seed)) + 
+  geom_point()
