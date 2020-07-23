@@ -100,7 +100,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                  seed,
                          change_freq};
 
-    ind_param i{};
+    ind_param ind{};
 
     pop_param p{1,
                 100,
@@ -110,7 +110,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01,
                 10,
                 0.0,
-                i};
+                ind};
 
     env_param e{200,
                 0.1,
@@ -124,6 +124,32 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
     int n_random_conditions = 50;
     double amplitude = 3;
+
+    if (args.size() > 4
+            &&  args[1] == "--rand"
+            &&  args[4][0] == 'a'
+            )
+    {
+        std::string s_amplitude;
+        for(size_t i = 1; i != args[4].size(); i++)
+        {
+            s_amplitude += args[4][i];
+        }
+        amplitude = std::stod(s_amplitude);
+    }
+
+    if (args.size() > 5
+            &&  args[1] == "--rand"
+            &&  args[5][0] == 'n'
+            )
+    {
+        std::string s_n_random_conditions;
+        for(size_t i = 1; i != args[5].size(); i++)
+        {
+            s_n_random_conditions += args[5][i];
+        }
+        n_random_conditions = std::stoi(s_n_random_conditions);
+    }
 
     if(args.size() > 1 && args[1] == "--visual")
     {
