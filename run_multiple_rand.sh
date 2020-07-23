@@ -31,5 +31,5 @@ make
 for i in $(seq 1 20)
 do
   echo $i
-  sbatch run.sh $i 
+  sbatch run_rand.sh $i 
 done 

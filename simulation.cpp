@@ -31,18 +31,39 @@ void add_success_funders(simulation& s) noexcept
 funders calc_funders_success(const simulation& s)
 {
     auto funders = s.get_funders_success().get_v_funders().back();
+
+    double n_tot_spores =  std::count_if(
+                s.get_pop().get_v_ind().begin(),
+                s.get_pop().get_v_ind().end(),
+                [](const individual i)
+    {return  i.get_phen() == phenotype::spore;});
+
+    double tot_fitness = n_tot_spores * s.get_pop().get_param().get_spo_adv()
+            + s.get_pop().get_pop_size() - n_tot_spores;
+
     for(auto& funder : funders.get_v_funder_data())
     {
         assert(funder.get_success() == 0);
 
-        double n_descendants =
+        double n_nonspore_descendants =
                 std::count_if(
                     s.get_pop().get_v_ind().begin(),
                     s.get_pop().get_v_ind().end(),
                     [&funder](const individual i)
-        {return i.get_ancestor() == funder.get_ancestor_ID();});
+        {return (i.get_ancestor() == funder.get_ancestor_ID())
+                    && i.get_phen() != phenotype::spore;});
 
-        auto success = n_descendants / s.get_pop().get_pop_size();
+        double n_spore_descendants =
+                std::count_if(
+                    s.get_pop().get_v_ind().begin(),
+                    s.get_pop().get_v_ind().end(),
+                    [&funder](const individual i)
+        {return (i.get_ancestor() == funder.get_ancestor_ID())
+                    && i.get_phen() == phenotype::spore;});
+
+        auto fitness = n_nonspore_descendants +
+                n_spore_descendants * s.get_pop().get_param().get_spo_adv();
+        auto success = fitness / tot_fitness;
 
         funder.set_success(success);
     }
@@ -71,6 +92,85 @@ void change_pop( simulation& s)
 
     ///Change ind_params of all inds in pop
     p.get_v_ind() = change_inds(p,new_ind_param);
+}
+
+std::string create_funder_success_name(const simulation& s)
+{
+    return  std::string{
+        "funders_success_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
+std::string create_last_pop_name(const simulation& s)
+{
+    return  std::string{
+        "last_pop_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
+std::string create_last_pop_name(int seed, int change_freq)
+{
+    return  std::string{
+        "last_pop_s" +
+        std::to_string(seed) +
+                "change_" +
+                std::to_string(change_freq) +
+                ".csv"
+    };
+}
+
+std::string create_random_condition_name(const simulation& s, double amplitude)
+{
+    return  std::string{
+        "random_cond_sim_demographic_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "_change_" +
+                std::to_string(s.get_meta_param().get_change_freq())  +
+                "_amplitude_"+
+                std::to_string(amplitude)+
+                ".csv"
+    };
+}
+
+std::string create_sim_demo_name(const simulation& s)
+{
+    return  std::string{
+        "sim_demographic_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
+std::string create_sim_par_name(const simulation& s)
+{
+    return  std::string{
+        "sim_par_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
+std::string create_sim_par_name(int seed, int change_freq)
+{
+    return  std::string{
+        "sim_par_s" +
+        std::to_string(seed) +
+                "change_" +
+                std::to_string(change_freq) +
+                ".csv"
+    };
 }
 
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
@@ -144,22 +244,7 @@ void exec(simulation& s) noexcept
         s.tick_cycles();
     }
 
-    std::string name =
-            "sim_demographic_s" +
-            std::to_string(s.get_meta_param().get_seed()) +
-            "change_" +
-            std::to_string(s.get_meta_param().get_change_freq()) +
-            ".csv";
-
-    save_demographic_sim(s.get_demo_sim(),name);
-
-    std::string f_name =
-            "funders_success_s" +
-            std::to_string(s.get_meta_param().get_seed()) +
-            "change_" +
-            std::to_string(s.get_meta_param().get_change_freq()) +
-            ".csv";
-    save_funders_success(s.get_funders_success(), f_name);
+    save_data(s);
 }
 
 inline bool exists (const std::string& name) {
@@ -211,6 +296,20 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
     return random_conditions;
 }
 
+simulation load_sim_for_rand_cond(int seed, int change_freq)
+{
+    simulation s{load_sim_parameters(create_sim_par_name(seed,change_freq))};
+    auto last_pop = load_funders(create_last_pop_name(seed,change_freq));
+    s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
+
+    for(size_t i = 0; i != last_pop.get_v_funder_data().size(); i++)
+    {
+        s.get_pop().get_v_ind()[i].get_grn() = last_pop.get_v_funder_data()[i].get_grn();
+    }
+
+    return s;
+}
+
 simulation no_demographic_copy(const simulation& s)
 {
     simulation new_s{sim_param{s.get_env().get_param(),
@@ -225,7 +324,7 @@ simulation no_demographic_copy(const simulation& s)
 funders prepare_funders(const simulation& s)
 {
     assert(s.get_timestep() == 0);
-    assert(s.get_pop().get_pop_size() <= 100);
+    assert(s.get_pop().get_v_ind().size() <= 100);
     funders f;
     for(const auto& ind : s.get_pop().get_v_ind())
     {
@@ -257,11 +356,9 @@ void response(simulation& s)
 }
 
 demographic_sim run_random_conditions(const simulation& s,
-                           int n_number_rand_cond,
-                           double amplitude)
+                                      int n_number_rand_cond,
+                                      double amplitude)
 {
-
-
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
                 s.get_pop().get_param().get_ind_param(),
@@ -269,9 +366,11 @@ demographic_sim run_random_conditions(const simulation& s,
                 amplitude,
                 0);
 
-    const auto& test_pop = s.get_pop().get_v_ind();
-
     simulation rand_s = no_demographic_copy(s);
+
+    const auto& test_pop = rand_s.get_pop().get_v_ind();
+
+    int counter = 0;
 
     for(const auto & condition : random_conditions)
     {
@@ -280,27 +379,42 @@ demographic_sim run_random_conditions(const simulation& s,
         exec_cycle(rand_s);
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
-        std::cout<< "cycle: " << duration.count() << "\n";
+        std::cout<< "condition: " << duration.count() << "\n";
         rand_s.tick_cycles();
         rand_s.reset_timesteps();
         start = std::chrono::high_resolution_clock::now();
         rand_s.get_pop().get_v_ind() = test_pop;
+        counter++;
     }
 
-
-
-    std::string name =
-            "random_cond_sim_demographic_s" +
-            std::to_string(s.get_meta_param().get_seed()) +
-            "_change_" +
-            std::to_string(s.get_meta_param().get_change_freq())  +
-            "_amplitude_"+
-            std::to_string(amplitude)+
-            ".csv";
+    std::string name = create_random_condition_name(s, amplitude);
 
     save_demographic_sim(rand_s.get_demo_sim() ,name);
 
     return rand_s.get_demo_sim();
+}
+
+void save_data(const simulation& s)
+{
+    std::string sim_param_name = create_sim_par_name(s);
+
+    sim_param s_p{s.get_env().get_param(),
+                s.get_meta_param(),
+                s.get_pop().get_param()};
+
+    save_sim_parameters(s_p, sim_param_name);
+
+    std::string last_pop_name = create_last_pop_name(s);
+
+    save_funders(prepare_funders(s), last_pop_name);
+
+    std::string sim_demo_name = create_sim_demo_name(s);
+
+    save_demographic_sim(s.get_demo_sim(), sim_demo_name);
+
+    std::string funders_success_name = create_funder_success_name(s);
+
+    save_funders_success(s.get_funders_success(), funders_success_name);
 }
 
 void secretion_metabolite(simulation& s)
@@ -1004,12 +1118,7 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
 
         simulation s{s_p};
-        std::string expected_file_name =
-                "sim_demographic_s" +
-                std::to_string(s.get_meta_param().get_seed()) +
-                "change_" +
-                std::to_string(s.get_meta_param().get_change_freq()) +
-                ".csv";
+        std::string expected_file_name = create_sim_demo_name(s);
         exec(s);
 
         assert(exists(expected_file_name));
@@ -1071,6 +1180,7 @@ void test_simulation()//!OCLINT tests may be many
     //The success of a funder is equal to:
     // the fractions of individuals with its same ancestor_ID
     // over the total number of individuals of the population
+    // considering the spore advantage in fitness
     {
         int n_cycles = 1;
         int cycle_duration = 1;
@@ -1084,13 +1194,24 @@ void test_simulation()//!OCLINT tests may be many
         add_new_funders(s);
 
         auto funders_with_success = calc_funders_success(s);
-        const auto& funders = funders_with_success.get_v_funder_data();
 
-        for(const auto& funder : funders)
-            assert(funder.get_success() - 1.0/pop_size < 0.00001
-                   && funder.get_success() - 1.0/pop_size > -0.00001);
+        double funder_total_success =
+                std::accumulate(funders_with_success.get_v_funder_data().begin(),
+                                funders_with_success.get_v_funder_data().end(), 0.0,
+                                [](double sum, const funder_data& f)
+        {return sum + f.get_success();});
 
-        assert(std::equal(funders.begin(), funders.end(), funders.begin()));
+        double total_fitness =
+                std::accumulate(s.get_pop().get_v_ind().begin(),
+                                s.get_pop().get_v_ind().end(),
+                                0.0,
+                                [&s](int sum, const individual& i)
+        {return sum + (is_spore(i) ? s.get_pop().get_param().get_spo_adv() : 1);});
+
+        total_fitness /= s.get_pop().get_pop_size();
+
+        assert(funder_total_success - total_fitness < 0.0001
+               && funder_total_success - total_fitness > -0.0001);
     }
 
     ///The success of each funder is calculated at the end of each cycle
@@ -1129,11 +1250,7 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
 
         simulation s{s_p};
-        std::string expected_file_name =
-                "funders_success_s" +
-                std::to_string(s.get_meta_param().get_seed()) +
-                "change_" +
-                std::to_string(s.get_meta_param().get_change_freq()) +".csv";
+        std::string expected_file_name = create_funder_success_name(s);
         exec(s);
 
         assert(exists(expected_file_name));
@@ -1310,14 +1427,7 @@ void test_simulation()//!OCLINT tests may be many
                     amplitude,
                     0);
 
-        std::string expected_filename =
-                "random_cond_sim_demographic_s" +
-                std::to_string(s.get_meta_param().get_seed()) +
-                "_change_" +
-                std::to_string(s.get_meta_param().get_change_freq())  +
-                "_amplitude_"+
-                std::to_string(amplitude)+
-                ".csv";
+        std::string expected_filename = create_random_condition_name(s,amplitude);
 
         auto demo_sim = run_random_conditions(s, repeats, amplitude);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
@@ -1405,7 +1515,57 @@ void test_simulation()//!OCLINT tests may be many
         assert(rand_cond == rand_cond2);
     }
 
+    ///The final population is saved at the end of the exec(s) function
+    ///as funders
+    {
+        env_param e{5};
+        meta_param m{1,
+                     1};
+        pop_param p{100,
+                    100};
+        simulation s{sim_param{e,m,p}};
+        exec(s);
+        std::string expected_filename = create_last_pop_name(s);
+        assert(prepare_funders(s) == load_funders(expected_filename));
+    }
 
+    ///Simulation parameters are saved by the end of exec(s) function
+    {
+        env_param e{5};
+        meta_param m{1,
+                     1};
+        pop_param p{100,
+                    100};
+        sim_param s_p{e,m,p};
+        simulation s{s_p};
+        exec(s);
+        std::string expected_filename = create_sim_par_name(s);
+        assert(s_p == load_sim_parameters(expected_filename));
+    }
+
+    ///A simulation can be loaded given the seed and the change freq
+    ///By loading the sim_params of a given simulation
+    /// and instantiating the last population of that given simulation
+    {
+        env_param e{5};
+        int seed = 23;
+        int change_freq = 21;
+        meta_param m{1,
+                     1,
+                     seed,
+                             change_freq};
+        pop_param p{100,
+                    100};
+        sim_param s_p{e,m,p};
+        simulation s{s_p};
+        exec(s);
+        simulation s1 = load_sim_for_rand_cond(seed,change_freq);
+        assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
+        assert(s.get_pop().get_param() == s1.get_pop().get_param());
+        assert(s.get_env().get_param() == s1.get_env().get_param());
+        assert(s.get_meta_param() == s1.get_meta_param());
+        assert(s.get_env() == s.get_env());
+    }
 #endif
 }
 

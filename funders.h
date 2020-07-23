@@ -50,5 +50,11 @@ std::ostream& operator<<(std::ostream& os, const funders& f);
 ///Instantiates a funders object from a ifstream
 std::ifstream& operator>>(std::ifstream& is, funders& f);
 
+///Load funders from a given file_name
+funders load_funders(const std::string& filename);
+
+///Saves funders to a given filename
+void save_funders(funders f, const std::string& filename);
+
 void test_funders() noexcept;
 #endif // FUNDERS_H

@@ -3,11 +3,11 @@
 #
 # Usage, locally:
 #
-#   ./run.sh
+#   ./run_sim.sh
 #
 # Usage, on Peregrine:
 #
-#   sbatch ./run.sh
+#   sbatch ./run_sim.sh
 #
 # Peregrine directives:
 #SBATCH --time=6:00:00
@@ -15,9 +15,9 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=run
-#SBATCH --output=run_%j.log
+#SBATCH --job-name=sim
+#SBATCH --output=sim_%j.log
 
 echo "seed: "$1
-./simulation_logic_only s$1 
+./simulation_logic_only --sim s$1 
 

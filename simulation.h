@@ -149,6 +149,10 @@ void feeding(simulation& s);
 ///Individuals feed a proportion of total food in their cell not a fixed rate
 void jordi_feeding(simulation& s);
 
+////Loads sims from a sim_param and last_pop funders objects
+/// saved with a given seed and change freq parameters
+simulation load_sim_for_rand_cond(int seed, int change_freq);
+
 /// Makes a copy of a simulation but erases
 /// the funder_success and demographic sim vectors
 simulation no_demographic_copy(const simulation& s);
@@ -165,6 +169,9 @@ void response(simulation& s);
 ///Runs a poplation from a simulation against a series of random conditions
 demographic_sim run_random_conditions(const simulation &s,
                            int n_number_rand_cond, double amplitude);
+
+///Save all necessary data at the end of the simulation
+void save_data(const simulation& s);
 
 ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);

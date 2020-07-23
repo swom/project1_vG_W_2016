@@ -53,37 +53,27 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         // We've already tested, so the program is done
         return 0;
     }
-
-#else
-    // In release mode, all asserts are removed from the code
-    assert(1 == 2);
 #endif
-    meta_param m;
 
-    if (args.size() > 1
-            && args[1][0] == 's'
-            && std::isdigit(args[1][1])
+    int seed = 0;
+    int change_freq = 1;
+    if (args.size() == 2
+            && (args[1] == "--sim" || args[1] == "--rand")
+            && args[2][0] == 's'
+            && std::isdigit(args[2][1])
             )
     {
         std::string s_seed;
-        for(size_t i = 1; i != args[1].size(); i++)
+        for(size_t i = 1; i != args[2].size(); i++)
         {
-            s_seed += args[1][i];
+            s_seed += args[2][i];
         }
-        auto seed = std::stoi(s_seed);
+        seed = std::stoi(s_seed);
+    }
 
-        m = meta_param {200,
-                125,
-                seed,
-                1};
-    }
-    else
-    {
-        m = meta_param {2,
-                125,
-                0,
-                1};
-    }
+    meta_param m{200,
+                 125,
+                 seed, change_freq};
 
     ind_param i{};
 
@@ -122,6 +112,30 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         std::cout << duration.count() << "s" << std::endl;
         std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
 #endif
+    }
+    else if(args.size() > 1 && args[1] == "--sim")
+    {
+        simulation s{sim_param{e, m, p}};
+        auto start = std::chrono::high_resolution_clock::now();
+
+        exec(s);
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - start);
+        std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
+    }
+    else  if(args.size() > 1 && args[1] == "--rand")
+    {
+
+        auto rand_start = std::chrono::high_resolution_clock::now();
+
+        run_random_conditions(load_sim_for_rand_cond(seed,m.get_change_freq()),
+                              n_random_conditions,
+                              amplitude);
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - rand_start);
+        std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
     }
     else
     {
