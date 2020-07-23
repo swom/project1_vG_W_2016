@@ -28,8 +28,9 @@ module load gompi
 make clean
 qmake simulation_logic_only.pro
 make 
+
 for i in $(seq 1 20)
 do
   echo $i
-  sbatch run_rand.sh $i 
+  sbatch run_sim.sh $i 
 done 

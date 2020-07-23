@@ -56,28 +56,49 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
     int seed = 0;
-    int change_freq = 1;
-    if (args.size() > 2
+    int change_freq = 0;
+
+    if (args.size() > 3
             && (args[1] == "--sim" || args[1] == "--rand")
-            && args[2][0] == 's'
-            && std::isdigit(args[2][1])
             )
     {
-        std::string s_seed;
-        for(size_t i = 1; i != args[2].size(); i++)
+        if(args[2][0] == 's' && std::isdigit(args[2][1]))
         {
-            s_seed += args[2][i];
+            std::string s_seed;
+            for(size_t i = 1; i != args[2].size(); i++)
+            {
+                s_seed += args[2][i];
+            }
+            seed = std::stoi(s_seed);
         }
-        seed = std::stoi(s_seed);
+        else
+        {
+            abort();
+        }
+
+        if(args[3][0] == 'f' && std::isdigit(args[3][1]))
+        {
+            std::string s_change_freq;
+            for(size_t i = 1; i != args[3].size(); i++)
+            {
+                s_change_freq += args[3][i];
+            }
+            change_freq = std::stoi(s_change_freq);
+        }
+        else
+        {
+            abort();
+        }
     }
     else if (args.size() > 2)
     {
         abort();
     }
 
-    meta_param m{200,
-                 125,
-                 seed, change_freq};
+    meta_param m{1,
+                 1,
+                 seed,
+                         change_freq};
 
     ind_param i{};
 
@@ -133,7 +154,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         auto rand_start = std::chrono::high_resolution_clock::now();
 
-        run_random_conditions(load_sim_for_rand_cond(seed,m.get_change_freq()),
+        run_random_conditions(load_sim_for_rand_cond(seed,change_freq),
                               n_random_conditions,
                               amplitude);
 
