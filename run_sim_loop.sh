@@ -19,5 +19,6 @@
 #SBATCH --output=sim_%j.log
 
 echo "seed: "$1
+echo "freq: "$2
 ./simulation_logic_only --sim s$1 f$2
 

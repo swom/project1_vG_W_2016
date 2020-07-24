@@ -124,7 +124,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01
                };
 
-    int n_random_conditions = 5;
+    int n_random_conditions = 50;
     double amplitude = 3;
 
     if (args.size() > 4
