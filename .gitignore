@@ -49,3 +49,6 @@ simulation.pro.user
 # Csv files
 *.csv
 .Rproj.user
+
+# log files from cluster
+*.log
