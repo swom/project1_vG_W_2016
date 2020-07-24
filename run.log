@@ -1,0 +1,2247 @@
+
+The following have been reloaded with a version change:
+  1) GCCcore/9.3.0 => GCCcore/8.3.0
+  2) XZ/5.2.5-GCCcore-9.3.0 => XZ/5.2.4-GCCcore-8.3.0
+  3) libpciaccess/0.16-GCCcore-9.3.0 => libpciaccess/0.14-GCCcore-8.3.0
+  4) libxml2/2.9.10-GCCcore-9.3.0 => libxml2/2.9.9-GCCcore-8.3.0
+  5) zlib/1.2.11-GCCcore-9.3.0 => zlib/1.2.11-GCCcore-8.3.0
+
+
+The following have been reloaded with a version change:
+  1) GCC/8.3.0 => GCC/9.3.0
+  2) GCCcore/8.3.0 => GCCcore/9.3.0
+  3) OpenMPI/3.1.4-gcccuda-2019b => OpenMPI/4.0.3-GCC-9.3.0
+  4) XZ/5.2.4-GCCcore-8.3.0 => XZ/5.2.5-GCCcore-9.3.0
+  5) binutils/2.32-GCCcore-8.3.0 => binutils/2.34-GCCcore-9.3.0
+  6) hwloc/1.11.12-GCCcore-8.3.0 => hwloc/2.2.0-GCCcore-9.3.0
+  7) libpciaccess/0.14-GCCcore-8.3.0 => libpciaccess/0.16-GCCcore-9.3.0
+  8) libxml2/2.9.9-GCCcore-8.3.0 => libxml2/2.9.10-GCCcore-9.3.0
+  9) numactl/2.0.12-GCCcore-8.3.0 => numactl/2.0.13-GCCcore-9.3.0
+ 10) zlib/1.2.11-GCCcore-8.3.0 => zlib/1.2.11-GCCcore-9.3.0
+
+make -f Makefile.Release clean
+make[1]: Entering directory `/home/p288427/project1_vG_W_2016'
+rm -f release/moc_predefs.h
+rm -f release/demographic_cycle.o release/demographic_sim.o release/env_grid_cell.o release/env_param.o release/environment.o release/funder_data.o release/funders.o release/funders_success.o release/grid_view.o release/grn.o release/ind_param.o release/individual.o release/main.o release/meta_param.o release/phenotype.o release/pop_param.o release/population.o release/relaxation.o release/sim_parameters.o release/sim_view.o release/simulation.o release/glm.o
+rm -f *~ core *.core
+make[1]: Leaving directory `/home/p288427/project1_vG_W_2016'
+make -f Makefile.Debug clean
+make[1]: Entering directory `/home/p288427/project1_vG_W_2016'
+rm -f debug/moc_predefs.h
+rm -f debug/demographic_cycle.o debug/demographic_sim.o debug/env_grid_cell.o debug/env_param.o debug/environment.o debug/funder_data.o debug/funders.o debug/funders_success.o debug/grid_view.o debug/grn.o debug/ind_param.o debug/individual.o debug/main.o debug/meta_param.o debug/phenotype.o debug/pop_param.o debug/population.o debug/relaxation.o debug/sim_parameters.o debug/sim_view.o debug/simulation.o debug/glm.o
+rm -f *~ core *.core
+make[1]: Leaving directory `/home/p288427/project1_vG_W_2016'
+make -f Makefile.Release
+make[1]: Entering directory `/home/p288427/project1_vG_W_2016'
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/demographic_cycle.o demographic_cycle.cpp
+In file included from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_cycle.cpp:1:
+libs/hrtree/rtree_base.hpp:248: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  248 | #     pragma omp parallel firstprivate(dst)
+      | 
+libs/hrtree/rtree_base.hpp:253: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  253 | #         pragma omp for schedule(static) nowait
+      | 
+In file included from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_cycle.cpp:1:
+libs/hrtree/rtree.hpp:94: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   94 | #   pragma omp parallel firstprivate(first, conv)
+      | 
+libs/hrtree/rtree.hpp:98: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+   98 | #       pragma omp for schedule(static)
+      | 
+libs/hrtree/rtree.hpp:166: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  166 | #   pragma omp parallel firstprivate(first, ctor)
+      | 
+libs/hrtree/rtree.hpp:170: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  170 | #       pragma omp for schedule(static)
+      | 
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_cycle.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:21:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   21 |   template <size_t A> struct load_<2, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_castpd_ps(_mm_load_sd((const double*)p)); } };
+      |                                                ^
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_cycle.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:25:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   25 |   template <size_t A> struct load_<3, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd((const double*)p)), _mm_load_ss(((const float*)p) + 2)); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:27:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   27 |   template <size_t A> struct load_<4, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:28:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   28 |   template <>         struct load_<4, __m128, 16>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:29:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   29 |   template <>         struct load_<4, __m128, 32>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:30:49: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   30 |   template <size_t A> struct load_<2, __m128d, A>  { static inline __m128d apply(const void* p) { return _mm_loadu_pd((const double*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:31:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   31 |   template <>         struct load_<2, __m128d, 16> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:32:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   32 |   template <>         struct load_<2, __m128d, 32> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:48:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   48 |   template <size_t A> struct store_<2, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:52:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   52 |   template <size_t A> struct store_<3, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); _mm_store_ss(((float*)p) + 2, _mm_movehl_ps(x, x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:55:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   55 |   template <size_t A> struct store_<4, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_storeu_ps((float*)p, x); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:56:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   56 |   template <>         struct store_<4, __m128, 16>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:57:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   57 |   template <>         struct store_<4, __m128, 32>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:58:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   58 |   template <size_t A> struct store_<2, __m128d, A>  { static inline void apply(void* p, __m128d x) { _mm_storeu_pd((double*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:59:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   59 |   template <>         struct store_<2, __m128d, 16> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:60:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   60 |   template <>         struct store_<2, __m128d, 32> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:78:32: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   78 |   template <> struct set<__m128>
+      |                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:84:33: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   84 |   template <> struct set<__m128d>
+      |                                 ^
+In file included from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_cycle.cpp:1:
+relaxation.hpp:19:73: warning: extra ‘;’ [-Wpedantic]
+   19 | HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
+      |                                                                         ^
+relaxation.hpp:20:67: warning: extra ‘;’ [-Wpedantic]
+   20 | HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+      |                                                                   ^
+demographic_cycle.cpp: In function ‘void test_demographic_cycle()’:
+demographic_cycle.cpp:174:27: warning: variable ‘d_c’ set but not used [-Wunused-but-set-variable]
+  174 |         demographic_cycle d_c = demographics(p, env_param{});
+      |                           ^~~
+demographic_cycle.cpp:201:33: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  201 |         const demographic_cycle q = load_demographic_cycle(filename);
+      |                                 ^
+demographic_cycle.cpp:246:33: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  246 |         const demographic_cycle q = load_demographic_cycle(filename);
+      |                                 ^
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_cycle.cpp:1:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type hrtree::memory::aligned_destruct(RaIt, size_t) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; RaIt = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type = void; size_t = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:131:35:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:233:25: warning: unused parameter ‘it’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                    ~~~~~^~
+libs/hrtree/memory/aligned_memory.hpp:233:42: warning: unused parameter ‘N’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                             ~~~~~~~~~~~~~^
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::deallocate(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, hrtree::memory::aligned_allocator<T, ALIGN>::size_type) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*; hrtree::memory::aligned_allocator<T, ALIGN>::size_type = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:132:7:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:90:44: warning: unused parameter ‘count’ [-Wunused-parameter]
+   90 |     void deallocate(pointer ptr, size_type count)
+      |                                  ~~~~~~~~~~^~~~~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/demographic_sim.o demographic_sim.cpp
+In file included from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from demographic_sim.cpp:1:
+libs/hrtree/rtree_base.hpp:248: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  248 | #     pragma omp parallel firstprivate(dst)
+      | 
+libs/hrtree/rtree_base.hpp:253: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  253 | #         pragma omp for schedule(static) nowait
+      | 
+In file included from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from demographic_sim.cpp:1:
+libs/hrtree/rtree.hpp:94: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   94 | #   pragma omp parallel firstprivate(first, conv)
+      | 
+libs/hrtree/rtree.hpp:98: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+   98 | #       pragma omp for schedule(static)
+      | 
+libs/hrtree/rtree.hpp:166: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  166 | #   pragma omp parallel firstprivate(first, ctor)
+      | 
+libs/hrtree/rtree.hpp:170: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  170 | #       pragma omp for schedule(static)
+      | 
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from demographic_sim.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:21:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   21 |   template <size_t A> struct load_<2, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_castpd_ps(_mm_load_sd((const double*)p)); } };
+      |                                                ^
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from demographic_sim.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:25:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   25 |   template <size_t A> struct load_<3, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd((const double*)p)), _mm_load_ss(((const float*)p) + 2)); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:27:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   27 |   template <size_t A> struct load_<4, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:28:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   28 |   template <>         struct load_<4, __m128, 16>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:29:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   29 |   template <>         struct load_<4, __m128, 32>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:30:49: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   30 |   template <size_t A> struct load_<2, __m128d, A>  { static inline __m128d apply(const void* p) { return _mm_loadu_pd((const double*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:31:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   31 |   template <>         struct load_<2, __m128d, 16> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:32:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   32 |   template <>         struct load_<2, __m128d, 32> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:48:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   48 |   template <size_t A> struct store_<2, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:52:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   52 |   template <size_t A> struct store_<3, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); _mm_store_ss(((float*)p) + 2, _mm_movehl_ps(x, x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:55:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   55 |   template <size_t A> struct store_<4, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_storeu_ps((float*)p, x); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:56:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   56 |   template <>         struct store_<4, __m128, 16>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:57:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   57 |   template <>         struct store_<4, __m128, 32>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:58:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   58 |   template <size_t A> struct store_<2, __m128d, A>  { static inline void apply(void* p, __m128d x) { _mm_storeu_pd((double*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:59:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   59 |   template <>         struct store_<2, __m128d, 16> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:60:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   60 |   template <>         struct store_<2, __m128d, 32> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:78:32: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   78 |   template <> struct set<__m128>
+      |                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:84:33: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   84 |   template <> struct set<__m128d>
+      |                                 ^
+In file included from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from demographic_sim.cpp:1:
+relaxation.hpp:19:73: warning: extra ‘;’ [-Wpedantic]
+   19 | HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
+      |                                                                         ^
+relaxation.hpp:20:67: warning: extra ‘;’ [-Wpedantic]
+   20 | HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+      |                                                                   ^
+demographic_sim.cpp: In function ‘void test_demographic_sim()’:
+demographic_sim.cpp:76:17: warning: declaration of ‘i’ shadows a previous local [-Wshadow]
+   76 |         for(int i = 0; i != lenght_demo_sim; i++)
+      |                 ^
+demographic_sim.cpp:64:11: note: shadowed declaration is here
+   64 | ind_param i;
+      |           ^
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from demographic_sim.cpp:1:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type hrtree::memory::aligned_destruct(RaIt, size_t) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; RaIt = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type = void; size_t = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:131:35:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:233:25: warning: unused parameter ‘it’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                    ~~~~~^~
+libs/hrtree/memory/aligned_memory.hpp:233:42: warning: unused parameter ‘N’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                             ~~~~~~~~~~~~~^
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::deallocate(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, hrtree::memory::aligned_allocator<T, ALIGN>::size_type) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*; hrtree::memory::aligned_allocator<T, ALIGN>::size_type = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:132:7:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:90:44: warning: unused parameter ‘count’ [-Wunused-parameter]
+   90 |     void deallocate(pointer ptr, size_type count)
+      |                                  ~~~~~~~~~~^~~~~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/env_grid_cell.o env_grid_cell.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/env_param.o env_param.cpp
+env_param.cpp: In function ‘void test_env_param()’:
+env_param.cpp:197:25: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  197 |         const env_param q = load_env_parameters(filename);
+      |                         ^
+env_param.cpp:282:14: warning: variable ‘e2’ set but not used [-Wunused-but-set-variable]
+  282 |         auto e2 = change_range_env_param(e, amplitude);
+      |              ^~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/environment.o environment.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/funder_data.o funder_data.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/funders.o funders.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/funders_success.o funders_success.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/grid_view.o grid_view.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/grn.o grn.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/ind_param.o ind_param.cpp
+ind_param.cpp: In function ‘void test_ind_param()’:
+ind_param.cpp:325:25: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  325 |         const ind_param q = load_ind_parameters(filename);
+      |                         ^
+ind_param.cpp:345:14: warning: variable ‘new_i’ set but not used [-Wunused-but-set-variable]
+  345 |         auto new_i = change_ind_param_norm(i,rng);
+      |              ^~~~~
+ind_param.cpp:454:14: warning: variable ‘i2’ set but not used [-Wunused-but-set-variable]
+  454 |         auto i2 = change_range_ind_param(i,amplitude);
+      |              ^~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/individual.o individual.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/main.o main.cpp
+In file included from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from main.cpp:7:
+libs/hrtree/rtree_base.hpp:248: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  248 | #     pragma omp parallel firstprivate(dst)
+      | 
+libs/hrtree/rtree_base.hpp:253: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  253 | #         pragma omp for schedule(static) nowait
+      | 
+In file included from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from main.cpp:7:
+libs/hrtree/rtree.hpp:94: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   94 | #   pragma omp parallel firstprivate(first, conv)
+      | 
+libs/hrtree/rtree.hpp:98: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+   98 | #       pragma omp for schedule(static)
+      | 
+libs/hrtree/rtree.hpp:166: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  166 | #   pragma omp parallel firstprivate(first, ctor)
+      | 
+libs/hrtree/rtree.hpp:170: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  170 | #       pragma omp for schedule(static)
+      | 
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from main.cpp:7:
+libs/hrtree/arch/simd/simd_aux.hpp:21:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   21 |   template <size_t A> struct load_<2, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_castpd_ps(_mm_load_sd((const double*)p)); } };
+      |                                                ^
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from main.cpp:7:
+libs/hrtree/arch/simd/simd_aux.hpp:25:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   25 |   template <size_t A> struct load_<3, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd((const double*)p)), _mm_load_ss(((const float*)p) + 2)); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:27:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   27 |   template <size_t A> struct load_<4, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:28:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   28 |   template <>         struct load_<4, __m128, 16>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:29:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   29 |   template <>         struct load_<4, __m128, 32>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:30:49: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   30 |   template <size_t A> struct load_<2, __m128d, A>  { static inline __m128d apply(const void* p) { return _mm_loadu_pd((const double*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:31:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   31 |   template <>         struct load_<2, __m128d, 16> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:32:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   32 |   template <>         struct load_<2, __m128d, 32> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:48:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   48 |   template <size_t A> struct store_<2, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:52:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   52 |   template <size_t A> struct store_<3, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); _mm_store_ss(((float*)p) + 2, _mm_movehl_ps(x, x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:55:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   55 |   template <size_t A> struct store_<4, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_storeu_ps((float*)p, x); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:56:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   56 |   template <>         struct store_<4, __m128, 16>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:57:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   57 |   template <>         struct store_<4, __m128, 32>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:58:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   58 |   template <size_t A> struct store_<2, __m128d, A>  { static inline void apply(void* p, __m128d x) { _mm_storeu_pd((double*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:59:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   59 |   template <>         struct store_<2, __m128d, 16> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:60:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   60 |   template <>         struct store_<2, __m128d, 32> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:78:32: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   78 |   template <> struct set<__m128>
+      |                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:84:33: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   84 |   template <> struct set<__m128d>
+      |                                 ^
+In file included from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from main.cpp:7:
+relaxation.hpp:19:73: warning: extra ‘;’ [-Wpedantic]
+   19 | HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
+      |                                                                         ^
+relaxation.hpp:20:67: warning: extra ‘;’ [-Wpedantic]
+   20 | HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+      |                                                                   ^
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from main.cpp:7:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type hrtree::memory::aligned_destruct(RaIt, size_t) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; RaIt = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type = void; size_t = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:131:35:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:233:25: warning: unused parameter ‘it’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                    ~~~~~^~
+libs/hrtree/memory/aligned_memory.hpp:233:42: warning: unused parameter ‘N’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                             ~~~~~~~~~~~~~^
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::deallocate(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, hrtree::memory::aligned_allocator<T, ALIGN>::size_type) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*; hrtree::memory::aligned_allocator<T, ALIGN>::size_type = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:132:7:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:90:44: warning: unused parameter ‘count’ [-Wunused-parameter]
+   90 |     void deallocate(pointer ptr, size_type count)
+      |                                  ~~~~~~~~~~^~~~~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/meta_param.o meta_param.cpp
+meta_param.cpp: In function ‘void test_meta_param()’:
+meta_param.cpp:119:26: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  119 |         const meta_param q = load_meta_parameters(filename);
+      |                          ^
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/phenotype.o phenotype.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/pop_param.o pop_param.cpp
+pop_param.cpp: In function ‘void test_pop_param()’:
+pop_param.cpp:185:25: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  185 |         const pop_param q = load_pop_parameters(filename);
+      |                         ^
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/population.o population.cpp
+In file included from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from population.cpp:1:
+libs/hrtree/rtree_base.hpp:248: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  248 | #     pragma omp parallel firstprivate(dst)
+      | 
+libs/hrtree/rtree_base.hpp:253: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  253 | #         pragma omp for schedule(static) nowait
+      | 
+In file included from relaxation.hpp:9,
+                 from population.h:6,
+                 from population.cpp:1:
+libs/hrtree/rtree.hpp:94: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   94 | #   pragma omp parallel firstprivate(first, conv)
+      | 
+libs/hrtree/rtree.hpp:98: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+   98 | #       pragma omp for schedule(static)
+      | 
+libs/hrtree/rtree.hpp:166: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  166 | #   pragma omp parallel firstprivate(first, ctor)
+      | 
+libs/hrtree/rtree.hpp:170: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  170 | #       pragma omp for schedule(static)
+      | 
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from population.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:21:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   21 |   template <size_t A> struct load_<2, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_castpd_ps(_mm_load_sd((const double*)p)); } };
+      |                                                ^
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from population.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:25:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   25 |   template <size_t A> struct load_<3, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd((const double*)p)), _mm_load_ss(((const float*)p) + 2)); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:27:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   27 |   template <size_t A> struct load_<4, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:28:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   28 |   template <>         struct load_<4, __m128, 16>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:29:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   29 |   template <>         struct load_<4, __m128, 32>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:30:49: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   30 |   template <size_t A> struct load_<2, __m128d, A>  { static inline __m128d apply(const void* p) { return _mm_loadu_pd((const double*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:31:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   31 |   template <>         struct load_<2, __m128d, 16> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:32:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   32 |   template <>         struct load_<2, __m128d, 32> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:48:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   48 |   template <size_t A> struct store_<2, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:52:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   52 |   template <size_t A> struct store_<3, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); _mm_store_ss(((float*)p) + 2, _mm_movehl_ps(x, x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:55:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   55 |   template <size_t A> struct store_<4, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_storeu_ps((float*)p, x); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:56:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   56 |   template <>         struct store_<4, __m128, 16>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:57:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   57 |   template <>         struct store_<4, __m128, 32>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:58:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   58 |   template <size_t A> struct store_<2, __m128d, A>  { static inline void apply(void* p, __m128d x) { _mm_storeu_pd((double*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:59:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   59 |   template <>         struct store_<2, __m128d, 16> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:60:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   60 |   template <>         struct store_<2, __m128d, 32> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:78:32: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   78 |   template <> struct set<__m128>
+      |                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:84:33: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   84 |   template <> struct set<__m128d>
+      |                                 ^
+In file included from population.h:6,
+                 from population.cpp:1:
+relaxation.hpp:19:73: warning: extra ‘;’ [-Wpedantic]
+   19 | HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
+      |                                                                         ^
+relaxation.hpp:20:67: warning: extra ‘;’ [-Wpedantic]
+   20 | HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+      |                                                                   ^
+population.cpp: In function ‘std::vector<individual> death(population&)’:
+population.cpp:143:1: warning: no return statement in function returning non-void [-Wreturn-type]
+  143 | }
+      | ^
+population.cpp: In lambda function:
+population.cpp:311:42: warning: declaration of ‘const relaxation::particle_t& p’ shadows a parameter [-Wshadow]
+  311 |     [](individual& i, const particle_t& p)
+      |                                          ^
+population.cpp:302:42: note: shadowed declaration is here
+  302 | int manage_static_collisions(population &p)
+      |                              ~~~~~~~~~~~~^
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from population.cpp:1:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type hrtree::memory::aligned_destruct(RaIt, size_t) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; RaIt = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type = void; size_t = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:131:35:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:233:25: warning: unused parameter ‘it’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                    ~~~~~^~
+libs/hrtree/memory/aligned_memory.hpp:233:42: warning: unused parameter ‘N’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                             ~~~~~~~~~~~~~^
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::deallocate(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, hrtree::memory::aligned_allocator<T, ALIGN>::size_type) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*; hrtree::memory::aligned_allocator<T, ALIGN>::size_type = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:132:7:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:90:44: warning: unused parameter ‘count’ [-Wunused-parameter]
+   90 |     void deallocate(pointer ptr, size_type count)
+      |                                  ~~~~~~~~~~^~~~~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/relaxation.o relaxation.cpp
+In file included from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from relaxation.cpp:8:
+libs/hrtree/rtree_base.hpp:248: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  248 | #     pragma omp parallel firstprivate(dst)
+      | 
+libs/hrtree/rtree_base.hpp:253: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  253 | #         pragma omp for schedule(static) nowait
+      | 
+In file included from relaxation.hpp:9,
+                 from relaxation.cpp:8:
+libs/hrtree/rtree.hpp:94: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   94 | #   pragma omp parallel firstprivate(first, conv)
+      | 
+libs/hrtree/rtree.hpp:98: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+   98 | #       pragma omp for schedule(static)
+      | 
+libs/hrtree/rtree.hpp:166: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  166 | #   pragma omp parallel firstprivate(first, ctor)
+      | 
+libs/hrtree/rtree.hpp:170: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  170 | #       pragma omp for schedule(static)
+      | 
+relaxation.cpp:46: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   46 | #pragma omp parallel for
+      | 
+relaxation.cpp:67: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   67 | #pragma omp parallel for schedule(static) reduction(|: dirty)
+      | 
+In file included from libs/hrtree/arch/simd/key_gen_impl.hpp:15,
+                 from libs/hrtree/isfc/key_gen.hpp:121,
+                 from relaxation.cpp:3:
+libs/hrtree/arch/simd/simd_aux.hpp:21:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   21 |   template <size_t A> struct load_<2, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_castpd_ps(_mm_load_sd((const double*)p)); } };
+      |                                                ^
+In file included from libs/hrtree/arch/simd/key_gen_impl.hpp:15,
+                 from libs/hrtree/isfc/key_gen.hpp:121,
+                 from relaxation.cpp:3:
+libs/hrtree/arch/simd/simd_aux.hpp:25:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   25 |   template <size_t A> struct load_<3, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd((const double*)p)), _mm_load_ss(((const float*)p) + 2)); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:27:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   27 |   template <size_t A> struct load_<4, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:28:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   28 |   template <>         struct load_<4, __m128, 16>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:29:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   29 |   template <>         struct load_<4, __m128, 32>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:30:49: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   30 |   template <size_t A> struct load_<2, __m128d, A>  { static inline __m128d apply(const void* p) { return _mm_loadu_pd((const double*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:31:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   31 |   template <>         struct load_<2, __m128d, 16> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:32:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   32 |   template <>         struct load_<2, __m128d, 32> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:48:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   48 |   template <size_t A> struct store_<2, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:52:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   52 |   template <size_t A> struct store_<3, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); _mm_store_ss(((float*)p) + 2, _mm_movehl_ps(x, x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:55:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   55 |   template <size_t A> struct store_<4, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_storeu_ps((float*)p, x); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:56:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   56 |   template <>         struct store_<4, __m128, 16>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:57:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   57 |   template <>         struct store_<4, __m128, 32>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:58:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   58 |   template <size_t A> struct store_<2, __m128d, A>  { static inline void apply(void* p, __m128d x) { _mm_storeu_pd((double*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:59:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   59 |   template <>         struct store_<2, __m128d, 16> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:60:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   60 |   template <>         struct store_<2, __m128d, 32> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:78:32: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   78 |   template <> struct set<__m128>
+      |                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:84:33: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   84 |   template <> struct set<__m128d>
+      |                                 ^
+In file included from relaxation.cpp:7:
+libs/utility/rndutils.hpp:558:2: warning: extra ‘;’ [-Wpedantic]
+  558 | };
+      |  ^
+libs/utility/rndutils.hpp: In lambda function:
+libs/utility/rndutils.hpp:1104:71: warning: declaration of ‘rndutils::mutable_discrete_distribution<IntType, AllZeroPolicy, ParamType>::weight_type w’ shadows a parameter [-Wshadow]
+ 1104 |     mutate_transform_partial(w.cbegin(), w.cend(), 0, [](weight_type w) {
+      |                                                                       ^
+libs/utility/rndutils.hpp:1102:24: note: shadowed declaration is here
+ 1102 |   void mutate(W const& w)
+      |               ~~~~~~~~~^
+libs/utility/rndutils.hpp: In lambda function:
+libs/utility/rndutils.hpp:1120:73: warning: declaration of ‘rndutils::mutable_discrete_distribution<IntType, AllZeroPolicy, ParamType>::weight_type w’ shadows a parameter [-Wshadow]
+ 1120 |     mutate_transform_partial(w.cbegin(), w.cend(), ofs, [](weight_type w) {
+      |                                                                         ^
+libs/utility/rndutils.hpp:1118:32: note: shadowed declaration is here
+ 1118 |   void mutate_partial(W const& w, size_t ofs)
+      |                       ~~~~~~~~~^
+In file included from relaxation.cpp:8:
+relaxation.hpp: At global scope:
+relaxation.hpp:19:73: warning: extra ‘;’ [-Wpedantic]
+   19 | HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
+      |                                                                         ^
+relaxation.hpp:20:67: warning: extra ‘;’ [-Wpedantic]
+   20 | HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+      |                                                                   ^
+In file included from relaxation.cpp:3:
+libs/hrtree/isfc/key_gen.hpp: In instantiation of ‘class hrtree::key_gen<hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>, glm::vec<2, float, glm::packed_highp> >’:
+relaxation.cpp:45:44:   required from here
+libs/hrtree/isfc/key_gen.hpp:110:48: warning: ignoring attributes on template argument ‘hrtree::simd_type<glm::vec<2, float, glm::packed_highp> >::type’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+  110 |     detail::key_gen_impl<simd_vec, Key, Point> impl_;
+      |                                                ^~~~~
+relaxation.cpp: In member function ‘void relaxation::Relaxation::hilbert_sort()’:
+relaxation.cpp:47:23: warning: comparison of integer expressions of different signedness: ‘int’ and ‘const long unsigned int’ [-Wsign-compare]
+   47 |     for (int i = 0; i < N; ++i) {
+      |                     ~~^~~
+In file included from relaxation.hpp:6,
+                 from relaxation.cpp:8:
+libs/hrtree/mbr_intersect_policy.hpp: In instantiation of ‘class hrtree::mbr_intersect_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >’:
+relaxation.cpp:71:59:   required from here
+libs/hrtree/mbr_intersect_policy.hpp:77:54: warning: ignoring attributes on template argument ‘hrtree::simd_type<glm::vec<2, float, glm::packed_highp> >::type’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   77 |     detail::mbr_intersect_policy_impl<simd_vec, Mbr> impl_;
+      |                                                      ^~~~~
+relaxation.cpp: In member function ‘bool relaxation::Relaxation::query_hrtree()’:
+relaxation.cpp:65:16: warning: unused variable ‘nt’ [-Wunused-variable]
+   65 |     const auto nt = (param_t::num_threads) ? param_t::num_threads : std::thread::hardware_concurrency();
+      |                ^~
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from relaxation.cpp:8:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::construct(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, T&&) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*]’:
+libs/hrtree/rtree.hpp:128:7:   required from ‘void hrtree::rtree<BV, BP, FANOUT, A>::build(FwdIt, FwdIt, Conversion) [with FwIt = __gnu_cxx::__normal_iterator<const relaxation::particle_t*, std::vector<relaxation::particle_t> >; Conversion = relaxation::Relaxation::build_hrtree()::<lambda(const auto:1&)>; BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.cpp:36:6:   required from here
+libs/hrtree/memory/aligned_memory.hpp:117:7: warning: implicitly-declared ‘constexpr glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >::tbbox(const glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >&)’ is deprecated [-Wdeprecated-copy]
+  117 |       ::new ((void_pointer)p) T(std::forward<T>(value));
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from relaxation.hpp:11,
+                 from relaxation.cpp:8:
+libs/glmutils/bbox.hpp:96:22: note: because ‘glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >’ has user-provided ‘glmutils::tbbox<V>& glmutils::tbbox<V>::operator=(const glmutils::tbbox<V>&) [with V = glm::vec<2, float, glm::packed_highp>]’
+   96 |     tbbox<vec_type>& operator=(const tbbox<vec_type>& b) noexcept
+      |                      ^~~~~~~~
+In file included from relaxation.hpp:5,
+                 from relaxation.cpp:8:
+libs/hrtree/mbr_build_policy.hpp: In instantiation of ‘class hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >’:
+libs/hrtree/rtree_base.hpp:275:18:   required from ‘void hrtree::rtree_base<BV, BP, FANOUT, A>::build_hierarchy() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:132:31:   required from ‘void hrtree::rtree<BV, BP, FANOUT, A>::build(FwdIt, FwdIt, Conversion) [with FwIt = __gnu_cxx::__normal_iterator<const relaxation::particle_t*, std::vector<relaxation::particle_t> >; Conversion = relaxation::Relaxation::build_hrtree()::<lambda(const auto:1&)>; BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.cpp:36:6:   required from here
+libs/hrtree/mbr_build_policy.hpp:54:82: warning: ignoring attributes on template argument ‘hrtree::simd_type<glm::vec<2, float, glm::packed_highp> >::type’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   54 |     typedef detail::mbr_build_policy_impl< typename simd_type<point>::type, Mbr> impl_;
+      |                                                                                  ^~~~~
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from relaxation.cpp:8:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type hrtree::memory::aligned_destruct(RaIt, size_t) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; RaIt = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type = void; size_t = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:131:35:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:233:25: warning: unused parameter ‘it’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                    ~~~~~^~
+libs/hrtree/memory/aligned_memory.hpp:233:42: warning: unused parameter ‘N’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                             ~~~~~~~~~~~~~^
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::deallocate(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, hrtree::memory::aligned_allocator<T, ALIGN>::size_type) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*; hrtree::memory::aligned_allocator<T, ALIGN>::size_type = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:132:7:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:90:44: warning: unused parameter ‘count’ [-Wunused-parameter]
+   90 |     void deallocate(pointer ptr, size_type count)
+      |                                  ~~~~~~~~~~^~~~~
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::construct(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, const T&) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*]’:
+libs/hrtree/rtree_base.hpp:285:9:   required from ‘void hrtree::rtree_base<BV, BP, FANOUT, A>::build_hierarchy() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:132:31:   required from ‘void hrtree::rtree<BV, BP, FANOUT, A>::build(FwdIt, FwdIt, Conversion) [with FwIt = __gnu_cxx::__normal_iterator<const relaxation::particle_t*, std::vector<relaxation::particle_t> >; Conversion = relaxation::Relaxation::build_hrtree()::<lambda(const auto:1&)>; BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.cpp:36:6:   required from here
+libs/hrtree/memory/aligned_memory.hpp:111:7: warning: implicitly-declared ‘constexpr glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >::tbbox(const glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >&)’ is deprecated [-Wdeprecated-copy]
+  111 |       ::new((void_pointer)p) T(value);
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from relaxation.hpp:11,
+                 from relaxation.cpp:8:
+libs/glmutils/bbox.hpp:96:22: note: because ‘glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >’ has user-provided ‘glmutils::tbbox<V>& glmutils::tbbox<V>::operator=(const glmutils::tbbox<V>&) [with V = glm::vec<2, float, glm::packed_highp>]’
+   96 |     tbbox<vec_type>& operator=(const tbbox<vec_type>& b) noexcept
+      |                      ^~~~~~~~
+In file included from libs/hrtree/arch/simd/key_gen_impl.hpp:15,
+                 from libs/hrtree/isfc/key_gen.hpp:121,
+                 from relaxation.cpp:3:
+libs/hrtree/arch/simd/simd_aux.hpp: In instantiation of ‘typename hrtree::simd_type<Point>::type hrtree::simd::load(const Point&) [with Point = glm::vec<2, float, glm::packed_highp>; typename hrtree::simd_type<Point>::type = __vector(4) float]’:
+libs/hrtree/arch/simd/key_gen_impl.hpp:73:24:   required from ‘hrtree::detail::key_gen_impl<simd_vec, Key, Point>::key_gen_impl(const Point&, const Point&) [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:113:61:   required from ‘hrtree::key_gen<Key, Point>::key_gen(const Point&, const Point&) [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:45:80:   required from here
+libs/hrtree/arch/simd/simd_aux.hpp:43:125: warning: ignoring attributes on template argument ‘hrtree::simd_type<glm::vec<2, float, glm::packed_highp> >::type’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   43 |     return load_< ::hrtree::traits::point_dim<Point>::value, typename simd_type<Point>::type, HRTREE_ALIGNOF(Point) >::apply(pa::ptr(p));
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+libs/hrtree/arch/simd/simd_aux.hpp: In instantiation of ‘void hrtree::simd::store(Point&, typename hrtree::simd_type<Point>::type) [with Point = glm::vec<2, float, glm::packed_highp>; typename hrtree::simd_type<Point>::type = __vector(4) float]’:
+libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:34:18:   required from ‘static void hrtree::detail::mbr_build_policy_impl<simd_vec, Mbr>::apply(IT, IT, OIT) [with IT = hrtree::memory::aligned_iterator<const glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; OIT = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; simd_vec = __vector(4) float; Mbr = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >]’
+libs/hrtree/mbr_build_policy.hpp:62:28:   required from ‘void hrtree::mbr_build_policy<Mbr>::operator()(IT, IT, OIT) const [with IT = hrtree::memory::aligned_iterator<const glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; OIT = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; Mbr = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >]’
+libs/hrtree/rtree_base.hpp:286:20:   required from ‘void hrtree::rtree_base<BV, BP, FANOUT, A>::build_hierarchy() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:132:31:   required from ‘void hrtree::rtree<BV, BP, FANOUT, A>::build(FwdIt, FwdIt, Conversion) [with FwIt = __gnu_cxx::__normal_iterator<const relaxation::particle_t*, std::vector<relaxation::particle_t> >; Conversion = relaxation::Relaxation::build_hrtree()::<lambda(const auto:1&)>; BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.cpp:36:6:   required from here
+libs/hrtree/arch/simd/simd_aux.hpp:71:126: warning: ignoring attributes on template argument ‘hrtree::simd_type<glm::vec<2, float, glm::packed_highp> >::type’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   71 |     return store_< ::hrtree::traits::point_dim<Point>::value, typename simd_type<Point>::type, HRTREE_ALIGNOF(Point) >::apply(pa::ptr(p), x);
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+In file included from libs/hrtree/isfc/key.hpp:19,
+                 from libs/hrtree/isfc/hilbert.hpp:16,
+                 from relaxation.hpp:8,
+                 from relaxation.cpp:8:
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 4; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 14; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:56:47:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 6; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 13; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:56:47:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 8; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 12; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 10; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 11; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 12; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 10; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 14; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 9; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 16; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 8; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 18; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 7; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 20; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 6; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 22; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 5; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 24; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 4; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 26; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 3; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 28; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 2; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 30; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 1; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+libs/hrtree/arch/bits.hpp: In instantiation of ‘static void hrtree::detail::set_n_point_carry<false>::value(W&, W) [with int S_ = 32; W = unsigned int]’:
+libs/hrtree/arch/bits.hpp:70:62:   required from ‘static void hrtree::detail::set_n_point<K_>::value(K_&, typename K_::word_type) [with int ITER_ = 0; K_ = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; typename K_::word_type = unsigned int]’
+libs/hrtree/isfc/key.hpp:57:64:   recursively required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 13; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:57:64:   required from ‘static void hrtree::detail::key_ctor_aux<ITER>::value(Key&, FSM&, __m128i) [with int DIM = 2; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; int ITER = 14; __m128i = __vector(2) long long int]’
+libs/hrtree/isfc/key.hpp:104:59:   required from ‘hrtree::key<DIM, ORDER, FSM, WORD_TYPE>::key(__m128i) [with int DIM = 2; int ORDER = 15; FSM = hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>; WORD_TYPE = unsigned int; __m128i = __vector(2) long long int]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:79:14:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(simd_vec) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/arch/simd/key_gen_impl.hpp:84:33:   required from ‘Key hrtree::detail::key_gen_impl<simd_vec, Key, Point>::apply(const Point&) const [with simd_vec = __vector(4) float; Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+libs/hrtree/isfc/key_gen.hpp:114:64:   required from ‘Key hrtree::key_gen<Key, Point>::operator()(const Point&) const [with Key = hrtree::key<2, 15, hrtree::detail::table_fsm<hrtree::detail::{anonymous}::hilbert2d_tab>, unsigned int>; Point = glm::vec<2, float, glm::packed_highp>]’
+relaxation.cpp:48:45:   required from here
+libs/hrtree/arch/bits.hpp:45:26: warning: unused parameter ‘x’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                       ~~~^
+libs/hrtree/arch/bits.hpp:45:31: warning: unused parameter ‘n_point’ [-Wunused-parameter]
+   45 |     static void value(W& x, W n_point) {}
+      |                             ~~^~~~~~~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/sim_parameters.o sim_parameters.cpp
+sim_parameters.cpp: In function ‘void test_sim_param()’:
+sim_parameters.cpp:119:29: warning: variable ‘q’ set but not used [-Wunused-but-set-variable]
+  119 |             const sim_param q = load_sim_parameters(filename);
+      |                             ^
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/sim_view.o sim_view.cpp
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/simulation.o simulation.cpp
+In file included from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/hrtree/rtree_base.hpp:248: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  248 | #     pragma omp parallel firstprivate(dst)
+      | 
+libs/hrtree/rtree_base.hpp:253: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  253 | #         pragma omp for schedule(static) nowait
+      | 
+In file included from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/hrtree/rtree.hpp:94: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+   94 | #   pragma omp parallel firstprivate(first, conv)
+      | 
+libs/hrtree/rtree.hpp:98: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+   98 | #       pragma omp for schedule(static)
+      | 
+libs/hrtree/rtree.hpp:166: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+  166 | #   pragma omp parallel firstprivate(first, ctor)
+      | 
+libs/hrtree/rtree.hpp:170: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  170 | #       pragma omp for schedule(static)
+      | 
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:21:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   21 |   template <size_t A> struct load_<2, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_castpd_ps(_mm_load_sd((const double*)p)); } };
+      |                                                ^
+In file included from libs/hrtree/arch/simd/mbr_build_policy_impl.hpp:12,
+                 from libs/hrtree/mbr_build_policy.hpp:69,
+                 from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/hrtree/arch/simd/simd_aux.hpp:25:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   25 |   template <size_t A> struct load_<3, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd((const double*)p)), _mm_load_ss(((const float*)p) + 2)); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:27:48: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   27 |   template <size_t A> struct load_<4, __m128, A>   { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:28:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   28 |   template <>         struct load_<4, __m128, 16>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:29:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   29 |   template <>         struct load_<4, __m128, 32>  { static inline __m128 apply(const void* p) { return _mm_loadu_ps((const float*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:30:49: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   30 |   template <size_t A> struct load_<2, __m128d, A>  { static inline __m128d apply(const void* p) { return _mm_loadu_pd((const double*)p); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:31:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   31 |   template <>         struct load_<2, __m128d, 16> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:32:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   32 |   template <>         struct load_<2, __m128d, 32> { static inline __m128d apply(const void* p) { return _mm_load_pd((const double*)p); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:48:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   48 |   template <size_t A> struct store_<2, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:52:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   52 |   template <size_t A> struct store_<3, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_store_sd((double*)p, _mm_castps_pd(x)); _mm_store_ss(((float*)p) + 2, _mm_movehl_ps(x, x)); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:55:49: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   55 |   template <size_t A> struct store_<4, __m128, A>   { static inline void apply(void* p, __m128 x) { _mm_storeu_ps((float*)p, x); } };
+      |                                                 ^
+libs/hrtree/arch/simd/simd_aux.hpp:56:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   56 |   template <>         struct store_<4, __m128, 16>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:57:50: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   57 |   template <>         struct store_<4, __m128, 32>  { static inline void apply(void* p, __m128 x) { _mm_store_ps((float*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:58:50: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   58 |   template <size_t A> struct store_<2, __m128d, A>  { static inline void apply(void* p, __m128d x) { _mm_storeu_pd((double*)p, x); } };
+      |                                                  ^
+libs/hrtree/arch/simd/simd_aux.hpp:59:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   59 |   template <>         struct store_<2, __m128d, 16> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:60:51: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   60 |   template <>         struct store_<2, __m128d, 32> { static inline void apply(void* p, __m128d x) { _mm_store_pd((double*)p, x); } };
+      |                                                   ^
+libs/hrtree/arch/simd/simd_aux.hpp:78:32: warning: ignoring attributes on template argument ‘__m128’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   78 |   template <> struct set<__m128>
+      |                                ^
+libs/hrtree/arch/simd/simd_aux.hpp:84:33: warning: ignoring attributes on template argument ‘__m128d’ {aka ‘__vector(2) double’} [-Wignored-attributes]
+   84 |   template <> struct set<__m128d>
+      |                                 ^
+In file included from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+relaxation.hpp:19:73: warning: extra ‘;’ [-Wpedantic]
+   19 | HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
+      |                                                                         ^
+relaxation.hpp:20:67: warning: extra ‘;’ [-Wpedantic]
+   20 | HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+      |                                                                   ^
+relaxation.hpp: In constructor ‘relaxation::Relaxation::Relaxation(relaxation::Relaxation&&)’:
+relaxation.hpp:79:9: warning: implicitly-declared ‘constexpr glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >::tbbox(const glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >&)’ is deprecated [-Wdeprecated-copy]
+   79 |   class Relaxation
+      |         ^~~~~~~~~~
+In file included from relaxation.hpp:11,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/glmutils/bbox.hpp:96:22: note: because ‘glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >’ has user-provided ‘glmutils::tbbox<V>& glmutils::tbbox<V>::operator=(const glmutils::tbbox<V>&) [with V = glm::vec<2, float, glm::packed_highp>]’
+   96 |     tbbox<vec_type>& operator=(const tbbox<vec_type>& b) noexcept
+      |                      ^~~~~~~~
+In file included from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+population.h: In constructor ‘population::population(population&&)’:
+population.h:9:7: note: synthesized method ‘relaxation::Relaxation::Relaxation(relaxation::Relaxation&&)’ first required here
+    9 | class population
+      |       ^~~~~~~~~~
+In file included from simulation.cpp:1:
+simulation.h: In constructor ‘simulation::simulation(simulation&&)’:
+simulation.h:13:7: note: synthesized method ‘population::population(population&&)’ first required here
+   13 | class simulation
+      |       ^~~~~~~~~~
+simulation.cpp: In function ‘simulation load_sim_for_rand_cond(int, int)’:
+simulation.cpp:313:12: note: synthesized method ‘simulation::simulation(simulation&&)’ first required here
+  313 |     return s;
+      |            ^
+In file included from libs/hrtree/rtree_base.hpp:20,
+                 from libs/hrtree/rtree.hpp:12,
+                 from relaxation.hpp:9,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type hrtree::memory::aligned_destruct(RaIt, size_t) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; RaIt = hrtree::memory::aligned_iterator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>; typename std::enable_if<std::is_trivially_destructible<_Tp>::value>::type = void; size_t = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:131:35:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:233:25: warning: unused parameter ‘it’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                    ~~~~~^~
+libs/hrtree/memory/aligned_memory.hpp:233:42: warning: unused parameter ‘N’ [-Wunused-parameter]
+  233 |   aligned_destruct(RaIt it, const size_t N)
+      |                             ~~~~~~~~~~~~~^
+libs/hrtree/memory/aligned_memory.hpp: In instantiation of ‘void hrtree::memory::aligned_allocator<T, ALIGN>::deallocate(hrtree::memory::aligned_allocator<T, ALIGN>::pointer, hrtree::memory::aligned_allocator<T, ALIGN>::size_type) [with T = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; long unsigned int ALIGN = 4; hrtree::memory::aligned_allocator<T, ALIGN>::pointer = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >*; hrtree::memory::aligned_allocator<T, ALIGN>::size_type = long unsigned int]’:
+libs/hrtree/rtree_base.hpp:132:7:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::~rtree_base() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:38:14:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree() [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:83:21:   required from here
+libs/hrtree/memory/aligned_memory.hpp:90:44: warning: unused parameter ‘count’ [-Wunused-parameter]
+   90 |     void deallocate(pointer ptr, size_type count)
+      |                                  ~~~~~~~~~~^~~~~
+In file included from relaxation.hpp:5,
+                 from population.h:6,
+                 from demographic_cycle.h:3,
+                 from demographic_sim.h:3,
+                 from simulation.h:3,
+                 from simulation.cpp:1:
+libs/hrtree/mbr_build_policy.hpp: In instantiation of ‘class hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >’:
+libs/hrtree/rtree_base.hpp:175:17:   required from ‘void hrtree::rtree_base<BV, BP, FANOUT, A>::swap(hrtree::rtree_base<BV, BP, FANOUT, A>&&) [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree_base.hpp:156:5:   required from ‘hrtree::rtree_base<BV, BP, FANOUT, A>::rtree_base(hrtree::rtree_base<BV, BP, FANOUT, A>&&) [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+libs/hrtree/rtree.hpp:46:50:   required from ‘hrtree::rtree<BV, BP, FANOUT, A>::rtree(hrtree::rtree<BV, BP, FANOUT, A>&&) [with BV = glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >; BP = hrtree::mbr_build_policy<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> > >; long unsigned int FANOUT = 8; A = hrtree::memory::aligned_allocator<glmutils::tbbox<glm::vec<2, float, glm::packed_highp> >, 4>]’
+relaxation.hpp:79:9:   required from here
+libs/hrtree/mbr_build_policy.hpp:54:82: warning: ignoring attributes on template argument ‘hrtree::simd_type<glm::vec<2, float, glm::packed_highp> >::type’ {aka ‘__vector(4) float’} [-Wignored-attributes]
+   54 |     typedef detail::mbr_build_policy_impl< typename simd_type<point>::type, Mbr> impl_;
+      |                                                                                  ^~~~~
+g++ -c -m64 -pipe -std=c++17 -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic -pg -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC -DLOGIC_ONLY -DNDEBUG -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB -I. -Ilibs -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtGui -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/include/QtCore -Irelease -I/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/mkspecs/linux-g++-64 -o release/glm.o libs/glm/detail/glm.cpp
+g++ -m64 -pg -Wl,-O1 -Wl,-rpath,/apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/lib -o simulation_logic_only release/demographic_cycle.o release/demographic_sim.o release/env_grid_cell.o release/env_param.o release/environment.o release/funder_data.o release/funders.o release/funders_success.o release/grid_view.o release/grn.o release/ind_param.o release/individual.o release/main.o release/meta_param.o release/phenotype.o release/pop_param.o release/population.o release/relaxation.o release/sim_parameters.o release/sim_view.o release/simulation.o release/glm.o   -L/software/software/libGLU/9.0.1-GCCcore-9.3.0/lib /apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/lib/libQt5Gui.so /apps/haswell/software/Qt5/5.14.1-GCCcore-9.3.0/lib/libQt5Core.so -L/software/software/libglvnd/1.2.0-GCCcore-9.3.0/lib -lGL -lpthread   
+make[1]: Leaving directory `/home/p288427/project1_vG_W_2016'
+1
+0,
+1.5,
+Submitted batch job 12945476
+1
+0,
+2,
+Submitted batch job 12945477
+1
+0,
+2.5,
+Submitted batch job 12945478
+1
+0,
+3
+Submitted batch job 12945479
+1
+1,
+1.5,
+Submitted batch job 12945480
+1
+1,
+2,
+Submitted batch job 12945481
+1
+1,
+2.5,
+Submitted batch job 12945482
+1
+1,
+3
+Submitted batch job 12945483
+1
+10
+1.5,
+Submitted batch job 12945484
+1
+10
+2,
+Submitted batch job 12945485
+1
+10
+2.5,
+Submitted batch job 12945486
+1
+10
+3
+Submitted batch job 12945487
+2
+0,
+1.5,
+Submitted batch job 12945488
+2
+0,
+2,
+Submitted batch job 12945489
+2
+0,
+2.5,
+Submitted batch job 12945490
+2
+0,
+3
+Submitted batch job 12945491
+2
+1,
+1.5,
+Submitted batch job 12945492
+2
+1,
+2,
+Submitted batch job 12945493
+2
+1,
+2.5,
+Submitted batch job 12945494
+2
+1,
+3
+Submitted batch job 12945495
+2
+10
+1.5,
+Submitted batch job 12945496
+2
+10
+2,
+Submitted batch job 12945497
+2
+10
+2.5,
+Submitted batch job 12945498
+2
+10
+3
+Submitted batch job 12945499
+3
+0,
+1.5,
+Submitted batch job 12945500
+3
+0,
+2,
+Submitted batch job 12945501
+3
+0,
+2.5,
+Submitted batch job 12945502
+3
+0,
+3
+Submitted batch job 12945503
+3
+1,
+1.5,
+Submitted batch job 12945504
+3
+1,
+2,
+Submitted batch job 12945505
+3
+1,
+2.5,
+Submitted batch job 12945506
+3
+1,
+3
+Submitted batch job 12945507
+3
+10
+1.5,
+Submitted batch job 12945508
+3
+10
+2,
+Submitted batch job 12945509
+3
+10
+2.5,
+Submitted batch job 12945510
+3
+10
+3
+Submitted batch job 12945511
+4
+0,
+1.5,
+Submitted batch job 12945512
+4
+0,
+2,
+Submitted batch job 12945513
+4
+0,
+2.5,
+Submitted batch job 12945514
+4
+0,
+3
+Submitted batch job 12945515
+4
+1,
+1.5,
+Submitted batch job 12945516
+4
+1,
+2,
+Submitted batch job 12945517
+4
+1,
+2.5,
+Submitted batch job 12945518
+4
+1,
+3
+Submitted batch job 12945519
+4
+10
+1.5,
+Submitted batch job 12945520
+4
+10
+2,
+Submitted batch job 12945521
+4
+10
+2.5,
+Submitted batch job 12945522
+4
+10
+3
+Submitted batch job 12945523
+5
+0,
+1.5,
+Submitted batch job 12945524
+5
+0,
+2,
+Submitted batch job 12945525
+5
+0,
+2.5,
+Submitted batch job 12945526
+5
+0,
+3
+Submitted batch job 12945527
+5
+1,
+1.5,
+Submitted batch job 12945528
+5
+1,
+2,
+Submitted batch job 12945529
+5
+1,
+2.5,
+Submitted batch job 12945530
+5
+1,
+3
+Submitted batch job 12945531
+5
+10
+1.5,
+Submitted batch job 12945532
+5
+10
+2,
+Submitted batch job 12945533
+5
+10
+2.5,
+Submitted batch job 12945534
+5
+10
+3
+Submitted batch job 12945535
+6
+0,
+1.5,
+Submitted batch job 12945536
+6
+0,
+2,
+Submitted batch job 12945537
+6
+0,
+2.5,
+Submitted batch job 12945538
+6
+0,
+3
+Submitted batch job 12945539
+6
+1,
+1.5,
+Submitted batch job 12945540
+6
+1,
+2,
+Submitted batch job 12945541
+6
+1,
+2.5,
+Submitted batch job 12945542
+6
+1,
+3
+Submitted batch job 12945543
+6
+10
+1.5,
+Submitted batch job 12945544
+6
+10
+2,
+Submitted batch job 12945545
+6
+10
+2.5,
+Submitted batch job 12945546
+6
+10
+3
+Submitted batch job 12945547
+7
+0,
+1.5,
+Submitted batch job 12945548
+7
+0,
+2,
+Submitted batch job 12945549
+7
+0,
+2.5,
+Submitted batch job 12945550
+7
+0,
+3
+Submitted batch job 12945551
+7
+1,
+1.5,
+Submitted batch job 12945552
+7
+1,
+2,
+Submitted batch job 12945553
+7
+1,
+2.5,
+Submitted batch job 12945554
+7
+1,
+3
+Submitted batch job 12945555
+7
+10
+1.5,
+Submitted batch job 12945556
+7
+10
+2,
+Submitted batch job 12945557
+7
+10
+2.5,
+Submitted batch job 12945558
+7
+10
+3
+Submitted batch job 12945559
+8
+0,
+1.5,
+Submitted batch job 12945560
+8
+0,
+2,
+Submitted batch job 12945561
+8
+0,
+2.5,
+Submitted batch job 12945562
+8
+0,
+3
+Submitted batch job 12945563
+8
+1,
+1.5,
+Submitted batch job 12945565
+8
+1,
+2,
+Submitted batch job 12945566
+8
+1,
+2.5,
+Submitted batch job 12945567
+8
+1,
+3
+Submitted batch job 12945568
+8
+10
+1.5,
+Submitted batch job 12945569
+8
+10
+2,
+Submitted batch job 12945570
+8
+10
+2.5,
+Submitted batch job 12945571
+8
+10
+3
+Submitted batch job 12945572
+9
+0,
+1.5,
+Submitted batch job 12945573
+9
+0,
+2,
+Submitted batch job 12945574
+9
+0,
+2.5,
+Submitted batch job 12945575
+9
+0,
+3
+Submitted batch job 12945576
+9
+1,
+1.5,
+Submitted batch job 12945577
+9
+1,
+2,
+Submitted batch job 12945578
+9
+1,
+2.5,
+Submitted batch job 12945579
+9
+1,
+3
+Submitted batch job 12945580
+9
+10
+1.5,
+Submitted batch job 12945581
+9
+10
+2,
+Submitted batch job 12945582
+9
+10
+2.5,
+Submitted batch job 12945583
+9
+10
+3
+Submitted batch job 12945584
+10
+0,
+1.5,
+Submitted batch job 12945585
+10
+0,
+2,
+Submitted batch job 12945586
+10
+0,
+2.5,
+Submitted batch job 12945587
+10
+0,
+3
+Submitted batch job 12945588
+10
+1,
+1.5,
+Submitted batch job 12945589
+10
+1,
+2,
+Submitted batch job 12945590
+10
+1,
+2.5,
+Submitted batch job 12945591
+10
+1,
+3
+Submitted batch job 12945592
+10
+10
+1.5,
+Submitted batch job 12945593
+10
+10
+2,
+Submitted batch job 12945594
+10
+10
+2.5,
+Submitted batch job 12945595
+10
+10
+3
+Submitted batch job 12945596
+11
+0,
+1.5,
+Submitted batch job 12945597
+11
+0,
+2,
+Submitted batch job 12945598
+11
+0,
+2.5,
+Submitted batch job 12945599
+11
+0,
+3
+Submitted batch job 12945600
+11
+1,
+1.5,
+Submitted batch job 12945601
+11
+1,
+2,
+Submitted batch job 12945602
+11
+1,
+2.5,
+Submitted batch job 12945603
+11
+1,
+3
+Submitted batch job 12945604
+11
+10
+1.5,
+Submitted batch job 12945605
+11
+10
+2,
+Submitted batch job 12945606
+11
+10
+2.5,
+Submitted batch job 12945607
+11
+10
+3
+Submitted batch job 12945608
+12
+0,
+1.5,
+Submitted batch job 12945609
+12
+0,
+2,
+Submitted batch job 12945610
+12
+0,
+2.5,
+Submitted batch job 12945611
+12
+0,
+3
+Submitted batch job 12945612
+12
+1,
+1.5,
+Submitted batch job 12945613
+12
+1,
+2,
+Submitted batch job 12945614
+12
+1,
+2.5,
+Submitted batch job 12945615
+12
+1,
+3
+Submitted batch job 12945616
+12
+10
+1.5,
+Submitted batch job 12945617
+12
+10
+2,
+Submitted batch job 12945618
+12
+10
+2.5,
+Submitted batch job 12945619
+12
+10
+3
+Submitted batch job 12945620
+13
+0,
+1.5,
+Submitted batch job 12945621
+13
+0,
+2,
+Submitted batch job 12945623
+13
+0,
+2.5,
+Submitted batch job 12945624
+13
+0,
+3
+Submitted batch job 12945625
+13
+1,
+1.5,
+Submitted batch job 12945626
+13
+1,
+2,
+Submitted batch job 12945627
+13
+1,
+2.5,
+Submitted batch job 12945628
+13
+1,
+3
+Submitted batch job 12945629
+13
+10
+1.5,
+Submitted batch job 12945630
+13
+10
+2,
+Submitted batch job 12945631
+13
+10
+2.5,
+Submitted batch job 12945632
+13
+10
+3
+Submitted batch job 12945633
+14
+0,
+1.5,
+Submitted batch job 12945634
+14
+0,
+2,
+Submitted batch job 12945635
+14
+0,
+2.5,
+Submitted batch job 12945636
+14
+0,
+3
+Submitted batch job 12945637
+14
+1,
+1.5,
+Submitted batch job 12945638
+14
+1,
+2,
+Submitted batch job 12945639
+14
+1,
+2.5,
+Submitted batch job 12945640
+14
+1,
+3
+Submitted batch job 12945641
+14
+10
+1.5,
+Submitted batch job 12945642
+14
+10
+2,
+Submitted batch job 12945643
+14
+10
+2.5,
+Submitted batch job 12945644
+14
+10
+3
+Submitted batch job 12945645
+15
+0,
+1.5,
+Submitted batch job 12945646
+15
+0,
+2,
+Submitted batch job 12945647
+15
+0,
+2.5,
+Submitted batch job 12945648
+15
+0,
+3
+Submitted batch job 12945649
+15
+1,
+1.5,
+Submitted batch job 12945650
+15
+1,
+2,
+Submitted batch job 12945651
+15
+1,
+2.5,
+Submitted batch job 12945652
+15
+1,
+3
+Submitted batch job 12945653
+15
+10
+1.5,
+Submitted batch job 12945654
+15
+10
+2,
+Submitted batch job 12945655
+15
+10
+2.5,
+Submitted batch job 12945656
+15
+10
+3
+Submitted batch job 12945657
+16
+0,
+1.5,
+Submitted batch job 12945658
+16
+0,
+2,
+Submitted batch job 12945659
+16
+0,
+2.5,
+Submitted batch job 12945660
+16
+0,
+3
+Submitted batch job 12945661
+16
+1,
+1.5,
+Submitted batch job 12945662
+16
+1,
+2,
+Submitted batch job 12945663
+16
+1,
+2.5,
+Submitted batch job 12945664
+16
+1,
+3
+Submitted batch job 12945665
+16
+10
+1.5,
+Submitted batch job 12945666
+16
+10
+2,
+Submitted batch job 12945667
+16
+10
+2.5,
+Submitted batch job 12945668
+16
+10
+3
+Submitted batch job 12945669
+17
+0,
+1.5,
+Submitted batch job 12945670
+17
+0,
+2,
+Submitted batch job 12945671
+17
+0,
+2.5,
+Submitted batch job 12945672
+17
+0,
+3
+Submitted batch job 12945673
+17
+1,
+1.5,
+Submitted batch job 12945674
+17
+1,
+2,
+Submitted batch job 12945675
+17
+1,
+2.5,
+Submitted batch job 12945676
+17
+1,
+3
+Submitted batch job 12945677
+17
+10
+1.5,
+Submitted batch job 12945678
+17
+10
+2,
+Submitted batch job 12945679
+17
+10
+2.5,
+Submitted batch job 12945680
+17
+10
+3
+Submitted batch job 12945681
+18
+0,
+1.5,
+Submitted batch job 12945682
+18
+0,
+2,
+Submitted batch job 12945683
+18
+0,
+2.5,
+Submitted batch job 12945684
+18
+0,
+3
+Submitted batch job 12945685
+18
+1,
+1.5,
+Submitted batch job 12945686
+18
+1,
+2,
+Submitted batch job 12945687
+18
+1,
+2.5,
+Submitted batch job 12945688
+18
+1,
+3
+Submitted batch job 12945689
+18
+10
+1.5,
+Submitted batch job 12945690
+18
+10
+2,
+Submitted batch job 12945691
+18
+10
+2.5,
+Submitted batch job 12945692
+18
+10
+3
+Submitted batch job 12945693
+19
+0,
+1.5,
+Submitted batch job 12945694
+19
+0,
+2,
+Submitted batch job 12945695
+19
+0,
+2.5,
+Submitted batch job 12945696
+19
+0,
+3
+Submitted batch job 12945697
+19
+1,
+1.5,
+Submitted batch job 12945698
+19
+1,
+2,
+Submitted batch job 12945699
+19
+1,
+2.5,
+Submitted batch job 12945700
+19
+1,
+3
+Submitted batch job 12945701
+19
+10
+1.5,
+Submitted batch job 12945702
+19
+10
+2,
+Submitted batch job 12945703
+19
+10
+2.5,
+Submitted batch job 12945704
+19
+10
+3
+Submitted batch job 12945705
+20
+0,
+1.5,
+Submitted batch job 12945706
+20
+0,
+2,
+Submitted batch job 12945707
+20
+0,
+2.5,
+Submitted batch job 12945708
+20
+0,
+3
+Submitted batch job 12945709
+20
+1,
+1.5,
+Submitted batch job 12945710
+20
+1,
+2,
+Submitted batch job 12945711
+20
+1,
+2.5,
+Submitted batch job 12945712
+20
+1,
+3
+Submitted batch job 12945713
+20
+10
+1.5,
+Submitted batch job 12945714
+20
+10
+2,
+Submitted batch job 12945715
+20
+10
+2.5,
+Submitted batch job 12945716
+20
+10
+3
+Submitted batch job 12945717
+
+
+###############################################################################
+Peregrine Cluster
+Job 12945467 for user 'p288427'
+Finished at: Fri Jul 24 16:08:08 CEST 2020
+
+Job details:
+============
+
+Name                : run
+User                : p288427
+Partition           : regular
+Nodes               : pg-node209
+Cores               : 1
+State               : COMPLETED
+Submit              : 2020-07-24T16:06:38
+Start               : 2020-07-24T16:07:09
+End                 : 2020-07-24T16:08:08
+Reserved walltime   : 04:00:00
+Used walltime       : 00:00:59
+Used CPU time       : 00:00:47 (efficiency: 81.15%)
+% User (Computation): 83.92%
+% System (I/O)      : 16.08%
+Mem reserved        : 1G/node
+Max Mem used        : 24.39M (pg-node209)
+Max Disk Write      : 409.60K (pg-node209)
+Max Disk Read       : 7.97M (pg-node209)
+
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Peregrine in your publications:
+
+https://wiki.hpc.rug.nl/peregrine/additional_information/scientific_output
+
+################################################################################

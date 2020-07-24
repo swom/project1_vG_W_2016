@@ -16,7 +16,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 #SBATCH --job-name=run
-#SBATCH --output=run.log
+#SBATCH --output=run_sim.log
 
 
 # simulation_logic_only has this command-line interface:

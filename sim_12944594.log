@@ -1,0 +1,40 @@
+seed: 14
+simualtion :5467.79s
+
+
+###############################################################################
+Peregrine Cluster
+Job 12944594 for user 'p288427'
+Finished at: Fri Jul 24 14:46:40 CEST 2020
+
+Job details:
+============
+
+Name                : sim
+User                : p288427
+Partition           : regular
+Nodes               : pg-node193
+Cores               : 1
+State               : COMPLETED
+Submit              : 2020-07-24T13:15:30
+Start               : 2020-07-24T13:15:30
+End                 : 2020-07-24T14:46:40
+Reserved walltime   : 06:00:00
+Used walltime       : 01:31:10
+Used CPU time       : 01:31:06 (efficiency: 99.93%)
+% User (Computation): 100.00%
+% System (I/O)      :  0.01%
+Mem reserved        : 1G/node
+Max Mem used        : 46.18M (pg-node193)
+Max Disk Write      : 0.00  (pg-node193)
+Max Disk Read       : 61.44K (pg-node193)
+
+
+Acknowledgements:
+=================
+
+Please see this page for information about acknowledging Peregrine in your publications:
+
+https://wiki.hpc.rug.nl/peregrine/additional_information/scientific_output
+
+################################################################################
