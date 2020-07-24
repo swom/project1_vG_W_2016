@@ -20,5 +20,7 @@
 #SBATCH --output=rand_%j.log
 
 echo "seed: "$1
-./simulation_logic_only --rand s$1 f$2
+echo "freq: "$2
+echo "ampl: "$3
+./simulation_logic_only --rand s$1 f$2 a$3
 

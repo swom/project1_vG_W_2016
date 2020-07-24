@@ -95,10 +95,11 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         abort();
     }
 
-    meta_param m{1,
-                 1,
+    meta_param m{10,
+                 50,
                  seed,
-                         change_freq};
+                         change_freq
+                };
 
     ind_param ind{};
 
@@ -110,7 +111,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01,
                 10,
                 0.0,
-                ind};
+                ind
+               };
 
     env_param e{200,
                 0.1,
@@ -122,7 +124,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01
                };
 
-    int n_random_conditions = 50;
+    int n_random_conditions = 5;
     double amplitude = 3;
 
     if (args.size() > 4
@@ -155,9 +157,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
 #ifndef LOGIC_ONLY
         sim_view v(sim_param{e, m, p});
+
         std::cout << "view: ";
         auto start = std::chrono::high_resolution_clock::now();
-        v.exec();
+        auto rand_s = no_demographic_copy(load_sim_for_rand_cond(seed,change_freq));
+        place_start_cells(rand_s.get_pop());
+        v.run_random_conditions(rand_s, n_random_conditions, amplitude);
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout << duration.count() << "s" << std::endl;
@@ -180,7 +185,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         auto rand_start = std::chrono::high_resolution_clock::now();
 
-        run_random_conditions(load_sim_for_rand_cond(seed,change_freq),
+        auto rand_s = load_sim_for_rand_cond(seed,change_freq);
+        place_start_cells(rand_s.get_pop());
+        run_random_conditions(rand_s,
                               n_random_conditions,
                               amplitude);
 
@@ -201,7 +208,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         auto rand_start = std::chrono::high_resolution_clock::now();
 
-        run_random_conditions(s, n_random_conditions, amplitude);
+        auto rand_s = load_sim_for_rand_cond(seed,change_freq);
+        run_random_conditions(rand_s, n_random_conditions, amplitude);
 
         stop = std::chrono::high_resolution_clock::now();
         duration = std::chrono::duration<float>(stop - rand_start);

@@ -45,9 +45,9 @@ sim_view::~sim_view()
 
 }
 
-void sim_view::draw_background() noexcept
+void sim_view::draw_background(const simulation& s) noexcept
 {
-    m_grid_view.update_grid_quads(m_sim.get_env().get_grid());
+    m_grid_view.update_grid_quads(s.get_env().get_grid());
     m_window.draw(m_grid_view);
 }
 
@@ -58,9 +58,9 @@ void sim_view::draw_food() noexcept
 }
 
 
-void sim_view::draw_inds() noexcept
+void sim_view::draw_inds(const simulation& s) noexcept
 {
-    update_pop();
+    update_pop(s);
     for(const auto& ind : m_pop_shapes)
     {
         m_window.draw(ind);
@@ -97,14 +97,15 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
             return true;
         if(!m_stop)
         {
-            tick(m_sim);
+            tick(s);
         }
-        show();
+        show(s);
     }
-    dispersal(m_sim);
+    dispersal(s);
     s.reset_timesteps();
     return false;
 }
+
 void sim_view::k_pan() noexcept
 {
     m_view.move(0,m_pan_step * m_pan_up);
@@ -214,41 +215,82 @@ bool sim_view::process_events()
     return false; // if no events proceed with tick
 }
 
-void sim_view::show() noexcept
+void sim_view::run_random_conditions(const simulation& s,
+                                                     int n_number_rand_cond,
+                                                     double amplitude)
+               {
+                   auto random_conditions = create_rand_conditions_unif(
+                               s.get_env().get_param(),
+                               s.get_pop().get_param().get_ind_param(),
+                               n_number_rand_cond,
+                               amplitude,
+                               0);
+
+                   auto test_pop = s.get_pop().get_v_ind();
+
+                   simulation rand_s = no_demographic_copy(s);
+
+                   int counter = 0;
+
+                   for(const auto & condition : random_conditions)
+                   {
+                       assert(rand_s.get_pop().get_v_ind() == test_pop);
+                       assert(rand_s.get_env().get_grid() == s.get_env().get_grid());
+                       change_params(rand_s, condition.first, condition.second);
+                       auto start = std::chrono::high_resolution_clock::now();
+                       if( exec_cycle_visual(rand_s))
+                           break
+                      ;
+                       rand_s.tick_cycles();
+                       rand_s.reset_timesteps();
+                       auto stop = std::chrono::high_resolution_clock::now();
+                       auto duration = std::chrono::duration<float>(stop - start);
+                       std::cout<< "condition: " << duration.count() << "\n";
+                       rand_s.get_pop().get_v_ind() = test_pop;
+                       counter++;
+                   }
+
+                   std::string name = create_random_condition_name(s, amplitude);
+
+                   save_demographic_sim(rand_s.get_demo_sim() ,name);
+
+               }
+
+void sim_view::show(const simulation& s) noexcept
 {
     // Start drawing the new frame, by clearing the screen
     m_window.clear();
     m_window.setView(m_view);
 
-    draw_background();
+    draw_background(s);
 
-    draw_inds();
+    draw_inds(s);
 
     // Display all shapes
     m_window.display();
 }
 
-void sim_view::update_pop() noexcept
+void sim_view::update_pop(const simulation& s) noexcept
 {
-    if(m_pop_shapes.size() != m_sim.get_pop().get_v_ind().size())
+    if(m_pop_shapes.size() != s.get_pop().get_v_ind().size())
     {
-        m_pop_shapes.resize(m_sim.get_pop().get_v_ind().size(), m_pop_shapes[0]);
+        m_pop_shapes.resize(s.get_pop().get_v_ind().size(), m_pop_shapes[0]);
         for( size_t i = 0; i != m_pop_shapes.size(); i++)
         {
-            float x = m_scale * static_cast<float>(m_sim.get_pop().get_v_ind()[i].get_x());
-            float y = m_scale * static_cast<float>(m_sim.get_pop().get_v_ind()[i].get_y());
+            float x = m_scale * static_cast<float>(s.get_pop().get_v_ind()[i].get_x());
+            float y = m_scale * static_cast<float>(s.get_pop().get_v_ind()[i].get_y());
             m_pop_shapes[i].setPosition(x, y);
         }
     }
 
     for( size_t i = 0; i != m_pop_shapes.size(); i++)
     {
-        if(m_sim.get_pop().get_v_ind()[i].get_phen() == phenotype::active)
+        if(s.get_pop().get_v_ind()[i].get_phen() == phenotype::active)
         {
             m_pop_shapes[i].setFillColor(sf::Color::Blue);
             continue;
         }
-        if(m_sim.get_pop().get_v_ind()[i].get_phen() == phenotype::sporulating)
+        if(s.get_pop().get_v_ind()[i].get_phen() == phenotype::sporulating)
         {
             m_pop_shapes[i].setFillColor(sf::Color::Magenta);
             continue;
@@ -331,7 +373,7 @@ void test_sim_view()//!OCLINT tests may be many
         // Show the game for one frame
         // (there will be a member function 'exec' for running the game)
         sim_view v(sim_param{20});
-        v.show();
+        v.show(v.get_sim());
     }
 
     //A window starts showing simulation from tick 0

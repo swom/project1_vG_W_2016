@@ -119,6 +119,8 @@ void change_pop( simulation& s);
 /// parameter classes
 void change_params(simulation& s, const env_param& e, const ind_param& i);
 
+///Creates a name for the file where the run for random conditions is saved
+std::string create_random_condition_name(const simulation& s, double amplitude);
 
 ///Creates a vector of random conditions given parameter classes and how much wider
 /// can be the oscillation of the new random conditions

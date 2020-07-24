@@ -29,7 +29,7 @@ make clean
 qmake simulation_logic_only.pro
 make 
 
-change_freqs = (0, 10)
+change_freqs = (0, 1, 10)
 amplitude = (1.5, 2, 2.5, 3)
 for i in $(seq 1 20)
 do
@@ -40,7 +40,7 @@ do
   echo $i
   echo $j
   echo $z
-  sbatch run_sim.sh $i $j $z
+  sbatch run_rand_loop.sh $i $j $z
 	done
   done
 done 

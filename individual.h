@@ -20,7 +20,7 @@ public:
     individual(ind_param ind_parameters = ind_param(),
                double x_pos = 0,
                double y_pos = 0,
-               double energy = 0.1,
+               double energy = 5,
                phenotype phenotype = phenotype::active,
                int sporulation_timer = 0);
 

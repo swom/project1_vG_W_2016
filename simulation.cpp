@@ -16,6 +16,7 @@ simulation::simulation(sim_param param):
 {
     m_rng.seed(m_meta_param.get_seed());
     m_pop.get_rng().seed(m_meta_param.get_seed());
+    place_start_cells(m_pop);
 }
 
 void add_new_funders(simulation& s) noexcept
@@ -299,12 +300,14 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
 simulation load_sim_for_rand_cond(int seed, int change_freq)
 {
     simulation s{load_sim_parameters(create_sim_par_name(seed,change_freq))};
+
     auto last_pop = load_funders(create_last_pop_name(seed,change_freq));
     s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
 
     for(size_t i = 0; i != last_pop.get_v_funder_data().size(); i++)
     {
-        s.get_pop().get_v_ind()[i].get_grn() = last_pop.get_v_funder_data()[i].get_grn();
+        s.get_pop().get_v_ind()[i].get_grn()
+                = last_pop.get_v_funder_data()[i].get_grn();
     }
 
     return s;
@@ -369,22 +372,21 @@ demographic_sim run_random_conditions(const simulation& s,
     auto test_pop = s.get_pop().get_v_ind();
 
     simulation rand_s = no_demographic_copy(s);
-    assert(rand_s.get_pop().get_v_ind() == test_pop);
 
     int counter = 0;
 
     for(const auto & condition : random_conditions)
     {
         assert(rand_s.get_pop().get_v_ind() == test_pop);
+        assert(rand_s.get_env().get_grid() == s.get_env().get_grid());
         change_params(rand_s, condition.first, condition.second);
         auto start = std::chrono::high_resolution_clock::now();
         exec_cycle(rand_s);
+        rand_s.tick_cycles();
+        rand_s.reset_timesteps();
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout<< "condition: " << duration.count() << "\n";
-        rand_s.tick_cycles();
-        rand_s.reset_timesteps();
-        start = std::chrono::high_resolution_clock::now();
         rand_s.get_pop().get_v_ind() = test_pop;
         counter++;
     }

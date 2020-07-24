@@ -372,6 +372,9 @@ bool only_one_focal(const std::vector<individual>::iterator first,
 
 void place_start_cells(population &p) noexcept
 {
+    if(p.get_v_ind().empty())
+        return;
+
     int n = count_hex_layers(p.get_pop_size());
     unsigned int placed_ind = 0;
 
@@ -501,6 +504,9 @@ void select_new_pop(population &p)
     assert(!p.get_v_ind().empty());
     assert(p.get_new_v_ind().empty());
     std::shuffle(p.get_v_ind().begin(),p.get_v_ind().end(),p.get_rng());
+    //The energy level at which an individual will be initialized
+    auto default_energy = individual{}.get_energy();
+
     while(true)
     {
         for(auto& ind : p.get_v_ind())
@@ -511,6 +517,7 @@ void select_new_pop(population &p)
             {
                 draw(ind);
                 p.get_new_v_ind().push_back(ind);
+                p.get_new_v_ind().back().set_energy(default_energy);
             }
             if(p.get_new_v_ind().size() == p.get_param().get_exp_new_pop_size() ||
                     all_ind_are_drawn(p))
@@ -1307,12 +1314,23 @@ void test_population() noexcept  //!OCLINT
         assert(spore_ratio > 0.5);
     }
 
-    //After being selected in new population individuals flag is_drawn is resetted
+    //After being selected in new population
+    //individuals flag is_drawn is resetted
     {
         population p;
         select_new_pop(p);
         for(const auto& ind :p.get_new_v_ind())
             assert(!is_drawn(ind));
+    }
+
+    //After being selected in new population
+    //individuals energy are reset to default level
+
+    {
+        population p;
+        select_new_pop(p);
+        for(const auto& ind :p.get_new_v_ind())
+            assert(ind.get_energy() == individual{}.get_energy());
     }
 
     //After a new population is selected it
