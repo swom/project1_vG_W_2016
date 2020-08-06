@@ -5,7 +5,7 @@
 
 
 ///Checks from command line argument if simulation
-///  takes parameters from command line, and which
+/// takes parameters from command line, and which
 void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
@@ -30,4 +30,6 @@ void take_change_freq_arg(const std::vector<std::string>& args, int &change_freq
 ///Takes seed number from command line arguments
 void take_seed_arg(const std::vector<std::string>& args, int& seed);
 
+
+void test_utilities() noexcept;
 #endif // UTILITIES_H

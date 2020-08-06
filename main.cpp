@@ -135,10 +135,11 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         if(exists(create_random_condition_name(rand_s,amplitude)))
         {
-            std::cout << "the random conditions for this simulation"
-                         " have already been tested" << std::endl;
+            std::cout << "The random conditions for this simulation"
+                         " have already been tested!" << std::endl;
             return 0;
         }
+
         auto rand_start = std::chrono::high_resolution_clock::now();
         place_start_cells(rand_s.get_pop());
         run_random_conditions(rand_s,
