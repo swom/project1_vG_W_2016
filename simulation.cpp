@@ -46,7 +46,7 @@ funders calc_funders_success(const simulation& s)
     {
         assert(funder.get_success() == 0);
 
-        double n_nonspore_descendants =
+        double n_non_spore_descendants =
                 std::count_if(
                     s.get_pop().get_v_ind().begin(),
                     s.get_pop().get_v_ind().end(),
@@ -62,8 +62,9 @@ funders calc_funders_success(const simulation& s)
         {return (i.get_ancestor() == funder.get_ancestor_ID())
                     && i.get_phen() == phenotype::spore;});
 
-        auto fitness = n_nonspore_descendants +
+        auto fitness = n_non_spore_descendants +
                 n_spore_descendants * s.get_pop().get_param().get_spo_adv();
+
         auto success = fitness / tot_fitness;
 
         funder.set_success(success);
@@ -95,6 +96,19 @@ void change_pop( simulation& s)
     p.get_v_ind() = change_inds(p,new_ind_param);
 }
 
+std::string create_best_random_condition_name(const simulation& s, double amplitude)
+{
+    return  std::string{
+        "best_ind_random_cond_sim_demographic_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "_change_" +
+                std::to_string(s.get_meta_param().get_change_freq())  +
+                "_amplitude_"+
+                std::to_string(amplitude)+
+                ".csv"
+    };
+}
+
 std::string create_funder_success_name(const simulation& s)
 {
     return  std::string{
@@ -105,6 +119,7 @@ std::string create_funder_success_name(const simulation& s)
                 ".csv"
     };
 }
+
 
 std::string create_last_pop_name(const simulation& s)
 {
@@ -140,6 +155,7 @@ std::string create_random_condition_name(const simulation& s, double amplitude)
                 ".csv"
     };
 }
+
 
 std::string create_sim_demo_name(const simulation& s)
 {
@@ -303,6 +319,22 @@ simulation load_sim_for_rand_cond(int seed, int change_freq)
     {
         s.get_pop().get_v_ind()[i].get_grn()
                 = last_pop.get_v_funder_data()[i].get_grn();
+    }
+
+    return s;
+}
+
+simulation load_best_ind_for_rand_cond(int seed, int change_freq)
+{
+    simulation s{load_sim_parameters(create_sim_par_name(seed,change_freq))};
+
+    auto best_ind_grn = find_best_ind_grn(load_funders_success(create_funder_success_name(seed, change_freq)));
+
+    s.get_pop().get_v_ind().resize(s.get_pop().get_param().get_exp_new_pop_size());
+
+    for( auto& individual : s.get_pop().get_v_ind())
+    {
+        individual.get_grn() = best_ind_grn;
     }
 
     return s;
@@ -1564,6 +1596,26 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_env().get_param() == s1.get_env().get_param());
         assert(s.get_meta_param() == s1.get_meta_param());
         assert(s.get_env() == s.get_env());
+    }
+
+    /// It is possible to load a population of a number of individuals
+    /// equal to the expexcted new population size specified in pop_param
+    /// made only of the best final network of a population
+    /// ATTENTION!!!
+    /// For now hard-coded on loading an alreading existing
+    /// file with quite a few cycles
+    /// THIS WILL CAUSE THE TEST TO FAIL EVENTUALLY
+    {
+        int seed = 123;
+        int change_freq = 12;
+        auto fund_succ =
+                load_funders_success(create_funder_success_name(seed, change_freq));
+        auto best_grn = find_best_ind_grn(fund_succ);
+        auto s = load_best_ind_for_rand_cond(seed, change_freq);
+        for(const auto& individual : s.get_pop().get_v_ind())
+        {
+            assert(individual.get_grn() == best_grn);
+        }
     }
 #endif
 }

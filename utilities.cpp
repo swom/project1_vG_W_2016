@@ -10,7 +10,9 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          double& amplitude)
 {
     if (args.size() > 3
-            && (args[1] == "--sim" || args[1] == "--rand")
+            && (args[1] == "--sim"
+                || args[1] == "--rand"
+                || args[1] == "--rand_best")
             )
     {
         take_amplitude_arg(args, amplitude);
@@ -18,6 +20,22 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_n_conditions_arg(args, n_conditions);
         take_seed_arg(args, seed);
     }
+}
+
+
+std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept
+{
+    return std::uniform_real_distribution<double>(a,b);
+}
+
+std::bernoulli_distribution create_bernoulli_dist(double p) noexcept
+{
+    return std::bernoulli_distribution{p};
+}
+
+std::normal_distribution<double> create_normal_dist(double m, double v)
+{
+    return std::normal_distribution<double>{m, v};
 }
 
 bool exists (const std::string& name) {
@@ -28,7 +46,8 @@ bool exists (const std::string& name) {
 void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 {
     if (args.size() > 4
-            &&  args[1] == "--rand"
+            &&  (args[1] == "--rand"
+                 || args[1] == "--rand_best")
             &&  args[4][0] == 'a'
             )
     {
@@ -44,7 +63,8 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditions)
 {
     if (args.size() > 5
-            &&  args[1] == "--rand"
+            &&  (args[1] == "--rand"
+                 || args[1] == "--rand_best")
             &&  args[5][0] == 'n'
             )
     {

@@ -1,5 +1,4 @@
 #include "funders_success.h"
-
 #include<cassert>
 
 funders_success::funders_success()
@@ -33,6 +32,29 @@ std::ostream& operator<<(std::ostream& os, const funders_success& f_s)
     }
 
     return os;
+}
+
+std::string create_funder_success_name(int seed, int change_freq)
+{
+    return  std::string{
+        "funders_success_s" +
+        std::to_string(seed) +
+                "change_" +
+                std::to_string(change_freq) +
+                ".csv"
+    };
+}
+
+GRN find_best_ind_grn(const funders_success& funders_success)
+{
+    auto funders_succ = funders_success.get_v_funders();
+    auto last_pop = *(funders_succ.end() - 2) ;
+    return std::max_element(
+                last_pop.get_v_funder_data().begin(),
+                last_pop.get_v_funder_data().end(),
+                [](const funder_data& lhs, const funder_data& rhs)
+    {return lhs.get_success() < rhs.get_success();}
+    )->get_grn();
 }
 
 funders_success load_funders_success(const std::string& filename)
@@ -85,5 +107,44 @@ void test_funders_success() noexcept
         save_funders_success(f_s1, "funders_success1.csv");
 
         assert(f_s == f_s1);
+    }
+
+    /// The best network of a given generation is found based
+    /// on the highest success of the BEFORE-LAST generation
+    /// ATTENTION!!! this is done because by design the last
+    /// funder object in the funders_success vector does not have
+    /// success already calculated
+    {
+        funders_success funders_success;
+
+        funder_data not_best{std::vector<int>{1},GRN{}};
+        funder_data best{std::vector<int>{2},GRN{1,1,1,0.5}};
+        not_best.set_success(0);
+        best.set_success(10);
+
+        auto n_not_best = 100;
+        auto n_best = 2;
+
+        //Create a first funders object that will be the one that will
+        //actually be considered for finding the best network
+        funders funders_before_last;
+        funders_before_last.set_cycle(0);
+
+        for(int i = 0; i != n_not_best; i++ )
+            funders_before_last.get_v_funder_data().push_back(not_best);
+        for(int i = 0; i != n_best; i++ )
+            funders_before_last.get_v_funder_data().push_back(best);
+        funders_success.get_v_funders().push_back(funders_before_last);
+
+        //Create a mock last funder object which will not be considered
+        funders funders_last;
+        funders_last.set_cycle(1);
+
+        for(int i = 0; i != n_not_best; i++ )
+            funders_last.get_v_funder_data().push_back(not_best);
+        funders_success.get_v_funders().push_back(funders_last);
+
+        //save funders_success since find_best_ind_grn will need to load it
+        assert(find_best_ind_grn(funders_success) == best.get_grn());
     }
 }

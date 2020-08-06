@@ -142,9 +142,35 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         auto rand_start = std::chrono::high_resolution_clock::now();
         place_start_cells(rand_s.get_pop());
-        run_random_conditions(rand_s,
-                              n_random_conditions,
-                              amplitude);
+
+        save_demographic_sim(run_random_conditions(rand_s,
+                                                   n_random_conditions,
+                                                   amplitude),
+                             create_random_condition_name(rand_s,
+                                                          amplitude));
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - rand_start);
+        std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
+    }
+    else  if(args.size() > 1 && args[1] == "--rand_best")
+    {
+        auto rand_s = load_best_ind_for_rand_cond(seed,change_freq);
+
+        if(exists(create_best_random_condition_name(rand_s,amplitude)))
+        {
+            std::cout << "The random conditions for this simulation"
+                         " have already been tested!" << std::endl;
+            return 0;
+        }
+
+        auto rand_start = std::chrono::high_resolution_clock::now();
+        place_start_cells(rand_s.get_pop());
+        save_demographic_sim(run_random_conditions(rand_s,
+                                                   n_random_conditions,
+                                                   amplitude),
+                             create_best_random_condition_name(rand_s,
+                                                          amplitude));
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - rand_start);

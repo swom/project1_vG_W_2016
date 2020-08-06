@@ -26,6 +26,18 @@ private:
 ///Compares to objects of type funders_success to see that all their elements are the same
 bool operator==(const funders_success& lhs, const funders_success& rhs) noexcept;
 
+///Creates the name for the file of funders_success of an evolutionary run
+/// given the seed and the frequency of environmentla change
+std::string create_funder_success_name(int seed, int change_freq);
+
+///Retruns the GRN of the individual with the highest success
+/// of the funder_success
+/// ATTENTION!!! by design funders_scuccess objects
+/// will have as the last element a population without
+/// a registered success, therefore to find the best network
+/// we will look at the before-last element of the funders vector
+GRN find_best_ind_grn(const funders_success& funders_success);
+
 ///Loads a funders?success object from a given filename
  funders_success load_funders_success(const std::string& filename);
 

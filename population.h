@@ -110,15 +110,6 @@ bool calc_tot_displ_pop(population& population);
 //different params of the individuals in the population
 std::vector<individual> change_inds(const population &p, const ind_param &new_ind_params);
 
-///Creates a uniform distribution
-std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;
-
-///Creates a bernoulli distribution
-std::bernoulli_distribution create_bernoulli_dist(double p) noexcept;
-
-///Creates a normal distribution
-std::normal_distribution<double> create_normal_dist(double m, double v);
-
 ///Removes dead inidviduals from population vector
 std::vector<individual> death(population& p) noexcept;
 

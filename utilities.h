@@ -1,6 +1,7 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 #include <iostream>
+#include "random"
 #include <vector>
 
 
@@ -11,6 +12,15 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& change_freq,
                          int& n_conditions,
                          double& amplitude);
+
+///Creates a uniform distribution
+std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;
+
+///Creates a bernoulli distribution
+std::bernoulli_distribution create_bernoulli_dist(double p) noexcept;
+
+///Creates a normal distribution
+std::normal_distribution<double> create_normal_dist(double m, double v);
 
 ///Checks if a file with a given name exists(not tested=
 ///Taken from:
