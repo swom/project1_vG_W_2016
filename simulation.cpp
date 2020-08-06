@@ -248,11 +248,6 @@ void exec(simulation& s) noexcept
     save_data(s);
 }
 
-inline bool exists (const std::string& name) {
-    struct stat buffer;
-    return (stat (name.c_str(), &buffer) == 0);
-}
-
 
 void feeding(simulation& s)
 {

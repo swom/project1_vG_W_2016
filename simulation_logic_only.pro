@@ -20,7 +20,8 @@ HEADERS += \
     relaxation.hpp \
     sim_parameters.h \
     sim_view.h \
-    simulation.h
+    simulation.h \
+    utilities.h
 
 SOURCES += \
     demographic_cycle.cpp \
@@ -43,7 +44,8 @@ SOURCES += \
     relaxation.cpp \
     sim_parameters.cpp \
     sim_view.cpp \
-    simulation.cpp
+    simulation.cpp \
+    utilities.cpp
 
 
 

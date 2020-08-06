@@ -6,7 +6,7 @@
 #include "individual.h"
 #include "population.h"
 #include "sim_parameters.h"
-
+#include "utilities.h"
 #include <vector>
 #include <random>
 
@@ -122,7 +122,34 @@ void change_params(simulation& s, const env_param& e, const ind_param& i);
 ///Creates a name for the file where the run for random conditions is saved
 std::string create_random_condition_name(const simulation& s, double amplitude);
 
-///Creates a vector of random conditions given parameter classes and how much wider
+///Creates the name for the last population of an
+/// evolutionary run so that it can be uploaded
+/// for testing against random conditions
+/// given a seed number and a change frequency
+std::string create_last_pop_name(int seed, int change_freq);
+
+///Creates the name for the last population of an
+/// evolutionary run so that it can be uploaded
+/// for testing against random conditions given a simulation
+std::string create_last_pop_name(const simulation& s);
+
+///Creates a name for the file where
+/// the deomgraphic of the evolving population
+/// in random environment is saved
+std::string create_sim_demo_name(const simulation& s);
+
+///Creates a name for the file where the parameters
+/// of the evolving population in random environment is saved
+/// given a simulation
+std::string create_sim_par_name(const simulation& s);
+
+///Creates a name for the file where the parameters
+/// of the evolving population in random environment is saved
+/// given a seed and a frequency of change
+std::string create_sim_par_name(int seed, int change_freq);
+
+///Creates a vector of random conditions given
+/// parameter classes and how much wider
 /// can be the oscillation of the new random conditions
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
                                                                          const ind_param& i,
@@ -139,11 +166,6 @@ void exec(simulation& s) noexcept;
 ///Runs a cycle for a given amount of timesteps
 /// stated by the simulation meta parameters
 void exec_cycle(simulation& s) noexcept;
-
-///Checks if a file with a given name exists(not tested=
-///Taken from:
-///https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
-inline bool exists (const std::string& name);
 
 /// All the individuals feed from environment
 void feeding(simulation& s);
