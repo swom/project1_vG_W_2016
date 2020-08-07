@@ -10,7 +10,7 @@
 #   sbatch ./run_multiple_rand_loop.sh
 #
 # Peregrine directives:
-#SBATCH --time=12:00:00
+#SBATCH --time=1:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
