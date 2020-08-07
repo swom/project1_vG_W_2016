@@ -159,7 +159,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         if(exists(create_best_random_condition_name(rand_s,amplitude)))
         {
-            std::cout << "The random conditions for this simulation"
+            std::cout << "The random conditions against the best for this simulation"
                          " have already been tested!" << std::endl;
             return 0;
         }
@@ -174,7 +174,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - rand_start);
-        std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
+        std::cout<< "random condition best test :" << duration.count() << "s" << std::endl;
     }
     else
     {

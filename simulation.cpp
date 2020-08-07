@@ -417,11 +417,6 @@ demographic_sim run_random_conditions(const simulation& s,
         rand_s.get_pop().get_v_ind() = test_pop;
         counter++;
     }
-
-    std::string name = create_random_condition_name(s, amplitude);
-
-    save_demographic_sim(rand_s.get_demo_sim() ,name);
-
     return rand_s.get_demo_sim();
 }
 
@@ -1608,8 +1603,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         int seed = 123;
         int change_freq = 12;
-        auto fund_succ =
-                load_funders_success(create_funder_success_name(seed, change_freq));
+        auto filename = create_funder_success_name(seed, change_freq);
+        auto fund_succ = load_funders_success(filename);
         auto best_grn = find_best_ind_grn(fund_succ);
         auto s = load_best_ind_for_rand_cond(seed, change_freq);
         for(const auto& individual : s.get_pop().get_v_ind())
