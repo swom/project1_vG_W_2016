@@ -16,12 +16,12 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 #SBATCH --job-name=run
-#SBATCH --output=run_rand.log
+#SBATCH --output=run_rand_best.log
 
 
 # simulation_logic_only has this command-line interface:
 #
-# simulation_logic_only --rand s[seed] f[change frequency] a[amplitude of change] n[number of random conditions]
+# simulation_logic_only --rand_best s[seed] f[change frequency] a[amplitude of change] n[number of random conditions]
 module load Qt5
 module load gompic/2019b
 module load gompi

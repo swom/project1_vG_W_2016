@@ -16,8 +16,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=rand
-#SBATCH --output=rand_%j.log
+#SBATCH --job-name=rand_best
+#SBATCH --output=rand_best_%j.log
 
 echo "seed: "$1
 echo "freq: "$2
