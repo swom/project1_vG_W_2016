@@ -1,4 +1,5 @@
 #include "population.h"
+#include "utilities.h"
 
 population::population(pop_param pop_parameters):
     m_pop_param{pop_parameters},
@@ -118,23 +119,6 @@ std::vector<individual> change_inds(const population& p, const ind_param& new_in
     }
     return new_p_v;
 }
-
-std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept
-{
-    return std::uniform_real_distribution<double>(a,b);
-}
-
-std::bernoulli_distribution create_bernoulli_dist(double p) noexcept
-{
-    return std::bernoulli_distribution{p};
-}
-
-std::normal_distribution<double> create_normal_dist(double m, double v)
-{
-    return std::normal_distribution<double>{m, v};
-}
-
-
 
 std::vector<individual> death(population &p) noexcept
 {

@@ -119,6 +119,11 @@ void change_pop( simulation& s);
 /// parameter classes
 void change_params(simulation& s, const env_param& e, const ind_param& i);
 
+///Creates a name for the file where the
+/// run of  only the best individual
+/// against random conditions is saved
+std::string create_best_random_condition_name(const simulation& s, double amplitude);
+
 ///Creates a name for the file where the run for random conditions is saved
 std::string create_random_condition_name(const simulation& s, double amplitude);
 
@@ -172,6 +177,10 @@ void feeding(simulation& s);
 
 ///Individuals feed a proportion of total food in their cell not a fixed rate
 void jordi_feeding(simulation& s);
+
+///Loads a simulation whose population is composed exclusively of the best individual
+/// in a previously saved simulation's last_pop file
+simulation load_best_ind_for_rand_cond(int seed, int change_freq);
 
 ////Loads sims from a sim_param and last_pop funders objects
 /// saved with a given seed and change freq parameters
