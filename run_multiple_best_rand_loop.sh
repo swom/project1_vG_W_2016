@@ -40,7 +40,7 @@ do
   echo $i
   echo $j
   echo $z
-  sbatch run_best_rand_loop.sh $i $j $z
+  sbatch run_rand_best_loop.sh $i $j $z
 	done
   done
 done 
