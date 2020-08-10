@@ -402,6 +402,8 @@ demographic_sim run_random_conditions(const simulation& s,
 
     int counter = 0;
 
+    auto name = create_sim_demo_name(rand_s);
+
     for(const auto & condition : random_conditions)
     {
         assert(rand_s.get_pop().get_v_ind() == test_pop);
@@ -416,6 +418,7 @@ demographic_sim run_random_conditions(const simulation& s,
         std::cout<< "condition: " << duration.count() << "\n";
         rand_s.get_pop().get_v_ind() = test_pop;
         counter++;
+        save_demographic_sim(rand_s.get_demo_sim(), name);
     }
     return rand_s.get_demo_sim();
 }

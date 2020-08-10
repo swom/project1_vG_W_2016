@@ -33,6 +33,7 @@ void test() {
     test_pop_param();
     test_population();
     test_simulation();
+    test_utilities();
 #ifndef LOGIC_ONLY
     test_sim_view();
 #endif
@@ -100,6 +101,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #ifndef LOGIC_ONLY
         sim_view v(sim_param{e, m, p});
 
+        v.exec();
         std::cout << "view: ";
         auto start = std::chrono::high_resolution_clock::now();
         auto rand_s = no_demographic_copy(load_sim_for_rand_cond(seed,change_freq));

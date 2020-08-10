@@ -34,8 +34,7 @@ public:
                                     m_food_change = 0;}
 
     ///Sets the amount of metabolite
-    void increment_metabolite() noexcept {m_metabolite + m_metabolite_change > -0.0000000001 ? m_metabolite += m_metabolite_change : m_metabolite = 0;
-                                         m_metabolite_change = 0;}
+    void increment_metabolite() noexcept;
 
     ///Sets the amount of food
     void set_food(double f) noexcept {m_food = f;}

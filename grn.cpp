@@ -1,4 +1,5 @@
 #include "grn.h"
+#include "algorithm"
 #include <cassert>
 #include <numeric>
 
@@ -158,6 +159,46 @@ void GRN::set_inputs(std::vector<double> inputs)
 
 void GRN::set_out_node(int index_node, bool state)
 {m_ExOutput[static_cast<unsigned int>(index_node)] = state;}
+
+std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
+                                                    double max_energy,
+                                                    double max_food,
+                                                    double max_metabolite,
+                                                    double step)
+{
+    std::vector<std::vector<double>> reaction_norm;
+    for(int i = 0; i * step < max_energy; i++)
+        for(int j = 0; j * step < max_food; j++)
+            for(int z = 0; z * step < max_metabolite; z++)
+            {
+                auto grn = g;
+                auto energy = i * step;
+                auto food = j * step;
+                auto metabolite = z * step;
+                grn.set_inputs({energy,
+                                food,
+                                metabolite});
+                ///Two times response to actually see the response of the grn
+                jordi_response_mech(grn);
+                jordi_response_mech(grn);
+
+                auto response =
+                        std::vector<double>{energy, food, metabolite, static_cast<double>(grn.get_output_spo())};
+                reaction_norm.push_back(response);
+            }
+    return reaction_norm;
+}
+
+std::string create_reaction_norm_name(int seed, int change_freq)
+{
+    return std::string{
+        "reaction_norm_best_ind_s"
+        + std::to_string(seed)
+                + "_f"
+                + std::to_string(change_freq)
+                +".csv"
+    };
+}
 
 GRN load_grn( const std::string& filename)
 {
@@ -405,6 +446,26 @@ void jordi_response_mech(GRN& g) //Jordi style
     update_hid(g);
 }
 
+std::vector<std::vector<double>> load_reaction_norm(std::string filename)
+{
+    std::ifstream f(filename);
+    std::vector<std::vector<double>> reaction_norm;
+    std::string line;
+    std::string dummy;
+    double value = 0.0;
+    while (std::getline(f, line))
+    {
+        std::istringstream ss(line);
+        std::vector<double> reaction;
+        while (ss >> value)
+        {
+            reaction.push_back(value);
+            ss >> dummy;
+        }
+        reaction_norm.push_back(reaction);
+    }
+    return reaction_norm;
+}
 
 void mutation_I2H(GRN& g, std::minstd_rand& rng,
                   std::bernoulli_distribution& mu_p,
@@ -572,6 +633,20 @@ std::ostream& save_n_output_nodes(std::ostream& os, const GRN& grn)
     os << n_outputs << " , "
        << " | " << " , ";
     return os;
+}
+
+void save_reaction_norm(const std::vector<std::vector<double>> reaction_norm,
+                        const std::string& filename)
+{
+    std::ofstream f(filename);
+    for (const auto& reaction : reaction_norm)
+    {
+        for (const auto& value : reaction)
+        {
+            f << value << " , ";
+        }
+        f << std::endl;
+    }
 }
 
 double sum_I2H(const GRN& g) noexcept
@@ -890,5 +965,38 @@ void test_GRN()//!OCLINT , tests may be long
         assert( g == g1);
     }
 
+    ///The reaction norm of a grn can be calculated
+    /// given the range of values for the inputs
+    /// (always starting from 0 to a max value)
+    /// and the step of change/resolution of points
+    {
+        GRN g;
+        double size = 2;
+        double max_en = size;
+        double max_food = size;
+        double max_metab = size;
+        double step = 0.2;
+        int seed = 123;
+        int change_freq = 12;
+
+        auto reac_norm = calc_reaction_norm(g,
+                                            max_en,
+                                            max_food,
+                                            max_metab,
+                                            step);
+        assert(reac_norm.size() == pow(size / step, 3));
+
+        std::string filename = create_reaction_norm_name( seed,  change_freq);
+
+        save_reaction_norm(reac_norm, filename);
+        auto loaded_reac_norm = load_reaction_norm(filename);
+
+        std::vector<std::vector<double>> diff;
+
+        for(size_t reaction = 0; reaction  != reac_norm.size(); reaction++)
+            for(size_t value = 0; value != reac_norm[reaction].size(); value++)
+        assert(reac_norm[reaction][value] - loaded_reac_norm[reaction][value] < 0.000001
+               && reac_norm[reaction][value] - loaded_reac_norm[reaction][value] > -0.000001);
+    }
 #endif
 }
