@@ -123,9 +123,11 @@ void change_params(simulation& s, const env_param& e, const ind_param& i);
 /// run of  only the best individual
 /// against random conditions is saved
 std::string create_best_random_condition_name(const simulation& s, double amplitude);
+std::string create_best_random_condition_name(double amplitude, int  change_freq, int seed);
 
 ///Creates a name for the file where the run for random conditions is saved
 std::string create_random_condition_name(const simulation& s, double amplitude);
+std::string create_random_condition_name(double amplitude, int change_freq, int seed);
 
 ///Creates the name for the last population of an
 /// evolutionary run so that it can be uploaded

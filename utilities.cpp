@@ -7,7 +7,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
                          int& n_conditions,
-                         double& amplitude)
+                         double& amplitude,
+                         bool& overwrite)
 {
     if (args.size() > 3
             && (args[1] == "--sim"
@@ -19,6 +20,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_change_freq_arg(args,change_freq);
         take_n_conditions_arg(args, n_conditions);
         take_seed_arg(args, seed);
+        take_overwrite_arg(args, overwrite);
     }
 }
 
@@ -97,6 +99,14 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
         abort();
     }
 
+}
+
+void take_overwrite_arg(const std::vector<std::string>& args, bool& overwrite)
+{
+    if (args.back() == "--overwrite")
+        overwrite = true;
+    else
+        overwrite = false;
 }
 
 void take_seed_arg(const std::vector<std::string>& args, int& seed)

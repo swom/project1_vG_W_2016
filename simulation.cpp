@@ -109,6 +109,19 @@ std::string create_best_random_condition_name(const simulation& s, double amplit
     };
 }
 
+std::string create_best_random_condition_name(double amplitude, int change_freq, int seed)
+{
+    return  std::string{
+        "best_ind_random_cond_sim_demographic_s" +
+        std::to_string(seed) +
+                "_change_" +
+                std::to_string(change_freq)  +
+                "_amplitude_"+
+                std::to_string(amplitude)+
+                ".csv"
+    };
+}
+
 std::string create_funder_success_name(const simulation& s)
 {
     return  std::string{
@@ -150,6 +163,19 @@ std::string create_random_condition_name(const simulation& s, double amplitude)
         std::to_string(s.get_meta_param().get_seed()) +
                 "_change_" +
                 std::to_string(s.get_meta_param().get_change_freq())  +
+                "_amplitude_"+
+                std::to_string(amplitude)+
+                ".csv"
+    };
+}
+
+std::string create_random_condition_name(double amplitude, int change_freq, int seed)
+{
+    return  std::string{
+        "random_cond_sim_demographic_s" +
+        std::to_string(seed) +
+                "_change_" +
+                std::to_string(change_freq)  +
                 "_amplitude_"+
                 std::to_string(amplitude)+
                 ".csv"

@@ -3,14 +3,49 @@ library(ggplot2)
 library(stringr)
 library(rlist)
 funders_success = data.frame()
-list.files(path = '.',pattern = "funders_success_s*")
-
-for (i in list.files(path = '.',pattern = "funders_success_s*"))
+for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
 {
   print(i)
   sim_run = read.csv(i)
   funders_success = rbind(sim_run,funders_success)
 }
+
+funder_phylo = as_tibble(funders_success[,2])
+funder_phylo$value = as.character(funder_phylo$value) 
+for (i in 1:length(funder_phylo$value)) {
+  funder_phylo$value[i] = 
+    substring(funder_phylo$value[i],
+              first = 2,
+              last = nchar(funder_phylo$value[i]) - 2)
+}
+
+get_parts <- function(x){
+  
+  parts <- c(unlist(strsplit(x, split = " ")))
+  
+  parts
+}
+
+test = get_parts(funder_phylo$value[1])
+for (i in 1 : 600) {
+  test = qpcR:::rbind.na(
+    test,
+    get_parts(funder_phylo$value[i + 1])
+    )
+}
+test = as.data.frame(test)
+colnames(test) = paste("level",c(1:ncol(test)), sep = "")
+
+edge_list <- test %>% select("level1","level2") %>% unique %>% rename(from="level1", to="level2")
+for(j in 2:(ncol(test) - 1))
+{
+  edges = data %>% select(colnames(test)[i], colnames(test)[i + 1]) 
+  %>% unique 
+  %>% rename(from=colnames(test)[i], to=colnames(test)[i + 1])
+}
+
+
+
 
 as_tibble(funders_success)
 

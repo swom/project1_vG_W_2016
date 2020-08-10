@@ -11,7 +11,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
                          int& n_conditions,
-                         double& amplitude);
+                         double& amplitude,
+                         bool &overwrite);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;
@@ -29,6 +30,11 @@ bool exists (const std::string& name);
 
 ///Takes amplitude of oscillation of params from command line arguments
 void take_amplitude_arg(const std::vector<std::string>& args, double &amplitude);
+
+///Checks if the last argumetn of the command line is "--overwrite"
+/// if it is then the simulations will be run even if they had already run and
+/// will override the old saved files
+void take_overwrite_arg(const std::vector<std::string>& args, bool& overwrite);
 
 ///Takes number of condition against which a population is tested
 /// from command line arguments

@@ -4,15 +4,12 @@ library(stringr)
 library(ggplot2)
 rand_demographic = data.frame()
 
-for (i in  list.files(path = '.',pattern = "random_cond_sim_demographic_s\\d+.change_\\d+.*"))
+for (i in  list.files(path = '.',pattern = "random_cond_sim_demographic_s\\d+_change_\\d+_amplitude_\\d+.*"))
 {
   conditions = read.table(i, sep = ",")
   conditions$seed = sub( "^.*s(\\d+).*",'\\1', i)
   conditions$change = sub( "^.*change_(\\d+).*",'\\1', i)
-  if(nchar(i) == 62)
-  {conditions$amplitude = sub( "^.*amplitude_(\\d+).*",'\\1', i)}
-  else
-  {conditions$amplitude = 1.5  } 
+  conditions$amplitude = sub( "^.*amplitude_(\\d+)",'\\1', i)
   rand_demographic = rbind(conditions,rand_demographic)
 }
 
@@ -41,7 +38,8 @@ rand_demographic$variable = as.factor(rand_demographic$variable)
 
 rand_demographic %>% 
   subset(variable == "spore") %>% 
+  subset(amplitude == "1.500000.csv") %>% 
   ggplot(aes(condition, seed, fill = value)) + 
   geom_tile(color = "black", size = 0.5) +
-  facet_grid(change_freq  ~ amplitude)
+  facet_grid(change_freq  ~ .)
 
