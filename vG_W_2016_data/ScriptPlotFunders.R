@@ -2,6 +2,8 @@ library(tidyr)
 library(ggplot2)
 library(stringr)
 library(rlist)
+
+########Plot Philogenesis###############
 funders_success = data.frame()
 for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
 {
@@ -27,7 +29,7 @@ get_parts <- function(x){
 }
 
 test = get_parts(funder_phylo$value[1])
-for (i in 1 : 600) {
+for (i in 1 : (nrow(funder_phylo) -1)) {
   test = qpcR:::rbind.na(
     test,
     get_parts(funder_phylo$value[i + 1])
@@ -37,16 +39,32 @@ test = as.data.frame(test)
 colnames(test) = paste("level",c(1:ncol(test)), sep = "")
 
 edge_list <- test %>% select("level1","level2") %>% unique %>% rename(from="level1", to="level2")
+edge_list$from = paste("level", toString(1), "_", edge_list$from, sep="")
+edge_list$to = paste("level", toString(2), "_", edge_list$to, sep="")
 for(j in 2:(ncol(test) - 1))
 {
-  edges = data %>% select(colnames(test)[i], colnames(test)[i + 1]) 
-  %>% unique 
-  %>% rename(from=colnames(test)[i], to=colnames(test)[i + 1])
-}
+  edges <- 
+    test %>% select(colnames(test)[j], colnames(test)[j + 1]) %>% unique  %>% rename(from=colnames(test)[j], to=colnames(test)[j + 1])
+  edges$from = paste("level", toString(j), "_",edges$from, sep="")
+  edges$to = paste("level", toString(j + 1), "_", edges$to, sep="")
+  edge_list = rbind(edge_list, edges)
+  }
+edge_list = edge_list[- grep("NA", edge_list$to),]
+
+saveRDS(edge_list,"edge_list_S1")
+loaded_edge_list = readRDS("edge_list_S1")
+
+mygraph <- graph_from_data_frame( edge_list )
+ggraph(mygraph, layout = 'dendrogram', circular = FALSE) + 
+  geom_edge_diagonal() +
+  geom_node_point() +
+  theme_void()
+
+saveRDS(mygraph,file = "phylogenesis_s1")
+phylo = readRDS("phylogenesis_s1")
 
 
-
-
+#########Plot Networks###############
 as_tibble(funders_success)
 
 funder_network = funders_success[1,]

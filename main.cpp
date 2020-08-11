@@ -13,6 +13,35 @@
 #include <iostream>
 #include <string>
 
+int run_reac_norm_best(int change_freq,
+                       double max_food,
+                       double max_energy,
+                       double max_metabolite,
+                       double step,
+                       int seed,
+                       bool overwrite)
+{
+    auto name = create_reaction_norm_name(seed, change_freq);
+    if(exists(name) && !overwrite)
+    {
+        std::cout<<"The reaction norm for the best individual"
+                   "of this simulation has already been calculated";
+        return 0;
+    }
+
+    auto best_ind_grn = find_best_ind_grn(load_funders_success(create_funder_success_name(seed, change_freq)));
+
+    auto reac_norm = calc_reaction_norm(best_ind_grn,
+                                        max_food,
+                                        max_energy,
+                                        max_metabolite,
+                                        step);
+
+    save_reaction_norm(reac_norm, name);
+
+    return 0;
+}
+
 int run_sim_best_rand(double amplitude,
                       int change_frequency,
                       int n_random_conditions,
@@ -268,6 +297,20 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                           n_random_conditions,
                           seed,
                           overwrite);
+    }
+    else if(args.size() > 1 && args[1] == "--reac_norm")
+    {
+        double max_food = 20.0;
+        auto max_energy = max_food;
+        auto max_metabolite = max_energy;
+        auto step = max_metabolite / 100;
+        run_reac_norm_best(change_freq,
+                           max_food,
+                           max_energy,
+                           max_metabolite,
+                           step,
+                           seed,
+                           overwrite);
     }
     else
     {

@@ -145,6 +145,18 @@ std::ifstream& operator>>(std::ifstream& is, GRN& p);
 /// As they are not relevant and could just cause problems
 std::ostream& operator<<(std::ostream& os, const GRN& p);
 
+///Calculates the reaction norm of a given GRN over a set of
+/// input values that go from 0 to max_value in intervals
+/// of size = step;
+std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
+                                                    double max_energy,
+                                                    double max_food,
+                                                    double max_metabolite,
+                                                    double step);
+
+///Creates the name for a rection norm file
+std::string create_reaction_norm_name(int seed, int change_freq);
+
 ///Gets the layer weights from a ifstream file
 std::vector<double> load_node_weights(std::ifstream& is);
 
@@ -228,6 +240,10 @@ std::ostream& save_ExHidden(std::ostream& os, const GRN& p);
 std::ostream& save_n_input_nodes(std::ostream& os, const GRN& grn);
 std::ostream& save_n_output_nodes(std::ostream& os, const GRN& grn);
 void save_grn(const GRN& grn, const std::string& filename);
+
+///Saves a reaction norm with a given file name
+void save_reaction_norm(const std::vector<std::vector<double>> reaction_norm,
+                        const std::string& filename);
 
 ///Sums the weights of hidden to hidden connections
 double sum_I2H(const GRN& g) noexcept;
