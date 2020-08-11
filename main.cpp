@@ -300,10 +300,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
     {
+        ///Here hard coded params!
         double max_food = 20.0;
         auto max_energy = max_food;
         auto max_metabolite = max_energy;
         auto step = max_metabolite / 100;
+        ///
         run_reac_norm_best(change_freq,
                            max_food,
                            max_energy,
