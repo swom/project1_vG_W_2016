@@ -1,8 +1,10 @@
 library(tidyr)
+library(tidyverse)
 library(ggplot2)
 library(stringr)
 library(rlist)
-
+library(igraph)
+library(ggraph)
 ########Plot Philogenesis###############
 funders_success = data.frame()
 for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
@@ -51,20 +53,23 @@ for(j in 2:(ncol(test) - 1))
   }
 edge_list = edge_list[- grep("NA", edge_list$to),]
 
-saveRDS(edge_list,"edge_list_S1")
+#saveRDS(edge_list,"edge_list_S1")
 loaded_edge_list = readRDS("edge_list_S1")
 
 mygraph <- graph_from_data_frame( edge_list )
-ggraph(mygraph, layout = 'dendrogram', circular = FALSE) + 
-  geom_edge_diagonal() +
-  geom_node_point() +
-  theme_void()
 
-saveRDS(mygraph,file = "phylogenesis_s1")
+#saveRDS(mygraph,file = "phylogenesis_s1")
 phylo = readRDS("phylogenesis_s1")
 
+ggraph(mygraph, layout = 'tree') + 
+  geom_edge_diagonal() +
+  geom_node_point() +
+  theme_graph()
 
-#########Plot Networks###############
+
+
+
+ #########Plot Networks###############
 as_tibble(funders_success)
 
 funder_network = funders_success[1,]

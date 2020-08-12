@@ -13,7 +13,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
     if (args.size() > 3
             && (args[1] == "--sim"
                 || args[1] == "--rand"
-                || args[1] == "--rand_best")
+                || args[1] == "--rand_best"
+                || args[1] == "--reac_norm")
             )
     {
         take_amplitude_arg(args, amplitude);

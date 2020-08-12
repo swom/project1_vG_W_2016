@@ -36,10 +36,15 @@ rand_demographic$seed = as.factor(rand_demographic$seed)
 rand_demographic$condition = as.factor(rand_demographic$condition) 
 rand_demographic$variable = as.factor(rand_demographic$variable)
 
-rand_demographic %>% 
+new_rand_demo = rand_demographic %>%
+  group_by(condition,change_freq) %>%
+  mutate(
+    "ratio_value" = value / max(value)
+  )
+
+new_rand_demo %>% 
   subset(variable == "spore") %>% 
-  subset(amplitude == "1.500000.csv") %>% 
-  ggplot(aes(condition, seed, fill = value)) + 
+  ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
-  facet_grid(change_freq  ~ .)
+  facet_grid(change_freq  ~ amplitude)
 

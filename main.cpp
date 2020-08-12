@@ -304,7 +304,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         double max_food = 20.0;
         auto max_energy = max_food;
         auto max_metabolite = max_energy;
-        auto step = max_metabolite / 100;
+        auto step = max_metabolite / 50;
         ///
         run_reac_norm_best(change_freq,
                            max_food,
