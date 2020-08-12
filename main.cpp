@@ -127,6 +127,7 @@ int run_sim_evo(const env_param& e,
     return 0;
 }
 
+#ifndef LOGIC_ONLY
 int run_visual_evo (const env_param& e,
                     const meta_param& m,
                     const pop_param& p,
@@ -135,6 +136,7 @@ int run_visual_evo (const env_param& e,
                     int n_random_conditions,
                     int seed)
 {
+
     sim_view v(sim_param{e, m, p});
     v.exec();
     std::cout << "view: ";
@@ -146,8 +148,9 @@ int run_visual_evo (const env_param& e,
     auto duration = std::chrono::duration<float>(stop - start);
     std::cout << duration.count() << "s" << std::endl;
     std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
-    return 0;
+    return 0;   
 }
+#endif
 
 int run_standard(const env_param& e,
                  const meta_param& m,
