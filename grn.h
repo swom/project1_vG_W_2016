@@ -154,6 +154,10 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                                                     double max_metabolite,
                                                     double step);
 
+///Compares weights with a tolerance to precision
+bool compare_weights_with_tolerance(const std::vector<std::vector<double>>& lhs,
+                                    const std::vector<std::vector<double>>& rhs);
+
 ///Creates the name for a rection norm file
 std::string create_reaction_norm_name(int seed, int change_freq);
 

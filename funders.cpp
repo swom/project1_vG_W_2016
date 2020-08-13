@@ -8,8 +8,7 @@ funders::funders()
 
 bool operator==(const funders& lhs, const funders& rhs) noexcept
 {
-    return std::equal(lhs.get_v_funder_data().begin(),lhs.get_v_funder_data().end(),
-                      rhs.get_v_funder_data().begin());
+    return lhs.get_v_funder_data() == rhs.get_v_funder_data();
 }
 
 bool operator!=(const funders& lhs, const funders& rhs) noexcept

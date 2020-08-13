@@ -1,4 +1,5 @@
 #include "grn.h"
+#include "utilities.h"
 #include "algorithm"
 #include <cassert>
 #include <numeric>
@@ -41,17 +42,18 @@ GRN::GRN(std::vector<std::vector<double> > ConI2H,
 
 bool operator==(const GRN& lhs, const GRN& rhs)
 {
-    return
-            lhs.get_H2H() == rhs.get_H2H()
-            && lhs.get_H2O() == rhs.get_H2O()
-            && lhs.get_I2H() == rhs.get_I2H()
-            && lhs.get_hid_tresh() == rhs.get_hid_tresh()
-            && lhs.get_out_tresh() == rhs.get_out_tresh()
-            && lhs.get_hidden_nodes() == rhs.get_hidden_nodes();
+
+            bool h2h = compare_weights_with_tolerance(lhs.get_H2H() , rhs.get_H2H());
+            bool h2o = compare_weights_with_tolerance(lhs.get_H2O(), rhs.get_H2O());
+            bool i2h = compare_weights_with_tolerance(lhs.get_I2H(), rhs.get_I2H());
+            bool hid_t = lhs.get_hid_tresh() == rhs.get_hid_tresh();
+            bool out_t = lhs.get_out_tresh() == rhs.get_out_tresh();
+            bool hid_n = lhs.get_hidden_nodes() == rhs.get_hidden_nodes();
     //We do not look at input and output nodes since they might vary
     //depending on the status of the simulation
     //this might be true also for hidden nodes,
     //but not before the first time step of a cycle
+            return h2h && h2o && i2h && hid_n && hid_t && out_t;
 }
 
 bool operator!=(const GRN& lhs, const GRN& rhs)
@@ -187,6 +189,12 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                 reaction_norm.push_back(response);
             }
     return reaction_norm;
+}
+
+bool compare_weights_with_tolerance(const std::vector<std::vector<double>>& lhs,
+                                    const std::vector<std::vector<double>>& rhs)
+{
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), compare_with_tolerance);
 }
 
 std::string create_reaction_norm_name(int seed, int change_freq)

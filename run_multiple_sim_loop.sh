@@ -21,7 +21,7 @@
 
 # simulation_logic_only has this command-line interface:
 #
-# simulation_logic_only s[seed] f[change_frequency]
+# simulation_logic_only --[function] s[seed] f[change_frequency]
 module load Qt5
 module load gompic/2019b
 module load gompi

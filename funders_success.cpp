@@ -8,8 +8,7 @@ funders_success::funders_success()
 
 bool operator==(const funders_success& lhs, const funders_success& rhs) noexcept
 {
-    return std::equal(lhs.get_v_funders().begin(),lhs.get_v_funders().end(),
-                      rhs.get_v_funders().begin());
+    return lhs.get_v_funders() == rhs.get_v_funders();
 }
 
 std::ifstream& operator>>(std::ifstream& is, funders_success& f_s)
@@ -48,13 +47,15 @@ std::string create_funder_success_name(int seed, int change_freq)
 GRN find_best_ind_grn(const funders_success& funders_success)
 {
     auto funders_succ = funders_success.get_v_funders();
-    auto last_pop = *(funders_succ.end() - 2) ;
-    return std::max_element(
+    auto last_pop = funders_succ[funders_succ.size() - 2] ;
+    auto best_ind = *std::max_element(
                 last_pop.get_v_funder_data().begin(),
                 last_pop.get_v_funder_data().end(),
                 [](const funder_data& lhs, const funder_data& rhs)
     {return lhs.get_success() < rhs.get_success();}
-    )->get_grn();
+    );
+    auto best_grn = best_ind.get_grn();
+    return best_grn;
 }
 
 funders_success load_funders_success(const std::string& filename)

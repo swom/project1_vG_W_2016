@@ -3,11 +3,11 @@
 #
 # Usage, locally:
 #
-#   ./run_sim.sh
+#   ./run_sim_loop.sh
 #
 # Usage, on Peregrine:
 #
-#   sbatch ./run_sim.sh
+#   sbatch ./run_sim_loop.sh
 #
 # Peregrine directives:
 #SBATCH --time=6:00:00

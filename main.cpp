@@ -29,7 +29,15 @@ int run_reac_norm_best(int change_freq,
         return 0;
     }
 
-    auto best_ind_grn = find_best_ind_grn(load_funders_success(create_funder_success_name(seed, change_freq)));
+    auto funders_name = create_funder_success_name(seed, change_freq);
+    funders_success funders_success;
+
+    if(exists(funders_name))
+        funders_success = load_funders_success(funders_name);
+    else
+        abort();
+
+    auto best_ind_grn = find_best_ind_grn(funders_success);
 
     auto reac_norm = calc_reaction_norm(best_ind_grn,
                                         max_food,
@@ -148,7 +156,7 @@ int run_visual_evo (const env_param& e,
     auto duration = std::chrono::duration<float>(stop - start);
     std::cout << duration.count() << "s" << std::endl;
     std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
-    return 0;   
+    return 0;
 }
 #endif
 
@@ -307,7 +315,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         double max_food = 20.0;
         auto max_energy = max_food;
         auto max_metabolite = max_energy;
-        auto step = max_metabolite / 50;
+        auto step = max_metabolite / 100.0;
         ///
         run_reac_norm_best(change_freq,
                            max_food,

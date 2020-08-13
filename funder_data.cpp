@@ -19,10 +19,13 @@ funder_data::funder_data(const individual& i):
 
 bool operator==(const funder_data& lhs, const funder_data& rhs)
 {
-    return
-            lhs.get_grn() == rhs.get_grn()
-            && lhs.get_ancestor_ID() == rhs.get_ancestor_ID()
-            && lhs.get_success() == rhs.get_success();
+
+            bool grn = lhs.get_grn() == rhs.get_grn();
+            bool ancestor = lhs.get_ancestor_ID() == rhs.get_ancestor_ID();
+            bool success = lhs.get_success() - rhs.get_success() < 0.001
+            && lhs.get_success() - rhs.get_success() > -0.001;
+
+            return grn && ancestor && success;
 }
 
 bool operator!=(const funder_data& lhs, const funder_data& rhs)

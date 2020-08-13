@@ -4,6 +4,9 @@
 #include "random"
 #include <vector>
 
+///Compares two vectors of double with a certain tolerance to differences in precision
+/// used mainly for operators that act on loaded objects
+bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<double>& rhs);
 
 ///Checks from command line argument if simulation
 /// takes parameters from command line, and which

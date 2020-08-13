@@ -1,7 +1,12 @@
 #include "utilities.h"
 #include <sys/stat.h>
 
-
+bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<double>& rhs)
+{
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin(),
+               [](const double& lhs_w, const double& rhs_w)
+    {return lhs_w - rhs_w < 0.0001 && lhs_w - rhs_w > -0.00001;});
+}
 
 void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,

@@ -428,7 +428,7 @@ demographic_sim run_random_conditions(const simulation& s,
 
     int counter = 0;
 
-    auto name = create_sim_demo_name(rand_s);
+    auto name = create_random_condition_name(rand_s, amplitude);
 
     for(const auto & condition : random_conditions)
     {
@@ -1297,7 +1297,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //At the end of the simulation the funders_success is saved in a file
     {
-        int n_cycles = 2;
+        int n_cycles = 5;
         int cycle_duration = 1;
         meta_param m{n_cycles, cycle_duration};
         env_param e;
@@ -1305,9 +1305,9 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
 
         simulation s{s_p};
-        std::string expected_file_name = create_funder_success_name(s);
         exec(s);
 
+        std::string expected_file_name = create_funder_success_name(s);
         assert(exists(expected_file_name));
         auto f_s = load_funders_success(expected_file_name);
         assert(f_s == s.get_funders_success());
@@ -1625,18 +1625,20 @@ void test_simulation()//!OCLINT tests may be many
     /// It is possible to load a population of a number of individuals
     /// equal to the expexcted new population size specified in pop_param
     /// made only of the best final network of a population
-    /// ATTENTION!!!
-    /// For now hard-coded on loading an alreading existing
-    /// file with quite a few cycles
-    /// THIS WILL CAUSE THE TEST TO FAIL EVENTUALLY
     {
         int seed = 123;
-        int change_freq = 12;
-        auto filename = create_funder_success_name(seed, change_freq);
+        int change_freq = 10;
+        pop_param p{1,100};
+        meta_param m{10,125,seed,change_freq};
+        env_param e{};
+        simulation s{sim_param{e, m, p}};
+        exec(s);
+        auto filename = create_funder_success_name(s);
         auto fund_succ = load_funders_success(filename);
+        assert(fund_succ == s.get_funders_success());
         auto best_grn = find_best_ind_grn(fund_succ);
-        auto s = load_best_ind_for_rand_cond(seed, change_freq);
-        for(const auto& individual : s.get_pop().get_v_ind())
+        auto rand_sim = load_best_ind_for_rand_cond(seed, change_freq);
+        for(const auto& individual : rand_sim.get_pop().get_v_ind())
         {
             assert(individual.get_grn() == best_grn);
         }

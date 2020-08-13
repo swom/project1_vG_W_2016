@@ -15,8 +15,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=test
-#SBATCH --output=test.log
+#SBATCH --job-name=reac_norm_m
+#SBATCH --output=reac_norm_m.log
 
 module load Qt5
 module load gompic/2019b
