@@ -276,8 +276,10 @@ void exec_cycle(simulation& s) noexcept
 
 void exec(simulation& s) noexcept
 {
+    std::cout << s.get_meta_param().get_n_cycles() << ' ';
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
+        std::cout << s.get_cycle() << ' ';
         exec_cycle(s);
         if(s.get_cycle() != 0
                 && s.get_meta_param().get_change_freq() != 0
@@ -289,7 +291,6 @@ void exec(simulation& s) noexcept
         }
         s.reset_timesteps();
         s.tick_cycles();
-        std::cout << '.';
     }
     std::cout << '\n';
     save_data(s);
