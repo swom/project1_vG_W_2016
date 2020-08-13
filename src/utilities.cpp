@@ -1,4 +1,6 @@
 #include "utilities.h"
+#include <cctype>
+#include <string>
 #include <sys/stat.h>
 
 
@@ -129,7 +131,3 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
     }
 }
 
-void test_utilities() noexcept //!OCLINT
-{
-
-}

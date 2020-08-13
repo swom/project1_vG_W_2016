@@ -1,12 +1,4 @@
-#ifndef LOGIC_ONLY
-
-#include "sim_view.h"
-
-#else
-
 #include "simulation.h"
-
-#endif
 
 #include <cassert>
 #include <chrono>
@@ -127,31 +119,6 @@ int run_sim_evo(const env_param& e,
     return 0;
 }
 
-#ifndef LOGIC_ONLY
-int run_visual_evo (const env_param& e,
-                    const meta_param& m,
-                    const pop_param& p,
-                    double amplitude,
-                    int change_frequency,
-                    int n_random_conditions,
-                    int seed)
-{
-
-    sim_view v(sim_param{e, m, p});
-    v.exec();
-    std::cout << "view: ";
-    auto start = std::chrono::high_resolution_clock::now();
-    auto rand_s = no_demographic_copy(load_sim_for_rand_cond(seed,change_frequency));
-    place_start_cells(rand_s.get_pop());
-    v.run_random_conditions(rand_s, n_random_conditions, amplitude);
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float>(stop - start);
-    std::cout << duration.count() << "s" << std::endl;
-    std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
-    return 0;   
-}
-#endif
-
 int run_standard(const env_param& e,
                  const meta_param& m,
                  const pop_param& p,
@@ -183,47 +150,12 @@ int run_standard(const env_param& e,
     return 0;
 }
 
-void test() {
-    test_demographic_cycle();
-    test_demographic_sim();
-    test_env_grid_cell();
-    test_environment();
-    test_env_param();
-    test_funder_data();
-    test_funders();
-    test_funders_success();
-#ifndef LOGIC_ONLY
-    test_grid_view();
-#endif
-    test_GRN();
-    test_ind_param();
-    test_individual();
-    test_phenotype();
-    test_meta_param();
-    test_pop_param();
-    test_population();
-    test_simulation();
-    test_utilities();
-#ifndef LOGIC_ONLY
-    test_sim_view();
-#endif
-    test_sim_param();
-}
 
 
 int main(int argc, char ** argv) //!OCLINT tests may be long
 {
 
     const std::vector<std::string> args(argv, argv + argc);
-
-#ifndef NDEBUG
-    if (args.size() > 1 && args[1] == "--test")
-    {
-        test();
-        // We've already tested, so the program is done
-        return 0;
-    }
-#endif
 
     int seed = 0;
     int change_freq = 0;
@@ -268,17 +200,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
 
 
-    if(args.size() > 1 && args[1] == "--visual")
-    {
-#ifndef LOGIC_ONLY
-        run_visual_evo(e,m,p,
-                       amplitude,
-                       change_freq,
-                       n_random_conditions,
-                       seed);
-#endif
-    }
-    else if(args.size() > 1 && args[1] == "--sim")
+    if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e,m,p,
                     change_freq,
