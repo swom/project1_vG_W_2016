@@ -1,11 +1,3 @@
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-    target_link_libraries(simulation PUBLIC ${NLOPT_LIB} OpenMP::OpenMP_CXX ${CMAKE_DL_LIBS})
-else()
-    target_link_libraries(simulation PUBLIC ${NLOPT_LIB} ${CMAKE_DL_LIBS})
-endif()
-include_directories(${CMAKE_SOURCE_DIR}/libs/ $(CMAKE_SYSTEM_PREFIX_PATH}/include/))
-set(HEADER_FILES evorole.h recorder.h simulation.h json.h)
 add_executable(simulation 
                demographic_cycle.cpp 
                demographic_sim.cpp 
@@ -27,5 +19,12 @@ add_executable(simulation
                simulation.cpp
                sim_parameters.cpp
                utilities.cpp)
-install(TARGETS evorole DESTINATION bin)
-install(TARGETS evorole CONFIGURATIONS Release DESTINATION bin)
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(simulation PUBLIC ${NLOPT_LIB} OpenMP::OpenMP_CXX ${CMAKE_DL_LIBS})
+else()
+    target_link_libraries(simulation PUBLIC ${NLOPT_LIB} ${CMAKE_DL_LIBS})
+endif()
+include_directories(${CMAKE_SOURCE_DIR}/libs/ $(CMAKE_SYSTEM_PREFIX_PATH}/include/))
+install(TARGETS simulation DESTINATION bin)
+install(TARGETS simulation CONFIGURATIONS Release DESTINATION bin)
