@@ -7,6 +7,7 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
 #include <sys/stat.h>
 //#include <unistd.h>
 #include <string>
@@ -288,8 +289,9 @@ void exec(simulation& s) noexcept
         }
         s.reset_timesteps();
         s.tick_cycles();
+        std::cout << '.';
     }
-
+    std::cout << '\n';
     save_data(s);
 }
 

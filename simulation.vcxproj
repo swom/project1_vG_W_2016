@@ -10,6 +10,49 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\demographic_cycle.cpp" />
+    <ClCompile Include="src\demographic_sim.cpp" />
+    <ClCompile Include="src\environment.cpp" />
+    <ClCompile Include="src\env_grid_cell.cpp" />
+    <ClCompile Include="src\env_param.cpp" />
+    <ClCompile Include="src\funders.cpp" />
+    <ClCompile Include="src\funders_success.cpp" />
+    <ClCompile Include="src\funder_data.cpp" />
+    <ClCompile Include="src\grn.cpp" />
+    <ClCompile Include="src\individual.cpp" />
+    <ClCompile Include="src\ind_param.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\meta_param.cpp" />
+    <ClCompile Include="src\phenotype.cpp" />
+    <ClCompile Include="src\population.cpp" />
+    <ClCompile Include="src\pop_param.cpp" />
+    <ClCompile Include="src\relaxation.cpp" />
+    <ClCompile Include="src\simulation.cpp" />
+    <ClCompile Include="src\sim_parameters.cpp" />
+    <ClCompile Include="src\utilities.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\demographic_cycle.h" />
+    <ClInclude Include="src\demographic_sim.h" />
+    <ClInclude Include="src\environment.h" />
+    <ClInclude Include="src\env_grid_cell.h" />
+    <ClInclude Include="src\env_param.h" />
+    <ClInclude Include="src\funders.h" />
+    <ClInclude Include="src\funders_success.h" />
+    <ClInclude Include="src\funder_data.h" />
+    <ClInclude Include="src\grn.h" />
+    <ClInclude Include="src\individual.h" />
+    <ClInclude Include="src\ind_param.h" />
+    <ClInclude Include="src\meta_param.h" />
+    <ClInclude Include="src\phenotype.h" />
+    <ClInclude Include="src\population.h" />
+    <ClInclude Include="src\pop_param.h" />
+    <ClInclude Include="src\relaxation.hpp" />
+    <ClInclude Include="src\simulation.h" />
+    <ClInclude Include="src\sim_parameters.h" />
+    <ClInclude Include="src\utilities.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
