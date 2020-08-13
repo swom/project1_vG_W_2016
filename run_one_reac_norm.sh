@@ -11,15 +11,23 @@
 #   sbatch ./run_rand.sh
 #
 # Peregrine directives:
-#SBATCH --time=4:00:00
+#SBATCH --time=15:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 #SBATCH --job-name=reac_norm
-#SBATCH --output=reac_norm_%j.log
+#SBATCH --output=reac_norm%j.log
 
-echo "seed: "$1
-echo "freq: "$2
-./simulation_logic_only --reac_norm s$1 f$2 
+module load Qt5
+module load gompic/2019b
+module load gompi
+make clean
+qmake simulation_logic_only.pro
+make 
+
+echo "seed: 1"
+echo "freq: 0"
+sbatch ./simulation_logic_only --reac_norm s1 f0
+
 

@@ -19,7 +19,7 @@
 #SBATCH --output=run_sim.log
 
 
-# simulation_logic_only has this command-line interface:
+# simulation_logic_only has this command-linae interface:
 #
 # simulation_logic_only --[function] s[seed] f[change_frequency]
 module load Qt5
