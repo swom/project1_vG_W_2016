@@ -16,8 +16,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=reac_norm
-#SBATCH --output=reac_norm%j.log
+#SBATCH --job-name=reac_norm_test
+#SBATCH --output=reac_norm_test%j.log
 
 module load Qt5
 module load gompic/2019b
@@ -28,6 +28,6 @@ make
 
 echo "seed: 1"
 echo "freq: 0"
-sbatch ./simulation_logic_only --reac_norm s1 f0
+./simulation_logic_only --reac_norm s1 f0
 
 
