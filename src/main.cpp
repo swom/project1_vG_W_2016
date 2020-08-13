@@ -241,7 +241,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else
     {
-        std::cout << "run_standard\n";
         run_standard(e,m,p,
                      amplitude,
                      change_freq,
