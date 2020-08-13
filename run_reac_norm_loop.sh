@@ -21,6 +21,5 @@
 
 echo "seed: "$1
 echo "freq: "$2
-echo "ampl: "$3
 ./simulation_logic_only --reac_norm s$1 f$2 
 

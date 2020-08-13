@@ -18,6 +18,13 @@
 #SBATCH --job-name=test
 #SBATCH --output=test.log
 
+module load Qt5
+module load gompic/2019b
+module load gompi
+make clean
+qmake simulation_logic_only.pro
+make 
+
 change_freqs=(0, 1, 10)
 for i in $(seq 1 20)
 do

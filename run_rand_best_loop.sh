@@ -19,6 +19,10 @@
 #SBATCH --job-name=rand_best
 #SBATCH --output=rand_best_%j.log
 
+
+# simulation_logic_only has this command-line interface:
+#
+# simulation_logic_only --rand_best s[seed] f[change frequency] a[amplitude of change] n[number of random conditions]
 echo "seed: "$1
 echo "freq: "$2
 echo "ampl: "$3
