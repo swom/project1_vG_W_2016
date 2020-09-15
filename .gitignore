@@ -25,6 +25,10 @@ ipch/
 # Visual Studio cache/options directory
 .vs/
 
+#Cmake build directory and binaries
+.build/
+.bin/
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
