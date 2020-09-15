@@ -68,10 +68,10 @@ int run_sim_best_rand(double amplitude,
 
     auto rand_start = std::chrono::high_resolution_clock::now();
     place_start_cells(rand_s.get_pop());
-    save_demographic_sim(run_random_conditions(rand_s,
-                                               n_random_conditions,
-                                               amplitude),
-                         name);
+    run_random_conditions(rand_s,
+                          n_random_conditions,
+                          amplitude,
+                          name);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
@@ -97,11 +97,10 @@ int run_sim_rand(double amplitude,
 
     auto rand_start = std::chrono::high_resolution_clock::now();
     place_start_cells(rand_s.get_pop());
-
-    save_demographic_sim(run_random_conditions(rand_s,
-                                               n_random_conditions,
-                                               amplitude),
-                         name);
+    run_random_conditions(rand_s,
+                          n_random_conditions,
+                          amplitude,
+                          name);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);

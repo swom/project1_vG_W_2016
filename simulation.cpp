@@ -413,7 +413,8 @@ void response(simulation& s)
 
 demographic_sim run_random_conditions(const simulation& s,
                                       int n_number_rand_cond,
-                                      double amplitude)
+                                      double amplitude,
+                                      std::string name)
 {
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
@@ -427,8 +428,6 @@ demographic_sim run_random_conditions(const simulation& s,
     simulation rand_s = no_demographic_copy(s);
 
     int counter = 0;
-
-    auto name = create_random_condition_name(rand_s, amplitude);
 
     for(const auto & condition : random_conditions)
     {
