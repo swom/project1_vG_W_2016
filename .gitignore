@@ -3,6 +3,7 @@
 
 # Compiled Object files
 *.slo
+*.suo
 *.lo
 *.o
 *.obj
@@ -10,6 +11,23 @@
 # Precompiled Headers
 *.gch
 *.pch
+*.ipch
+
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+
+# Visual Studio cache/options directory
+.vs/
+
+#Cmake build directory and binaries
+.build/
+.bin/
 
 # Compiled Dynamic libraries
 *.so
@@ -42,9 +60,7 @@ release/
 oclint.log
 oclint-0.10.3/
 oclint-0.10.3-x86_64-linux-3.13.0-74-generic.tar.gz
-object_script.game.*
-object_script.game.*
-simulation.pro.user
+
 
 # Csv files
 *.csv

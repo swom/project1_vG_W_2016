@@ -43,10 +43,10 @@ public:
     const population& get_pop() const noexcept {return m_pop;}
 
     ///Gets the vector containing all the individuals of the population
-     population& get_pop() noexcept {return m_pop;}
+    population& get_pop() noexcept {return m_pop;}
 
-     ///Returns ref to rng
-     std::minstd_rand& get_rng() noexcept  {return m_rng;}
+    ///Returns ref to rng
+    std::minstd_rand& get_rng() noexcept  {return m_rng;}
 
     ///Gets the number of ticks in the simulation
     int get_timestep() const noexcept {return m_sim_timesteps;}
@@ -203,7 +203,9 @@ void response(simulation& s);
 
 ///Runs a poplation from a simulation against a series of random conditions
 demographic_sim run_random_conditions(const simulation &s,
-                           int n_number_rand_cond, double amplitude);
+                                      int n_number_rand_cond,
+                                      double amplitude,
+                                      std::string name);
 
 ///Save all necessary data at the end of the simulation
 void save_data(const simulation& s);
@@ -214,7 +216,7 @@ void secretion_metabolite(simulation& s);
 ///Changes the demographic cycle object with a mroe recent one
 void store_demographics(simulation &s) noexcept;
 
- ///Runs all the necessary actions for a timestep to happen
+///Runs all the necessary actions for a timestep to happen
 int tick(simulation& s);
 
 ///Stores the demographic of the population in the simulation
