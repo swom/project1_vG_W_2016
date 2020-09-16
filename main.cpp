@@ -179,7 +179,7 @@ int run_standard(const env_param& e,
     auto rand_start = std::chrono::high_resolution_clock::now();
 
     auto rand_s = load_sim_for_rand_cond(seed,change_frequency);
-    run_random_conditions(rand_s, n_random_conditions, amplitude);
+    run_random_conditions(rand_s, n_random_conditions, amplitude, "standard_rand_run.csv");
 
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration<float>(stop - rand_start);
