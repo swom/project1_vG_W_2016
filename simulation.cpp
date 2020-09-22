@@ -122,13 +122,24 @@ std::string create_best_random_condition_name(double amplitude, int change_freq,
     };
 }
 
-std::string create_funder_success_name(const simulation& s)
+std::string create_funders_success_name(const simulation& s)
 {
     return  std::string{
         "funders_success_s" +
         std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
+std::string create_funders_success_name(const int seed, const int change_freq)
+{
+    return  std::string{
+        "funders_success_s" +
+        std::to_string(seed) +
+                "change_" +
+                std::to_string(change_freq) +
                 ".csv"
     };
 }
@@ -334,7 +345,7 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
     return random_conditions;
 }
 
-simulation load_sim_for_rand_cond(int seed, int change_freq)
+simulation load_sim_from_last_pop(int seed, int change_freq)
 {
     simulation s{load_sim_parameters(create_sim_par_name(seed,change_freq))};
 
@@ -354,7 +365,7 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq)
 {
     simulation s{load_sim_parameters(create_sim_par_name(seed,change_freq))};
 
-    auto best_ind_grn = find_best_ind_grn(load_funders_success(create_funder_success_name(seed, change_freq)));
+    auto best_ind_grn = find_best_ind_grn(load_funders_success(create_funders_success_name(seed, change_freq)));
 
     s.get_pop().get_v_ind().resize(s.get_pop().get_param().get_exp_new_pop_size());
 
@@ -466,7 +477,7 @@ void save_data(const simulation& s)
 
     save_demographic_sim(s.get_demo_sim(), sim_demo_name);
 
-    std::string funders_success_name = create_funder_success_name(s);
+    std::string funders_success_name = create_funders_success_name(s);
 
     save_funders_success(s.get_funders_success(), funders_success_name);
 }
@@ -1306,7 +1317,7 @@ void test_simulation()//!OCLINT tests may be many
         simulation s{s_p};
         exec(s);
 
-        std::string expected_file_name = create_funder_success_name(s);
+        std::string expected_file_name = create_funders_success_name(s);
         assert(exists(expected_file_name));
         auto f_s = load_funders_success(expected_file_name);
         assert(f_s == s.get_funders_success());
@@ -1481,17 +1492,17 @@ void test_simulation()//!OCLINT tests may be many
                     amplitude,
                     0);
 
-        std::string expected_filename = create_random_condition_name(s,amplitude);
+        std::string filename = create_random_condition_name(s,amplitude);
 
-        auto demo_sim = run_random_conditions(s, repeats, amplitude);
+        auto demo_sim = run_random_conditions(s, repeats, amplitude, filename);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           demo_sim.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,
                           const demographic_cycle& d)
         {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
                );
-        assert(exists(expected_filename));
-        auto demo_sim_load = load_demographic_sim(expected_filename);
+        assert(exists(filename));
+        auto demo_sim_load = load_demographic_sim(filename);
         assert(demo_sim == demo_sim_load);
 
     }
@@ -1613,7 +1624,7 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
         simulation s{s_p};
         exec(s);
-        simulation s1 = load_sim_for_rand_cond(seed,change_freq);
+        simulation s1 = load_sim_from_last_pop(seed,change_freq);
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
         assert(s.get_pop().get_param() == s1.get_pop().get_param());
         assert(s.get_env().get_param() == s1.get_env().get_param());
@@ -1632,7 +1643,7 @@ void test_simulation()//!OCLINT tests may be many
         env_param e{};
         simulation s{sim_param{e, m, p}};
         exec(s);
-        auto filename = create_funder_success_name(s);
+        auto filename = create_funders_success_name(s);
         auto fund_succ = load_funders_success(filename);
         assert(fund_succ == s.get_funders_success());
         auto best_grn = find_best_ind_grn(fund_succ);
@@ -1641,6 +1652,34 @@ void test_simulation()//!OCLINT tests may be many
         {
             assert(individual.get_grn() == best_grn);
         }
+    }
+
+    ///It is possible to create a simulation where
+    /// sim_parameters, funders_success and sim_demographics
+    /// are loaded from another simulation
+    {
+        int seed = 123;
+        int change_freq = 10;
+        //The simualtion is already run in the file above
+        auto funders_filename = create_funders_success_name(seed, change_freq);
+        assert(exists(funders_filename));
+        auto demo_sim_file_name = create_sim_par_name(seed, change_freq);
+        assert(exists(demo_sim_file_name));
+        auto sim_param_filename = create_sim_par_name(seed, change_freq);
+
+        auto fund_succ = load_funders_success(funders_filename);
+        auto sim_dem = load_demographic_sim(demo_sim_file_name);
+        auto sim_par = load_sim_parameters(sim_param_filename);
+
+        simulation s = load_sim_from_record(fund_succ,sim_dem,sim_par);
+        auto sp = sim_param{s.get_env().get_param(),
+                                 s.get_meta_param(),
+                                 s.get_pop().get_param()};
+
+        assert(s.get_funders_success() == fund_succ);
+        assert(s.get_demo_sim() == sim_dem);
+        assert(sp == sim_par );
+
     }
 #endif
 }

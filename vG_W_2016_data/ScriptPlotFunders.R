@@ -1,21 +1,32 @@
 library(tidyr)
 library(tidyverse)
 library(ggplot2)
-library(stringr)
+library(stringi)
 library(rlist)
 library(igraph)
 library(ggraph)
+library(networkD3)
+
 ########Plot Philogenesis###############
 funders_success = data.frame()
 for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
 {
   print(i)
-  sim_run = read.csv(i)
+  sim_run = read.csv(i, header = FALSE, sep = ',')
   funders_success = rbind(sim_run,funders_success)
 }
 
+simple_frame = funders_success[,c(1,length(funders_success))]
+
+#simple plot to see if there are any super fit individuals
+ggplot(simple_frame, aes(x = V1, y = V54))+
+  geom_point()+
+  geom_smooth()
+
+
 funder_phylo = as_tibble(funders_success[,2])
 funder_phylo$value = as.character(funder_phylo$value) 
+
 for (i in 1:length(funder_phylo$value)) {
   funder_phylo$value[i] = 
     substring(funder_phylo$value[i],
@@ -31,6 +42,7 @@ get_parts <- function(x){
 }
 
 test = get_parts(funder_phylo$value[1])
+
 for (i in 1 : (nrow(funder_phylo) -1)) {
   test = qpcR:::rbind.na(
     test,
@@ -50,26 +62,71 @@ for(j in 2:(ncol(test) - 1))
   edges$from = paste("level", toString(j), "_",edges$from, sep="")
   edges$to = paste("level", toString(j + 1), "_", edges$to, sep="")
   edge_list = rbind(edge_list, edges)
-  }
+}
+
 edge_list = edge_list[- grep("NA", edge_list$to),]
 
 #saveRDS(edge_list,"edge_list_S1")
 loaded_edge_list = readRDS("edge_list_S1")
 
-mygraph <- graph_from_data_frame( edge_list )
+mygraph <- graph_from_data_frame( loaded_edge_list )
 
 #saveRDS(mygraph,file = "phylogenesis_s1")
 phylo = readRDS("phylogenesis_s1")
 
+#Testing different possible layouts
 ggraph(mygraph, layout = 'tree') + 
   geom_edge_diagonal() +
   geom_node_point() +
   theme_graph()
 
+ggraph(mygraph, layout = 'tree') + 
+  geom_edge_elbow() + 
+  coord_fixed()
 
+ggraph(mygraph, layout = 'circlepack') + 
+  geom_node_circle(aes(fill = depth), size = 0.25, n = 50) + 
+  coord_fixed()
 
+#Change layout so all nodes in same generation have x from 1:100
+mylayout = create_layout(mygraph, 'tree')
+mylayout$x = as.numeric(stringi::stri_match(layout$name, regex = "\\d+$" ))
+ 
+ggraph(mylayout)+
+  geom_edge_diagonal() +
+  geom_node_point() +
+  theme_graph()
 
- #########Plot Networks###############
+###Test sankey plot
+
+#Start from links/edges
+links = loaded_edge_list
+
+#All links happen only once so all values for the links are 1
+links$value = 1
+
+net3D = igraph_to_networkD3(mygraph)
+simpleNetwork(net3D)
+
+# From these,  we need to create a node data frame: it lists every entities involved in the flow
+nodes <- data.frame(
+  name=c(as.character(links$source), 
+         as.character(links$target)) %>% unique()
+)
+
+# With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
+links$IDsource <- match(links$from, nodes$name)-1 
+links$IDtarget <- match(links$to, nodes$name)-1
+
+# Make the Network -> it is unreadable
+p <- sankeyNetwork(Links = links, Nodes = nodes,
+                   Source = "IDsource", Target = "IDtarget",
+                   Value = "value", NodeID = "name", 
+                   sinksRight= FALSE,
+                   nodeWidth=40, fontSize=13, nodePadding=20,
+                   opacityNoHover = 0.3
+                   )
+#########Plot Networks###############
 as_tibble(funders_success)
 
 funder_network = funders_success[1,]

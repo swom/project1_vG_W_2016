@@ -129,6 +129,11 @@ std::string create_best_random_condition_name(double amplitude, int  change_freq
 std::string create_random_condition_name(const simulation& s, double amplitude);
 std::string create_random_condition_name(double amplitude, int change_freq, int seed);
 
+///Creates the name of a funders_success .csv file given
+/// a simulation, or the simulation's seed and change_frequency
+std::string create_funders_success_name(const simulation& s);
+std::string create_funders_success_name(const int seed, const int change_freq);
+
 ///Creates the name for the last population of an
 /// evolutionary run so that it can be uploaded
 /// for testing against random conditions
@@ -186,7 +191,7 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq);
 
 ////Loads sims from a sim_param and last_pop funders objects
 /// saved with a given seed and change freq parameters
-simulation load_sim_for_rand_cond(int seed, int change_freq);
+simulation load_sim_from_last_pop(int seed, int change_freq);
 
 /// Makes a copy of a simulation but erases
 /// the funder_success and demographic sim vectors
