@@ -5,6 +5,10 @@ compiler:
   - clang 
   - intel
 
+env:
+  # As per http://docs.travis-ci.com/user/languages/cpp/#OpenMP-projects don't be greedy with OpenMP.
+  - OMP_NUM_THREADS=4
+
 install: 
   # Required on bionic
   - sudo apt update -qq
