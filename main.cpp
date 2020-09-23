@@ -29,7 +29,7 @@ int run_reac_norm_best(int change_freq,
         return 0;
     }
 
-    auto funders_name = create_funder_success_name(seed, change_freq);
+    auto funders_name = create_funders_success_name(seed, change_freq);
     funders_success funders_success;
 
     if(exists(funders_name))
@@ -85,7 +85,7 @@ int run_sim_rand(double amplitude,
                  int seed,
                  bool overwrite)
 {
-    auto rand_s = load_sim_for_rand_cond(seed,change_frequency);
+    auto rand_s = load_sim_from_last_pop(seed,change_frequency);
     auto name = create_random_condition_name(rand_s,amplitude);
 
     if(exists(name) && !overwrite)
@@ -148,7 +148,7 @@ int run_visual_evo (const env_param& e,
     v.exec();
     std::cout << "view: ";
     auto start = std::chrono::high_resolution_clock::now();
-    auto rand_s = no_demographic_copy(load_sim_for_rand_cond(seed,change_frequency));
+    auto rand_s = no_demographic_copy(load_sim_from_last_pop(seed,change_frequency));
     place_start_cells(rand_s.get_pop());
     v.run_random_conditions(rand_s, n_random_conditions, amplitude);
     auto stop = std::chrono::high_resolution_clock::now();
@@ -178,7 +178,7 @@ int run_standard(const env_param& e,
 
     auto rand_start = std::chrono::high_resolution_clock::now();
 
-    auto rand_s = load_sim_for_rand_cond(seed,change_frequency);
+    auto rand_s = load_sim_from_last_pop(seed,change_frequency);
     run_random_conditions(rand_s, n_random_conditions, amplitude, "standard_rand_run.csv");
 
     stop = std::chrono::high_resolution_clock::now();
@@ -191,24 +191,24 @@ int run_standard(const env_param& e,
 }
 
 void test() {
-    test_demographic_cycle();
-    test_demographic_sim();
-    test_env_grid_cell();
-    test_environment();
-    test_env_param();
-    test_funder_data();
-    test_funders();
-    test_funders_success();
-#ifndef LOGIC_ONLY
-    test_grid_view();
-#endif
-    test_GRN();
-    test_ind_param();
-    test_individual();
-    test_phenotype();
-    test_meta_param();
-    test_pop_param();
-    test_population();
+//    test_demographic_cycle();
+//    test_demographic_sim();
+//    test_env_grid_cell();
+//    test_environment();
+//    test_env_param();
+//    test_funder_data();
+//    test_funders();
+//    test_funders_success();
+//#ifndef LOGIC_ONLY
+//    test_grid_view();
+//#endif
+//    test_GRN();
+//    test_ind_param();
+//    test_individual();
+//    test_phenotype();
+//    test_meta_param();
+//    test_pop_param();
+//    test_population();
     test_simulation();
     test_utilities();
 #ifndef LOGIC_ONLY

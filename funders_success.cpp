@@ -33,7 +33,7 @@ std::ostream& operator<<(std::ostream& os, const funders_success& f_s)
     return os;
 }
 
-std::string create_funder_success_name(int seed, int change_freq)
+std::string create_funders_success_name(int seed, int change_freq)
 {
     return  std::string{
         "funders_success_s" +

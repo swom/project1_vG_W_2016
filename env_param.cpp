@@ -34,6 +34,8 @@ env_param::env_param(int grid_side,
 
 std::ostream& operator<<(std::ostream& os, const env_param& e)
 {
+
+
     os << e.get_grid_side() << " , "
        << e.get_init_food() << " , "
        << e.get_diff_coeff()  << " , "

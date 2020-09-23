@@ -34,6 +34,10 @@ public:
     const funders_success& get_funders_success() const noexcept {return m_funder_success;}
 
     ///Gets ref to the funders_success object
+    /// !!!ATTENTION!!! This is not super safe
+    /// But is necessary to add funders to the vector
+    /// of funder success and then update their success
+    /// during that generation
     funders_success& get_funders_success() noexcept {return m_funder_success;}
 
     ///Gets the const reference to meta parameters
@@ -56,6 +60,9 @@ public:
 
     ///Sets the m_demo_sim to a new demographic_sim object
     void set_demo_sim( const demographic_sim& d_s) noexcept {m_demo_sim = d_s;}
+
+    ///Sets the m_funders_success member to a new funders_success object
+    void set_funders_success(const funders_success& f_s) noexcept {m_funder_success = f_s;}
 
     ///Sets the metaparameters of the simualtion given a metaparameter object
     void set_meta_param(const meta_param& m) noexcept {m_meta_param = m;}
@@ -132,7 +139,7 @@ std::string create_random_condition_name(double amplitude, int change_freq, int 
 ///Creates the name of a funders_success .csv file given
 /// a simulation, or the simulation's seed and change_frequency
 std::string create_funders_success_name(const simulation& s);
-std::string create_funders_success_name(const int seed, const int change_freq);
+std::string create_funders_success_name(int seed, int change_freq);
 
 ///Creates the name for the last population of an
 /// evolutionary run so that it can be uploaded
