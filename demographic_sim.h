@@ -29,6 +29,11 @@ bool operator==(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 /// demographic_cycles vector are NOT the same
 bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept;
 
+///Creates a name for the file where
+/// the deomgraphic of the evolving population
+/// in random environment is saved
+std::string create_sim_demo_name(int seed, int change_freq);
+
 ///Loads a demographic_sim object froma a given filename
 demographic_sim load_demographic_sim(const std::string& filename);
 

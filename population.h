@@ -1,6 +1,8 @@
 #ifndef POPULATION_H
 #define POPULATION_H
 
+#include "demographic_sim.h"
+#include "funders_success.h"
 #include "individual.h"
 #include "pop_param.h"
 #include "relaxation.hpp"
@@ -55,6 +57,9 @@ public:
     ///Gets the reference to m_rng
     auto& get_rng() noexcept {return  m_rng;}
 
+    ///Sets the population individuals
+    void set_pop_inds(const std::vector<individual>& v_inds) noexcept {m_pop = v_inds;}
+
 private:
     ///The parameters of the population
     pop_param m_pop_param;
@@ -93,6 +98,15 @@ std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noe
 ///Counts the number of hexagonal layers necessary to place all individuals in hex pattern
 int count_hex_layers(int pop_size)  noexcept ;
 
+///Counts number of active individuals in a population
+int count_active(const population& pop);
+
+///Counts the number of spores in a population
+int count_spores(const population& pop);
+
+///Counts the number of sporulating individuals in a population
+int count_sporulating(const population& pop);
+
 ///Calculate the distance between two cells given their positions
 double calculate_distance(std::pair<double, double> lhs, std::pair<double, double> rhs) noexcept;
 
@@ -112,6 +126,9 @@ std::vector<individual> change_inds(const population &p, const ind_param &new_in
 
 ///Removes dead inidviduals from population vector
 std::vector<individual> death(population& p) noexcept;
+
+///Returns a demographic cycle object storing data about a population
+demographic_cycle demographics(const population&p, const env_param&e) noexcept;
 
 ///The individuals in the vector are copied at the end of the pop vector
 bool division(population& p) noexcept;
@@ -224,6 +241,11 @@ void set_ind_en(individual& i, double en);
 
 ///Sorts individuals in a given range of a vector by increasing x coordinate
 void sort_inds_by_x_inc(std::vector<individual>::iterator start, std::vector<individual>::iterator end);
+
+///Sets the population to be the funders of a certain generation
+std::vector<individual> pop_from_funders(const funders_success &f_s,
+                                         const demographic_sim& d_s,
+                                         int generation);
 
 ///Normal death due to death rate
 void senescence(population &p) noexcept;

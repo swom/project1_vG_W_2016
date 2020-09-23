@@ -37,7 +37,7 @@ int run_reac_norm_best(int change_freq,
     else
         abort();
 
-    auto best_ind_grn = find_best_ind_grn(funders_success);
+    auto best_ind_grn = find_last_gen_best_ind_grn(funders_success);
 
     auto reac_norm = calc_reaction_norm(best_ind_grn,
                                         max_food,
@@ -191,24 +191,24 @@ int run_standard(const env_param& e,
 }
 
 void test() {
-//    test_demographic_cycle();
-//    test_demographic_sim();
-//    test_env_grid_cell();
-//    test_environment();
-//    test_env_param();
-//    test_funder_data();
-//    test_funders();
-//    test_funders_success();
-//#ifndef LOGIC_ONLY
-//    test_grid_view();
-//#endif
-//    test_GRN();
-//    test_ind_param();
-//    test_individual();
-//    test_phenotype();
-//    test_meta_param();
-//    test_pop_param();
-//    test_population();
+    test_demographic_cycle();
+    test_demographic_sim();
+    test_env_grid_cell();
+    test_environment();
+    test_env_param();
+    test_funder_data();
+    test_funders();
+    test_funders_success();
+#ifndef LOGIC_ONLY
+    test_grid_view();
+#endif
+    test_GRN();
+    test_ind_param();
+    test_individual();
+    test_phenotype();
+    test_meta_param();
+    test_pop_param();
+    test_population();
     test_simulation();
     test_utilities();
 #ifndef LOGIC_ONLY

@@ -66,39 +66,6 @@ bool operator!=(const demographic_cycle& lhs, const demographic_cycle& rhs) noex
     return !(lhs == rhs);
 }
 
-int count_actives(const population& pop)
-{
-    const auto& p = pop.get_v_ind();
-    return  std::count_if(p.begin(),p.end(),
-                          [](const individual& ind){ return ind.get_phen() == phenotype::active;});
-}
-
-int count_spores(const population& pop)
-{
-    const auto& p = pop.get_v_ind();
-    return  std::count_if(p.begin(),p.end(),
-                          [](const individual& ind){ return ind.get_phen() == phenotype::spore;});
-}
-
-int count_sporulating(const population& pop)
-{
-    const auto& p = pop.get_v_ind();
-    return  std::count_if(p.begin(),p.end(),
-                          [](const individual& ind){ return ind.get_phen() == phenotype::sporulating;});
-}
-
-demographic_cycle demographics(const population &p, const env_param &e) noexcept
-{
-
-
-    return demographic_cycle{count_actives(p),
-                count_spores(p),
-                count_sporulating(p),
-                e,
-                p.get_param().get_ind_param()};
-}
-
-
 demographic_cycle load_demographic_cycle(
         const std::string& filename
         )
@@ -141,44 +108,6 @@ void test_demographic_cycle() noexcept
         assert(d_c.get_ind_param() == i);
     }
 
-    //It is possible to extract the demographic state of a population
-    {
-        population p{0};
-        assert(p.get_pop_size() == 0);
-
-        int n_spores = 2;
-        int n_sporulating = 3;
-        int n_actives = 4;
-        individual ind{ind_param{}};
-
-        ind.set_phen(phenotype::spore);
-        for(int i = 0; i != n_spores; i++)
-        {
-            p.get_v_ind().push_back(ind);
-        }
-
-        ind.set_phen(phenotype::sporulating);
-        for(int i = 0; i != n_sporulating; i++)
-        {
-            p.get_v_ind().push_back(ind);
-        }
-
-        ind.set_phen(phenotype::active);
-        for(int i = 0; i != n_actives; i++)
-        {
-            p.get_v_ind().push_back(ind);
-        }
-
-        assert(p.get_pop_size() == n_spores + n_sporulating + n_actives);
-
-        demographic_cycle d_c = demographics(p, env_param{});
-
-        assert(d_c.get_n_spores() == n_spores);
-        assert(d_c.get_n_sporulating() == n_sporulating);
-        assert(d_c.get_n_actives() == n_actives);
-    }
-
-
 
     //demographic_cycle object can be loaded and saved to a given file name
     {
@@ -216,6 +145,7 @@ void test_demographic_cycle() noexcept
         f >> s;
         assert(s == p);
     }
+
     {
         const std::string filename = "demographic_cycle2.csv";
         env_param e;

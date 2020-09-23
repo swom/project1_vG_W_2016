@@ -1,7 +1,8 @@
 #ifndef DEMOGRAPHIC_CYCLE_H
 #define DEMOGRAPHIC_CYCLE_H
-#include "population.h"
-#include "environment.h"
+
+#include "ind_param.h"
+#include "env_param.h"
 
 class demographic_cycle
 {
@@ -51,18 +52,6 @@ bool operator==(const demographic_cycle& lhs, const demographic_cycle& rhs) noex
 
 ///Compares 2 demographic cycle objects to see if they are not equal
 bool operator!=(const demographic_cycle& lhs, const demographic_cycle& rhs) noexcept;
-
-///Counts number of active individuals in a population
-int count_active(const population& pop);
-
-///Counts the number of spores in a population
-int count_spores(const population& pop);
-
-///Counts the number of sporulating individuals in a population
-int count_sporulating(const population& pop);
-
-///Returns a demographic cycle object storing data about a population
-demographic_cycle demographics(const population&p, const env_param&e) noexcept;
 
 ///Instantiate a demographic_cycle object from a given file name
 demographic_cycle load_demographic_cycle(const std::string& filename);

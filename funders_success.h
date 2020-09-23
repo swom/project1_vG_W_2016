@@ -31,12 +31,12 @@ bool operator==(const funders_success& lhs, const funders_success& rhs) noexcept
 std::string create_funders_success_name(int seed, int change_freq);
 
 ///Retruns the GRN of the individual with the highest success
-/// of the funder_success
+/// of the funder_success  LAST GENERATION
 /// ATTENTION!!! by design funders_scuccess objects
 /// will have as the last element a population without
 /// a registered success, therefore to find the best network
 /// we will look at the before-last element of the funders vector
-GRN find_best_ind_grn(const funders_success& funders_success);
+GRN find_last_gen_best_ind_grn(const funders_success& funders_success);
 
 ///Loads a funders?success object from a given filename
  funders_success load_funders_success(const std::string& filename);

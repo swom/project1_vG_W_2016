@@ -1,8 +1,7 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
-#include "demographic_sim.h"
+
 #include "environment.h"
-#include "funders_success.h"
 #include "individual.h"
 #include "population.h"
 #include "sim_parameters.h"
@@ -204,6 +203,10 @@ simulation load_sim_from_last_pop(int seed, int change_freq);
 /// the funder_success and demographic sim vectors
 simulation no_demographic_copy(const simulation& s);
 
+///Sets the individual of the populaiton to be the
+/// individuals of a specified generation of funders
+void pop_from_funders_gen(simulation&s, int funders_generation);
+
 ///Stores ancestor_ID and GRN of funders of a cycle in funders_success
 funders prepare_funders(const simulation& s);
 
@@ -224,6 +227,8 @@ void save_data(const simulation& s);
 
 ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);
+
+
 
 ///Changes the demographic cycle object with a mroe recent one
 void store_demographics(simulation &s) noexcept;

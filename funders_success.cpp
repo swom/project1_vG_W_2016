@@ -44,7 +44,7 @@ std::string create_funders_success_name(int seed, int change_freq)
     };
 }
 
-GRN find_best_ind_grn(const funders_success& funders_success)
+GRN find_last_gen_best_ind_grn(const funders_success& funders_success)
 {
     auto funders_succ = funders_success.get_v_funders();
     auto last_pop = funders_succ[funders_succ.size() - 2] ;
@@ -146,6 +146,6 @@ void test_funders_success() noexcept
         funders_success.get_v_funders().push_back(funders_last);
 
         //save funders_success since find_best_ind_grn will need to load it
-        assert(find_best_ind_grn(funders_success) == best.get_grn());
+        assert(find_last_gen_best_ind_grn(funders_success) == best.get_grn());
     }
 }

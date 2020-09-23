@@ -52,6 +52,27 @@ std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noe
     return new_p;
 }
 
+int count_actives(const population& pop)
+{
+    const auto& p = pop.get_v_ind();
+    return  std::count_if(p.begin(),p.end(),
+                          [](const individual& ind){ return ind.get_phen() == phenotype::active;});
+}
+
+int count_spores(const population& pop)
+{
+    const auto& p = pop.get_v_ind();
+    return  std::count_if(p.begin(),p.end(),
+                          [](const individual& ind){ return ind.get_phen() == phenotype::spore;});
+}
+
+int count_sporulating(const population& pop)
+{
+    const auto& p = pop.get_v_ind();
+    return  std::count_if(p.begin(),p.end(),
+                          [](const individual& ind){ return ind.get_phen() == phenotype::sporulating;});
+}
+
 int count_hex_layers(int pop_size)  noexcept
 {
     int n = 1;
@@ -124,6 +145,17 @@ std::vector<individual> death(population &p) noexcept
 {
     starvation(p.get_v_ind());
     senescence(p);
+}
+
+demographic_cycle demographics(const population &p, const env_param &e) noexcept
+{
+
+
+    return demographic_cycle{count_actives(p),
+                count_spores(p),
+                count_sporulating(p),
+                e,
+                p.get_param().get_ind_param()};
 }
 
 bool division(population &p) noexcept
@@ -518,6 +550,23 @@ void set_ind_en(individual& i, double en)
     i.set_energy(en);
 }
 
+std::vector<individual> pop_from_funders(const funders_success &f_s,
+                                         const demographic_sim& d_s,
+                                         int generation)
+{
+    auto funders = f_s.get_v_funders()[generation];
+
+    individual base_ind{d_s.get_demo_cycles()[generation].get_ind_param()} ;
+    std::vector<individual> pop;
+
+    for(const auto& funder : funders.get_v_funder_data())
+    {
+        base_ind.get_grn() = funder.get_grn();
+        pop.push_back(base_ind);
+    }
+
+    return pop;
+}
 
 void senescence(population& p) noexcept
 {
@@ -1345,6 +1394,43 @@ void test_population() noexcept  //!OCLINT
         assert(!has_collision(p));
     }
 
+    //It is possible to extract the demographic state of a population
+    {
+        population p{0};
+        assert(p.get_pop_size() == 0);
+
+        int n_spores = 2;
+        int n_sporulating = 3;
+        int n_actives = 4;
+        individual ind{ind_param{}};
+
+        ind.set_phen(phenotype::spore);
+        for(int i = 0; i != n_spores; i++)
+        {
+            p.get_v_ind().push_back(ind);
+        }
+
+        ind.set_phen(phenotype::sporulating);
+        for(int i = 0; i != n_sporulating; i++)
+        {
+            p.get_v_ind().push_back(ind);
+        }
+
+        ind.set_phen(phenotype::active);
+        for(int i = 0; i != n_actives; i++)
+        {
+            p.get_v_ind().push_back(ind);
+        }
+
+        assert(p.get_pop_size() == n_spores + n_sporulating + n_actives);
+
+        demographic_cycle d_c = demographics(p, env_param{});
+
+        assert(d_c.get_n_spores() == n_spores);
+        assert(d_c.get_n_sporulating() == n_sporulating);
+        assert(d_c.get_n_actives() == n_actives);
+    }
+
     //It is possible to assign a unique ID to each ind in a population
     {
         population p;
@@ -1429,6 +1515,33 @@ void test_population() noexcept  //!OCLINT
         assert(p.get_v_ind() != new_p);
     }
 
+    ///It is possible to set inds in a pop
+    /// from a funders object so that pop has
+    /// the same number of individuals
+    /// as the ones in the funder object
+    /// as well as with the same neural networks
+    {
+        int seed = 123;
+        int change_freq = 10;
+        int funders_generation = 8;
 
+        population p{};
+
+
+        auto funders_success = load_funders_success(create_funders_success_name(seed, change_freq));
+        auto selected_funders = funders_success.get_v_funders()[funders_generation];
+
+        auto demo_sim = load_demographic_sim(create_sim_demo_name(seed,change_freq));
+        auto selected_conditions = demo_sim.get_demo_cycles()[funders_generation];
+
+        p.set_pop_inds(pop_from_funders(funders_success, demo_sim, funders_generation));
+
+        for( int i = 0; i != p.get_pop_size(); i++)
+        {
+            assert(p.get_ind(i).get_param() == selected_conditions.get_ind_param());
+            assert(p.get_ind(i).get_grn() == selected_funders.get_v_funder_data()[i].get_grn());
+        }
+
+    }
 #endif
 }
