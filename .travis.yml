@@ -3,6 +3,7 @@ dist: bionic
 compiler:
   - gcc
   - clang 
+  - intel
 
 install: 
   # Required on bionic
