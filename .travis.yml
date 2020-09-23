@@ -33,11 +33,11 @@ services:
 script: 
   # Build the project, then:
   - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation_logic_only.pro
-  - make --silent debug
+  - make debug
   - ./simulation_logic_only --test
   # Build and run and profile normal program
   - make clean
-  - make --silent release
+  - make release
   - timeout 150s ./simulation_logic_only 
   - gprof simulation_logic_only > gprof.log
   - head gprof.log -n 300
