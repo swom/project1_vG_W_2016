@@ -18,6 +18,7 @@ install:
   # Codecov
   - sudo pip install codecov
   # OCLint
+  - chmod +x scripts/install_oclint
   - ./scripts/install_oclint
   # clang-tidy
   - sudo apt install -qq clang clang-tidy
