@@ -2,7 +2,7 @@ language: cpp
 dist: bionic
 compiler:
   - gcc
-  - clang 
+  # - clang # Cannot compile hrtree/rtree.hpp with clang
 
 env:
   # As per http://docs.travis-ci.com/user/languages/cpp/#OpenMP-projects don't be greedy with OpenMP.
