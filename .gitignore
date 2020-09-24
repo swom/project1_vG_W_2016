@@ -3,3 +3,5 @@ Makefile
 Makefile.Debug
 Makefile.Release
 .qmake.stash
+build/
+bin/
