@@ -37,12 +37,12 @@ script:
   # Build the project, then:
   - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation_logic_only.pro
   - make debug
-  - echo "Do not run: it takes too long for Travis. Make a shorter run instead"
-  #- ./simulation_logic_only --test
+  # - echo "Do not run: it takes too long for Travis. Make a shorter run instead"
+  # - ./simulation_logic_only --test
   # Build and run and profile normal program
   - make clean
   - make release
-  - echo "Do not run: it takes too long for Travis. Make a shorter run instead"
+  # - echo "Do not run: it takes too long for Travis. Make a shorter run instead"
   #- timeout 150s ./simulation_logic_only 
   #- gprof simulation_logic_only > gprof.log
   #- head gprof.log -n 300
