@@ -48,6 +48,10 @@ SOURCES += \
     utilities.cpp
 
 
+# Use correct compiler, as set by Travis
+QMAKE_CXX = $$(CXX)
+QMAKE_CC = $$(CC)
+QMAKE_LINK = $$(CXX)
 
 INCLUDEPATH += libs
 HEADERS += $$PWD/libs/hrtree/*.hpp
