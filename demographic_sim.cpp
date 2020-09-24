@@ -33,6 +33,11 @@ demographic_sim load_demographic_sim(
         )
 {
     std::ifstream f(filename);
+    if(!f.is_open())
+        {
+            std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
+            abort();
+        }
     demographic_sim d_s;
     demographic_cycle d_c{0,0,0, env_param{}, ind_param{}};
     std::string dummy;

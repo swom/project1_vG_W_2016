@@ -29,6 +29,9 @@ public:
     ///Returns const ref to m_grid_view
     const  grid_view& get_grid_view() const noexcept {return m_grid_view;}
 
+    ///Returns  ref to m_grid_view
+    grid_view& get_grid_view() noexcept {return m_grid_view;}
+
     ///Gets the value of the zoom
     float get_max_zoom() const noexcept {return m_max_zoom;}
 

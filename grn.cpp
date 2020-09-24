@@ -84,7 +84,7 @@ std::ifstream& operator>>(std::ifstream& is, GRN& grn)
     auto TOutput = load_out_tresh( is);
     auto ExHidden = load_hid_state( is);
     int n_input = load_n_input_nodes( is);
-    int n_output = load_n_input_nodes( is);
+    int n_output = load_n_output_nodes( is);
 
     grn = GRN{ConI2H,
             ConH2H,

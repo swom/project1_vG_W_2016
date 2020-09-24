@@ -132,8 +132,8 @@ bool operator!=(const GRN& lhs, const GRN& rhs);
 ///Loads a grn from a text file
 /// ATTENTION EXTREMELY FRAGILE
 /// For now it only works if the stream is at the right point in the file
-/// and the network saved in the file is the same as the network in the
-/// program
+/// and the network saved in the file has the same architecture
+/// as the network in the program
 /// NO CHECKS are implemented to make sure this is the case
 /// it will need a parser to do so
 std::ifstream& operator>>(std::ifstream& is, GRN& p);

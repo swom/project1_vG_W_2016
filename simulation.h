@@ -199,6 +199,12 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq);
 /// saved with a given seed and change freq parameters
 simulation load_sim_from_last_pop(int seed, int change_freq);
 
+///Loads a simulatio from the files produced from
+/// an evolutionary run of the simulation
+/// The population is not set
+simulation load_sim_from_record(int seed, int change_freq);
+
+
 /// Makes a copy of a simulation but erases
 /// the funder_success and demographic sim vectors
 simulation no_demographic_copy(const simulation& s);

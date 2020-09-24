@@ -13,7 +13,7 @@ bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<dou
 void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
-                         int& n_conditions,
+                         int& n_conditions, int &replay_cycle,
                          double& amplitude,
                          bool &overwrite);
 
@@ -45,6 +45,9 @@ void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditio
 
 ///Takes change of frequency number from command line arguments
 void take_change_freq_arg(const std::vector<std::string>& args, int &change_freq);
+
+///Takes the number of the cycle that is gonna be visually replayed
+void take_replay_cycle_arg(const std::vector<std::string>& args, int& replay_cycle);
 
 ///Takes seed number from command line arguments
 void take_seed_arg(const std::vector<std::string>& args, int& seed);

@@ -4,7 +4,7 @@
 bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<double>& rhs)
 {
     return std::equal(lhs.begin(), lhs.end(), rhs.begin(),
-               [](const double& lhs_w, const double& rhs_w)
+                      [](const double& lhs_w, const double& rhs_w)
     {return lhs_w - rhs_w < 0.0001 && lhs_w - rhs_w > -0.00001;});
 }
 
@@ -12,6 +12,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
                          int& n_conditions,
+                         int& replay_cycle,
                          double& amplitude,
                          bool& overwrite)
 {
@@ -19,7 +20,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
             && (args[1] == "--sim"
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
-                || args[1] == "--reac_norm")
+                || args[1] == "--reac_norm"
+                || args[1] == "--replay")
             )
     {
         take_amplitude_arg(args, amplitude);
@@ -27,6 +29,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_n_conditions_arg(args, n_conditions);
         take_seed_arg(args, seed);
         take_overwrite_arg(args, overwrite);
+        take_replay_cycle_arg(args,replay_cycle);
     }
 }
 
@@ -105,6 +108,31 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
         abort();
     }
 
+}
+
+void take_replay_cycle_arg(const std::vector<std::string>& args, int& replay_cycle)
+{
+    if (args.size() > 3 &&
+            (args[1] == "--replay")
+            )
+    {
+        if(args[4][0] == 'c' && std::isdigit(args[4][1]))
+        {
+            std::string s_replay_cycle;
+            for(size_t i = 1; i != args[4].size(); i++)
+            {
+                s_replay_cycle += args[4][i];
+            }
+            replay_cycle = std::stoi(s_replay_cycle);
+        }
+        else
+        {
+            std::cout << "Invalid fifth argument: if cmd line starts with --replay\n "
+                         "this argument has to be cN:Where N is the cycle which is going\n"
+                         "to be replayed";
+            abort();
+        }
+    }
 }
 
 void take_overwrite_arg(const std::vector<std::string>& args, bool& overwrite)

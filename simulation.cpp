@@ -376,7 +376,9 @@ simulation load_sim_from_last_pop(int seed, int change_freq)
 
 simulation load_best_ind_for_rand_cond(int seed, int change_freq)
 {
-    simulation s{load_sim_parameters(create_sim_par_name(seed,change_freq))};
+    auto name = create_sim_par_name(seed,change_freq);
+
+    simulation s{load_sim_parameters(name)};
 
     auto best_ind_grn = find_last_gen_best_ind_grn(load_funders_success(create_funders_success_name(seed, change_freq)));
 
@@ -404,8 +406,10 @@ simulation no_demographic_copy(const simulation& s)
 
 void pop_from_funders_gen(simulation&s, int funders_generation)
 {
-    s.get_env() = environment{s.get_demo_sim().get_demo_cycles()[funders_generation].get_env_param()};
+    environment env_generation{s.get_demo_sim().get_demo_cycles()[funders_generation].get_env_param()};
+    s.get_env() = env_generation;
     s.get_pop().set_pop_inds(pop_from_funders(s.get_funders_success(), s.get_demo_sim(), funders_generation));
+    place_start_cells(s.get_pop());
 }
 
 funders prepare_funders(const simulation& s)

@@ -162,6 +162,22 @@ void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
 
 void sim_view::prepare_pop() noexcept
 {
+    if(m_sim.get_pop().get_v_ind().size() == 0)
+    {
+        auto r = individual{}.get_param().get_radius() * m_scale;
+        // Create the player sprite
+        sf::CircleShape circle;
+        circle.setRadius(r);
+        circle.setFillColor(sf::Color::Blue);
+        circle.setOutlineColor(sf::Color::Red);
+        circle.setOutlineThickness(0.1f);
+        circle.setOrigin(r, r);
+        circle.setPosition(0, 0);
+        circle.setPointCount(40);
+        m_pop_shapes.push_back(circle);
+        return;
+    }
+
     for (size_t i = 0 ; i != m_sim.get_pop().get_v_ind().size(); i++)
     {
         const auto& ind = m_sim.get_pop().get_v_ind()[i];
@@ -170,7 +186,7 @@ void sim_view::prepare_pop() noexcept
         const float x{static_cast<float>(ind.get_x()) * m_scale};
         const float y{static_cast<float>(ind.get_y()) * m_scale};
 
-        // Create the player sprite
+        // Create the individual sprite
         sf::CircleShape circle;
         circle.setRadius(r);
         circle.setFillColor(sf::Color::Blue);
@@ -290,11 +306,12 @@ void sim_view::update_pop(const simulation& s) noexcept
             m_pop_shapes[i].setFillColor(sf::Color::Blue);
             continue;
         }
-        if(s.get_pop().get_v_ind()[i].get_phen() == phenotype::sporulating)
+        else if(s.get_pop().get_v_ind()[i].get_phen() == phenotype::sporulating)
         {
             m_pop_shapes[i].setFillColor(sf::Color::Magenta);
             continue;
         }
+        else
         m_pop_shapes[i].setFillColor(sf::Color::Yellow);
 
     }

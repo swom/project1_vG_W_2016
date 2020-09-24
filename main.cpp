@@ -134,31 +134,6 @@ int run_sim_evo(const env_param& e,
     return 0;
 }
 
-#ifndef LOGIC_ONLY
-int run_visual_evo (const env_param& e,
-                    const meta_param& m,
-                    const pop_param& p,
-                    double amplitude,
-                    int change_frequency,
-                    int n_random_conditions,
-                    int seed)
-{
-
-    sim_view v(sim_param{e, m, p});
-    v.exec();
-    std::cout << "view: ";
-    auto start = std::chrono::high_resolution_clock::now();
-    auto rand_s = no_demographic_copy(load_sim_from_last_pop(seed,change_frequency));
-    place_start_cells(rand_s.get_pop());
-    v.run_random_conditions(rand_s, n_random_conditions, amplitude);
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float>(stop - start);
-    std::cout << duration.count() << "s" << std::endl;
-    std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
-    return 0;
-}
-#endif
-
 int run_standard(const env_param& e,
                  const meta_param& m,
                  const pop_param& p,
@@ -189,6 +164,49 @@ int run_standard(const env_param& e,
     std::cout<< "overall time :" << duration.count() << "s" << std::endl;
     return 0;
 }
+
+#ifndef LOGIC_ONLY
+int run_visual_evo (const env_param& e,
+                    const meta_param& m,
+                    const pop_param& p,
+                    double amplitude,
+                    int change_frequency,
+                    int n_random_conditions,
+                    int seed)
+{
+
+    sim_view v(sim_param{e, m, p});
+    v.exec();
+    std::cout << "view: ";
+    auto start = std::chrono::high_resolution_clock::now();
+    auto rand_s = no_demographic_copy(load_sim_from_last_pop(seed,change_frequency));
+    place_start_cells(rand_s.get_pop());
+    v.run_random_conditions(rand_s, n_random_conditions, amplitude);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout << duration.count() << "s" << std::endl;
+    std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
+    return 0;
+}
+
+int replay_cycle_from_evo (
+                    int change_frequency,
+                    int seed,
+        int cycle)
+{
+
+    sim_view v(load_sim_parameters(create_sim_par_name(seed, change_frequency)));
+    auto funders_success = load_funders_success(create_funders_success_name(seed, change_frequency));
+    v.get_sim().set_funders_success(funders_success);
+    v.get_sim().set_demo_sim(load_demographic_sim(create_sim_demo_name(seed,change_frequency)));
+    pop_from_funders_gen(v.get_sim(),cycle);
+    v.get_grid_view().prepare_grid(v.get_sim().get_env().get_grid());
+    v.exec_cycle_visual(v.get_sim());
+    std::cout << "view: ";
+    return 0;
+}
+#endif
+
 
 void test() {
     test_demographic_cycle();
@@ -237,11 +255,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int n_random_conditions = 50;
     double amplitude = 3;
     bool overwrite = false;
+    int replay_cycle = 0;
 
     check_for_cmd_param(args,
                         seed,
                         change_freq,
                         n_random_conditions,
+                        replay_cycle,
                         amplitude,
                         overwrite);
     meta_param m{200,
@@ -283,6 +303,14 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                        change_freq,
                        n_random_conditions,
                        seed);
+#endif
+    }
+    if(args.size() > 1 && args[1] == "--replay")
+    {
+#ifndef LOGIC_ONLY
+        replay_cycle_from_evo(change_freq,
+                              seed,
+                              replay_cycle);
 #endif
     }
     else if(args.size() > 1 && args[1] == "--sim")
