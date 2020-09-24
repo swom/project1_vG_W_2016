@@ -36,7 +36,7 @@ services:
 
 script: 
   # Build the project, then:
-  - qmake -qt=qt5 -QMAKE_CXX="$CXX" DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation_logic_only.pro
+  - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation_logic_only.pro
   - make debug
   - ./simulation_logic_only --test
   # Build and run and profile normal program
