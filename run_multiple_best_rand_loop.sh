@@ -19,6 +19,8 @@
 #SBATCH --output=run_rand_best.log
 
 module load Qt5
+export CC=g++
+export CXX=g++
 module load gompic/2019b
 module load gompi
 make clean

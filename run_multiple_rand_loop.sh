@@ -23,6 +23,8 @@
 #
 # simulation_logic_only --rand s[seed] f[change frequency] a[amplitude of change] n[number of random conditions]
 module load Qt5
+export CC=g++
+export CXX=g++
 module load gompic/2019b
 module load gompi
 make clean
