@@ -16,22 +16,22 @@ for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
   funders_success = rbind(sim_run,funders_success)
 }
 
-simple_frame = funders_success[,c(1,length(funders_success))]
 
 #simple plot to see if there are any super fit individuals
+simple_frame = funders_success[,c(1,length(funders_success))]
 ggplot(simple_frame, aes(x = V1, y = V54))+
   geom_point()+
   geom_smooth()
 
+#we take only last generation
+last_gen = as_tibble(funders_success[funders_success$V1 == max(funders_success$V1) - 1,2])
+last_gen$value = as.character(last_gen$value) 
 
-funder_phylo = as_tibble(funders_success[,2])
-funder_phylo$value = as.character(funder_phylo$value) 
-
-for (i in 1:length(funder_phylo$value)) {
-  funder_phylo$value[i] = 
-    substring(funder_phylo$value[i],
+for (i in 1:length(last_gen$value)) {
+  last_gen$value[i] = 
+    substring(last_gen$value[i],
               first = 2,
-              last = nchar(funder_phylo$value[i]) - 2)
+              last = nchar(last_gen$value[i]) - 2)
 }
 
 get_parts <- function(x){
@@ -41,12 +41,12 @@ get_parts <- function(x){
   parts
 }
 
-test = get_parts(funder_phylo$value[1])
+test = get_parts(last_gen$value[1])
 
-for (i in 1 : (nrow(funder_phylo) -1)) {
+for (i in 2 : (nrow(last_gen))) {
   test = qpcR:::rbind.na(
     test,
-    get_parts(funder_phylo$value[i + 1])
+    get_parts(last_gen$value[i])
     )
 }
 test = as.data.frame(test)
@@ -64,10 +64,9 @@ for(j in 2:(ncol(test) - 1))
   edge_list = rbind(edge_list, edges)
 }
 
-edge_list = edge_list[- grep("NA", edge_list$to),]
 
-#saveRDS(edge_list,"edge_list_S1")
-loaded_edge_list = readRDS("edge_list_S1")
+saveRDS(edge_list,"edge_list_S1_last_gen")
+loaded_edge_list = readRDS("edge_list_S1_last_gen")
 
 mygraph <- graph_from_data_frame( loaded_edge_list )
 
@@ -97,35 +96,6 @@ ggraph(mylayout)+
   geom_node_point() +
   theme_graph()
 
-###Test sankey plot
-
-#Start from links/edges
-links = loaded_edge_list
-
-#All links happen only once so all values for the links are 1
-links$value = 1
-
-net3D = igraph_to_networkD3(mygraph)
-simpleNetwork(net3D)
-
-# From these,  we need to create a node data frame: it lists every entities involved in the flow
-nodes <- data.frame(
-  name=c(as.character(links$source), 
-         as.character(links$target)) %>% unique()
-)
-
-# With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
-links$IDsource <- match(links$from, nodes$name)-1 
-links$IDtarget <- match(links$to, nodes$name)-1
-
-# Make the Network -> it is unreadable
-p <- sankeyNetwork(Links = links, Nodes = nodes,
-                   Source = "IDsource", Target = "IDtarget",
-                   Value = "value", NodeID = "name", 
-                   sinksRight= FALSE,
-                   nodeWidth=40, fontSize=13, nodePadding=20,
-                   opacityNoHover = 0.3
-                   )
 #########Plot Networks###############
 as_tibble(funders_success)
 
