@@ -8,6 +8,9 @@
 *.o
 *.obj
 
+# Data folder
+vG_W_2016_data/
+
 # Precompiled Headers
 *.gch
 *.pch
@@ -62,9 +65,10 @@ oclint-0.10.3/
 oclint-0.10.3-x86_64-linux-3.13.0-74-generic.tar.gz
 
 
-# Csv files
+# Data and plot files
 *.csv
-.Rproj.user
+*.Rproj.user
+*.html
 
 # log files from cluster
 *.log
