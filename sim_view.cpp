@@ -5,12 +5,10 @@
 #include <cassert>
 
 
-sim_view::sim_view(sim_param start_simulation_param,
-                   float start_zoom,
+sim_view::sim_view(float start_zoom,
                    float zoom_step,
                    float pan_step,
                    float scale) :
-    m_sim(start_simulation_param),//!!!Initialize this first!!!
     m_grid_view{scale},
     m_max_zoom{start_zoom},
     m_pan_step{pan_step},
@@ -35,9 +33,6 @@ sim_view::sim_view(sim_param start_simulation_param,
 #endif
     }
 #endif
-
-    m_grid_view.prepare_grid(m_sim.get_env().get_grid());
-    prepare_pop();
 }
 
 sim_view::~sim_view()
@@ -67,24 +62,25 @@ void sim_view::draw_inds(const simulation& s) noexcept
     }
 }
 
-void sim_view::exec() noexcept
+void sim_view::exec(simulation& s) noexcept
 {
+    m_grid_view.prepare_grid(s.get_env().get_grid());
+    prepare_pop(s);
 
-    while(m_sim.get_cycle() != m_sim.get_meta_param().get_n_cycles())
+    while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
-        if(exec_cycle_visual(m_sim))
+        if(exec_cycle_visual(s))
             break;
-        if(m_sim.get_cycle() != 0
-                && m_sim.get_meta_param().get_change_freq() != 0
-                && m_sim.get_cycle() % m_sim.get_meta_param().get_change_freq() == 0
+        if(s.get_cycle() != 0
+                && s.get_meta_param().get_change_freq() != 0
+                && s.get_cycle() % s.get_meta_param().get_change_freq() == 0
                 )
         {
-            change_env(m_sim);
-            change_pop(m_sim);
+            change_env(s);
+            change_pop(s);
         }
-        m_sim.tick_cycles();
+        s.tick_cycles();
     }
-    //m_window.close();
     return;
 }
 
@@ -160,12 +156,12 @@ void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
     }
 }
 
-void sim_view::prepare_pop() noexcept
+void sim_view::prepare_pop(const simulation& s) noexcept
 {
-    if(m_sim.get_pop().get_v_ind().size() == 0)
+    if(s.get_pop().get_v_ind().size() == 0)
     {
         auto r = individual{}.get_param().get_radius() * m_scale;
-        // Create the player sprite
+        // Create the sprite
         sf::CircleShape circle;
         circle.setRadius(r);
         circle.setFillColor(sf::Color::Blue);
@@ -178,9 +174,9 @@ void sim_view::prepare_pop() noexcept
         return;
     }
 
-    for (size_t i = 0 ; i != m_sim.get_pop().get_v_ind().size(); i++)
+    for (size_t i = 0 ; i != s.get_pop().get_v_ind().size(); i++)
     {
-        const auto& ind = m_sim.get_pop().get_v_ind()[i];
+        const auto& ind = s.get_pop().get_v_ind()[i];
         // Type conversions that simplify notation
         const float r{static_cast<float>(ind.get_param().get_radius()) * m_scale};
         const float x{static_cast<float>(ind.get_x()) * m_scale};
@@ -230,47 +226,6 @@ bool sim_view::process_events()
     k_pan();
     return false; // if no events proceed with tick
 }
-
-void sim_view::run_random_conditions(const simulation& s,
-                                                     int n_number_rand_cond,
-                                                     double amplitude)
-               {
-                   auto random_conditions = create_rand_conditions_unif(
-                               s.get_env().get_param(),
-                               s.get_pop().get_param().get_ind_param(),
-                               n_number_rand_cond,
-                               amplitude,
-                               0);
-
-                   auto test_pop = s.get_pop().get_v_ind();
-
-                   simulation rand_s = no_demographic_copy(s);
-
-                   int counter = 0;
-
-                   for(const auto & condition : random_conditions)
-                   {
-                       assert(rand_s.get_pop().get_v_ind() == test_pop);
-                       assert(rand_s.get_env().get_grid() == s.get_env().get_grid());
-                       change_params(rand_s, condition.first, condition.second);
-                       auto start = std::chrono::high_resolution_clock::now();
-                       if( exec_cycle_visual(rand_s))
-                           break
-                      ;
-                       rand_s.tick_cycles();
-                       rand_s.reset_timesteps();
-                       auto stop = std::chrono::high_resolution_clock::now();
-                       auto duration = std::chrono::duration<float>(stop - start);
-                       std::cout<< "condition: " << duration.count() << "\n";
-                       rand_s.get_pop().get_v_ind() = test_pop;
-                       counter++;
-                   }
-
-                   std::string name = create_random_condition_name(s, amplitude);
-
-                   save_demographic_sim(rand_s.get_demo_sim() ,name);
-
-               }
 
 void sim_view::show(const simulation& s) noexcept
 {
@@ -389,15 +344,11 @@ void test_sim_view()//!OCLINT tests may be many
     {
         // Show the game for one frame
         // (there will be a member function 'exec' for running the game)
-        sim_view v(sim_param{20});
-        v.show(v.get_sim());
+        simulation s{sim_param{20}};
+        sim_view v;
+        v.show(s);
     }
 
-    //A window starts showing simulation from tick 0
-    {
-        const sim_view v;
-        assert(v.get_sim().get_timestep() == 0);
-    }
 
     //A sim_view has a member variable that is a sf::View
     //Initialized with center on 0 and
@@ -423,12 +374,12 @@ void test_sim_view()//!OCLINT tests may be many
     //An error will be thrown if the zoom_step is more than 1!
     {
         float zoom_step = 0.314f;
-        sim_view v(sim_param() ,10,zoom_step);
+        sim_view v(10,zoom_step);
         assert(v.get_zoom_step() - zoom_step < 0.0001f &&
                v.get_zoom_step() - zoom_step > -0.0001f);
         zoom_step = 5;
         try {
-            sim_view v1(sim_param(), 10, zoom_step);//!OCLINT
+            sim_view v1(10, zoom_step);//!OCLINT
         }
         catch (std::string e) {
             assert(e == "zoom_step > 1... too high!\n" );
@@ -448,8 +399,10 @@ void test_sim_view()//!OCLINT tests may be many
     //A sim_view is initialized with a grid_view object containing a vector of vertices
     //of size == to m_sim.get_env().get_grid_size() * 4
     {
+        simulation s;
         sim_view v;
-        assert(v.get_grid_view().get_grid_vert_size() == v.get_sim().get_env().get_grid_size() * 4);
+        v.get_grid_view().prepare_grid(s.get_env().get_grid());
+        assert(v.get_grid_view().get_grid_vert_size() == s.get_env().get_grid_size() * 4);
     }
 
     //When the F key is pressed the flag signalling that food should be shown on the grid will

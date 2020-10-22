@@ -155,6 +155,19 @@ std::string create_last_pop_name(int seed, int change_freq)
     };
 }
 
+std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int seed)
+{
+    return  std::string{
+        "v_rand_cond_n" +
+        std::to_string(n_of_conditions) +
+                "a_" +
+                std::to_string(amplitude) +
+                "s_" +
+                std::to_string(seed) +
+                ".csv"
+    };
+}
+
 std::string create_random_condition_name(const simulation& s, double amplitude)
 {
     return  std::string{
@@ -214,6 +227,7 @@ std::string create_sim_par_name(int seed, int change_freq)
                 ".csv"
     };
 }
+
 
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
                                                                          const ind_param& i,
@@ -338,6 +352,12 @@ simulation load_sim_from_record(int seed, int change_freq)
 
 std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::string& filename)
 {
+    if(!exists(filename))
+    {
+        std::cerr << "random condition vector filername does not exist";
+        abort();
+    }
+
     std::vector<std::pair<env_param, ind_param>> random_conditions;
     env_param env;
     ind_param ind;
@@ -405,7 +425,7 @@ simulation no_demographic_copy(const simulation& s)
 
 void reproduce_cycle_env(simulation&s, int cycle)
 {
-    assert(cycle <= s.get_demo_sim().get_demo_cycles().size());
+    assert(static_cast<size_t>(cycle) < s.get_demo_sim().get_demo_cycles().size());
     environment env_generation{s.get_demo_sim().get_demo_cycles()[cycle].get_env_param()};
     s.get_env() = env_generation;
 }
@@ -414,6 +434,14 @@ void reproduce_cycle(simulation&s, int cycle)
 {
     reproduce_cycle_env(s, cycle);
     s.get_pop().set_pop_inds(pop_from_funders(s.get_funders_success(), s.get_demo_sim(), cycle));
+    place_start_cells(s.get_pop());
+}
+
+void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond)
+{
+
+    change_params(s, rand_cond[n_rand_cond].first, rand_cond[n_rand_cond].second);
+
     place_start_cells(s.get_pop());
 }
 
@@ -488,6 +516,16 @@ demographic_sim run_random_conditions(const simulation& s,
     return rand_s.get_demo_sim();
 }
 
+void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>& rand_cond_v,
+                              const std::string& filename)
+{
+    std::ofstream os{filename};
+    for(const auto& condition : rand_cond_v)
+    {
+        os << condition.first << " , "
+           << condition.second << std::endl;
+    }
+}
 void save_data(const simulation& s)
 {
     std::string sim_param_name = create_sim_par_name(s);
@@ -1226,7 +1264,8 @@ void test_simulation()//!OCLINT tests may be many
     //A simulation is initialized with a funders_success  object
     {
         simulation s;
-        assert(s.get_funders_success().get_v_funders().size() >= 0u);
+
+        assert(s.get_funders_success().get_v_funders().size() == 0);
     }
 
     //It is possible to store the ancestor_ID and GRN of the
@@ -1471,31 +1510,21 @@ void test_simulation()//!OCLINT tests may be many
     }
 
 
-    //It is possible to load the random conditions in a vector
+    //It is possible to save and load a random conditions in a vector
     {
         //Make a random conditions .csv file
         env_param env;
         ind_param ind;
         std::minstd_rand rng;
-        std::string filename{"test_random_conditions.csv"};
-        std::ofstream os{filename};
+        int n_conditions = 2;
+        int seed = 0;
+        double amplitude = 1.1;
+        std::string filename = create_name_vec_rand_cond(n_conditions, amplitude, seed);
 
-        std::vector<std::pair<env_param,ind_param>> rand_conditions_saved;
-
-        int repeats = 2;
-
-        for(int i = 0; i != repeats; i++)
-        {
-            rand_conditions_saved.push_back({change_env_param_norm(env, rng),
-                                             change_ind_param_norm(ind, rng)});
-            os << rand_conditions_saved.back().first << " , "
-               << rand_conditions_saved.back().second << std::endl;
-        }
-
-
-
+        auto random_conditions = create_rand_conditions_unif(env, ind, n_conditions, amplitude, seed);
+        save_vector_of_rand_cond(random_conditions, filename);
         auto random_conditions_loaded = load_random_conditions(filename);
-        assert( random_conditions_loaded == rand_conditions_saved);
+        assert( random_conditions_loaded == random_conditions);
 
     }
 
@@ -1706,8 +1735,8 @@ void test_simulation()//!OCLINT tests may be many
 
         simulation s = load_sim_from_record(seed, change_freq);
         auto sp = sim_param{s.get_env().get_param(),
-                                 s.get_meta_param(),
-                                 s.get_pop().get_param()};
+                s.get_meta_param(),
+                s.get_pop().get_param()};
 
         assert(s.get_funders_success() == fund_succ);
         assert(s.get_demo_sim() == sim_dem);

@@ -11,8 +11,7 @@ class sim_view
 {
 public:
 
-    sim_view(sim_param start_simulation_param = sim_param(),
-             float start_zoom = 10,
+    sim_view(float start_zoom = 10,
              float zoom_step = 0.01f,
              float pan_step = 2.f,
              float scale = 10);
@@ -20,7 +19,7 @@ public:
 
     /// Run the sim until the window is closed
     /// or simulation is finished
-    void exec() noexcept;
+    void exec(simulation& s) noexcept;
 
     ///Same as exec_cycle for simulation but
     /// processes event and shows() every tick
@@ -34,12 +33,6 @@ public:
 
     ///Gets the value of the zoom
     float get_max_zoom() const noexcept {return m_max_zoom;}
-
-    ///Gets a const ref to m_sim
-    const simulation& get_sim() const noexcept {return m_sim; }
-
-    ///Gets a ref to m_sim
-    simulation& get_sim() noexcept {return m_sim; }
 
     ///Gets const ref to m_view
     const sf::View& get_view() const noexcept {return  m_view;}
@@ -72,16 +65,11 @@ public:
     void pan_k_input_ends(const sf::Event& event) noexcept;
 
     ///Creates a vector of sf::CircleShape that will be used to draw the population
-    void prepare_pop() noexcept;
+    void prepare_pop(const simulation &s) noexcept;
 
     /// Processes events in game and ouputs false if quit
     /// is inputted
     bool process_events();
-
-    ///Runs random conditions and visualizes them
-    void run_random_conditions(const simulation& s,
-                               int n_number_rand_cond,
-                               double amplitude);
 
     ///Updates the vector of shapes representing individuals if new individuals are added
     void update_pop(const simulation &s) noexcept;
@@ -113,10 +101,6 @@ public:
 
 
 private:
-
-    /// The simulation logic,
-    ///!!!on top of all because it needs to be initialized first!!!
-    simulation m_sim;
 
     ///The class that defines the drawable object representing the environment grid
     grid_view m_grid_view;

@@ -13,6 +13,18 @@
 #include <iostream>
 #include <string>
 
+std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(const env_param& e,
+                                                                             const ind_param& i,
+                                                                             double amplitude,
+                                                                             int n_conditions = 50,
+                                                                             int seed = 0)
+{
+    auto name = create_name_vec_rand_cond(n_conditions,amplitude,seed);
+    auto rand_cond_vector = create_rand_conditions_unif(e,i,n_conditions,amplitude,seed);
+    save_vector_of_rand_cond(rand_cond_vector, name);
+    return rand_cond_vector;
+}
+
 int run_reac_norm_best(int change_freq,
                        double max_food,
                        double max_energy,
@@ -168,62 +180,52 @@ int run_standard(const env_param& e,
 #ifndef LOGIC_ONLY
 int run_visual_evo (const env_param& e,
                     const meta_param& m,
-                    const pop_param& p,
-                    double amplitude,
-                    int change_frequency,
-                    int n_random_conditions,
-                    int seed)
+                    const pop_param& p)
 {
 
-    sim_view v(sim_param{e, m, p});
-    v.exec();
-    std::cout << "view: ";
-    auto start = std::chrono::high_resolution_clock::now();
-    auto rand_s = no_demographic_copy(load_sim_from_last_pop(seed,change_frequency));
-    place_start_cells(rand_s.get_pop());
-    v.run_random_conditions(rand_s, n_random_conditions, amplitude);
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float>(stop - start);
-    std::cout << duration.count() << "s" << std::endl;
-    std::cout << "n_cycles:" << v.get_sim().get_cycle() << std::endl;
+    simulation s{sim_param{e, m, p}};
+    sim_view v;
+    v.exec(s);
     return 0;
 }
 
 ///Reloads a simulation of a given seed and frequency change
 /// and replays visually one given cycle
 int replay_cycle_from_evo (
-                    int change_frequency,
-                    int seed,
+        int change_frequency,
+        int seed,
         int cycle)
 {
 
-    sim_view v(load_sim_parameters(create_sim_par_name(seed, change_frequency)));
+    simulation s;
     auto funders_success = load_funders_success(create_funders_success_name(seed, change_frequency));
-    v.get_sim().set_funders_success(funders_success);
-    v.get_sim().set_demo_sim(load_demographic_sim(create_sim_demo_name(seed,change_frequency)));
-    reproduce_cycle(v.get_sim(),cycle);
-    v.get_grid_view().prepare_grid(v.get_sim().get_env().get_grid());
-    v.exec_cycle_visual(v.get_sim());
-    std::cout << "view: ";
+    s.set_funders_success(funders_success);
+    s.set_demo_sim(load_demographic_sim(create_sim_demo_name(seed,change_frequency)));
+    reproduce_cycle(s,cycle);
+
+    sim_view v;
+    v.get_grid_view().prepare_grid(s.get_env().get_grid());
+    v.prepare_pop(s);
+    v.exec_cycle_visual(s);
     return 0;
 }
 
 ///Reloads a simulation of a given seed and frequency change
 /// and replays visually one given random condition(number 1, 2, 3, ... etc)
-int replay_rand_cond (
-                    int change_frequency,
-                    int seed,
-        int rand_cond)
+int replay_rand_cond (double change_freq,
+                      int seed_sim,
+                      int n_conditions,
+                      double amplitude,
+                      int seed_rand_cond,
+                      int rand_cond_n)
 {
-
-    sim_view v(load_sim_parameters(create_sim_par_name(seed, change_frequency)));
-    auto funders_success = load_funders_success(create_funders_success_name(seed, change_frequency));
-    v.get_sim().set_funders_success(funders_success);
-    v.get_sim().set_demo_sim(load_demographic_sim(create_sim_demo_name(seed,change_frequency)));
-    //reproduce_rand_cond(v.get_sim(),rand_cond);
-    v.get_grid_view().prepare_grid(v.get_sim().get_env().get_grid());
-    v.exec_cycle_visual(v.get_sim());
-    std::cout << "view: ";
+    auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
+    auto rand_s = load_sim_from_last_pop(seed_sim,change_freq);
+    sim_view v;
+    reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);
+    v.get_grid_view().prepare_grid(rand_s.get_env().get_grid());
+    v.prepare_pop(rand_s);
+    v.exec_cycle_visual(rand_s);
     return 0;
 }
 #endif
@@ -272,7 +274,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
     int seed = 0;
-    int change_freq = 1;
+    int change_freq = 0;
     int n_random_conditions = 50;
     double amplitude = 3;
     bool overwrite = false;
@@ -285,8 +287,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         replay_cycle,
                         amplitude,
                         overwrite);
-    meta_param m{10,
-                 1,
+    meta_param m{200,
+                 300,
                  seed,
                          change_freq
                 };
@@ -319,14 +321,10 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     if(args.size() > 1 && args[1] == "--visual")
     {
 #ifndef LOGIC_ONLY
-        run_visual_evo(e,m,p,
-                       amplitude,
-                       change_freq,
-                       n_random_conditions,
-                       seed);
+        run_visual_evo(e,m,p);
 #endif
     }
-    if(args.size() > 1 && args[1] == "--replay")
+    else if(args.size() > 1 && args[1] == "--replay")
     {
 #ifndef LOGIC_ONLY
         replay_cycle_from_evo(change_freq,
@@ -372,6 +370,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                            step,
                            seed,
                            overwrite);
+    }
+    else if(args.size() > 1 && args[1] == "--create_rand_cond_vec")
+    {
+        create_vector_random_conditions(e,
+                                        p.get_ind_param(),
+                                        amplitude,
+                                        n_random_conditions);
     }
     else
     {

@@ -151,6 +151,14 @@ std::string create_last_pop_name(int seed, int change_freq);
 /// for testing against random conditions given a simulation
 std::string create_last_pop_name(const simulation& s);
 
+///Creates the name for the file
+/// where to save a vector of pairs
+/// of randomly generated env_param and ind_param,
+/// given the number of conditions,
+/// the amplitude of the randomness
+/// and the seed of the rng.
+std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int seed);
+
 ///Creates a name for the file where
 /// the deomgraphic of the evolving population
 /// in random environment is saved
@@ -195,11 +203,15 @@ void jordi_feeding(simulation& s);
 /// in a previously saved simulation's last_pop file
 simulation load_best_ind_for_rand_cond(int seed, int change_freq);
 
+///Loads random conditions given their filename
+/// (usually automated with create_rand_cond_name).
+std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::string& filename);
+
 ////Loads sims from a sim_param and last_pop funders objects
 /// saved with a given seed and change freq parameters
 simulation load_sim_from_last_pop(int seed, int change_freq);
 
-///Loads a simulatio from the files produced from
+///Loads a simulation from the files produced from
 /// an evolutionary run of the simulation
 /// The population is not set
 simulation load_sim_from_record(int seed, int change_freq);
@@ -209,6 +221,9 @@ simulation load_sim_from_record(int seed, int change_freq);
 /// the funder_success and demographic sim vectors
 simulation no_demographic_copy(const simulation& s);
 
+///Stores ancestor_ID and GRN of funders of a cycle in funders_success
+funders prepare_funders(const simulation& s);
+
 ///Sets the environment of a simulation to the environment that happened in a certain cycle
 void reproduce_cycle_env(simulation&s, int cycle);
 
@@ -217,8 +232,9 @@ void reproduce_cycle_env(simulation&s, int cycle);
 /// And the enviromental conditions to be the conditions in that generation
 void reproduce_cycle(simulation&s, int cycle);
 
-///Stores ancestor_ID and GRN of funders of a cycle in funders_success
-funders prepare_funders(const simulation& s);
+///Sets the environmental and individual conditions of a population
+/// to the condition o the n_rand_cond element of the rand_cond vector
+void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond);
 
 ///Resets a simulation to its initial conditions
 void reset_sim(simulation& s) noexcept;
@@ -231,6 +247,10 @@ demographic_sim run_random_conditions(const simulation &s,
                                       int n_number_rand_cond,
                                       double amplitude,
                                       std::string name);
+
+///Saves a vector of pairs of randomlly generated env_param and ind_param
+void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>& rand_cond_v,
+                              const std::string& filename);
 
 ///Save all necessary data at the end of the simulation
 void save_data(const simulation& s);

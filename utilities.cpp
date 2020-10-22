@@ -56,10 +56,18 @@ bool exists (const std::string& name) {
 
 void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 {
-    if (args.size() > 4
+    if ((args.size() > 4
             &&  (args[1] == "--rand"
                  || args[1] == "--rand_best")
             &&  args[4][0] == 'a'
+            )
+            ||
+            (args.size() > 1
+             &&
+             args[1] == "--create_rand_cond_vec"
+             &&
+             args[2][0] == 'a'
+             )
             )
     {
         std::string s_amplitude;
@@ -73,10 +81,16 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 
 void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditions)
 {
-    if (args.size() > 5
+    if ((args.size() > 5
             &&  (args[1] == "--rand"
                  || args[1] == "--rand_best")
-            &&  args[5][0] == 'n'
+            &&  args[5][0] == 'n')
+            ||
+            (args.size() > 2
+             &&
+             args[1] == "--create_rand_cond_vec"
+             &&
+             args[3][0] == 'n')
             )
     {
         std::string s_n_random_conditions;
