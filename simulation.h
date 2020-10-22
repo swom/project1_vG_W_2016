@@ -209,9 +209,13 @@ simulation load_sim_from_record(int seed, int change_freq);
 /// the funder_success and demographic sim vectors
 simulation no_demographic_copy(const simulation& s);
 
-///Sets the individual of the populaiton to be the
+///Sets the environment of a simulation to the environment that happened in a certain cycle
+void reproduce_cycle_env(simulation&s, int cycle);
+
+///Sets the individuals of the populaiton to be the
 /// individuals of a specified generation of funders
-void pop_from_funders_gen(simulation&s, int funders_generation);
+/// And the enviromental conditions to be the conditions in that generation
+void reproduce_cycle(simulation&s, int cycle);
 
 ///Stores ancestor_ID and GRN of funders of a cycle in funders_success
 funders prepare_funders(const simulation& s);

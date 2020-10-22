@@ -7,65 +7,68 @@ library(igraph)
 library(ggraph)
 library(networkD3)
 
+dir = dirname(rstudioapi::getActiveDocumentContext()$path)
+setwd(paste(dir,"/vG_W_2016_data",sep = ""))
+
 ########Plot Philogenesis###############
-funders_success = data.frame()
-for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
-{
-  print(i)
-  sim_run = read.csv(i, header = FALSE, sep = ',')
-  funders_success = rbind(sim_run,funders_success)
-}
-
-
-#simple plot to see if there are any super fit individuals
-simple_frame = funders_success[,c(1,length(funders_success))]
-ggplot(simple_frame, aes(x = V1, y = V54))+
-  geom_point()+
-  geom_smooth()
-
-#we take only last generation
-last_gen = as_tibble(funders_success[funders_success$V1 == max(funders_success$V1) - 1,2])
-last_gen$value = as.character(last_gen$value) 
-
-for (i in 1:length(last_gen$value)) {
-  last_gen$value[i] = 
-    substring(last_gen$value[i],
-              first = 2,
-              last = nchar(last_gen$value[i]) - 2)
-}
-
-get_parts <- function(x){
-  
-  parts <- c(unlist(strsplit(x, split = " ")))
-  
-  parts
-}
-
-test = get_parts(last_gen$value[1])
-
-for (i in 2 : (nrow(last_gen))) {
-  test = qpcR:::rbind.na(
-    test,
-    get_parts(last_gen$value[i])
-    )
-}
-test = as.data.frame(test)
-colnames(test) = paste("level",c(1:ncol(test)), sep = "")
-
-edge_list <- test %>% select("level1","level2") %>% unique %>% rename(from="level1", to="level2")
-edge_list$from = paste("level", toString(1), "_", edge_list$from, sep="")
-edge_list$to = paste("level", toString(2), "_", edge_list$to, sep="")
-for(j in 2:(ncol(test) - 1))
-{
-  edges <- 
-    test %>% select(colnames(test)[j], colnames(test)[j + 1]) %>% unique  %>% rename(from=colnames(test)[j], to=colnames(test)[j + 1])
-  edges$from = paste("level", toString(j), "_",edges$from, sep="")
-  edges$to = paste("level", toString(j + 1), "_", edges$to, sep="")
-  edge_list = rbind(edge_list, edges)
-}
-
-
-saveRDS(edge_list,"edge_list_S1_last_gen")
+# funders_success = data.frame()
+# for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
+# {
+#   print(i)
+#   sim_run = read.csv(i, header = FALSE, sep = ',')
+#   funders_success = rbind(sim_run,funders_success)
+# }
+# 
+# 
+# #simple plot to see if there are any super fit individuals
+# simple_frame = funders_success[,c(1,length(funders_success))]
+# ggplot(simple_frame, aes(x = V1, y = V54))+
+#   geom_point()+
+#   geom_smooth()
+# 
+# #we take only last generation
+# last_gen = as_tibble(funders_success[funders_success$V1 == max(funders_success$V1) - 1,2])
+# last_gen$value = as.character(last_gen$value) 
+# 
+# for (i in 1:length(last_gen$value)) {
+#   last_gen$value[i] = 
+#     substring(last_gen$value[i],
+#               first = 2,
+#               last = nchar(last_gen$value[i]) - 2)
+# }
+# 
+# get_parts <- function(x){
+#   
+#   parts <- c(unlist(strsplit(x, split = " ")))
+#   
+#   parts
+# }
+# 
+# test = get_parts(last_gen$value[1])
+# 
+# for (i in 2 : (nrow(last_gen))) {
+#   test = qpcR:::rbind.na(
+#     test,
+#     get_parts(last_gen$value[i])
+#     )
+# }
+# test = as.data.frame(test)
+# colnames(test) = paste("level",c(1:ncol(test)), sep = "")
+# 
+# edge_list <- test %>% select("level1","level2") %>% unique %>% rename(from="level1", to="level2")
+# edge_list$from = paste("level", toString(1), "_", edge_list$from, sep="")
+# edge_list$to = paste("level", toString(2), "_", edge_list$to, sep="")
+# for(j in 2:(ncol(test) - 1))
+# {
+#   edges <- 
+#     test %>% select(colnames(test)[j], colnames(test)[j + 1]) %>% unique  %>% rename(from=colnames(test)[j], to=colnames(test)[j + 1])
+#   edges$from = paste("level", toString(j), "_",edges$from, sep="")
+#   edges$to = paste("level", toString(j + 1), "_", edges$to, sep="")
+#   edge_list = rbind(edge_list, edges)
+# }
+# 
+# 
+# saveRDS(edge_list,"edge_list_S1_last_gen")
 loaded_edge_list = readRDS("edge_list_S1_last_gen")
 
 mygraph <- graph_from_data_frame( loaded_edge_list )

@@ -125,7 +125,7 @@ bool calc_tot_displ_pop(population& population);
 std::vector<individual> change_inds(const population &p, const ind_param &new_ind_params);
 
 ///Removes dead inidviduals from population vector
-std::vector<individual> death(population& p) noexcept;
+void death(population& p) noexcept;
 
 ///Returns a demographic cycle object storing data about a population
 demographic_cycle demographics(const population&p, const env_param&e) noexcept;
@@ -251,7 +251,7 @@ std::vector<individual> pop_from_funders(const funders_success &f_s,
 void senescence(population &p) noexcept;
 
 ///Kills individuals with energy = 0
-void starvation(std::vector<individual> &p) noexcept;
+void starvation(population &p) noexcept;
 
 void test_population() noexcept;
 #endif // POPULATION_H

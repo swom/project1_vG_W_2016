@@ -2,6 +2,8 @@ library(tidyr)
 library(dplyr)
 library(stringr)
 library(ggplot2)
+dir = dirname(rstudioapi::getActiveDocumentContext()$path)
+setwd(paste(dir,"/vG_W_2016_data",sep = ""))
 rand_demographic = data.frame()
 
 for (i in  list.files(path = '.',pattern = "random_cond_sim_demographic_s\\d+_change_\\d+_amplitude_\\d+.*"))

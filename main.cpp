@@ -189,6 +189,8 @@ int run_visual_evo (const env_param& e,
     return 0;
 }
 
+///Reloads a simulation of a given seed and frequency change
+/// and replays visually one given cycle
 int replay_cycle_from_evo (
                     int change_frequency,
                     int seed,
@@ -199,7 +201,26 @@ int replay_cycle_from_evo (
     auto funders_success = load_funders_success(create_funders_success_name(seed, change_frequency));
     v.get_sim().set_funders_success(funders_success);
     v.get_sim().set_demo_sim(load_demographic_sim(create_sim_demo_name(seed,change_frequency)));
-    pop_from_funders_gen(v.get_sim(),cycle);
+    reproduce_cycle(v.get_sim(),cycle);
+    v.get_grid_view().prepare_grid(v.get_sim().get_env().get_grid());
+    v.exec_cycle_visual(v.get_sim());
+    std::cout << "view: ";
+    return 0;
+}
+
+///Reloads a simulation of a given seed and frequency change
+/// and replays visually one given random condition(number 1, 2, 3, ... etc)
+int replay_rand_cond (
+                    int change_frequency,
+                    int seed,
+        int rand_cond)
+{
+
+    sim_view v(load_sim_parameters(create_sim_par_name(seed, change_frequency)));
+    auto funders_success = load_funders_success(create_funders_success_name(seed, change_frequency));
+    v.get_sim().set_funders_success(funders_success);
+    v.get_sim().set_demo_sim(load_demographic_sim(create_sim_demo_name(seed,change_frequency)));
+    //reproduce_rand_cond(v.get_sim(),rand_cond);
     v.get_grid_view().prepare_grid(v.get_sim().get_env().get_grid());
     v.exec_cycle_visual(v.get_sim());
     std::cout << "view: ";
@@ -251,7 +272,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
     int seed = 0;
-    int change_freq = 0;
+    int change_freq = 1;
     int n_random_conditions = 50;
     double amplitude = 3;
     bool overwrite = false;
@@ -264,8 +285,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         replay_cycle,
                         amplitude,
                         overwrite);
-    meta_param m{200,
-                 125,
+    meta_param m{10,
+                 1,
                  seed,
                          change_freq
                 };
@@ -283,7 +304,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 ind
                };
 
-    env_param e{200,
+    env_param e{50,
                 0.1,
                 10,
                 0.1,

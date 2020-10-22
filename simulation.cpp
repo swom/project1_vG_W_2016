@@ -403,12 +403,17 @@ simulation no_demographic_copy(const simulation& s)
     return new_s;
 }
 
-
-void pop_from_funders_gen(simulation&s, int funders_generation)
+void reproduce_cycle_env(simulation&s, int cycle)
 {
-    environment env_generation{s.get_demo_sim().get_demo_cycles()[funders_generation].get_env_param()};
+    assert(cycle <= s.get_demo_sim().get_demo_cycles().size());
+    environment env_generation{s.get_demo_sim().get_demo_cycles()[cycle].get_env_param()};
     s.get_env() = env_generation;
-    s.get_pop().set_pop_inds(pop_from_funders(s.get_funders_success(), s.get_demo_sim(), funders_generation));
+}
+
+void reproduce_cycle(simulation&s, int cycle)
+{
+    reproduce_cycle_env(s, cycle);
+    s.get_pop().set_pop_inds(pop_from_funders(s.get_funders_success(), s.get_demo_sim(), cycle));
     place_start_cells(s.get_pop());
 }
 
@@ -535,8 +540,8 @@ int tick(simulation& s)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    //death(s.get_pop());
-    jordi_death(s.get_pop());
+    death(s.get_pop());
+    //jordi_death(s.get_pop());
     if(division(s.get_pop()))
     {
         time += manage_static_collisions(s.get_pop());
@@ -966,7 +971,7 @@ void test_simulation()//!OCLINT tests may be many
     //After each tick the simulation updates its m_tick
     //by one
     {
-        simulation s;
+        simulation s{};
         for(int i = 0; i != 3; i++)
         {
             assert(s.get_timestep() == i);
@@ -1726,7 +1731,7 @@ void test_simulation()//!OCLINT tests may be many
 
         auto s = load_sim_from_record(seed, change_freq);
 
-        pop_from_funders_gen(s, funders_generation);
+        reproduce_cycle(s, funders_generation);
 
         assert(s.get_env() == environment{selected_conditions.get_env_param()});
 

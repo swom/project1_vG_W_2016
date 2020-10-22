@@ -5,6 +5,7 @@ library(rgl)
 library(misc3d)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(paste(dir,"/vG_W_2016_data",sep = ""))
+
 all_reac_norms = data.frame()
 
 for (i in  list.files(path = '.',pattern = "reaction_norm_best_ind_s\\d+_f\\d+.csv"))
@@ -70,8 +71,10 @@ for (i in levels(all_reac_norms$seed)) {
 
 ###Calculating distances and making phenograms
 
+for( j in levels(all_reac_norms$change))
+{
 #subset for a certain frequency of change
-freq = subset(all_reac_norms, change == 0)[,c("Sporulation","seed")]
+freq = subset(all_reac_norms, change == j)[,c("Sporulation","seed")]
 #resize factors in seed column
 freq$seed = factor(freq$seed)
 
@@ -94,17 +97,38 @@ row.names(reac_norms_freq) = levels(freq$seed)
 d = dist(reac_norms_freq, method ="euclidean", diag = T, upper = T)
 dd = d/sqrt(length(reac_norms_freq))
 
+#create title for graph
+title = paste("freq",j, sep = "_")
+
 #plot dendrograms using hierarchical clustering
-plot(hclust(d))
-plot(hclust(dd))
+pdf(paste( "hd",title, sep = "_"),
+    width = 8.27,
+    height = 11.69)
+plot(hclust(d), main = title )
+dev.off()
+
+pdf(paste( "hd_averaged",title, sep = "_"),
+    width = 8.27,
+    height = 11.69)
+plot(hclust(dd), main = title)
+dev.off()
 
 #using neighbour joining alghoritm(same as jordi?)
 library(ape)
-plot(nj(d),"u")
-plot(nj(dd),"u")
+pdf(paste( "ud",title, sep = "_"),
+    width = 8.27,
+    height = 11.69)
+plot(nj(d),"u", main = title)
+dev.off()
+
+pdf(paste( "ud_averaged",title, sep = "_"),
+    width = 8.27,
+    height = 11.69)
+plot(nj(dd),"u", main = title)
+dev.off()
 
 #For other options see: 
 #http://www.sthda.com/english/wiki/beautiful-dendrogram-visualizations-in-r-5-must-known-methods-unsupervised-machine-learning
 #using ggplot?
 #using extendeddendr
-
+}

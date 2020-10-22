@@ -129,7 +129,7 @@ env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexc
 
     e1.set_diff_coeff(new_diff_coeff);
 
-    auto new_degr_rate = std::normal_distribution<double>{e.get_mean_degr_rate() - 3 * e.get_var_degr_rate(),
+    auto new_degr_rate = std::uniform_real_distribution<double>{e.get_mean_degr_rate() - 3 * e.get_var_degr_rate(),
             e.get_mean_degr_rate() + 3 * e.get_var_degr_rate()}(rng);
 
     e1.set_metab_degr(new_degr_rate);
@@ -219,7 +219,7 @@ void test_env_param() noexcept //!OCLINT
     /// m_mean_diff_coeff & m_var_diff_coeff
     /// m_mean_degr_rate & m_var_degr_rate
     /// For the uniform dostribution
-    /// the range is [m_mean* - 3 * m_var, m_mean* + 3 * m_var]
+    /// the range is [m_mean* - 3 * m_var, m_mean + 3 * m_var]
     {
         std::random_device r;
         std::minstd_rand rng{r()};

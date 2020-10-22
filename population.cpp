@@ -141,9 +141,9 @@ std::vector<individual> change_inds(const population& p, const ind_param& new_in
     return new_p_v;
 }
 
-std::vector<individual> death(population &p) noexcept
+void death(population &p) noexcept
 {
-    starvation(p.get_v_ind());
+    starvation(p);
     senescence(p);
 }
 
@@ -594,13 +594,14 @@ void spor_metabolism_pop(population &p)
     }
 }
 
-void starvation( std::vector<individual>& p) noexcept
+void starvation( population& p) noexcept
 {
 
-    p.erase(std::remove_if(
-                p.begin(),p.end(), [](individual const &i){return is_dead(i);}
+    p.get_v_ind().erase(
+                std::remove_if(
+                p.get_v_ind().begin(), p.get_v_ind().end(), [](const individual &i){return is_dead(i);}
             )
-            ,p.end());
+            ,p.get_v_ind().end());
 }
 
 void test_population() noexcept  //!OCLINT
@@ -1142,7 +1143,7 @@ void test_population() noexcept  //!OCLINT
         population p;
         p.get_ind(0).set_energy(0);//the only individual in this sim has 0 energy, thus it will die
         assert(p.get_pop_size() == 1);
-        starvation(p.get_v_ind());
+        starvation(p);
         assert(p.get_v_ind().empty() && p.get_pop_size() == 0);
 
         unsigned int pop_size = 5;
@@ -1158,11 +1159,11 @@ void test_population() noexcept  //!OCLINT
         set_ind_en(p1.get_ind(0),p1.get_ind(0).get_param().get_metabolic_rate() + 0.001);
         assert(p1.get_v_ind().size() == pop_size);
         metabolism_pop(p1);
-        starvation(p1.get_v_ind());
+        starvation(p1);
         assert(p1.get_pop_size() == 1);
         //then at the second tick the only individual left dies
         metabolism_pop(p1);
-        starvation(p1.get_v_ind());
+        starvation(p1);
         assert(p1.get_v_ind().empty() && p.get_pop_size() == 0);
     }
 
