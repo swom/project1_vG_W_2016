@@ -9,7 +9,7 @@
 *.obj
 
 # Data folder
-.vG_W_2016_data/
+.vG_W_2016_data/**
 
 # Precompiled Headers
 *.gch
