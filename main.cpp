@@ -306,7 +306,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 ind
                };
 
-    env_param e{50,
+    env_param e{200,
                 0.1,
                 10,
                 0.1,

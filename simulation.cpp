@@ -578,8 +578,8 @@ int tick(simulation& s)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    death(s.get_pop());
-    //jordi_death(s.get_pop());
+    //death(s.get_pop());
+    jordi_death(s.get_pop());
     if(division(s.get_pop()))
     {
         time += manage_static_collisions(s.get_pop());
