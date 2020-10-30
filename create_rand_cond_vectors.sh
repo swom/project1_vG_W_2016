@@ -15,8 +15,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name= create_rand_cond
-#SBATCH --output= create_rand_cond.log
+#SBATCH --job-name=create_rand_cond
+#SBATCH --output=create_rand_cond.log
 
 
 # simulation_logic_only has this command-linae interface:
@@ -37,3 +37,4 @@ amplitude=(1.5, 2, 2.5, 3)
 do
   echo $i
   ./simulation_logic_only --create_rand_cond_vec a$i
+  done
