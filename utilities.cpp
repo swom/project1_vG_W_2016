@@ -16,13 +16,17 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          double& amplitude,
                          bool& overwrite)
 {
-    if (args.size() > 3
+    if ((args.size() > 3
             && (args[1] == "--sim"
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay")
             )
+            ||
+            (args.size() > 1
+             &&
+             args[1] == "--create_rand_cond_vec"))
     {
         take_amplitude_arg(args, amplitude);
         take_change_freq_arg(args,change_freq);
@@ -56,18 +60,10 @@ bool exists (const std::string& name) {
 
 void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 {
-    if ((args.size() > 4
+    if (args.size() > 4
             &&  (args[1] == "--rand"
                  || args[1] == "--rand_best")
-            &&  args[4][0] == 'a'
-            )
-            ||
-            (args.size() > 1
-             &&
-             args[1] == "--create_rand_cond_vec"
-             &&
-             args[2][0] == 'a'
-             )
+            &&  args[4][0] == 'a'         
             )
     {
         std::string s_amplitude;
@@ -77,6 +73,21 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
         }
         amplitude = std::stod(s_amplitude);
     }
+    else if (args.size() > 1
+              &&
+              args[1] == "--create_rand_cond_vec"
+              &&
+              args[2][0] == 'a'
+              )
+    {
+        std::string s_amplitude;
+        for(size_t i = 1; i != args[2].size(); i++)
+        {
+            s_amplitude += args[2][i];
+        }
+        amplitude = std::stod(s_amplitude);
+    }
+
 }
 
 void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditions)

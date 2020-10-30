@@ -212,7 +212,7 @@ int replay_cycle_from_evo (
 
 ///Reloads a simulation of a given seed and frequency change
 /// and replays visually one given random condition(number 1, 2, 3, ... etc)
-int replay_rand_cond (double change_freq,
+int  replay_rand_cond (double change_freq,
                       int seed_sim,
                       int n_conditions,
                       double amplitude,
@@ -377,6 +377,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                                         p.get_ind_param(),
                                         amplitude,
                                         n_random_conditions);
+
     }
     else
     {
