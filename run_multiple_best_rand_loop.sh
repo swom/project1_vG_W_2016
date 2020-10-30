@@ -29,7 +29,7 @@ make
 
 change_freqs=(0, 1, 10)
 amplitude=(1.5, 2, 2.5, 3)
-for i in $(seq 1 40)
+for i in $(seq 1 100)
 do
   for j in "${change_freqs[@]}"
 do

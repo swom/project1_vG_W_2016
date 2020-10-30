@@ -15,8 +15,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=run
-#SBATCH --output=run_sim.log
+#SBATCH --job-name= create_rand_cond
+#SBATCH --output= create_rand_cond.log
 
 
 # simulation_logic_only has this command-linae interface:
