@@ -16,17 +16,13 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          double& amplitude,
                          bool& overwrite)
 {
-    if ((args.size() > 3
+    if (args.size() > 3
             && (args[1] == "--sim"
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay")
             )
-            ||
-            (args.size() > 1
-             &&
-             args[1] == "--create_rand_cond_vec"))
     {
         take_amplitude_arg(args, amplitude);
         take_change_freq_arg(args,change_freq);
@@ -34,6 +30,12 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_seed_arg(args, seed);
         take_overwrite_arg(args, overwrite);
         take_replay_cycle_arg(args,replay_cycle);
+    }
+    else if(args.size() > 1
+            &&
+            args[1] == "--create_rand_cond_vec")
+    {
+        take_amplitude_arg(args, amplitude);
     }
 }
 
@@ -63,7 +65,7 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
     if (args.size() > 4
             &&  (args[1] == "--rand"
                  || args[1] == "--rand_best")
-            &&  args[4][0] == 'a'         
+            &&  args[4][0] == 'a'
             )
     {
         std::string s_amplitude;
@@ -74,11 +76,11 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
         amplitude = std::stod(s_amplitude);
     }
     else if (args.size() > 1
-              &&
-              args[1] == "--create_rand_cond_vec"
-              &&
-              args[2][0] == 'a'
-              )
+             &&
+             args[1] == "--create_rand_cond_vec"
+             &&
+             args[2][0] == 'a'
+             )
     {
         std::string s_amplitude;
         for(size_t i = 1; i != args[2].size(); i++)
@@ -93,9 +95,9 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditions)
 {
     if ((args.size() > 5
-            &&  (args[1] == "--rand"
-                 || args[1] == "--rand_best")
-            &&  args[5][0] == 'n')
+         &&  (args[1] == "--rand"
+              || args[1] == "--rand_best")
+         &&  args[5][0] == 'n')
             ||
             (args.size() > 2
              &&
