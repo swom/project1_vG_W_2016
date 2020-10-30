@@ -2,6 +2,8 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(ggplot2)
+dir = dirname(rstudioapi::getActiveDocumentContext()$path)
+setwd(paste(dir,"/vG_W_2016_data/200_cycles",sep = ""))
 demographic = data.frame()
 
 for (i in  list.files(path = '.',pattern = "sim_demographic_s\\d+change_\\d+"))

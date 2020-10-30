@@ -287,8 +287,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         replay_cycle,
                         amplitude,
                         overwrite);
-    meta_param m{200,
-                 300,
+    meta_param m{500,
+                 125,
                  seed,
                          change_freq
                 };
