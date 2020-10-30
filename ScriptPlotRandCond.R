@@ -12,6 +12,7 @@ for (i in  list.files(path = '.',pattern = "random_cond_sim_demographic_s\\d+_ch
   conditions$seed = sub( "^.*s(\\d+).*",'\\1', i)
   conditions$change = sub( "^.*change_(\\d+).*",'\\1', i)
   conditions$amplitude = sub( "^.*amplitude_(\\d+)",'\\1', i)
+  conditions$amplitude = sub( "(\\d+).csv",'\\1', conditions$amplitude)
   rand_demographic = rbind(conditions,rand_demographic)
 }
 
@@ -46,6 +47,8 @@ new_rand_demo = rand_demographic %>%
 
 new_rand_demo %>% 
   subset(variable == "spore") %>% 
+  subset(as.numeric(seed) < 51) %>% 
+  subset(as.numeric(amplitude) < 2) %>% 
   ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
   facet_grid(change_freq  ~ amplitude)

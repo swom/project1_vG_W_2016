@@ -31,9 +31,11 @@ demographic$seed = as.factor(demographic$seed)
 demographic$change_freq = as.factor(demographic$change_freq) 
 demographic$variable = as.factor(demographic$variable)
 
-ggplot(demographic,aes(cycle,value, color = variable)) + 
+demographic %>% 
+  subset(as.numeric(seed) < 6) %>% 
+  ggplot(aes(cycle,value, color = variable)) + 
   geom_point(alpha = 0.1)  +
-  facet_grid(change_freq ~ .)
+  facet_grid(change_freq ~ seed)
 
 
 demographic %>% 
