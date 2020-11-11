@@ -14,7 +14,7 @@ setwd(paste(dir,"/vG_W_2016_data",sep = ""))
 # funders_success = data.frame()
 # for (i in list.files(path = '.',pattern = "funders_success_s1.csv"))
 # {
-#   print(i)
+#   message(i)
 #   sim_run = read.csv(i, header = FALSE, sep = ',')
 #   funders_success = rbind(sim_run,funders_success)
 # }
@@ -127,12 +127,12 @@ for(value in funder_network)
       names(weights) = c(paste0("w",1:length(weights)))
       node = list.append(node, weights)
       names(node)[length(node)] = paste("Node_", length(node), sep = "")
-      print("node!")
+      message("node!")
       last_node_iterator = iterator + 1
     }
     else if(value == "  | ")
     { 
-      print("layer!")
+      message("layer!")
       layers = list.append(layers, node)
       names(layers)[length(layers)] = paste("Layer_", length(layers), sep = "")
       node = list()
@@ -145,11 +145,11 @@ for(value in funder_network)
   {
     if(value == "  | ")
     {
-print("node_treshold")
+message("node_treshold")
 
       for( i in funder_network[,last_node_iterator : (iterator - 1)])
       {
-        print(i)
+        message(i)
         
         layers[[layer_threshold_iterator]][[node_threshold_iterator]]$threshold = i
         node_threshold_iterator = node_threshold_iterator + 1 
