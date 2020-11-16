@@ -64,8 +64,7 @@ void sim_view::draw_inds(const simulation& s) noexcept
 
 void sim_view::exec(simulation& s) noexcept
 {
-    m_grid_view.prepare_grid(s.get_env().get_grid());
-    prepare_pop(s);
+    prepare(s);
 
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
@@ -154,6 +153,12 @@ void sim_view::pan_k_input_ends(const sf::Event &event) noexcept
     default:
         break;
     }
+}
+
+void sim_view::prepare (const simulation& s) noexcept
+{
+    prepare_pop(s);
+    m_grid_view.prepare_grid(s.get_env().get_grid());
 }
 
 void sim_view::prepare_pop(const simulation& s) noexcept
@@ -267,7 +272,7 @@ void sim_view::update_pop(const simulation& s) noexcept
             continue;
         }
         else
-        m_pop_shapes[i].setFillColor(sf::Color::Yellow);
+            m_pop_shapes[i].setFillColor(sf::Color::Yellow);
 
     }
 }
@@ -337,15 +342,69 @@ void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
     }
 }
 
+#ifndef LOGIC_ONLY
+int run_visual_evo (const env_param& e,
+                    const meta_param& m,
+                    const pop_param& p)
+{
+
+    simulation s{sim_param{e, m, p}};
+    sim_view v;
+    v.exec(s);
+    return 0;
+}
+
+int replay_cycle_from_evo (
+        int change_frequency,
+        int seed,
+        int cycle)
+{
+
+    simulation s = load_sim_no_pop(seed, change_frequency);
+    auto f_el = std::find_if(s.get_funders_success().get_v_funders().begin(),
+                 s.get_funders_success().get_v_funders().end(),
+                 [& cycle](const funders& f){return f.get_cycle() == cycle;});
+    auto last_pop = *f_el;
+    s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
+    for(size_t i = 0; i != last_pop.get_v_funder_data().size(); i++)
+    {
+        s.get_pop().get_v_ind()[i].get_grn()
+                = last_pop.get_v_funder_data()[i].get_grn();
+    }
+
+    sim_view v;
+    v.prepare(s);
+    v.exec_cycle_visual(s);
+    return 0;
+}
+
+int  replay_rand_cond (double change_freq,
+                      int seed_sim,
+                      int n_conditions,
+                      double amplitude,
+                      int seed_rand_cond,
+                      int rand_cond_n)
+{
+    auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
+    auto rand_s = load_sim(seed_sim,change_freq);
+    sim_view v;
+    reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);
+    v.prepare(rand_s);
+    v.exec_cycle_visual(rand_s);
+    return 0;
+}
+#endif
+
 void test_sim_view()//!OCLINT tests may be many
 {
 #ifndef IS_ON_TRAVIS
 
     {
-        // Show the game for one frame
+        // Show the sim for one frame
         // (there will be a member function 'exec' for running the game)
         simulation s{sim_param{20}};
         sim_view v;
+        v.prepare(s);
         v.show(s);
     }
 

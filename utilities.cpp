@@ -1,5 +1,6 @@
 #include "utilities.h"
 #include <sys/stat.h>
+#include <chrono>
 
 bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<double>& rhs)
 {
@@ -21,7 +22,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
                 || args[1] == "--reac_norm"
-                || args[1] == "--replay")
+                || args[1] == "--replay"
+                || args[1] == "--continue_evo")
             )
     {
         take_amplitude_arg(args, amplitude);

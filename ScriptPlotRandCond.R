@@ -48,7 +48,7 @@ new_rand_demo = rand_demographic %>%
 new_rand_demo %>% 
   subset(variable == "spore") %>% 
   subset(as.numeric(seed) < 51) %>% 
-  subset(as.numeric(amplitude) < 2) %>% 
+  #subset(as.numeric(amplitude) < 2) %>% 
   ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
   facet_grid(change_freq  ~ amplitude)

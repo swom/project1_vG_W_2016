@@ -64,6 +64,9 @@ public:
     ///Processe when keyboard input for panning is stopped
     void pan_k_input_ends(const sf::Event& event) noexcept;
 
+    ///Creates the Vertex Array and the Circle shape array
+    void prepare (const simulation& s) noexcept;
+
     ///Creates a vector of sf::CircleShape that will be used to draw the population
     void prepare_pop(const simulation &s) noexcept;
 
@@ -165,6 +168,28 @@ private:
     /// Draws projectiles
     void draw_metabolite() noexcept;
 };
+
+///A standard evolution simulation with the given parameters
+/// is run visually
+int run_visual_evo (const env_param& e,
+                    const meta_param& m,
+                    const pop_param& p);
+
+///Reloads a simulation of a given seed and frequency change
+/// and replays visually one given cycle
+int replay_cycle_from_evo (
+        int change_frequency,
+        int seed,
+        int cycle);
+
+///Reloads a simulation of a given seed and frequency change
+/// and replays visually one given random condition(number 1, 2, 3, ... etc)
+int  replay_rand_cond (double change_freq,
+                      int seed_sim,
+                      int n_conditions,
+                      double amplitude,
+                      int seed_rand_cond,
+                      int rand_cond_n);
 
 void test_sim_view();
 

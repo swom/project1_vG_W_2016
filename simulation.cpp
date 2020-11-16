@@ -96,6 +96,20 @@ void change_pop( simulation& s)
     p.get_v_ind() = change_inds(p,new_ind_param);
 }
 
+
+int continue_evo(int seed, int change_freq)
+{
+    auto s = load_sim_last_pop(seed, change_freq);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    exec(s);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
+    return 0;
+}
+
 std::string create_best_random_condition_name(const simulation& s, double amplitude)
 {
     return  std::string{
@@ -252,6 +266,18 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
     return random_conditions;
 }
 
+std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(const env_param& e,
+                                                                             const ind_param& i,
+                                                                             double amplitude,
+                                                                             int n_conditions,
+                                                                             int seed)
+{
+    auto name = create_name_vec_rand_cond(n_conditions,amplitude,seed);
+    auto rand_cond_vector = create_rand_conditions_unif(e,i,n_conditions,amplitude,seed);
+    save_vector_of_rand_cond(rand_cond_vector, name);
+    return rand_cond_vector;
+}
+
 void change_params(simulation& s, const env_param& e, const ind_param& i)
 {
     s.get_env().set_param(e);
@@ -329,7 +355,7 @@ void jordi_feeding(simulation& s)
     }
 }
 
-simulation load_sim_from_record(int seed, int change_freq)
+simulation load_sim_no_pop(int seed, int change_freq)
 {
     auto sim_par_name = create_sim_par_name(seed,change_freq);
     assert(exists(sim_par_name));
@@ -374,21 +400,56 @@ std::vector<std::pair<env_param, ind_param>> load_random_conditions(const std::s
     return random_conditions;
 }
 
-simulation load_sim_from_last_pop(int seed, int change_freq)
+simulation load_sim(int seed, int change_freq)
 {
-    auto filename = create_sim_par_name(seed,change_freq);
+    auto sim_par_filename = create_sim_par_name(seed,change_freq);
+    assert(exists(sim_par_filename));
+    simulation s{load_sim_parameters(sim_par_filename)};
 
-    assert(exists(filename));
+    auto sim_demographic_filename = create_sim_demo_name(seed, change_freq);
+    assert(exists(sim_demographic_filename));
+    s.set_demo_sim(load_demographic_sim(sim_demographic_filename));
 
-    simulation s{load_sim_parameters(filename)};
+    auto funders_success_filename = create_funders_success_name(seed, change_freq);
+    assert(exists(funders_success_filename));
+    s.get_funders_success() = load_funders_success(funders_success_filename);
 
-    auto last_pop = load_funders(create_last_pop_name(seed,change_freq));
+    auto last_pop = s.get_funders_success().get_v_funders().back();
     s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
 
     for(size_t i = 0; i != last_pop.get_v_funder_data().size(); i++)
     {
         s.get_pop().get_v_ind()[i].get_grn()
                 = last_pop.get_v_funder_data()[i].get_grn();
+    }
+
+    return s;
+}
+
+simulation load_sim_last_pop(int seed, int change_freq)
+{
+    auto sim_par_filename = create_sim_par_name(seed,change_freq);
+    assert(exists(sim_par_filename));
+    simulation s{load_sim_parameters(sim_par_filename)};
+
+    auto last_pop_name = create_last_pop_name(seed, change_freq);
+    auto last_pop = load_funders(last_pop_name);
+    s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
+
+    for(size_t i = 0; i != last_pop.get_v_funder_data().size(); i++)
+    {
+        s.get_pop().get_v_ind()[i].get_grn()
+                = last_pop.get_v_funder_data()[i].get_grn();
+    }
+
+
+    //Change internal state of rng member of simulation
+    //to avoid pseudo rng to replicate results in different runs
+    auto scramble_rng = std::minstd_rand(std::time(NULL));
+    auto scramble_n = std::uniform_int_distribution(50,100)(scramble_rng);
+    for(int i = 0; i != scramble_n; i++)
+    {
+        s.get_rng()();
     }
 
     return s;
@@ -412,7 +473,7 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq)
     return s;
 }
 
-simulation no_demographic_copy(const simulation& s)
+simulation no_dem_and_fund_copy(const simulation& s)
 {
     simulation new_s{sim_param{s.get_env().get_param(),
                     s.get_meta_param(),
@@ -421,6 +482,19 @@ simulation no_demographic_copy(const simulation& s)
                     };
     new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
     return new_s;
+}
+
+funders prepare_funders(const simulation& s)
+{
+    assert(s.get_timestep() == 0);
+    assert(s.get_pop().get_v_ind().size() <= 100);
+    funders f;
+    for(const auto& ind : s.get_pop().get_v_ind())
+    {
+        f.get_v_funder_data().push_back(funder_data{ind});
+    }
+    f.set_cycle(s.get_cycle());
+    return f;
 }
 
 void reproduce_cycle_env(simulation&s, int cycle)
@@ -443,19 +517,6 @@ void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, in
     change_params(s, rand_cond[n_rand_cond].first, rand_cond[n_rand_cond].second);
 
     place_start_cells(s.get_pop());
-}
-
-funders prepare_funders(const simulation& s)
-{
-    assert(s.get_timestep() == 0);
-    assert(s.get_pop().get_v_ind().size() <= 100);
-    funders f;
-    for(const auto& ind : s.get_pop().get_v_ind())
-    {
-        f.get_v_funder_data().push_back(funder_data{ind});
-    }
-    f.set_cycle(s.get_cycle());
-    return f;
 }
 
 void reset_sim(simulation& s) noexcept
@@ -493,7 +554,7 @@ demographic_sim run_random_conditions(const simulation& s,
 
     auto test_pop = s.get_pop().get_v_ind();
 
-    simulation rand_s = no_demographic_copy(s);
+    simulation rand_s = no_dem_and_fund_copy(s);
 
     int counter = 0;
 
@@ -514,6 +575,159 @@ demographic_sim run_random_conditions(const simulation& s,
         save_demographic_sim(rand_s.get_demo_sim(), name);
     }
     return rand_s.get_demo_sim();
+}
+
+
+int run_reac_norm_best(int change_freq,
+                       double max_food,
+                       double max_energy,
+                       double max_metabolite,
+                       double step,
+                       int seed,
+                       bool overwrite)
+{
+    auto name = create_reaction_norm_name(seed, change_freq);
+    if(exists(name) && !overwrite)
+    {
+        std::cout<<"The reaction norm for the best individual"
+                   "of this simulation has already been calculated";
+        return 0;
+    }
+
+    auto funders_name = create_funders_success_name(seed, change_freq);
+    funders_success funders_success;
+
+    if(exists(funders_name))
+        funders_success = load_funders_success(funders_name);
+    else
+        abort();
+
+    auto best_ind_grn = find_last_gen_best_ind_grn(funders_success);
+
+    auto reac_norm = calc_reaction_norm(best_ind_grn,
+                                        max_food,
+                                        max_energy,
+                                        max_metabolite,
+                                        step);
+
+    save_reaction_norm(reac_norm, name);
+
+    return 0;
+}
+
+int run_sim_best_rand(double amplitude,
+                      int change_frequency,
+                      int n_random_conditions,
+                      int seed,
+                      bool overwrite)
+{
+    auto rand_s = load_best_ind_for_rand_cond(seed,change_frequency);
+    auto name = create_best_random_condition_name(rand_s,amplitude);
+
+    if(exists(name) && !overwrite)
+    {
+        std::cout << "The random conditions against the best for this simulation"
+                     " have already been tested!" << std::endl;
+        return 0;
+    }
+
+    auto rand_start = std::chrono::high_resolution_clock::now();
+    place_start_cells(rand_s.get_pop());
+    run_random_conditions(rand_s,
+                          n_random_conditions,
+                          amplitude,
+                          name);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random condition best test :" << duration.count() << "s" << std::endl;
+    return 0;
+}
+
+int run_sim_rand(double amplitude,
+                 int change_frequency,
+                 int n_random_conditions,
+                 int seed,
+                 bool overwrite)
+{
+    auto rand_s = load_sim_last_pop(seed,change_frequency);
+    auto name = create_random_condition_name(rand_s,amplitude);
+
+    if(exists(name) && !overwrite)
+    {
+        std::cout << "The random conditions for this simulation"
+                     " have already been tested!" << std::endl;
+        return 0;
+    }
+
+    auto rand_start = std::chrono::high_resolution_clock::now();
+    place_start_cells(rand_s.get_pop());
+    run_random_conditions(rand_s,
+                          n_random_conditions,
+                          amplitude,
+                          name);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
+    return 0;
+}
+
+int run_sim_evo(const env_param& e,
+                const meta_param& m,
+                const pop_param& p,
+                int change_frequency,
+                int seed,
+                bool overwrite)
+{
+    if(exists(create_sim_par_name(seed, change_frequency))
+            && !overwrite)
+    {
+        std::cout << "this simulation has already been run" << std::endl;
+        return 0;
+    }
+
+    simulation s{sim_param{e, m, p}};
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    exec(s);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
+    return 0;
+}
+
+int run_standard(const env_param& e,
+                 const meta_param& m,
+                 const pop_param& p,
+                 double amplitude,
+                 int change_frequency,
+                 int n_random_conditions,
+                 int seed)
+{
+    simulation s{sim_param{e, m, p}};
+    auto start = std::chrono::high_resolution_clock::now();
+
+    exec(s);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout << "simualtion :"<< duration.count() << "s" << std::endl;
+
+    auto rand_start = std::chrono::high_resolution_clock::now();
+
+    auto rand_s = load_sim_last_pop(seed,change_frequency);
+    run_random_conditions(rand_s, n_random_conditions, amplitude, "standard_rand_run.csv");
+
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random condition test :" << duration.count() << "s" << std::endl;
+
+    duration = std::chrono::duration<float>(stop - start);
+    std::cout<< "overall time :" << duration.count() << "s" << std::endl;
+    return 0;
 }
 
 void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>& rand_cond_v,
@@ -1604,7 +1818,7 @@ void test_simulation()//!OCLINT tests may be many
         simulation s{sim_param{e,m,p}};
         exec_cycle(s);
         assert(!s.get_demo_sim().get_demo_cycles().empty());
-        simulation new_s = no_demographic_copy(s);
+        simulation new_s = no_dem_and_fund_copy(s);
         assert(s.get_env() == new_s.get_env());
         assert(s.get_pop() == new_s.get_pop());
         assert(s.get_meta_param() == new_s.get_meta_param());
@@ -1684,7 +1898,33 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e,m,p};
         simulation s{s_p};
         exec(s);
-        simulation s1 = load_sim_from_last_pop(seed,change_freq);
+        simulation s1 = load_sim(seed,change_freq);
+        assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
+        assert(s.get_pop().get_param() == s1.get_pop().get_param());
+        assert(s.get_env().get_param() == s1.get_env().get_param());
+        assert(s.get_meta_param() == s1.get_meta_param());
+        assert(s.get_env() == s1.get_env());
+        assert(s.get_funders_success() == s1.get_funders_success());
+        assert(s.get_demo_sim() == s1.get_demo_sim());
+    }
+
+    ///A simulation last population of funders can be loaded given the seed and the change freq
+    ///By loading the sim_params of a given simulation
+    /// and instantiating the last population of that given simulation
+    {
+        env_param e{5};
+        int seed = 23;
+        int change_freq = 21;
+        meta_param m{1,
+                     1,
+                     seed,
+                             change_freq};
+        pop_param p{100,
+                    100};
+        sim_param s_p{e,m,p};
+        simulation s{s_p};
+        exec(s);
+        simulation s1 = load_sim_last_pop(seed,change_freq);
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
         assert(s.get_pop().get_param() == s1.get_pop().get_param());
         assert(s.get_env().get_param() == s1.get_env().get_param());
@@ -1733,7 +1973,7 @@ void test_simulation()//!OCLINT tests may be many
         auto sim_dem = load_demographic_sim(demo_sim_file_name);
         auto sim_par = load_sim_parameters(sim_param_filename);
 
-        simulation s = load_sim_from_record(seed, change_freq);
+        simulation s = load_sim_no_pop(seed, change_freq);
         auto sp = sim_param{s.get_env().get_param(),
                 s.get_meta_param(),
                 s.get_pop().get_param()};
@@ -1758,7 +1998,7 @@ void test_simulation()//!OCLINT tests may be many
         auto demo_sim = load_demographic_sim(create_sim_demo_name(seed,change_freq));
         auto selected_conditions = demo_sim.get_demo_cycles()[funders_generation];
 
-        auto s = load_sim_from_record(seed, change_freq);
+        auto s = load_sim_no_pop(seed, change_freq);
 
         reproduce_cycle(s, funders_generation);
 
