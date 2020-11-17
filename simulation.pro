@@ -1,6 +1,7 @@
 # Entry point for user
 
 include(simulation.pri)
+include(simulation_view.pri)
 
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17

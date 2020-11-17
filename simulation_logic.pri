@@ -9,6 +9,7 @@ HEADERS += \
     funder_data.h \
     funders.h \
     funders_success.h \
+    grid_view.h \
     grn.h \
     ind_param.h \
     individual.h \
@@ -18,6 +19,7 @@ HEADERS += \
     population.h \
     relaxation.hpp \
     sim_parameters.h \
+    sim_view.h \
     simulation.h \
     utilities.h
 
@@ -30,6 +32,7 @@ SOURCES += \
     funder_data.cpp \
     funders.cpp \
     funders_success.cpp \
+    grid_view.cpp \
     grn.cpp \
     ind_param.cpp \
     individual.cpp \
@@ -40,9 +43,10 @@ SOURCES += \
     population.cpp \
     relaxation.cpp \
     sim_parameters.cpp \
+    sim_view.cpp \
     simulation.cpp \
     utilities.cpp
 
+
 INCLUDEPATH += libs
 HEADERS += $$PWD/libs/hrtree/*.hpp
-SOURCES += $$PWD/libs/glm/detail/glm.cpp

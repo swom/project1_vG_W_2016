@@ -2,15 +2,6 @@
 
 include(simulation.pri)
 
-# Use correct compiler, as set by Travis
-QMAKE_CXX = $$(CXX)
-QMAKE_CC = $$(CC)
-QMAKE_LINK = $$(CXX)
-
-INCLUDEPATH += libs
-HEADERS += $$PWD/libs/hrtree/*.hpp
-SOURCES += $$PWD/libs/glm/detail/glm.cpp
-
 DEFINES += LOGIC_ONLY
 
 CONFIG += c++17
