@@ -13,9 +13,12 @@ bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<dou
 void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
-                         int& n_conditions, int &replay_cycle,
+                         int& n_conditions,
+                         int &replay_cycle,
                          double& amplitude,
-                         bool &overwrite);
+                         bool &overwrite,
+                         int &seed_rand_cond,
+                         int &rand_cond_n);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;
@@ -45,6 +48,14 @@ void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditio
 
 ///Takes change of frequency number from command line arguments
 void take_change_freq_arg(const std::vector<std::string>& args, int &change_freq);
+
+///Takes the index of the random conditions in the random condition vector
+/// that needs to be replayed
+void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n);
+
+/// Takes the seed with which the random conditions vector was generated
+/// and assigns it to seed_rand_cond
+void take_seed_rand_cond(const std::vector<std::string>& args, int& seed_rand_cond);
 
 ///Takes the number of the cycle that is gonna be visually replayed
 void take_replay_cycle_arg(const std::vector<std::string>& args, int& replay_cycle);

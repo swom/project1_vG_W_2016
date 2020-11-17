@@ -158,6 +158,17 @@ std::string create_last_pop_name(const simulation& s)
     };
 }
 
+std::string create_second_to_last_pop_name(const simulation& s)
+{
+    return  std::string{
+        "second_to_last_pop_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
 std::string create_last_pop_name(int seed, int change_freq)
 {
     return  std::string{
@@ -569,7 +580,7 @@ demographic_sim run_random_conditions(const simulation& s,
         rand_s.reset_timesteps();
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
-        std::cout<< "condition: " << duration.count() << "\n";
+        std::cout<< "condition "<< counter <<": " << duration.count() << "\n";
         rand_s.get_pop().get_v_ind() = test_pop;
         counter++;
         save_demographic_sim(rand_s.get_demo_sim(), name);

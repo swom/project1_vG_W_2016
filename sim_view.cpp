@@ -385,12 +385,17 @@ int  replay_rand_cond (double change_freq,
                       int seed_rand_cond,
                       int rand_cond_n)
 {
+    std::cout<< "Hello " << std::endl;
     auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
-    auto rand_s = load_sim(seed_sim,change_freq);
+    auto rand_s = load_sim_last_pop(seed_sim,change_freq);
     sim_view v;
     reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);
     v.prepare(rand_s);
+    auto rand_start = std::chrono::high_resolution_clock::now();
     v.exec_cycle_visual(rand_s);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random condition n" << rand_cond_n <<": " << duration.count() << "s" << std::endl;
     return 0;
 }
 #endif

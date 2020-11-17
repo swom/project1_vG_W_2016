@@ -60,6 +60,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     double amplitude = 3;
     bool overwrite = false;
     int replay_cycle = 0;
+    int seed_rand_cond;
+    int rand_cond_n;
 
     check_for_cmd_param(args,
                         seed,
@@ -67,7 +69,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         n_random_conditions,
                         replay_cycle,
                         amplitude,
-                        overwrite);
+                        overwrite,
+                        seed_rand_cond,
+                        rand_cond_n);
     meta_param m{500,
                  125,
                  seed,
@@ -98,7 +102,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                };
 
 
-
     if(args.size() > 1 && args[1] == "--visual")
     {
 #ifndef LOGIC_ONLY
@@ -116,9 +119,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else if(args.size() > 1 && args[1] == "--replay_rand_cond")
     {
 #ifndef LOGIC_ONLY
-        replay_cycle_from_evo(change_freq,
-                              seed,
-                              replay_cycle);
+        replay_rand_cond(change_freq,
+                         seed,
+                         n_random_conditions,
+                         amplitude,
+                         seed_rand_cond,
+                         rand_cond_n);
 #endif
     }
     else if(args.size() > 1 && args[1] == "--sim")
@@ -146,12 +152,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
     {
-        ///Here hard coded params!
+        ///!!!!!!!Here hard coded params!!!!!!
         double max_food = 20.0;
         auto max_energy = max_food;
         auto max_metabolite = max_energy;
-        auto step = max_metabolite / 100.0;
-        ///
+        auto step = max_metabolite / 50.0;
+        ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         run_reac_norm_best(change_freq,
                            max_food,
                            max_energy,

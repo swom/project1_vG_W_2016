@@ -129,6 +129,11 @@ void change_params(simulation& s, const env_param& e, const ind_param& i);
 ///Continues evolution of an already run evolution simulation with a given seed and change of freq
 int continue_evo(int seed, int change_freq);
 
+///Creates the name for the before to last population file
+/// where the before last funder object will be saved
+/// This is then used to find the most succesful individuals in a sim
+std::string create_second_to_last_pop_name(const simulation& s);
+
 ///Creates a name for the file where the
 /// run of  only the best individual
 /// against random conditions is saved

@@ -15,7 +15,9 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& n_conditions,
                          int& replay_cycle,
                          double& amplitude,
-                         bool& overwrite)
+                         bool& overwrite,
+                         int& seed_rand_cond,
+                         int& rand_cond_n)
 {
     if (args.size() > 3
             && (args[1] == "--sim"
@@ -23,7 +25,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                 || args[1] == "--rand_best"
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay"
-                || args[1] == "--continue_evo")
+                || args[1] == "--continue_evo"
+                || args[1] ==  "--replay_rand_cond")
             )
     {
         take_amplitude_arg(args, amplitude);
@@ -32,6 +35,9 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_seed_arg(args, seed);
         take_overwrite_arg(args, overwrite);
         take_replay_cycle_arg(args,replay_cycle);
+        take_seed_rand_cond(args,seed_rand_cond);
+        take_rand_cond_n(args, rand_cond_n);
+
     }
     else if(args.size() > 1
             &&
@@ -66,7 +72,8 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 {
     if (args.size() > 4
             &&  (args[1] == "--rand"
-                 || args[1] == "--rand_best")
+                 || args[1] == "--rand_best"
+                 || args[1] == "--replay_rand_cond")
             &&  args[4][0] == 'a'
             )
     {
@@ -98,7 +105,8 @@ void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditio
 {
     if ((args.size() > 5
          &&  (args[1] == "--rand"
-              || args[1] == "--rand_best")
+              || args[1] == "--rand_best"
+              || args[1] ==  "--replay_rand_cond")
          &&  args[5][0] == 'n')
             ||
             (args.size() > 2
@@ -137,6 +145,23 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
         abort();
     }
 
+}
+
+void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n)
+{
+    if(args[1] == "--replay_rand_cond" &&
+            args.size() > 6 &&
+            args[7][0] == 'r' &&
+            args[7][1] == 'n'
+            )
+    {
+        std::string s_rand_cond_n;
+        for(size_t i = 2; i != args[7].size(); i++)
+        {
+            s_rand_cond_n += args[7][i];
+        }
+        rand_cond_n = std::stoi(s_rand_cond_n);
+    }
 }
 
 void take_replay_cycle_arg(const std::vector<std::string>& args, int& replay_cycle)
@@ -188,6 +213,22 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
         std::cout << "Invalid third argument: it has to be an sN\n"
                      " Where N is the seed number";
         abort();
+    }
+}
+
+void take_seed_rand_cond(const std::vector<std::string>& args, int& seed_rand_cond)
+{
+    if(args[1] == "--replay_rand_cond" &&
+            args.size() > 5 &&
+            args[6][0] == 's' &&
+            args[6][1] == 'r')
+    {
+        std::string s_seed_rand_cond;
+        for(size_t i = 2; i != args[6].size(); i++)
+        {
+            s_seed_rand_cond += args[6][i];
+        }
+        seed_rand_cond = std::stoi(s_seed_rand_cond);
     }
 }
 
