@@ -53,6 +53,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         return 0;
     }
 #endif
+    if (args.size() > 1 && args[1] == "--profile")
+    {
+        test_demographic_cycle();
+        // We've already tested, so the program is done
+        return 0;
+    }
 
     int seed = 0;
     int change_freq = 0;
