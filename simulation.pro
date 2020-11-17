@@ -74,11 +74,12 @@ CONFIG += debug_and_release
 CONFIG(release, debug|release) {
   DEFINES += NDEBUG
 
-  linux{
-    # gprof
-    QMAKE_CXXFLAGS += -pg
-    QMAKE_LFLAGS += -pg
-  }
+  QMAKE_CXXFLAGS += -O3
+  #linux{
+  #  # gprof
+  #  QMAKE_CXXFLAGS += -pg
+  #  QMAKE_LFLAGS += -pg
+  #}
 }
 
 
