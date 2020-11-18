@@ -184,7 +184,8 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                 jordi_response_mech(grn);
                 jordi_response_mech(grn);
 
-                if(grn.get_output_spo())
+                //Pushback only when will sporulate (output == 0)
+                if(!grn.get_output_spo())
                 {
                 auto response =
                         std::vector<double>{energy, food, metabolite, static_cast<double>(grn.get_output_spo())};
