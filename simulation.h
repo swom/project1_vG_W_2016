@@ -209,6 +209,10 @@ void exec(simulation& s) noexcept;
 /// stated by the simulation meta parameters
 void exec_cycle(simulation& s) noexcept;
 
+///Runs a cycle for a given amount of timesteps
+/// OR until population reaches a limit
+void exec_cycle_pop_limit(simulation& s, int max_pop) noexcept;
+
 /// All the individuals feed from environment
 void feeding(simulation& s);
 
@@ -275,6 +279,7 @@ int run_reac_norm_best(int change_freq,
 int run_sim_best_rand(double amplitude,
                       int change_frequency,
                       int n_random_conditions,
+                      int pop_max,
                       int seed,
                       bool overwrite);
 
@@ -282,7 +287,7 @@ int run_sim_best_rand(double amplitude,
 /// against n random conditions
 int run_sim_rand(double amplitude,
                  int change_frequency,
-                 int n_random_conditions,
+                 int n_random_conditions, int pop_max,
                  int seed,
                  bool overwrite);
 
@@ -302,7 +307,7 @@ int run_standard(const env_param& e,
                  const pop_param& p,
                  double amplitude,
                  int change_frequency,
-                 int n_random_conditions,
+                 int n_random_conditions, int pop_max,
                  int seed);
 
 ///Resets a simulation to its initial conditions
@@ -314,6 +319,7 @@ void response(simulation& s);
 ///Runs a poplation from a simulation against a series of random conditions
 demographic_sim run_random_conditions(const simulation &s,
                                       int n_number_rand_cond,
+                                      int pop_max,
                                       double amplitude,
                                       std::string name);
 
@@ -334,6 +340,10 @@ void store_demographics(simulation &s) noexcept;
 
 ///Runs all the necessary actions for a timestep to happen
 int tick(simulation& s);
+
+///Runs all necessary actions for a timestep but
+/// check collision and resolves them only every n timesteps
+int tick_sparse_collision_resolution(simulation& s, int n_ticks);
 
 ///Stores the demographic of the population in the simulation
 /// at that point in time

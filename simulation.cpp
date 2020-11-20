@@ -320,6 +320,19 @@ void exec_cycle(simulation& s) noexcept
 
 }
 
+void exec_cycle_pop_limit(simulation& s, int max_pop) noexcept
+{
+
+    add_new_funders(s);
+    while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
+          s.get_pop().get_pop_size() < max_pop)
+    {tick(s);}
+    add_success_funders(s);
+    store_demographics(s);
+    dispersal(s);
+
+}
+
 void exec(simulation& s) noexcept
 {
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
@@ -553,6 +566,7 @@ void response(simulation& s)
 
 demographic_sim run_random_conditions(const simulation& s,
                                       int n_number_rand_cond,
+                                      int pop_max,
                                       double amplitude,
                                       std::string name)
 {
@@ -575,7 +589,7 @@ demographic_sim run_random_conditions(const simulation& s,
         assert(rand_s.get_env().get_grid() == s.get_env().get_grid());
         change_params(rand_s, condition.first, condition.second);
         auto start = std::chrono::high_resolution_clock::now();
-        exec_cycle(rand_s);
+        exec_cycle_pop_limit(rand_s, pop_max);
         rand_s.tick_cycles();
         rand_s.reset_timesteps();
         auto stop = std::chrono::high_resolution_clock::now();
@@ -629,6 +643,7 @@ int run_reac_norm_best(int change_freq,
 int run_sim_best_rand(double amplitude,
                       int change_frequency,
                       int n_random_conditions,
+                      int pop_max,
                       int seed,
                       bool overwrite)
 {
@@ -646,6 +661,7 @@ int run_sim_best_rand(double amplitude,
     place_start_cells(rand_s.get_pop());
     run_random_conditions(rand_s,
                           n_random_conditions,
+                          pop_max,
                           amplitude,
                           name);
 
@@ -658,6 +674,7 @@ int run_sim_best_rand(double amplitude,
 int run_sim_rand(double amplitude,
                  int change_frequency,
                  int n_random_conditions,
+                 int pop_max,
                  int seed,
                  bool overwrite)
 {
@@ -675,6 +692,7 @@ int run_sim_rand(double amplitude,
     place_start_cells(rand_s.get_pop());
     run_random_conditions(rand_s,
                           n_random_conditions,
+                          pop_max,
                           amplitude,
                           name);
 
@@ -716,6 +734,7 @@ int run_standard(const env_param& e,
                  double amplitude,
                  int change_frequency,
                  int n_random_conditions,
+                 int pop_max,
                  int seed)
 {
     simulation s{sim_param{e, m, p}};
@@ -730,7 +749,7 @@ int run_standard(const env_param& e,
     auto rand_start = std::chrono::high_resolution_clock::now();
 
     auto rand_s = load_sim_last_pop(seed,change_frequency);
-    run_random_conditions(rand_s, n_random_conditions, amplitude, "standard_rand_run.csv");
+    run_random_conditions(rand_s, n_random_conditions, pop_max, amplitude, "standard_rand_run.csv");
 
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration<float>(stop - rand_start);
@@ -806,6 +825,27 @@ int tick(simulation& s)
     //death(s.get_pop());
     jordi_death(s.get_pop());
     if(division(s.get_pop()))
+    {
+        time += manage_static_collisions(s.get_pop());
+    }
+    degradation_metabolite(s.get_env());
+    diffusion(s.get_env());
+    s.tick_timesteps();
+    return time;
+}
+
+int tick_sparse_collision_resolution(simulation& s, int n_ticks)
+{
+    int time = 0;
+    response(s);
+    //feeding(s);
+    jordi_feeding(s);
+    metabolism_pop(s.get_pop());
+    secretion_metabolite(s);
+    //death(s.get_pop());
+    jordi_death(s.get_pop());
+    division(s.get_pop());
+    if(s.get_timestep() % n_ticks == 0)
     {
         time += manage_static_collisions(s.get_pop());
     }
@@ -1242,6 +1282,55 @@ void test_simulation()//!OCLINT tests may be many
         }
     }
 
+    //If sparese collision resolution is used, collisions are only checked every n timesteps
+    {
+        //create a simulation with 100 individuals to ensure there will be collisions early on
+        pop_param p{100};
+        env_param e{100};
+        meta_param m{};
+        simulation s{sim_param{e,m,p}};
+        int n_ticks = 10;
+
+        //create collisions
+        while(!has_collision(s.get_pop()))
+        {
+            response(s);
+            jordi_feeding(s);
+            metabolism_pop(s.get_pop());
+            secretion_metabolite(s);
+            jordi_death(s.get_pop());
+            division(s.get_pop());
+        }
+
+        //check that collisions are resolved only every n_ticks
+        for(int i = 0; i != 50; i++)
+        {
+            tick_sparse_collision_resolution(s, n_ticks);
+
+            //the timestep is updated in tick so you need to check
+            //for timestep - 1
+            if((s.get_timestep() - 1) % n_ticks == 0)
+            {
+                assert(!has_collision(s.get_pop()));
+                //create collisions
+                while(!has_collision(s.get_pop()))
+                {
+                    response(s);
+                    jordi_feeding(s);
+                    metabolism_pop(s.get_pop());
+                    secretion_metabolite(s);
+                    jordi_death(s.get_pop());
+                    division(s.get_pop());
+                }
+            }
+            else
+            {
+                assert(has_collision(s.get_pop()));
+            }
+        }
+
+
+    }
     //A simulation runs a cycle for a certain amount of ticks stated in it s parameters
     {
         auto n_cycles = 1;
@@ -1769,6 +1858,7 @@ void test_simulation()//!OCLINT tests may be many
 
         double amplitude = 1;
         int repeats = 2;
+        int pop_max = pow(10,4);
 
         auto rand_conditions_vector = create_rand_conditions_unif(
                     s.get_env().get_param(),
@@ -1779,7 +1869,7 @@ void test_simulation()//!OCLINT tests may be many
 
         std::string filename = create_random_condition_name(s,amplitude);
 
-        auto demo_sim = run_random_conditions(s, repeats, amplitude, filename);
+        auto demo_sim = run_random_conditions(s, repeats, pop_max, amplitude, filename);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           demo_sim.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,
@@ -2021,6 +2111,21 @@ void test_simulation()//!OCLINT tests may be many
         }
 
     }
+
+    ///A cycle can be run until population reaches a certain number of individuals
+    {
+        int pop_max = 2;
+        env_param e;
+        pop_param p;
+        meta_param m;
+        simulation s{sim_param{e,m,p}};
+        exec_cycle_pop_limit(s, pop_max);
+        //The cycle will stop before it reaches the max
+        //number of timesteps
+        assert(s.get_timestep() < s.get_meta_param().get_cycle_duration());
+
+    }
+
 #endif
 }
 

@@ -63,6 +63,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int seed = 0;
     int change_freq = 0;
     int n_random_conditions = 50;
+    int pop_max = pow(10,4);
     double amplitude = 3;
     bool overwrite = false;
     int replay_cycle = 0;
@@ -145,6 +146,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         run_sim_rand(amplitude,
                      change_freq,
                      n_random_conditions,
+                     pop_max,
                      seed,
                      overwrite);
     }
@@ -153,6 +155,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         run_sim_best_rand(amplitude,
                           change_freq,
                           n_random_conditions,
+                          pop_max,
                           seed,
                           overwrite);
     }
@@ -186,6 +189,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                      amplitude,
                      change_freq,
                      n_random_conditions,
+                     pop_max,
                      seed);
     }
 

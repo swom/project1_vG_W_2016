@@ -981,6 +981,7 @@ void test_GRN()//!OCLINT , tests may be long
     /// given the range of values for the inputs
     /// (always starting from 0 to a max value)
     /// and the step of change/resolution of points
+    /// It will return all points for whihc the network would start sporulation
     {
         GRN g;
         double size = 2;
@@ -996,14 +997,16 @@ void test_GRN()//!OCLINT , tests may be long
                                             max_food,
                                             max_metab,
                                             step);
-        assert(reac_norm.size() == pow(size / step, 3));
+
+        //The size of the reaction norm will
+        //always be less than all possible combinations
+        assert(reac_norm.size() <= pow(size / step, 3));
 
         std::string filename = create_reaction_norm_name( seed,  change_freq);
 
         save_reaction_norm(reac_norm, filename);
         auto loaded_reac_norm = load_reaction_norm(filename);
 
-        std::vector<std::vector<double>> diff;
 
         for(size_t reaction = 0; reaction  != reac_norm.size(); reaction++)
             for(size_t value = 0; value != reac_norm[reaction].size(); value++)

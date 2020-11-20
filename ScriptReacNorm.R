@@ -16,6 +16,7 @@ for (i in  list.files(path = '.',pattern = "reaction_norm_best_ind_s\\d+_f\\d+.c
  reac_norm = read.table(i, sep = ",")
  #Make file smaller otherwise size is too big
  reac_norm = reac_norm[ as.numeric(row.names(reac_norm)) %% 5 == 0,]
+ reac_norm = reac_norm[ reac_norm$V4 == 1,]
  reac_norm = reac_norm[ reac_norm$V1 < 10,]
  reac_norm = reac_norm[ reac_norm$V2 < 10,]
  reac_norm = reac_norm[ reac_norm$V3 < 10,]
@@ -58,24 +59,22 @@ axz <- list(
 for (i in levels(all_reac_norms$seed)) {
   for (j in levels(all_reac_norms$change)) {
 
-    i = 1
-    j = 0
-    reac_norm_spo = all_reac_norms %>% subset(seed == i & change == j & Sporulation == 1 )
-    reac_norm_act = all_reac_norms %>% subset(seed == i & change == j & Sporulation == 0 )
-    plot3d(max(all_reac_norms$Energy), max(all_reac_norms$Metabolite), max(all_reac_norms$Food), col="blue", box = FALSE,
-           type ="s", radius = 0.15)
+    # reac_norm_spo = all_reac_norms %>% subset(seed == i & change == j & Sporulation == 1 )
+    # reac_norm_act = all_reac_norms %>% subset(seed == i & change == j & Sporulation == 0 )
+    # plot3d(max(all_reac_norms$Energy), max(all_reac_norms$Metabolite), max(all_reac_norms$Food), col="blue", box = FALSE,
+    #        type ="s", radius = 0.15)
+    # 
+    # ps1 <- matrix(c(reac_norm_spo$Energy,reac_norm_spo$Metabolite,reac_norm_spo$Food), ncol=3)  # generate points on a sphere
+    # ts.surf1 <- t(convhulln(ps1))  # see the qhull documentations for the options
+    # ps2 <- matrix(c(reac_norm_act$Energy,reac_norm_act$Metabolite,reac_norm_act$Food), ncol=3)  # generate points on a sphere
+    # ts.surf2 <- t(convhulln(ps2))  # see the qhull documentations for the options
+    # 
+    # convex1 <-  rgl.triangles(ps1[ts.surf1,1],ps1[ts.surf1,2],ps1[ts.surf1,3],col="gold2",alpha=.6)
+    # convex2 <-  rgl.triangles(ps2[ts.surf2,1],ps2[ts.surf2,2],ps2[ts.surf2,2],col="forestgreen",alpha=.6)
     
-    ps1 <- matrix(c(reac_norm_spo$Energy,reac_norm_spo$Metabolite,reac_norm_spo$Food), ncol=3)  # generate points on a sphere
-    ts.surf1 <- t(convhulln(ps1))  # see the qhull documentations for the options
-    ps2 <- matrix(c(reac_norm_act$Energy,reac_norm_act$Metabolite,reac_norm_act$Food), ncol=3)  # generate points on a sphere
-    ts.surf2 <- t(convhulln(ps2))  # see the qhull documentations for the options
-    
-    convex1 <-  rgl.triangles(ps1[ts.surf1,1],ps1[ts.surf1,2],ps1[ts.surf1,3],col="gold2",alpha=.6)
-    convex2 <-  rgl.triangles(ps2[ts.surf2,1],ps2[ts.surf2,2],ps2[ts.surf2,2],col="forestgreen",alpha=.6)
-    
-    fig <-plot_ly(all_reac_norms %>% subset(seed == i & change == j ), 
-                   x = ~Food, y = ~Energy, z = ~Metabolite, color = ~Sporulation, colors = c(blue,green), alpha = 0.1
-                   )
+    e = all_reac_norms[as.numeric(row.names(all_reac_norms)) %% 5 == 0,]
+    fig <-plot_ly(e %>% subset(seed == i & change == j  ), 
+                   x = ~Food, y = ~Energy, z = ~Metabolite, color = ~Sporulation, colors = c(blue), alpha = 0.1)
     fig <- fig %>% layout(title = paste("RN_",i,"_",j, sep = ""))
     fig <- fig %>% layout(scene = list(xaxis = list(title = 'Energy'),
                                        yaxis = list(title = 'Food'),
@@ -87,7 +86,7 @@ for (i in levels(all_reac_norms$seed)) {
 }
 
 
-###Calculating distances and making phenograms
+   ###Calculating distances and making phenograms
 
 for( j in levels(all_reac_norms$change))
 {
