@@ -60,6 +60,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         return 0;
     }
 
+    int n_cycles = 500;
+    int cycle_duration = 125;
     int seed = 0;
     int change_freq = 0;
     int n_random_conditions = 50;
@@ -79,11 +81,11 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         overwrite,
                         seed_rand_cond,
                         rand_cond_n);
-    meta_param m{500,
-                 125,
+
+    meta_param m{n_cycles,
+                 cycle_duration,
                  seed,
-                         change_freq
-                };
+                 change_freq};
 
     ind_param ind{};
 

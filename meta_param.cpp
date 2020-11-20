@@ -5,14 +5,20 @@
 meta_param::meta_param(int n_cycles,
                        int cycle_duration,
                        int seed,
-                       int change_frequency):
+                       int change_frequency,
+                       int pop_max,
+                       int collision_check_interval):
     m_change_frequency{change_frequency},
+    m_collision_check_interval{collision_check_interval},
     m_cycle_duration{cycle_duration},
     m_n_cycles{n_cycles},
+    m_pop_max{pop_max},
     m_seed{seed}
 {
     assert(m_n_cycles > 0);
     assert(m_cycle_duration > 0);
+    assert(m_pop_max > 0);
+    assert(m_collision_check_interval > 0);
 }
 
 std::ifstream& operator>> (std::ifstream& is, meta_param& p)

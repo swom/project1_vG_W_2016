@@ -337,7 +337,7 @@ void exec(simulation& s) noexcept
 {
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
-        exec_cycle(s);
+        exec_cycle_pop_limit(s, s.get_meta_param().get_pop_max());
         if(s.get_cycle() != 0
                 && s.get_meta_param().get_change_freq() != 0
                 && s.get_cycle() % s.get_meta_param().get_change_freq() == 0
