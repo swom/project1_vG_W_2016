@@ -1,5 +1,5 @@
 #include "grn.h"
-#include "utilities.h"
+#include "../project1_vG_W_2016/utilities.h"
 #include "algorithm"
 #include <cassert>
 #include <numeric>
@@ -411,7 +411,7 @@ std::vector<double> hid_updates_hid(GRN& g) noexcept
         double signal_hid = 0;
         for (unsigned int j = 0 ; j != g.get_hidden_nodes().size(); j++)
         {
-            signal_hid += g.get_hidden_nodes()[i] * g.get_H2H()[j][i];
+            signal_hid += g.get_hidden_nodes()[j] * g.get_H2H()[j][i];
         }
         signal_from_hid.push_back(signal_hid);
     }
@@ -441,7 +441,7 @@ std::vector<double> inp_updates_hid(GRN& g) noexcept
         double signal_hid = 0;
         for (unsigned int j = 0 ; j != g.get_input_nodes().size(); j++)
         {
-            signal_hid += g.get_input_nodes()[i] * g.get_I2H()[j][i];
+            signal_hid += g.get_input_nodes()[j] * g.get_I2H()[j][i];
         }
         signal_from_input.push_back(signal_hid);
     }
@@ -695,7 +695,8 @@ void update_hid(GRN& g) noexcept
     assert(signal_in.size() == signal_hid.size());
     for(size_t i = 0; i != signal_in.size(); i++)
     {
-        if((signal_in[i] + signal_hid[i]) > g.get_hid_tresh()[i])
+        auto signal = signal_in[i] + signal_hid[i];
+        if(signal > g.get_hid_tresh()[i])
         {g.set_hid_node(static_cast<int>(i),true);}
         else
         {g.set_hid_node(static_cast<int>(i),false);}

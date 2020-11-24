@@ -1199,7 +1199,7 @@ void test_population() noexcept  //!OCLINT
         int sampling_size = 1000;
         for(int i = 0; i != sampling_size; i++)
         {
-            auto daughter = get_daughter_pos(p.get_ind(0), repr_angle(p));
+            auto daughter = calculate_daughter_pos(p.get_ind(0), repr_angle(p));
             mean += calc_angle_3_pos(mother,daughter,reference);
         }
         mean /= sampling_size;

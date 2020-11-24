@@ -222,7 +222,7 @@ int find_grid_index(const individual &i, double grid_side) ;
 void feed(individual& i, env_grid_cell& food) noexcept;
 
 ///returns the position of the second daughter cell just outside the mother
-std::pair<double, double> get_daughter_pos(individual& i, double rnd_angle) noexcept;
+std::pair<double, double> calculate_daughter_pos(individual& i, double rnd_angle) noexcept;
 
 ///Returns the fitness of an individual based on its phenotype
 ///And the base_fitness declared in simulation

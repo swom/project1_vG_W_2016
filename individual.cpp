@@ -20,11 +20,14 @@ individual::individual(ind_param ind_parameters,
 
 bool operator==(const individual& lhs, const individual& rhs)
 {
-    return lhs.get_grn() == rhs.get_grn()
-            && lhs.get_param() == rhs.get_param()
-            && lhs.get_phen() == rhs.get_phen()
-            && lhs.get_x() == rhs.get_x()
-            && lhs.get_y() == rhs.get_y();
+    auto grn = lhs.get_grn() == rhs.get_grn();
+    auto par = lhs.get_param() == rhs.get_param();
+    auto phen = lhs.get_phen() == rhs.get_phen();
+    auto x = lhs.get_x() - rhs.get_x() < 0.00001 &&
+            lhs.get_x() - rhs.get_x() > -0.00001;
+    auto y = lhs.get_y() -  rhs.get_y() < 0.00001 &&
+            lhs.get_y() - rhs.get_y() > -0.00001;
+    return grn && par && phen && x && y;
 }
 
 bool operator!=(const individual& lhs, const individual& rhs)
@@ -104,8 +107,9 @@ void divides(individual& i,
     individual daughter = i;
     mutates(i, rng, mu_p, mu_st);
     mutates(daughter, rng, mu_p, mu_st);
+    set_pos(daughter,calculate_daughter_pos(daughter, repr_angle));
     pop.push_back(daughter);
-    set_pos(pop.back(),get_daughter_pos(daughter, repr_angle));
+
 }
 
 void draw(individual& i)
@@ -162,7 +166,7 @@ int find_grid_index(const individual& i, double grid_side)
     return x_index_offset + y_index_offset * static_cast<int>(grid_side);
 }
 
-std::pair<double,double> get_daughter_pos(individual& i, double rnd_angle) noexcept
+std::pair<double,double> calculate_daughter_pos(individual& i, double rnd_angle) noexcept
 {
     std::pair<double, double> pos;
     pos.first = i.get_x() + cos(rnd_angle) * 2 * i.get_param().get_radius();
@@ -464,7 +468,7 @@ void test_individual()//!OCLINT tests may be many
     {
         double wiggle_room = 0.00001;
         individual mom(ind_param{}, 0, 0);
-        auto daughter_pos = get_daughter_pos(mom,0);
+        auto daughter_pos = calculate_daughter_pos(mom,0);
         individual daughter2(ind_param{}, daughter_pos.first, daughter_pos.second);
         assert(!are_colliding(mom,daughter2, wiggle_room));
     }

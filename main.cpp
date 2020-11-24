@@ -85,7 +85,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     meta_param m{n_cycles,
                  cycle_duration,
                  seed,
-                 change_freq};
+                 change_freq,
+                 3};
 
     ind_param ind{};
 

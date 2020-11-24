@@ -85,7 +85,8 @@ void sim_view::exec(simulation& s) noexcept
 
 bool sim_view::exec_cycle_visual(simulation& s) noexcept
 {
-    while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
+    while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
+          s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
     {
         bool must_quit{process_events()};
         if (must_quit)
