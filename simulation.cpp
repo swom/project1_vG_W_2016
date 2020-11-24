@@ -2128,7 +2128,7 @@ void test_simulation()//!OCLINT tests may be many
         int pop_max = 2;
         env_param e;
         pop_param p;
-        meta_param m{1,1,1,1,
+        meta_param m{1,100,1,1,
                      pop_max,
                              0};
         simulation s{sim_param{e,m,p}};

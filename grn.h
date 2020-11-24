@@ -152,7 +152,8 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                                                     double max_energy,
                                                     double max_food,
                                                     double max_metabolite,
-                                                    double step);
+                                                    double step,
+                                                    int n_responses = 1);
 
 ///Compares weights with a tolerance to precision
 bool compare_weights_with_tolerance(const std::vector<std::vector<double>>& lhs,

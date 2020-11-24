@@ -43,17 +43,17 @@ GRN::GRN(std::vector<std::vector<double> > ConI2H,
 bool operator==(const GRN& lhs, const GRN& rhs)
 {
 
-            bool h2h = compare_weights_with_tolerance(lhs.get_H2H() , rhs.get_H2H());
-            bool h2o = compare_weights_with_tolerance(lhs.get_H2O(), rhs.get_H2O());
-            bool i2h = compare_weights_with_tolerance(lhs.get_I2H(), rhs.get_I2H());
-            bool hid_t = lhs.get_hid_tresh() == rhs.get_hid_tresh();
-            bool out_t = lhs.get_out_tresh() == rhs.get_out_tresh();
-            bool hid_n = lhs.get_hidden_nodes() == rhs.get_hidden_nodes();
+    bool h2h = compare_weights_with_tolerance(lhs.get_H2H() , rhs.get_H2H());
+    bool h2o = compare_weights_with_tolerance(lhs.get_H2O(), rhs.get_H2O());
+    bool i2h = compare_weights_with_tolerance(lhs.get_I2H(), rhs.get_I2H());
+    bool hid_t = lhs.get_hid_tresh() == rhs.get_hid_tresh();
+    bool out_t = lhs.get_out_tresh() == rhs.get_out_tresh();
+    bool hid_n = lhs.get_hidden_nodes() == rhs.get_hidden_nodes();
     //We do not look at input and output nodes since they might vary
     //depending on the status of the simulation
     //this might be true also for hidden nodes,
     //but not before the first time step of a cycle
-            return h2h && h2o && i2h && hid_n && hid_t && out_t;
+    return h2h && h2o && i2h && hid_n && hid_t && out_t;
 }
 
 bool operator!=(const GRN& lhs, const GRN& rhs)
@@ -166,7 +166,8 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                                                     double max_energy,
                                                     double max_food,
                                                     double max_metabolite,
-                                                    double step)
+                                                    double step,
+                                                    int n_responses)
 {
     std::vector<std::vector<double>> reaction_norm;
     for(int i = 0; i * step < max_energy; i++)
@@ -186,14 +187,14 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                 jordi_response_mech(grn);
 
 
-                jordi_response_mech(grn);
-                //Pushback only when will sporulate (output == 0)
-                if(!grn.get_output_spo())
+                auto response = std::vector<double>{energy, food, metabolite};
+                for(int i = 0; i != n_responses; i++)
                 {
-                auto response =
-                        std::vector<double>{energy, food, metabolite, static_cast<double>(grn.get_output_spo())};
-                reaction_norm.push_back(response);
+                    jordi_response_mech(grn);
+                    response.push_back(static_cast<double>(grn.get_output_spo()));
+
                 }
+                reaction_norm.push_back(response);
             }
     return reaction_norm;
 }
@@ -1014,8 +1015,43 @@ void test_GRN()//!OCLINT , tests may be long
 
         for(size_t reaction = 0; reaction  != reac_norm.size(); reaction++)
             for(size_t value = 0; value != reac_norm[reaction].size(); value++)
-        assert(reac_norm[reaction][value] - loaded_reac_norm[reaction][value] < 0.000001
-               && reac_norm[reaction][value] - loaded_reac_norm[reaction][value] > -0.000001);
+                assert(reac_norm[reaction][value] - loaded_reac_norm[reaction][value] < 0.000001
+                       && reac_norm[reaction][value] - loaded_reac_norm[reaction][value] > -0.000001);
+    }
+
+    ///A reaction norm can store multipleresponses to the smae set of inputs
+    /// the multiple responses are the output of the network after
+    /// it has responded n times to a certain set of input
+    /// excluding the first response that is not dictated by the inputs,
+    /// but by the starting internal state of the input
+    {
+
+        GRN g;
+        double size = 2;
+        double max_en = size;
+        double max_food = size;
+        double max_metab = size;
+        double step = 0.2;
+        int seed = 1234;
+        int change_freq = 12;
+        int n_responses = 2;
+
+        auto reac_norm = calc_reaction_norm(g,
+                                            max_en,
+                                            max_food,
+                                            max_metab,
+                                            step,
+                                            n_responses);
+
+        auto filename = create_reaction_norm_name(seed, change_freq);
+        save_reaction_norm(reac_norm, filename);
+        auto loaded_reac_norm = load_reaction_norm(filename);
+
+        for(size_t reaction = 0; reaction  != reac_norm.size(); reaction++)
+            for(size_t value = 0; value != reac_norm[reaction].size(); value++)
+                assert(reac_norm[reaction][value] - loaded_reac_norm[reaction][value] < 0.000001
+                       && reac_norm[reaction][value] - loaded_reac_norm[reaction][value] > -0.000001);
     }
 #endif
+
 }
