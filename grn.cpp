@@ -180,10 +180,13 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
                 grn.set_inputs({energy,
                                 food,
                                 metabolite});
-                ///Two times response to actually see the response of the grn
-                jordi_response_mech(grn);
+                ///Always run response one
+                /// to actually see the response of the grn
+                /// to the inputs,starting from the next response
                 jordi_response_mech(grn);
 
+
+                jordi_response_mech(grn);
                 //Pushback only when will sporulate (output == 0)
                 if(!grn.get_output_spo())
                 {
@@ -1000,7 +1003,7 @@ void test_GRN()//!OCLINT , tests may be long
                                             step);
 
         //The size of the reaction norm will
-        //always be less than all possible combinations
+        //always be less or equal to all possible combinations
         assert(reac_norm.size() <= pow(size / step, 3));
 
         std::string filename = create_reaction_norm_name( seed,  change_freq);

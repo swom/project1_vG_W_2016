@@ -18,7 +18,7 @@ meta_param::meta_param(int n_cycles,
     assert(m_n_cycles > 0);
     assert(m_cycle_duration > 0);
     assert(m_pop_max > 0);
-    assert(m_collision_check_interval > 0);
+    assert(m_collision_check_interval >= 0);
 }
 
 std::ifstream& operator>> (std::ifstream& is, meta_param& p)

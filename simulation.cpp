@@ -308,24 +308,24 @@ void dispersal(simulation &s)
 }
 
 
+//void exec_cycle(simulation& s) noexcept
+//{
+
+//    add_new_funders(s);
+//    while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
+//    {tick(s);}
+//    add_success_funders(s);
+//    store_demographics(s);
+//    dispersal(s);
+
+//}
+
 void exec_cycle(simulation& s) noexcept
 {
 
     add_new_funders(s);
-    while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
-    {tick(s);}
-    add_success_funders(s);
-    store_demographics(s);
-    dispersal(s);
-
-}
-
-void exec_cycle_pop_limit(simulation& s, int max_pop) noexcept
-{
-
-    add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
-          s.get_pop().get_pop_size() < max_pop)
+          s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
     {
         tick_sparse_collision_resolution(s,
                                          s.get_meta_param().get_collision_check_interval());
@@ -355,27 +355,6 @@ void exec(simulation& s) noexcept
 
     save_data(s);
 }
-
-void exec_with_limits(simulation& s) noexcept
-{
-    while(s.get_cycle() != s.get_meta_param().get_n_cycles())
-    {
-        exec_cycle_pop_limit(s, s.get_meta_param().get_pop_max());
-        if(s.get_cycle() != 0
-                && s.get_meta_param().get_change_freq() != 0
-                && s.get_cycle() % s.get_meta_param().get_change_freq() == 0
-                )
-        {
-            change_env(s);
-            change_pop(s);
-        }
-        s.reset_timesteps();
-        s.tick_cycles();
-    }
-
-    save_data(s);
-}
-
 
 void feeding(simulation& s)
 {
@@ -606,6 +585,7 @@ demographic_sim run_random_conditions(const simulation& s,
     auto test_pop = s.get_pop().get_v_ind();
 
     simulation rand_s = no_dem_and_fund_copy(s);
+    rand_s.get_meta_param().get_pop_max() = pop_max;
 
     int counter = 0;
 
@@ -615,7 +595,7 @@ demographic_sim run_random_conditions(const simulation& s,
         assert(rand_s.get_env().get_grid() == s.get_env().get_grid());
         change_params(rand_s, condition.first, condition.second);
         auto start = std::chrono::high_resolution_clock::now();
-        exec_cycle_pop_limit(rand_s, pop_max);
+        exec_cycle(rand_s);
         rand_s.tick_cycles();
         rand_s.reset_timesteps();
         auto stop = std::chrono::high_resolution_clock::now();
@@ -869,8 +849,12 @@ int tick_sparse_collision_resolution(simulation& s, int n_ticks)
     secretion_metabolite(s);
     //death(s.get_pop());
     jordi_death(s.get_pop());
-    division(s.get_pop());
-    if( n_ticks && s.get_timestep() % n_ticks == 0)
+    auto division_happens = division(s.get_pop());
+    if( n_ticks > 0 && s.get_timestep() % n_ticks == 0)
+    {
+        time += manage_static_collisions(s.get_pop());
+    }
+    else if(n_ticks == 0 && division_happens)
     {
         time += manage_static_collisions(s.get_pop());
     }
@@ -2058,18 +2042,6 @@ void test_simulation()//!OCLINT tests may be many
         assert(s.get_env().get_param() == s1.get_env().get_param());
         assert(s.get_meta_param() == s1.get_meta_param());
         assert(s.get_env() == s1.get_env());
-
-        //It works as well when exec_with_limits is called
-        simulation s_limit{s_p};
-        exec_with_limits(s_limit);
-        auto s2 = load_sim_last_pop(seed, change_freq);
-        place_start_cells(s_limit.get_pop());
-        assert(s_limit.get_pop().get_v_ind() == s2.get_pop().get_v_ind());
-        assert(s_limit.get_pop().get_param() == s2.get_pop().get_param());
-        assert(s_limit.get_env().get_param() == s2.get_env().get_param());
-        assert(s_limit.get_meta_param() == s2.get_meta_param());
-        assert(s_limit.get_env() == s2.get_env());
-
     }
 
     /// It is possible to load a population of a number of individuals
@@ -2156,9 +2128,11 @@ void test_simulation()//!OCLINT tests may be many
         int pop_max = 2;
         env_param e;
         pop_param p;
-        meta_param m;
+        meta_param m{1,1,1,1,
+                     pop_max,
+                             0};
         simulation s{sim_param{e,m,p}};
-        exec_cycle_pop_limit(s, pop_max);
+        exec_cycle(s);
         //The cycle will stop before it reaches the max
         //number of timesteps
         assert(s.get_timestep() < s.get_meta_param().get_cycle_duration());

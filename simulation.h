@@ -40,7 +40,10 @@ public:
     funders_success& get_funders_success() noexcept {return m_funder_success;}
 
     ///Gets the const reference to meta parameters
-    const meta_param get_meta_param() const noexcept {return m_meta_param;}
+    const meta_param& get_meta_param() const noexcept {return m_meta_param;}
+
+    ///Gets the reference to meta parameters
+    meta_param get_meta_param() noexcept {return m_meta_param;}
 
     ///Gets the vector containing all the individuals of the population
     const population& get_pop() const noexcept {return m_pop;}
@@ -211,7 +214,7 @@ void exec_cycle(simulation& s) noexcept;
 
 ///Runs a cycle for a given amount of timesteps
 /// OR until population reaches a limit
-void exec_cycle_pop_limit(simulation& s, int max_pop) noexcept;
+void exec_cycle(simulation& s) noexcept;
 
 /// All the individuals feed from environment
 void feeding(simulation& s);

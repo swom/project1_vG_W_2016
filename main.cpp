@@ -86,7 +86,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                  cycle_duration,
                  seed,
                  change_freq,
-                 3};
+                 pop_max};
 
     ind_param ind{};
 

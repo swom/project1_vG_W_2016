@@ -12,7 +12,7 @@ public:
                int seed = 1,
                int change_frequency = 0,
                int pop_max = 1000000,
-               int collision_check_interval = 1);
+               int collision_check_interval = 0);
 
     ///Returns after how many generations
     ///  the parameters of  environment
@@ -30,6 +30,9 @@ public:
 
     ///Returns the max number of individual in a population
     int get_pop_max() const noexcept {return m_pop_max;}
+
+    ///Returns reference to the max number of individual in a population
+    int& get_pop_max() noexcept {return m_pop_max;}
 
     ///Returns the seed
     int get_seed() const noexcept {return  m_seed;}
