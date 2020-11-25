@@ -32,11 +32,11 @@ void test() {
     test_pop_param();
     test_population();
     test_simulation();
-    test_utilities();
 #ifndef LOGIC_ONLY
     test_sim_view();
 #endif
     test_sim_param();
+    test_utilities();
 }
 
 

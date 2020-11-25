@@ -158,6 +158,17 @@ std::string create_last_pop_name(const simulation& s)
     };
 }
 
+std::string create_before_last_pop_name(const simulation& s)
+{
+    return  std::string{
+        "before_last_pop_s" +
+        std::to_string(s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(s.get_meta_param().get_change_freq()) +
+                ".csv"
+    };
+}
+
 std::string create_second_to_last_pop_name(const simulation& s)
 {
     return  std::string{
@@ -307,18 +318,6 @@ void dispersal(simulation &s)
     reset_env(s.get_env());
 }
 
-
-//void exec_cycle(simulation& s) noexcept
-//{
-
-//    add_new_funders(s);
-//    while(s.get_timestep() != s.get_meta_param().get_cycle_duration())
-//    {tick(s);}
-//    add_success_funders(s);
-//    store_demographics(s);
-//    dispersal(s);
-
-//}
 
 void exec_cycle(simulation& s) noexcept
 {
@@ -475,6 +474,43 @@ simulation load_sim_last_pop(int seed, int change_freq)
     //Change internal state of rng member of simulation
     //to avoid pseudo rng to replicate results in different runs
     auto scramble_rng = std::minstd_rand(std::time(NULL));
+    auto scramble_n = std::uniform_int_distribution(50,100)(scramble_rng);
+    for(int i = 0; i != scramble_n; i++)
+    {
+        s.get_rng()();
+    }
+
+    return s;
+}
+
+simulation load_sim_before_last_pop(int seed, int change_freq)
+{
+    auto sim_par_filename = create_sim_par_name(seed,change_freq);
+    assert(exists(sim_par_filename));
+    simulation s{load_sim_parameters(sim_par_filename)};
+
+    auto last_pop_name = create_last_pop_name(seed, change_freq);
+    auto last_pop = load_funders(last_pop_name);
+    s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
+
+    for(size_t i = 0; i != last_pop.get_v_funder_data().size(); i++)
+    {
+        s.get_pop().get_v_ind()[i].get_grn()
+                = last_pop.get_v_funder_data()[i].get_grn();
+    }
+
+
+    place_start_cells(s.get_pop());
+
+
+    //Change internal state of rng member of simulation
+    //to avoid pseudo rng to replicate results in different runs.
+
+    //Pick a number that should be random, but consistently the same
+    //if you reload from the same file
+    auto rng_seed = s.get_pop().get_v_ind()[0].get_grn().get_H2H()[0][0];
+
+    std::minstd_rand scramble_rng{rng_seed};
     auto scramble_n = std::uniform_int_distribution(50,100)(scramble_rng);
     for(int i = 0; i != scramble_n; i++)
     {
@@ -785,8 +821,12 @@ void save_data(const simulation& s)
 
     save_sim_parameters(s_p, sim_param_name);
 
-    std::string last_pop_name = create_last_pop_name(s);
+    //saves the funders that initiated the last cycle
+    std::string before_last_pop_name = create_before_last_pop_name(s);
+    save_funders(s.get_funders_success().get_v_funders().back(), before_last_pop_name);
 
+    //saves the funders that would initiate the cycle after the last
+    std::string last_pop_name = create_last_pop_name(s);
     save_funders(prepare_funders(s), last_pop_name);
 
     std::string sim_demo_name = create_sim_demo_name(s);
@@ -2136,6 +2176,49 @@ void test_simulation()//!OCLINT tests may be many
         //The cycle will stop before it reaches the max
         //number of timesteps
         assert(s.get_timestep() < s.get_meta_param().get_cycle_duration());
+
+    }
+
+    /// When save_data is called
+    /// the last and before last pop of funders is saved
+    {
+        auto seed = 4242;
+        auto change_freq = 4848;
+
+        meta_param m{1,50,
+                    seed,
+                    change_freq
+                    };
+
+        simulation s{sim_param{env_param{},
+                        m,
+                                pop_param{}}};
+
+        int n_cycles = 3;
+        for(int i = 0; i != n_cycles; i++)
+        {
+            exec_cycle(s);
+            s.reset_timesteps();
+        }
+        save_data(s);
+
+        auto last_pop = load_sim_last_pop(seed, change_freq);
+        auto before_last_pop = load_sim_before_last_pop(seed, change_freq);
+
+        //Check last_pop
+        assert( std::equal(last_pop.get_pop().get_v_ind().begin(),
+                           last_pop.get_pop().get_v_ind().end(),
+                           s.get_funders_success().get_v_funders().back().get_v_funder_data().begin(),
+                           [](const individual& ind, const funder_data& funder)
+        {return ind.get_grn() == funder.get_grn();}
+                           ));
+        //Check before_last_pop
+        assert( std::equal(before_last_pop.get_pop().get_v_ind().begin(),
+                           before_last_pop.get_pop().get_v_ind().end(),
+                           s.get_funders_success().get_v_funders().rbegin()[1].get_v_funder_data().begin(),
+                           [](const individual& ind, const funder_data& funder)
+        {return ind.get_grn() == funder.get_grn();}
+                           ));
 
     }
 

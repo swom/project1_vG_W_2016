@@ -238,6 +238,12 @@ simulation load_sim(int seed, int change_freq);
 ///Loads a simulation from another simulation, with
 /// no funders_success or sim_demographic,
 /// with same sim_param and with
+/// pop initialized to BEFORE last fuinders in given sim
+simulation load_sim_before_last_pop(int seed, int change_freq);
+
+///Loads a simulation from another simulation, with
+/// no funders_success or sim_demographic,
+/// with same sim_param and with
 /// pop initialized to last fuinders in given sim
 simulation load_sim_last_pop(int seed, int change_freq);
 
