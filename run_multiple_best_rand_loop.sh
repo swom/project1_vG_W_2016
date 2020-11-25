@@ -15,7 +15,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=run
+#SBATCH --job-name=run_best_rand
 #SBATCH --output=run_rand_best.log
 
 module load Qt5
