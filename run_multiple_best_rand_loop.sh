@@ -38,7 +38,7 @@ do
   echo $i
   echo $j
   echo $z
-  sbatch --partition=gelifes run_rand_best_loop.sh $i $j $z
+  sbatch run_rand_best_loop.sh $i $j $z
 	done
   done
 done 
