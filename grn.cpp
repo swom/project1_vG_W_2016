@@ -1019,7 +1019,7 @@ void test_GRN()//!OCLINT , tests may be long
                        && reac_norm[reaction][value] - loaded_reac_norm[reaction][value] > -0.000001);
     }
 
-    ///A reaction norm can store multipleresponses to the smae set of inputs
+    ///A reaction norm can store multiple responses to the smae set of inputs
     /// the multiple responses are the output of the network after
     /// it has responded n times to a certain set of input
     /// excluding the first response that is not dictated by the inputs,
@@ -1047,10 +1047,15 @@ void test_GRN()//!OCLINT , tests may be long
         save_reaction_norm(reac_norm, filename);
         auto loaded_reac_norm = load_reaction_norm(filename);
 
-        for(size_t reaction = 0; reaction  != reac_norm.size(); reaction++)
-            for(size_t value = 0; value != reac_norm[reaction].size(); value++)
-                assert(reac_norm[reaction][value] - loaded_reac_norm[reaction][value] < 0.000001
-                       && reac_norm[reaction][value] - loaded_reac_norm[reaction][value] > -0.000001);
+        for(size_t condition = 0; condition  != reac_norm.size(); condition++)
+            for(size_t value = 0; value != reac_norm[condition].size(); value++)
+            {
+                //assert each condition vector size is equal
+                //to the number of inputs taken (3 HARDCODED!!!!) + the number of responses
+                assert(static_cast<int>(reac_norm[condition].size()) == 3 + n_responses);
+                assert(reac_norm[condition][value] - loaded_reac_norm[condition][value] < 0.000001
+                       && reac_norm[condition][value] - loaded_reac_norm[condition][value] > -0.000001);
+            }
     }
 #endif
 
