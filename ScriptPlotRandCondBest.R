@@ -3,7 +3,7 @@ library(dplyr)
 library(stringr)
 library(ggplot2)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
-setwd(paste(dir,"/vG_W_2016_data/200_cycles",sep = ""))
+setwd(paste(dir,"/vG_W_2016_data",sep = ""))
 rand_demographic = data.frame()
 
 for (i in  list.files(path = '.',pattern = "best_ind_random_cond_sim_demographic_s\\d+_change_\\d+_amplitude_\\d+.*"))
@@ -47,9 +47,9 @@ new_rand_demo = rand_demographic %>%
 
 new_rand_demo %>% 
   subset(variable == "spore") %>% 
-  subset(as.numeric(seed) < 51) %>% 
+  subset(as.numeric(seed) < 51) %>%
   #subset(as.numeric(amplitude) < 2) %>% 
-  ggplot(aes(condition, seed, fill = value)) + 
+  ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
   facet_grid(change_freq  ~ amplitude)
 

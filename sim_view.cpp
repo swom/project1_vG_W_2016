@@ -16,8 +16,8 @@ sim_view::sim_view(float start_zoom,
     m_window{sf::VideoMode(1280, 720), "Sim_W_V_G_2016"},
     m_view{
         sf::Vector2f{0,0},
-        sf::Vector2f(m_window.getSize().x / m_max_zoom,
-                     m_window.getSize().y / m_max_zoom)
+        sf::Vector2f(m_window.getSize().x / m_max_zoom * 10,
+                     m_window.getSize().y / m_max_zoom * 10)
         },
     m_zoom_step{zoom_step}
 {
@@ -423,6 +423,18 @@ int  replay_best_rand_cond (double change_freq,
     auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
     auto rand_s = load_best_ind_for_rand_cond(seed_sim,change_freq);
     rand_s.get_meta_param().get_pop_max() = pop_max;
+    if(exists(create_best_random_condition_name(amplitude, change_freq, seed_sim)))
+    {
+        auto results = load_demographic_sim(create_best_random_condition_name(amplitude, change_freq, seed_sim));
+        assert( results.get_demo_cycles()[rand_cond_n].get_env_param() == rand_cond[rand_cond_n].first );
+        assert( results.get_demo_cycles()[rand_cond_n].get_ind_param() == rand_cond[rand_cond_n].second );
+
+    }
+    else {
+        std::cout << "best_rand file yet not available,"
+                     " cannot compare condition vector"
+                     " with condition in results" << std::endl;
+    }
 
     sim_view v;
     reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);

@@ -629,15 +629,24 @@ demographic_sim run_random_conditions(const simulation& s,
         assert(rand_s.get_pop().get_v_ind() == test_pop);
         assert(rand_s.get_env().get_grid() == s.get_env().get_grid());
         change_params(rand_s, condition.first, condition.second);
+
         auto start = std::chrono::high_resolution_clock::now();
+
         exec_cycle(rand_s);
         rand_s.tick_cycles();
         rand_s.reset_timesteps();
+
         auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration<float>(stop - start);
+        auto duration = std::chrono::duration<float>(stop - start);        
         std::cout<< "condition n"<< counter <<": " << duration.count() << std::endl;
+        auto tot_inds = rand_s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
+                rand_s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
+                rand_s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();
+        std::cout<< "n individuals:" << tot_inds << std::endl << std::endl;
+
         rand_s.get_pop().get_v_ind() = test_pop;
         counter++;
+        //resave every time all currently obtained results from test over all currently tested conditions
         save_demographic_sim(rand_s.get_demo_sim(), name);
     }
     return rand_s.get_demo_sim();
