@@ -55,8 +55,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
     if (args.size() > 1 && args[1] == "--profile")
     {
-        test_demographic_cycle();
-        // We've already tested, so the program is done
+        test();
         return 0;
     }
 
@@ -65,12 +64,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int seed = 0;
     int change_freq = 0;
     int n_random_conditions = 50;
-    int pop_max = pow(10,4);
+    int pop_max = pow(10,3);
     double amplitude = 3;
     bool overwrite = false;
     int replay_cycle = 0;
     int seed_rand_cond;
     int rand_cond_n;
+    int collision_check_interval = 0;
 
     check_for_cmd_param(args,
                         seed,
@@ -86,7 +86,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                  cycle_duration,
                  seed,
                  change_freq,
-                 pop_max};
+                 pop_max,
+                collision_check_interval};
 
     ind_param ind{};
 

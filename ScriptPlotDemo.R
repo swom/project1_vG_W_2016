@@ -34,7 +34,7 @@ demographic$change_freq = as.factor(demographic$change_freq)
 demographic$variable = as.factor(demographic$variable)
 
 demographic %>% 
-  subset(variable == "spore") %>% 
+  # subset(variable == "spore") %>% 
   ggplot(aes(cycle,value, color = variable)) + 
   geom_point(alpha = 0.1)  +
   facet_grid(change_freq ~ .)

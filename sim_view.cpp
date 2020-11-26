@@ -66,7 +66,8 @@ void sim_view::exec(simulation& s) noexcept
 {
     prepare(s);
 
-    while(s.get_cycle() != s.get_meta_param().get_n_cycles())
+    while(s.get_cycle() != s.get_meta_param().get_n_cycles() &&
+          s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
     {
         if(exec_cycle_visual(s))
             break;
@@ -93,7 +94,8 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
             return true;
         if(!m_stop)
         {
-            tick(s);
+            tick_sparse_collision_resolution(s,
+                                             s.get_meta_param().get_collision_check_interval());
         }
         show(s);
     }
