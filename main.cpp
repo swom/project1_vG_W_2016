@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef LOGIC_ONLY
 
 #include "sim_view.h"
@@ -200,3 +201,5 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     return 0;
 }
 
+=======
+>>>>>>> 5045a80df19ff801ef2f355b6e419a3600ebdbd2
