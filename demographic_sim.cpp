@@ -78,7 +78,7 @@ void test_demographic_sim()//!OCLINT
     {
 
 env_param e;
-ind_param i;
+ind_param ind;
         int n_spores = 2;
         int n_sporulating = 3;
         int n_actives = 4;
@@ -86,7 +86,7 @@ ind_param i;
                     n_spores,
                     n_sporulating,
                             e,
-                            i};
+                            ind};
 
         demographic_sim p;
         int lenght_demo_sim = 3;

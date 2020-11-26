@@ -182,14 +182,26 @@ int replay_cycle_from_evo (
         int seed,
         int cycle);
 
+
+///Reloads a simulation of a given seed and frequency change
+///and replays visually one given random condition(number 1, 2, 3, ... etc)
+///with a population made just of the best individual
+int  replay_best_rand_cond (double change_freq,
+                            int seed_sim,
+                            int n_conditions,
+                            double amplitude,
+                            int seed_rand_cond,
+                            int rand_cond_n, int pop_max);
+
 ///Reloads a simulation of a given seed and frequency change
 /// and replays visually one given random condition(number 1, 2, 3, ... etc)
 int  replay_rand_cond (double change_freq,
-                      int seed_sim,
-                      int n_conditions,
-                      double amplitude,
-                      int seed_rand_cond,
-                      int rand_cond_n);
+                       int seed_sim,
+                       int n_conditions,
+                       double amplitude,
+                       int seed_rand_cond,
+                       int rand_cond_n,
+                       int pop_max);
 
 void test_sim_view();
 

@@ -27,7 +27,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay"
                 || args[1] == "--continue_evo"
-                || args[1] ==  "--replay_rand_cond")
+                || args[1] ==  "--replay_rand_cond"
+                || args[1] == "--replay_best_rand_cond")
             )
     {
         take_amplitude_arg(args, amplitude);
@@ -74,7 +75,8 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
     if (args.size() > 4
             &&  (args[1] == "--rand"
                  || args[1] == "--rand_best"
-                 || args[1] == "--replay_rand_cond")
+                 || args[1] == "--replay_rand_cond"
+                 || args[1] == "--replay_best_rand_cond")
             &&  args[4][0] == 'a'
             )
     {
@@ -107,7 +109,8 @@ void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditio
     if ((args.size() > 5
          &&  (args[1] == "--rand"
               || args[1] == "--rand_best"
-              || args[1] ==  "--replay_rand_cond")
+              || args[1] ==  "--replay_rand_cond"
+              || args[1] == "--replay_best_rand_cond")
          &&  args[5][0] == 'n')
             ||
             (args.size() > 2
@@ -150,7 +153,8 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
 
 void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n)
 {
-    if(args[1] == "--replay_rand_cond" &&
+    if((args[1] == "--replay_rand_cond"
+            || args[1] == "--replay_best_rand_cond")&&
             args.size() > 6 &&
             args[7][0] == 'r' &&
             args[7][1] == 'n'
@@ -219,7 +223,8 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
 
 void take_seed_rand_cond(const std::vector<std::string>& args, int& seed_rand_cond)
 {
-    if(args[1] == "--replay_rand_cond" &&
+    if((args[1] == "--replay_rand_cond"
+            || args[1] == "--replay_best_rand_cond") &&
             args.size() > 5 &&
             args[6][0] == 's' &&
             args[6][1] == 'r')

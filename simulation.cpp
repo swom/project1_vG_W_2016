@@ -535,6 +535,8 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq)
         individual.get_grn() = best_ind_grn;
     }
 
+    place_start_cells(s.get_pop());
+
     return s;
 }
 
@@ -578,10 +580,7 @@ void reproduce_cycle(simulation&s, int cycle)
 
 void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond)
 {
-
     change_params(s, rand_cond[n_rand_cond].first, rand_cond[n_rand_cond].second);
-
-    place_start_cells(s.get_pop());
 }
 
 void reset_sim(simulation& s) noexcept

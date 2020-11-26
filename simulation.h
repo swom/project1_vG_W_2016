@@ -43,7 +43,7 @@ public:
     const meta_param& get_meta_param() const noexcept {return m_meta_param;}
 
     ///Gets the reference to meta parameters
-    meta_param get_meta_param() noexcept {return m_meta_param;}
+    meta_param& get_meta_param() noexcept {return m_meta_param;}
 
     ///Gets the vector containing all the individuals of the population
     const population& get_pop() const noexcept {return m_pop;}
@@ -222,8 +222,10 @@ void feeding(simulation& s);
 ///Individuals feed a proportion of total food in their cell not a fixed rate
 void jordi_feeding(simulation& s);
 
-///Loads a simulation whose population is composed exclusively of the best individual
-/// in a previously saved simulation's last_pop file
+///Loads a simulation whose population is composed
+/// exclusively of the best individual
+/// in the before last generation of a
+/// previously saved simulation's funders_success file
 simulation load_best_ind_for_rand_cond(int seed, int change_freq);
 
 ///Loads random conditions given their filename

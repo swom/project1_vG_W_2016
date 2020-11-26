@@ -64,7 +64,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int seed = 0;
     int change_freq = 0;
     int n_random_conditions = 50;
-    int pop_max = pow(10,3);
+    int pop_max = pow(10,4);
     double amplitude = 3;
     bool overwrite = false;
     int replay_cycle = 0;
@@ -83,10 +83,10 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         rand_cond_n);
 
     meta_param m{n_cycles,
-                 cycle_duration,
-                 seed,
-                 change_freq,
-                 pop_max,
+                cycle_duration,
+                seed,
+                change_freq,
+                pop_max,
                 collision_check_interval};
 
     ind_param ind{};
@@ -135,7 +135,20 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          n_random_conditions,
                          amplitude,
                          seed_rand_cond,
-                         rand_cond_n);
+                         rand_cond_n,
+                         pop_max);
+#endif
+    }
+    else if(args.size() > 1 && args[1] == "--replay_best_rand_cond")
+    {
+#ifndef LOGIC_ONLY
+        replay_best_rand_cond(change_freq,
+                              seed,
+                              n_random_conditions,
+                              amplitude,
+                              seed_rand_cond,
+                              rand_cond_n,
+                              pop_max);
 #endif
     }
     else if(args.size() > 1 && args[1] == "--sim")

@@ -29,7 +29,7 @@ public:
     int get_cycle_duration() const noexcept {return m_cycle_duration;}
 
     ///Returns the max number of individual in a population
-    int get_pop_max() const noexcept {return m_pop_max;}
+    const int& get_pop_max() const noexcept {return m_pop_max;}
 
     ///Returns reference to the max number of individual in a population
     int& get_pop_max() noexcept {return m_pop_max;}
