@@ -188,7 +188,7 @@ std::vector<std::vector<double>> calc_reaction_norm(const GRN& g,
 
 
                 auto response = std::vector<double>{energy, food, metabolite};
-                for(int i = 0; i != n_responses; i++)
+                for(int r = 0; r != n_responses; r++)
                 {
                     jordi_response_mech(grn);
                     response.push_back(static_cast<double>(grn.get_output_spo()));

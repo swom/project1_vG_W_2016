@@ -16,10 +16,10 @@ for (i in  list.files(path = '.',pattern = "reaction_norm_best_ind_s\\d+_f\\d+.c
  reac_norm = read.table(i, sep = ",")
  #Make file smaller otherwise size is too big
  #reac_norm = reac_norm[ as.numeric(row.names(reac_norm)) %% 5 == 0,]
- reac_norm = reac_norm[ reac_norm$V4 == 0,]
- # reac_norm = reac_norm[ reac_norm$V1 < 10,]
+  # reac_norm = reac_norm[ reac_norm$V1 < 10,]
  # reac_norm = reac_norm[ reac_norm$V2 < 10,]
  # reac_norm = reac_norm[ reac_norm$V3 < 10,]
+ reac_norm = reac_norm[ reac_norm$V4 == 0,]
  reac_norm$seed = sub( "^.*s(\\d+).*",'\\1', i)
  reac_norm$change = sub( "^.*f(\\d+).*",'\\1', i)
  all_reac_norms = rbind(reac_norm,all_reac_norms)
@@ -70,7 +70,9 @@ for (i in levels(all_reac_norms$seed)) {
     ps1 <- matrix(c(reac_norm$Energy,reac_norm$Metabolite,reac_norm$Food), ncol=3)  # generate points on a sphere
     ts.surf1 <- t(convhulln(ps1))  # see the qhull documentations for the options
     convex1 <-  rgl.triangles(ps1[ts.surf1,1],ps1[ts.surf1,2],ps1[ts.surf1,3],col="gold2",alpha=.6)
-    rg.snapshot( paste("RN_",i,"_",j,".png", sep = ""))
+    rgl.snapshot( paste("RN_",i,"_",j,".png", sep = ""))
+    writeWebGL(filename = file.path(dir, paste("RN_",i,"_",j,".html", sep = "")))
+    
     
     fig <-plot_ly(all_reac_norms %>% subset(seed == i & change == j  ), 
                    x = ~Food, y = ~Energy, z = ~Metabolite,
@@ -82,7 +84,7 @@ for (i in levels(all_reac_norms$seed)) {
                                        zaxis = list(title = 'Metabolite')))
     fig <- fig %>% layout(scene = list(xaxis=axx,yaxis=axy,zaxis=axz))
     fig
-    htmlwidgets::saveWidget(fig, paste("RN_",i,"_",j,".html", sep = ""))
+    htmlwidgets::saveWidget(fig, paste("plotlyRN_",i,"_",j,".html", sep = ""))
   }
 }
 
