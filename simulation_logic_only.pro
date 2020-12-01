@@ -4,6 +4,12 @@ include(simulation.pri)
 
 DEFINES += LOGIC_ONLY
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic pop
+# QMAKE_CXX += -Wunknown-pragmas
+
+
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17
 CONFIG += resources_big
