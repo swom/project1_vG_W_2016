@@ -37,6 +37,7 @@ demographic %>%
   # subset(variable == "spore") %>% 
   ggplot(aes(cycle,value, color = variable)) + 
   geom_point(alpha = 0.1)  +
+  geom_smooth(method='lm', formula= y~x) +
   facet_grid(change_freq ~ .)
 
 

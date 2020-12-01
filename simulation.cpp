@@ -87,10 +87,10 @@ void change_env(simulation& s) noexcept
 void change_pop( simulation& s)
 {
     auto& p = s.get_pop();
-    const auto new_ind_param = change_ind_param_norm(p.get_param().get_ind_param(), p.get_rng());
+    const auto new_ind_param = change_ind_param_norm(p.get_v_ind().begin()->get_param(), p.get_rng());
 
     ///Change ind_param object contained in pop_param
-    p.get_param().get_ind_param() = new_ind_param;
+    p.get_v_ind().begin()->get_param() = new_ind_param;
 
     ///Change ind_params of all inds in pop
     p.get_v_ind() = change_inds(p,new_ind_param);
@@ -305,7 +305,7 @@ void change_params(simulation& s, const env_param& e, const ind_param& i)
     s.get_env().set_param(e);
 
     ///Change ind_param object contained in pop_param
-    s.get_pop().get_param().get_ind_param() = i;
+    s.get_pop().get_v_ind().begin()->get_param() = i;
 
     ///Change ind_params of all inds in pop
     s.get_pop().get_v_ind() = change_inds(s.get_pop(),i);
@@ -543,6 +543,7 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq)
 simulation no_dem_and_fund_copy(const simulation& s)
 {
     simulation new_s{sim_param{s.get_env().get_param(),
+                    s.get_pop().get_v_ind().begin()->get_param(),
                     s.get_meta_param(),
                     s.get_pop().get_param()
                               }
@@ -612,7 +613,7 @@ demographic_sim run_random_conditions(const simulation& s,
 {
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
-                s.get_pop().get_param().get_ind_param(),
+                s.get_pop().get_v_ind().begin()->get_param(),
                 n_number_rand_cond,
                 amplitude,
                 0);
@@ -637,7 +638,7 @@ demographic_sim run_random_conditions(const simulation& s,
         rand_s.reset_timesteps();
 
         auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration<float>(stop - start);        
+        auto duration = std::chrono::duration<float>(stop - start);
         std::cout<< "condition n"<< counter <<": " << duration.count() << std::endl;
         auto tot_inds = rand_s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
                 rand_s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
@@ -752,6 +753,7 @@ int run_sim_rand(double amplitude,
 }
 
 int run_sim_evo(const env_param& e,
+                const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
                 int change_frequency,
@@ -765,7 +767,7 @@ int run_sim_evo(const env_param& e,
         return 0;
     }
 
-    simulation s{sim_param{e, m, p}};
+    simulation s{sim_param{e, i, m, p}};
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -778,6 +780,7 @@ int run_sim_evo(const env_param& e,
 }
 
 int run_standard(const env_param& e,
+                 const ind_param& i,
                  const meta_param& m,
                  const pop_param& p,
                  double amplitude,
@@ -786,7 +789,7 @@ int run_standard(const env_param& e,
                  int pop_max,
                  int seed)
 {
-    simulation s{sim_param{e, m, p}};
+    simulation s{sim_param{e, i, m, p}};
     auto start = std::chrono::high_resolution_clock::now();
 
     exec(s);
@@ -824,6 +827,7 @@ void save_data(const simulation& s)
     std::string sim_param_name = create_sim_par_name(s);
 
     sim_param s_p{s.get_env().get_param(),
+                s.get_pop().get_ind(0).get_param(),
                 s.get_meta_param(),
                 s.get_pop().get_param()};
 
@@ -1165,11 +1169,12 @@ void test_simulation()//!OCLINT tests may be many
                     10,
                     1
                    };
+        ind_param i{};
         env_param e{3,
                     0.1,
-                    p.get_ind_param().get_treshold_energy() * 10
+                    i.get_treshold_energy() * 10
                    };
-        simulation s (sim_param{e,m,p});
+        simulation s (sim_param{e, i, m,p});
 
         auto food_begin =
                 std::accumulate(s.get_env().get_grid().begin(),
@@ -1339,13 +1344,14 @@ void test_simulation()//!OCLINT tests may be many
         }
     }
 
-    //If sparese collision resolution is used, collisions are only checked every n timesteps
+    //If sparse collision resolution is used, collisions are only checked every n timesteps
     {
         //create a simulation with 100 individuals to ensure there will be collisions early on
         pop_param p{100};
+        ind_param i{};
         env_param e{100};
         meta_param m{};
-        simulation s{sim_param{e,m,p}};
+        simulation s{sim_param{e, i, m, p}};
         int n_ticks = 2;
         int n_total_ticks = 4;
 
@@ -1394,7 +1400,7 @@ void test_simulation()//!OCLINT tests may be many
         auto n_cycles = 1;
         auto cycle_duration = 1;
         meta_param m{ n_cycles, cycle_duration};
-        sim_param sp{ env_param(), m, pop_param()};
+        sim_param sp{env_param{}, ind_param{}, m, pop_param{}};
         simulation s{sp};
         exec_cycle(s);
         assert(s.get_timestep() == cycle_duration);
@@ -1406,7 +1412,7 @@ void test_simulation()//!OCLINT tests may be many
         auto cycle_duration = 1;
         pop_param p{100};
         meta_param m{ n_cycles, cycle_duration};
-        sim_param sp{ env_param(), m, p};
+        sim_param sp{env_param{}, ind_param{}, m, pop_param{}};
         simulation s{sp};
         exec(s);
         assert(s.get_cycle() == n_cycles);
@@ -1418,7 +1424,7 @@ void test_simulation()//!OCLINT tests may be many
         auto cycle_duration = 1;
         pop_param p{100};
         meta_param m{ n_cycles, cycle_duration};
-        sim_param sp{ env_param(), m, p};
+        sim_param sp{env_param{}, ind_param{}, m, pop_param{}};
         simulation s{sp};
         //As the parameters indicate only one cycle will be executed
         exec(s);
@@ -1435,8 +1441,9 @@ void test_simulation()//!OCLINT tests may be many
         auto cycle_duration = 1;
         meta_param m{ n_cycles, cycle_duration};
         pop_param p{100};
+        ind_param i{};
         env_param e{3};
-        sim_param sp{e, m, p};
+        sim_param sp{e, i, m, p};
         simulation s{sp};
         auto init_env = s.get_env();
         //Run a few ticks to make sure env is different from original
@@ -1604,7 +1611,8 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{n_cycles, cycle_duration};
         env_param e;
         pop_param p;
-        sim_param s_p{e,m,p};
+        ind_param i;
+        sim_param s_p{e, i, m, p};
 
         simulation s{s_p};
         auto init_demo_cycle = s.get_demo_sim().get_demo_cycles().size();
@@ -1621,7 +1629,8 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{n_cycles, cycle_duration};
         env_param e;
         pop_param p;
-        sim_param s_p{e,m,p};
+        ind_param i;
+        sim_param s_p{e, i, m,p};
 
         simulation s{s_p};
         std::string expected_file_name = create_sim_demo_name(s);
@@ -1649,7 +1658,8 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{n_cycles, cycle_duration};
         env_param e;
         pop_param p;
-        sim_param s_p{e,m,p};
+        ind_param i;
+        sim_param s_p{e, i, m, p};
 
         simulation s{s_p};
         auto zero_cycle_funders = prepare_funders(s);
@@ -1667,7 +1677,8 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{n_cycles, cycle_duration};
         env_param e;
         pop_param p;
-        sim_param s_p{e,m,p};
+        ind_param i;
+        sim_param s_p{e, i, m, p};
 
         simulation s{s_p};
         //the first cycle is funded by a single individual
@@ -1695,7 +1706,8 @@ void test_simulation()//!OCLINT tests may be many
 
         unsigned int pop_size = 3;
         pop_param p_p{pop_size};
-        sim_param s_p{env_param{}, m_p, p_p};
+        ind_param i;
+        sim_param s_p{env_param{}, i, m_p, p_p};
         simulation s{s_p};
 
         add_new_funders(s);
@@ -1729,7 +1741,8 @@ void test_simulation()//!OCLINT tests may be many
 
         unsigned int pop_size = 3;
         pop_param p_p{pop_size};
-        sim_param s_p{env_param{}, m_p, p_p};
+        ind_param i;
+        sim_param s_p{env_param{}, i, m_p, p_p};
         simulation s{s_p};
 
         auto pre_cycle_funders = prepare_funders(s);
@@ -1754,7 +1767,8 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{n_cycles, cycle_duration};
         env_param e;
         pop_param p;
-        sim_param s_p{e,m,p};
+        ind_param i;
+        sim_param s_p{e, i, m, p};
 
         simulation s{s_p};
         exec(s);
@@ -1777,7 +1791,8 @@ void test_simulation()//!OCLINT tests may be many
         };
         env_param e;
         pop_param p;
-        sim_param s_p{e, m, p};
+        ind_param i;
+        sim_param s_p{e, i, m, p};
         simulation s{s_p};
         auto ref_rng = std::minstd_rand();
         ref_rng.seed(seed);
@@ -1790,13 +1805,14 @@ void test_simulation()//!OCLINT tests may be many
 
         env_param e{};
         pop_param p;
+        ind_param i;
         int change_frequency = 1;
         meta_param m{change_frequency + 1,
                     1,
                     1,
                     change_frequency
                     };
-        sim_param s_p{e, m, p};
+        sim_param s_p{e, i, m, p};
         simulation s{s_p};
 
         exec(s);
@@ -1817,7 +1833,8 @@ void test_simulation()//!OCLINT tests may be many
                               var_degr_rate};
         pop_param p;
         meta_param m;
-        sim_param s_p{e_p, m, p};
+        ind_param i;
+        sim_param s_p{e_p, i, m, p};
         simulation s{s_p};
         int repeats = 100;
 
@@ -1858,8 +1875,9 @@ void test_simulation()//!OCLINT tests may be many
                             var_diff_coeff,
                             var_degr_rate};
 
-        pop_param p{};
-        sim_param s_p{e,m,p};
+        pop_param p;
+        ind_param i;
+        sim_param s_p{e, i, m, p};
         simulation s{s_p};
         auto prev_env = s.get_env();
         auto prev_pop = s.get_pop().get_v_ind();
@@ -1873,7 +1891,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         simulation s;
         demographic_cycle d_c = demographics(s.get_pop(), s.get_env().get_param());
-        assert(d_c.get_ind_param() == s.get_pop().get_param().get_ind_param());
+        assert(d_c.get_ind_param() == s.get_pop().get_v_ind().begin()->get_param());
         assert(d_c.get_env_param() == s.get_env().get_param());
         change_env(s);
         change_pop(s);
@@ -1906,13 +1924,14 @@ void test_simulation()//!OCLINT tests may be many
         ///Run against the random conditions
         pop_param p{100};
         env_param e{100};
+        ind_param i;
         int seed_ID = 1234567890;
 
         meta_param m{1,
                      1,
                      seed_ID};
 
-        simulation s{sim_param{e,m,p}};
+        simulation s{sim_param{e, i, m, p}};
 
         double amplitude = 1;
         int repeats = 2;
@@ -1920,7 +1939,7 @@ void test_simulation()//!OCLINT tests may be many
 
         auto rand_conditions_vector = create_rand_conditions_unif(
                     s.get_env().get_param(),
-                    s.get_pop().get_param().get_ind_param(),
+                    s.get_pop().get_v_ind().begin()->get_param(),
                     repeats,
                     amplitude,
                     0);
@@ -1960,10 +1979,10 @@ void test_simulation()//!OCLINT tests may be many
         for(const auto& rand_condition : rand_conditions)
         {
             assert(s.get_env().get_param() != rand_condition.first
-                    && s.get_pop().get_param().get_ind_param() != rand_condition.second);
+                    && s.get_pop().get_v_ind().begin()->get_param() != rand_condition.second);
             change_params(s,rand_condition.first, rand_condition.second);
             assert(s.get_env().get_param() == rand_condition.first
-                   && s.get_pop().get_param().get_ind_param() == rand_condition.second);
+                   && s.get_pop().get_v_ind().begin()->get_param() == rand_condition.second);
         }
     }
 
@@ -1973,8 +1992,9 @@ void test_simulation()//!OCLINT tests may be many
     {
         env_param e{5};
         pop_param p{2};
+        ind_param i;
         meta_param m{2,1,5,2};
-        simulation s{sim_param{e,m,p}};
+        simulation s{sim_param{e, i, m, p}};
         exec_cycle(s);
         assert(!s.get_demo_sim().get_demo_cycles().empty());
         simulation new_s = no_dem_and_fund_copy(s);
@@ -2016,12 +2036,13 @@ void test_simulation()//!OCLINT tests may be many
     ///The final population is saved at the end of the exec(s) function
     ///as funders
     {
+        ind_param i;
         env_param e{5};
         meta_param m{1,
                      1};
         pop_param p{100,
                     100};
-        simulation s{sim_param{e,m,p}};
+        simulation s{sim_param{e, i, m, p}};
         exec(s);
         std::string expected_filename = create_last_pop_name(s);
         assert(prepare_funders(s) == load_funders(expected_filename));
@@ -2029,12 +2050,13 @@ void test_simulation()//!OCLINT tests may be many
 
     ///Simulation parameters are saved by the end of exec(s) function
     {
+        ind_param i;
         env_param e{5};
         meta_param m{1,
                      1};
         pop_param p{100,
                     100};
-        sim_param s_p{e,m,p};
+        sim_param s_p{e, i, m, p};
         simulation s{s_p};
         exec(s);
         std::string expected_filename = create_sim_par_name(s);
@@ -2045,6 +2067,7 @@ void test_simulation()//!OCLINT tests may be many
     ///By loading the sim_params of a given simulation
     /// and instantiating the last population of that given simulation
     {
+        ind_param i;
         env_param e{5};
         int seed = 23;
         int change_freq = 21;
@@ -2054,7 +2077,7 @@ void test_simulation()//!OCLINT tests may be many
                              change_freq};
         pop_param p{100,
                     100};
-        sim_param s_p{e,m,p};
+        sim_param s_p{e, i, m, p};
         simulation s{s_p};
         exec(s);
         simulation s1 = load_sim(seed,change_freq);
@@ -2071,6 +2094,7 @@ void test_simulation()//!OCLINT tests may be many
     ///By loading the sim_params of a given simulation
     /// and instantiating the last population of that given simulation
     {
+        ind_param i;
         env_param e{5};
         int seed = 23;
         int change_freq = 21;
@@ -2080,7 +2104,7 @@ void test_simulation()//!OCLINT tests may be many
                              change_freq};
         pop_param p{1,
                     100};
-        sim_param s_p{e,m,p};
+        sim_param s_p{e, i, m,p};
         simulation s{s_p};
         exec(s);
         simulation s1 = load_sim_last_pop(seed,change_freq);
@@ -2096,12 +2120,13 @@ void test_simulation()//!OCLINT tests may be many
     /// equal to the expexcted new population size specified in pop_param
     /// made only of the best final network of a population
     {
+        ind_param i;
+        pop_param p{1,100};
         int seed = 123;
         int change_freq = 10;
-        pop_param p{1,100};
         meta_param m{10,125,seed,change_freq};
         env_param e{};
-        simulation s{sim_param{e, m, p}};
+        simulation s{sim_param{e, i, m, p}};
         exec(s);
         auto filename = create_funders_success_name(s);
         auto fund_succ = load_funders_success(filename);
@@ -2135,6 +2160,7 @@ void test_simulation()//!OCLINT tests may be many
 
         simulation s = load_sim_no_pop(seed, change_freq);
         auto sp = sim_param{s.get_env().get_param(),
+                s.get_pop().get_ind(0).get_param(),
                 s.get_meta_param(),
                 s.get_pop().get_param()};
 
@@ -2174,12 +2200,13 @@ void test_simulation()//!OCLINT tests may be many
     ///A cycle can be run until population reaches a certain number of individuals
     {
         int pop_max = 2;
+        ind_param i;
         env_param e;
         pop_param p;
         meta_param m{1,100,1,1,
                      pop_max,
                              0};
-        simulation s{sim_param{e,m,p}};
+        simulation s{sim_param{e, i, m, p}};
         exec_cycle(s);
         //The cycle will stop before it reaches the max
         //number of timesteps
@@ -2192,15 +2219,15 @@ void test_simulation()//!OCLINT tests may be many
     {
         auto seed = 4242;
         auto change_freq = 4848;
-
+        env_param e;
+        pop_param p;
+        ind_param i;
         meta_param m{1,50,
-                    seed,
-                    change_freq
+                     seed,
+                             change_freq
                     };
 
-        simulation s{sim_param{env_param{},
-                        m,
-                                pop_param{}}};
+        simulation s{sim_param{e, i, m, p}};
 
         int n_cycles = 3;
         for(int i = 0; i != n_cycles; i++)
@@ -2219,14 +2246,14 @@ void test_simulation()//!OCLINT tests may be many
                            s.get_funders_success().get_v_funders().back().get_v_funder_data().begin(),
                            [](const individual& ind, const funder_data& funder)
         {return ind.get_grn() == funder.get_grn();}
-                           ));
+        ));
         //Check before_last_pop
         assert( std::equal(before_last_pop.get_pop().get_v_ind().begin(),
                            before_last_pop.get_pop().get_v_ind().end(),
                            s.get_funders_success().get_v_funders().rbegin()[1].get_v_funder_data().begin(),
-                           [](const individual& ind, const funder_data& funder)
+                [](const individual& ind, const funder_data& funder)
         {return ind.get_grn() == funder.get_grn();}
-                           ));
+        ));
 
     }
 

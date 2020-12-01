@@ -23,7 +23,7 @@ public:
               double metab_degrad_rate = 0.1
             , int n_cycles = 1, int cycle_duration = 2);
 
-    sim_param(env_param e, meta_param m, pop_param p);
+    sim_param(env_param e, ind_param i, meta_param m, pop_param p);
 
     ///Gets const reference to population parameter
     const env_param& get_env_param() const noexcept {return m_env_param;}
@@ -43,17 +43,14 @@ private:
     ///Parameters for the environment
     env_param m_env_param;
 
+    ///Parameters pertaining individuals
+    ind_param m_ind_param;
+
     ///Parameters concerning the simulation, such as duration, number of replicates etc
     meta_param m_meta_param;
 
     ///Parameters concerning the population of individuals
     pop_param m_pop_param;
-
-    ///Parameters pertaining individuals
-    ind_param m_ind_param;
-
-
-
 };
 
 //Shows sim_param in terminal

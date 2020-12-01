@@ -16,8 +16,8 @@ sim_view::sim_view(float start_zoom,
     m_window{sf::VideoMode(1280, 720), "Sim_W_V_G_2016"},
     m_view{
         sf::Vector2f{0,0},
-        sf::Vector2f(m_window.getSize().x / m_max_zoom * 10,
-                     m_window.getSize().y / m_max_zoom * 10)
+        sf::Vector2f(m_window.getSize().x / m_max_zoom * m_scale,
+                     m_window.getSize().y / m_max_zoom * m_scale)
         },
     m_zoom_step{zoom_step}
 {
@@ -348,11 +348,12 @@ void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
 
 #ifndef LOGIC_ONLY
 int run_visual_evo (const env_param& e,
+                    const ind_param& i,
                     const meta_param& m,
                     const pop_param& p)
 {
 
-    simulation s{sim_param{e, m, p}};
+    simulation s{sim_param{e, i, m, p}};
     sim_view v;
     v.exec(s);
     return 0;
@@ -474,16 +475,23 @@ void test_sim_view()//!OCLINT tests may be many
     //with showing a 100th of the window dimensions(in pixel)
     {
         const sim_view v;
+
         assert((v.get_view().getCenter() == sf::Vector2f{0.f,0.f}));
+
         assert(v.get_view().getSize().x -
-               static_cast<float>(v.get_window().getSize().x) / v.get_max_zoom() < 0.00001f &&
+               static_cast<float>(v.get_window().getSize().x) /
+               v.get_max_zoom() * v.get_scale() < 0.00001f
+               &&
                v.get_view().getSize().x -
-               static_cast<float>(v.get_window().getSize().x) / v.get_max_zoom() > -0.00001f);
+               static_cast<float>(v.get_window().getSize().x) /
+               v.get_max_zoom() * v.get_scale() > -0.00001f);
 
         assert(v.get_view().getSize().y -
-               static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() < 0.00001f &&
+               static_cast<float>(v.get_window().getSize().y) /
+               v.get_max_zoom() * v.get_scale() < 0.00001f &&
                v.get_view().getSize().y -
-               static_cast<float>(v.get_window().getSize().y) / v.get_max_zoom() > -0.00001f);
+               static_cast<float>(v.get_window().getSize().y) /
+               v.get_max_zoom() * v.get_scale() > -0.00001f);
     }
 
 

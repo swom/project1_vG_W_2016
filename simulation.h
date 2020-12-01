@@ -305,6 +305,7 @@ int run_sim_rand(double amplitude,
 ///Createsa an evolution simulation with
 /// the given parameters, seed and change_frequency
 int run_sim_evo(const env_param& e,
+                const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
                 int change_frequency,
@@ -314,6 +315,7 @@ int run_sim_evo(const env_param& e,
 ///A standard simulation is created, with given parameters,
 /// and run for boht evo and against random conditions
 int run_standard(const env_param& e,
+                 const ind_param &i,
                  const meta_param& m,
                  const pop_param& p,
                  double amplitude,

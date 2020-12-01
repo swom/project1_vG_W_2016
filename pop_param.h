@@ -12,8 +12,7 @@ public:
               double mutation_step = 0.1,
               double base_disp_prob = 0.01,
               double spore_advantage = 10.0,
-              double death_rate = 0.0,
-              ind_param ind_parameters = ind_param());
+              double death_rate = 0.0);
 
 
     ///Returns the value of the variable m_base_fitness that indicates
@@ -26,12 +25,6 @@ public:
     ///Returns the number of individuals that should be present
     ///  in the new funding population
     unsigned int get_exp_new_pop_size() const noexcept {return m_exp_new_pop_size;}
-
-    ///Get ind parameters
-    const ind_param& get_ind_param() const noexcept {return m_ind_param;}
-
-    ///Get ind parameters
-    ind_param& get_ind_param() noexcept {return m_ind_param;}
 
     ///Get minimum distance between individuals at the start of the simulation
     double get_min_dist() const noexcept {return m_min_init_dist_btw_inds;}
@@ -55,9 +48,6 @@ public:
     double get_wiggle_room() const noexcept {return m_wiggle_room;}
 
 private:
-
-    ///The parameters of the individuals
-    ind_param m_ind_param;
 
     ///The base dispersal probability of an individual(so when it is active or sporulating)
     double m_base_disp_prob;

@@ -11,9 +11,7 @@ pop_param::pop_param(unsigned int start_pop_size,
                      double mutation_step,
                      double base_disp_prob,
                      double spore_advantage,
-                     double death_rate,
-                     class ind_param ind_parameters):
-    m_ind_param{ind_parameters},
+                     double death_rate):
     m_base_disp_prob{base_disp_prob},
     m_death_prob{death_rate},
     m_exp_new_pop_size{exp_new_pop_size},
@@ -35,12 +33,11 @@ pop_param::pop_param(unsigned int start_pop_size,
 #endif
     }
     assert(m_base_disp_prob > -0.000001);
-    assert(m_exp_new_pop_size >= 0);
     assert(m_min_init_dist_btw_inds > -0.000001);
     assert(m_mutation_prob > -0.000001 && m_mutation_prob < 1.000001);
     assert(m_mutation_step > -0.000001 && m_mutation_step < 1.000001);
     assert(m_spore_advantage > -0.000001);
-    assert(m_start_pop_size >= 0);
+
 #endif
 
 }
@@ -165,7 +162,6 @@ void test_pop_param() noexcept  //!OCLINT
         double mutation_step = 0.1;
         double base_disp_prob = 0.01;
         double spore_advantage = 10.0;
-        double reproduction_prob = 0.5;
         double death_rate = 0.0;
         pop_param p{
             start_pop_size,
@@ -175,7 +171,6 @@ void test_pop_param() noexcept  //!OCLINT
                     mutation_step,
                     base_disp_prob,
                     spore_advantage,
-                    reproduction_prob,
                     death_rate
         };
 

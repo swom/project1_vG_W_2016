@@ -33,8 +33,9 @@ sim_param::sim_param(unsigned int start_pop_size, //!OCLINT
 
 }
 
-sim_param::sim_param(env_param e, meta_param m, pop_param p):
+sim_param::sim_param(env_param e, ind_param i, meta_param m, pop_param p):
     m_env_param{e},
+    m_ind_param{i},
     m_meta_param{m},
     m_pop_param{p}
 {
@@ -66,6 +67,7 @@ void save_sim_parameters(
 {
     std::ofstream f(filename);
     f << p.get_env_param()  << " , " <<
+         p.get_ind_param() << " , " <<
          p.get_meta_param() << " , " <<
          p.get_pop_param();
 }
@@ -76,22 +78,24 @@ sim_param load_sim_parameters(
 {
     std::ifstream f(filename);
     if(!f.is_open())
-        {
-            std::cout << "Could not find specified sim_par.csv file. \n";
-            abort();
-        }
+    {
+        std::cout << "Could not find specified sim_par.csv file. \n";
+        abort();
+    }
 
     pop_param p;
     meta_param m;
+    ind_param i;
     env_param e;
 
     std::string dummy; // To remove the annotation (" , ") in the file
 
     f >> e >> dummy;
+    f >> i >> dummy;
     f >> m >> dummy;
     f >> p;
 
-    sim_param s{e,m,p};
+    sim_param s{e, i, m, p};
     return  s;
 
 }
@@ -105,8 +109,9 @@ void test_sim_param() noexcept //!OCLINT
     {
         pop_param p;
         env_param e;
+        ind_param i;
         meta_param m;
-        sim_param{e, m, p};
+        sim_param{e, i, m, p};
     }
 
     //A sim_parameters can be loaded from and saved to a file
@@ -117,8 +122,9 @@ void test_sim_param() noexcept //!OCLINT
             env_param env = load_env_parameters("env_param.csv");
             meta_param meta = load_meta_parameters("meta_param.csv");
             pop_param pop = load_pop_parameters("pop_param.csv");
+            ind_param ind = load_ind_parameters("ind_param.csv");
             //ind_param ind = load_ind_parameters("ind_param.csv");
-            sim_param s{env, meta, pop};
+            sim_param s{env, ind, meta, pop};
 
             const std::string filename = "sim_param.csv";
             save_sim_parameters(s, filename);

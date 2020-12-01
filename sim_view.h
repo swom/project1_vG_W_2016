@@ -31,6 +31,9 @@ public:
     ///Returns  ref to m_grid_view
     grid_view& get_grid_view() noexcept {return m_grid_view;}
 
+    ///Returns const ref to scale
+    const float& get_scale() const noexcept {return m_scale;}
+
     ///Gets the value of the zoom
     float get_max_zoom() const noexcept {return m_max_zoom;}
 
@@ -172,6 +175,7 @@ private:
 ///A standard evolution simulation with the given parameters
 /// is run visually
 int run_visual_evo (const env_param& e,
+                    const ind_param &i,
                     const meta_param& m,
                     const pop_param& p);
 

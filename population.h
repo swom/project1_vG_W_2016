@@ -11,7 +11,8 @@
 class population
 {
 public:
-    population(pop_param pop_parameters = pop_param());
+    population(const pop_param &pop_parameters = pop_param(),
+               const ind_param &ind_parameters = ind_param());
 
 
     ///Gets an inidividual at a certain index in the vector

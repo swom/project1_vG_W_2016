@@ -1,10 +1,10 @@
 #include "population.h"
 #include "utilities.h"
 
-population::population(pop_param pop_parameters):
+population::population(const pop_param& pop_parameters, const ind_param& ind_parameters):
     m_pop_param{pop_parameters},
-    m_pop(m_pop_param.get_pop_start_size(), m_pop_param.get_ind_param()),
-    m_new_pop_tmp_buffer(0, m_pop_param.get_ind_param()),
+    m_pop(m_pop_param.get_pop_start_size(), ind_parameters),
+    m_new_pop_tmp_buffer(0, ind_parameters),
     m_relax(relaxation::param_t{})
 {
     assign_ancestor_ID(m_pop).swap(m_pop);
@@ -155,7 +155,7 @@ demographic_cycle demographics(const population &p, const env_param &e) noexcept
                 count_spores(p),
                 count_sporulating(p),
                 e,
-                p.get_param().get_ind_param()};
+                p.get_v_ind().begin()->get_param()};
 }
 
 bool division(population &p) noexcept
@@ -324,8 +324,8 @@ int manage_static_collisions(population &p)
                           [](const individual& i)
                           // individual to particle_t conversion
     { return particle_t{ glm::vec2{i.get_x(), i.get_y()}, static_cast<float>(i.get_param().get_radius()) }; },
-    [](individual& i, const particle_t& p)
-    { i.set_x(p.pos.x); i.set_y(p.pos.y); i.get_param().set_radius(p.radius); }
+    [](individual& i, const particle_t& part)
+    { i.set_x(part.pos.x); i.set_y(part.pos.y); i.get_param().set_radius(part.radius); }
             );
     return time;
 }
@@ -619,6 +619,16 @@ void test_population() noexcept  //!OCLINT
             double x = p.get_ind(i).get_x();
             assert( x > -1234567890 );
         }
+    }
+
+    //A population can be initialized by a pop_param object and a ind_param object
+    {
+        pop_param p{1,2,3,0.4};
+        ind_param i{1,2,3,4};
+        population pop{p, i};
+
+        assert(pop.get_param() == p &&
+               pop.get_ind(0).get_param() == i);
     }
 
     //The size of a population is equal to the size of the vector containing its individuals
@@ -1460,7 +1470,7 @@ void test_population() noexcept  //!OCLINT
     //it is possible to track individuals that have the same ancestry
     {
         int pop_size = 2;
-        population p{static_cast<int>(pop_size)};
+        population p{static_cast<unsigned int>(pop_size)};
         auto ind1 = p.get_ind(0);
         auto ind2 = p.get_ind(1);
 

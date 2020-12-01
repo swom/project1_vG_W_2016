@@ -1,13 +1,4 @@
-#ifndef LOGIC_ONLY
-
-#include "sim_view.h"
-
-#else
-
 #include "simulation.h"
-
-#endif
-
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -21,9 +12,6 @@ void test() {
     test_funder_data();
     test_funders();
     test_funders_success();
-#ifndef LOGIC_ONLY
-    test_grid_view();
-#endif
     test_GRN();
     test_ind_param();
     test_individual();
@@ -32,9 +20,6 @@ void test() {
     test_pop_param();
     test_population();
     test_simulation();
-#ifndef LOGIC_ONLY
-    test_sim_view();
-#endif
     test_sim_param();
     test_utilities();
 }
@@ -53,6 +38,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         return 0;
     }
 #endif
+
     if (args.size() > 1 && args[1] == "--profile")
     {
         test();
@@ -89,7 +75,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 pop_max,
                 collision_check_interval};
 
-    ind_param ind{};
+    ind_param i{};
 
     pop_param p{1,
                 100,
@@ -99,7 +85,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01,
                 10,
                 0.0,
-                ind
                };
 
     env_param e{200,
@@ -113,47 +98,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                };
 
 
-    if(args.size() > 1 && args[1] == "--visual")
+    if(args.size() > 1 && args[1] == "--sim")
     {
-#ifndef LOGIC_ONLY
-        run_visual_evo(e,m,p);
-#endif
-    }
-    else if(args.size() > 1 && args[1] == "--replay")
-    {
-#ifndef LOGIC_ONLY
-        replay_cycle_from_evo(change_freq,
-                              seed,
-                              replay_cycle);
-#endif
-    }
-    else if(args.size() > 1 && args[1] == "--replay_rand_cond")
-    {
-#ifndef LOGIC_ONLY
-        replay_rand_cond(change_freq,
-                         seed,
-                         n_random_conditions,
-                         amplitude,
-                         seed_rand_cond,
-                         rand_cond_n,
-                         pop_max);
-#endif
-    }
-    else if(args.size() > 1 && args[1] == "--replay_best_rand_cond")
-    {
-#ifndef LOGIC_ONLY
-        replay_best_rand_cond(change_freq,
-                              seed,
-                              n_random_conditions,
-                              amplitude,
-                              seed_rand_cond,
-                              rand_cond_n,
-                              pop_max);
-#endif
-    }
-    else if(args.size() > 1 && args[1] == "--sim")
-    {
-        run_sim_evo(e,m,p,
+        run_sim_evo(e, i, m, p,
                     change_freq,
                     seed,
                     overwrite);
@@ -195,14 +142,14 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else if(args.size() > 1 && args[1] == "--create_rand_cond_vec")
     {
         create_vector_random_conditions(e,
-                                        p.get_ind_param(),
+                                        i,
                                         amplitude,
                                         n_random_conditions);
 
     }
     else
     {
-        run_standard(e,m,p,
+        run_standard(e, i, m,p,
                      amplitude,
                      change_freq,
                      n_random_conditions,
