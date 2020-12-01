@@ -37,18 +37,17 @@ script:
   # Build the project, then:
   - qmake -qt=qt5 DEFINES+=IS_ON_TRAVIS DEFINES+=LOGIC_ONLY simulation_logic_only.pro
   - make debug
-  # - echo "Do not run: it takes too long for Travis. Make a shorter run instead"
-  # - ./simulation_logic_only --test
-  # Build and run and profile normal program
-  - ./do_profile.sh 
-  # OCLint, failed OCLint does not break the build
-  - chmod +x scripts/do_oclint
-  - ./scripts/do_oclint || true
+  - ./simulation_logic_only --test
   # Get code coverage
   - cp debug/*.* .
   - chmod +x scripts/get_code_cov
   - ./scripts/get_code_cov >/dev/null
   - codecov >/dev/null
+  # Build and run and profile normal program
+  - ./do_profile.sh 
+  # OCLint, failed OCLint does not break the build
+  - chmod +x scripts/do_oclint
+  - ./scripts/do_oclint || true
   # cppcheck
   - travis_wait 50 cppcheck --quiet --error-exitcode=1 .  || true
   # clang-tidy
