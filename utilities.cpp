@@ -24,22 +24,23 @@ void check_for_cmd_param(const std::vector<std::string>& args,
             && (args[1] == "--sim"
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
+                || args[1] == "--rand_evo"
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay"
                 || args[1] == "--continue_evo"
                 || args[1] ==  "--replay_rand_cond"
-                || args[1] == "--replay_best_rand_cond")
+                || args[1] == "--replay_best_rand_cond"
+                || args[1] == "--replay_rand_cond_evo")
             )
     {
-        take_amplitude_arg(args, amplitude);
-        take_change_freq_arg(args,change_freq);
-        take_n_conditions_arg(args, n_conditions);
         take_seed_arg(args, seed);
-        take_overwrite_arg(args, overwrite);
-        take_replay_cycle_arg(args,replay_cycle);
+        take_change_freq_arg(args,change_freq);
+        take_amplitude_arg(args, amplitude);
+        take_n_conditions_arg(args, n_conditions);
         take_seed_rand_cond(args,seed_rand_cond);
         take_rand_cond_n(args, rand_cond_n);
-
+        take_overwrite_arg(args, overwrite);
+        take_replay_cycle_arg(args,replay_cycle);
     }
     else if(args.size() > 1
             &&
@@ -76,7 +77,10 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
             &&  (args[1] == "--rand"
                  || args[1] == "--rand_best"
                  || args[1] == "--replay_rand_cond"
-                 || args[1] == "--replay_best_rand_cond")
+                 || args[1] == "--replay_best_rand_cond"
+                 || args[1] == "--rand_evo"
+                 || args[1] == "--replay_rand_cond_evo"
+                 )
             &&  args[4][0] == 'a'
             )
     {
@@ -109,8 +113,10 @@ void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditio
     if ((args.size() > 5
          &&  (args[1] == "--rand"
               || args[1] == "--rand_best"
+              || args[1] == "--rand_evo"
               || args[1] ==  "--replay_rand_cond"
-              || args[1] == "--replay_best_rand_cond")
+              || args[1] == "--replay_best_rand_cond"
+              || args[1] == "--replay_rand_cond_evo")
          &&  args[5][0] == 'n')
             ||
             (args.size() > 2
@@ -153,8 +159,11 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
 
 void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n)
 {
-    if((args[1] == "--replay_rand_cond"
-            || args[1] == "--replay_best_rand_cond")&&
+    if((args[1] == "--rand_evo"
+        || args[1] == "--replay_rand_cond"
+        || args[1] == "--replay_best_rand_cond"
+        || args[1] == "--replay_rand_cond_evo"
+        ) &&
             args.size() > 6 &&
             args[7][0] == 'r' &&
             args[7][1] == 'n'
@@ -223,8 +232,10 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
 
 void take_seed_rand_cond(const std::vector<std::string>& args, int& seed_rand_cond)
 {
-    if((args[1] == "--replay_rand_cond"
-            || args[1] == "--replay_best_rand_cond") &&
+    if((args[1] == "--rand_evo"
+        ||args[1] == "--replay_rand_cond"
+        || args[1] == "--replay_best_rand_cond"
+        || args[1] == "--replay_rand_cond_evo") &&
             args.size() > 5 &&
             args[6][0] == 's' &&
             args[6][1] == 'r')
@@ -253,14 +264,14 @@ void test_utilities() noexcept //!OCLINT
         //create commnad line where seed of random condition is 0
         auto seed_s = "s" + std::to_string(expected_seed);
         const std::vector<std::string>& args{
-                "executable's_folder",
-                "--replay_rand_cond",
-                seed_s,
-                "freq",
-                "ampl",
-                "n_rand_cond",
-                "seed_random_conditions",
-                "rand_cond_n"};
+            "executable's_folder",
+            "--replay_rand_cond",
+            seed_s,
+                    "freq",
+                    "ampl",
+                    "n_rand_cond",
+                    "seed_random_conditions",
+                    "rand_cond_n"};
 
         take_seed_arg(args, seed);
         assert(seed == expected_seed);
@@ -278,14 +289,14 @@ void test_utilities() noexcept //!OCLINT
         //create commnad line where seed of random condition is 0
         auto change_freq_s = "f" + std::to_string(expected_change_freq);
         const std::vector<std::string>& args{
-                "executable's_folder",
-                "--replay_rand_cond",
-                "seed",
-                change_freq_s,
-                "ampl",
-                "n_rand_cond",
-                "seed_random_conditions",
-                "rand_cond_n"};
+            "executable's_folder",
+            "--replay_rand_cond",
+            "seed",
+            change_freq_s,
+                    "ampl",
+                    "n_rand_cond",
+                    "seed_random_conditions",
+                    "rand_cond_n"};
 
         take_change_freq_arg(args, change_freq);
         assert(change_freq == expected_change_freq);
@@ -303,14 +314,14 @@ void test_utilities() noexcept //!OCLINT
         //create commnad line where seed of random condition is 0
         auto amplitude_s = "a" + std::to_string(expected_amplitude);
         const std::vector<std::string>& args{
-                "executable's_folder",
-                "--replay_rand_cond",
-                "seed",
-                "change_freq",
-                amplitude_s,
-                "n_rand_cond",
-                "seed_random_conditions",
-                "rand_cond_n"};
+            "executable's_folder",
+            "--replay_rand_cond",
+            "seed",
+            "change_freq",
+            amplitude_s,
+                    "n_rand_cond",
+                    "seed_random_conditions",
+                    "rand_cond_n"};
 
         take_amplitude_arg(args, amplitude);
         assert(amplitude == expected_amplitude);
@@ -328,14 +339,14 @@ void test_utilities() noexcept //!OCLINT
         //create commnad line where seed of random condition is 0
         auto n_rand_cond_s = "n" + std::to_string(expected_n_rand_cond);
         const std::vector<std::string>& args{
-                "executable's_folder",
-                "--replay_rand_cond",
-                "seed",
-                "change_freq",
-                "ampl",
-                n_rand_cond_s,
-                "seed_random_conditions",
-                "rand_cond_n"};
+            "executable's_folder",
+            "--replay_rand_cond",
+            "seed",
+            "change_freq",
+            "ampl",
+            n_rand_cond_s,
+                    "seed_random_conditions",
+                    "rand_cond_n"};
 
         take_n_conditions_arg(args, n_rand_cond);
         assert(n_rand_cond == expected_n_rand_cond);
@@ -352,14 +363,14 @@ void test_utilities() noexcept //!OCLINT
         //create commnad line where seed of random condition is 0
         auto seed_rand_cond_s = "sr" + std::to_string(expected_seed_rand_cond);
         const std::vector<std::string>& args{
-                "executable's_folder",
-                "--replay_rand_cond",
-                "seed",
-                "freq",
-                "ampl",
-                "n_rand_cond",
-                seed_rand_cond_s,
-                "rand_cond_n"};
+            "executable's_folder",
+            "--replay_rand_cond",
+            "seed",
+            "freq",
+            "ampl",
+            "n_rand_cond",
+            seed_rand_cond_s,
+                    "rand_cond_n"};
 
         take_seed_rand_cond(args, seed_rand_cond);
         assert(seed_rand_cond == expected_seed_rand_cond);
@@ -377,14 +388,14 @@ void test_utilities() noexcept //!OCLINT
         //create commnad line where seed of random condition is 0
         auto rand_cond_n_s = "rn" + std::to_string(expected_rand_cond_n);
         const std::vector<std::string>& args{
-                "executable's_folder",
-                "--replay_rand_cond",
-                "seed",
-                "freq",
-                "ampl",
-                "n_rand_cond",
-                "seed_random_conditions",
-                rand_cond_n_s};
+            "executable's_folder",
+            "--replay_rand_cond",
+            "seed",
+            "freq",
+            "ampl",
+            "n_rand_cond",
+            "seed_random_conditions",
+            rand_cond_n_s};
 
         take_rand_cond_n(args, rand_cond_n);
         assert(rand_cond_n == expected_rand_cond_n);

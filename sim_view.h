@@ -199,7 +199,17 @@ int  replay_best_rand_cond (double change_freq,
 
 ///Reloads a simulation of a given seed and frequency change
 /// and replays visually one given random condition(number 1, 2, 3, ... etc)
-int  replay_rand_cond (double change_freq,
+int  replay_rand_cond_evo (double change_freq,
+                       int seed_sim,
+                       int n_conditions,
+                       double amplitude,
+                       int seed_rand_cond,
+                       int rand_cond_n,
+                       int pop_max);
+
+///Reloads a simulation of a given seed and frequency change
+/// and replays visually one given random condition FOR ONE CYCLE(number 1, 2, 3, ... etc)
+int  replay_rand_cond_test (double change_freq,
                        int seed_sim,
                        int n_conditions,
                        double amplitude,

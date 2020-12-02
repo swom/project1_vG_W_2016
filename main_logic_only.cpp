@@ -1,4 +1,4 @@
-#include "sim_view.h"
+#include "simulation.h"
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -45,7 +45,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         return 0;
     }
 
-    int n_cycles = 200;
+    int n_cycles = 500;
     int cycle_duration = 125;
     int seed = 0;
     int change_freq = 0;
@@ -103,10 +103,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         run_sim_evo(e, i, m, p,
                     overwrite);
     }
-    else  if(args.size() > 1 && args[1] == "--visual")
-    {
-        run_visual_evo(e,i,m,p);
-    }
     else  if(args.size() > 1 && args[1] == "--rand")
     {
         run_sim_rand(amplitude,
@@ -150,36 +146,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                            step,
                            seed,
                            overwrite);
-    }
-    else if(args.size() > 1 && args[1] == "--replay_rand_cond")
-    {
-        replay_rand_cond_test(change_freq,
-                              seed,
-                              n_random_conditions,
-                              amplitude,
-                              seed_rand_cond,
-                              rand_cond_n,
-                              pop_max);
-    }
-    else if(args.size() > 1 && args[1] == "--replay_rand_cond_best")
-    {
-        replay_best_rand_cond(change_freq,
-                              seed,
-                              n_random_conditions,
-                              amplitude,
-                              seed_rand_cond,
-                              rand_cond_n,
-                              pop_max);
-    }
-    else if(args.size() > 1 && args[1] == "--replay_rand_cond_evo")
-    {
-        replay_rand_cond_evo(change_freq,
-                             seed,
-                             n_random_conditions,
-                             amplitude,
-                             seed_rand_cond,
-                             rand_cond_n,
-                             pop_max);
     }
     else if(args.size() > 1 && args[1] == "--create_rand_cond_vec")
     {

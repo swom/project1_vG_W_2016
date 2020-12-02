@@ -103,6 +103,7 @@ int continue_evo(int seed, int change_freq)
     auto start = std::chrono::high_resolution_clock::now();
 
     exec(s);
+    save_data(s);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
@@ -204,7 +205,7 @@ std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int
     };
 }
 
-std::string create_random_condition_name(const simulation& s, double amplitude)
+std::string create_test_random_condition_name(const simulation& s, double amplitude)
 {
     return  std::string{
         "random_cond_sim_demographic_s" +
@@ -217,7 +218,7 @@ std::string create_random_condition_name(const simulation& s, double amplitude)
     };
 }
 
-std::string create_random_condition_name(double amplitude, int change_freq, int seed)
+std::string create_test_random_condition_name(double amplitude, int change_freq, int seed)
 {
     return  std::string{
         "random_cond_sim_demographic_s" +
@@ -230,6 +231,21 @@ std::string create_random_condition_name(double amplitude, int change_freq, int 
     };
 }
 
+std::string create_rand_evo_name_sim_dem(const simulation& rand_s,
+                                         double amplitude,
+                                         int n_rand_cond)
+{
+    return  std::string{
+        "rand_evo_demographic_s" +
+        std::to_string(rand_s.get_meta_param().get_seed()) +
+                "change_" +
+                std::to_string(rand_s.get_meta_param().get_change_freq()) +
+                "amplitude_" +
+                std::to_string(amplitude) +
+                "cond_n_" +
+                std::to_string(n_rand_cond)
+    };
+}
 
 std::string create_sim_demo_name(const simulation& s)
 {
@@ -594,22 +610,28 @@ void response(simulation& s)
 {
     for(auto& ind : s.get_pop().get_v_ind())
     {
-        if(ind.get_phen() == phenotype::spore){continue;}
+
         auto index = find_grid_index(ind,s.get_env().get_param().get_grid_side());
-        if(index == -100)//When individual is outside grid
+
+        if(ind.get_phen() == phenotype::spore)
+        {
+        }
+        else if(index == -100)//When individual is outside grid
         {
             responds(ind, env_grid_cell(0,0,0,0));
-            continue;
         }
-        responds(ind, s.get_env().get_cell(index));
+        else
+        {
+            responds(ind, s.get_env().get_cell(index));
+        }
     }
 }
 
-demographic_sim run_random_conditions(const simulation& s,
-                                      int n_number_rand_cond,
-                                      int pop_max,
-                                      double amplitude,
-                                      std::string name)
+demographic_sim run_test_random_conditions(const simulation& s,
+                                           int n_number_rand_cond,
+                                           int pop_max,
+                                           double amplitude,
+                                           std::string name)
 {
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
@@ -653,6 +675,32 @@ demographic_sim run_random_conditions(const simulation& s,
     return rand_s.get_demo_sim();
 }
 
+demographic_sim run_evo_random_conditions(const simulation& s,
+                                          int n_number_rand_cond,
+                                          int pop_max,
+                                          double amplitude,
+                                          int n_rand_cond,
+                                          std::string name)
+{
+    auto random_conditions = create_rand_conditions_unif(
+                s.get_env().get_param(),
+                s.get_pop().get_v_ind().begin()->get_param(),
+                n_number_rand_cond,
+                amplitude,
+                0);
+
+    simulation rand_s = no_dem_and_fund_copy(s);
+
+    rand_s.get_meta_param().get_pop_max() = pop_max;
+
+    reproduce_rand_cond(rand_s, random_conditions, n_rand_cond);
+
+    exec(rand_s);
+
+    save_demographic_sim(rand_s.get_demo_sim(), name);
+
+    return rand_s.get_demo_sim();
+}
 
 int run_reac_norm_best(int change_freq,
                        double max_food,
@@ -710,11 +758,11 @@ int run_sim_best_rand(double amplitude,
 
     auto rand_start = std::chrono::high_resolution_clock::now();
     place_start_cells(rand_s.get_pop());
-    run_random_conditions(rand_s,
-                          n_random_conditions,
-                          pop_max,
-                          amplitude,
-                          name);
+    run_test_random_conditions(rand_s,
+                               n_random_conditions,
+                               pop_max,
+                               amplitude,
+                               name);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
@@ -730,7 +778,7 @@ int run_sim_rand(double amplitude,
                  bool overwrite)
 {
     auto rand_s = load_sim_last_pop(seed,change_frequency);
-    auto name = create_random_condition_name(rand_s,amplitude);
+    auto name = create_test_random_condition_name(rand_s,amplitude);
 
     if(exists(name) && !overwrite)
     {
@@ -740,11 +788,11 @@ int run_sim_rand(double amplitude,
     }
 
     auto rand_start = std::chrono::high_resolution_clock::now();
-    run_random_conditions(rand_s,
-                          n_random_conditions,
-                          pop_max,
-                          amplitude,
-                          name);
+    run_test_random_conditions(rand_s,
+                               n_random_conditions,
+                               pop_max,
+                               amplitude,
+                               name);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
@@ -752,15 +800,47 @@ int run_sim_rand(double amplitude,
     return 0;
 }
 
+int run_sim_evo_rand(double amplitude,
+                     int change_frequency,
+                     int n_random_conditions,
+                     int pop_max,
+                     int seed,
+                     int rand_cond_n,
+                     bool overwrite)
+{
+    auto s = load_sim_last_pop(seed,change_frequency);
+
+    auto name = create_rand_evo_name_sim_dem(s, amplitude, rand_cond_n);
+
+    if(exists(name) && !overwrite)
+    {
+        std::cout << "The random conditions for this simulation"
+                     " have already been tested!" << std::endl;
+        return 0;
+    }
+
+    auto rand_start = std::chrono::high_resolution_clock::now();
+    run_evo_random_conditions(s,
+                              n_random_conditions,
+                              pop_max,
+                              amplitude,
+                              rand_cond_n,
+                              name);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random condition evo :" << duration.count() << "s" << std::endl;
+    return 0;
+}
+
 int run_sim_evo(const env_param& e,
                 const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
-                int change_frequency,
-                int seed,
                 bool overwrite)
 {
-    if(exists(create_sim_par_name(seed, change_frequency))
+    if(exists(create_sim_par_name(m.get_seed(),
+                                  m.get_change_freq()))
             && !overwrite)
     {
         std::cout << "this simulation has already been run" << std::endl;
@@ -772,6 +852,7 @@ int run_sim_evo(const env_param& e,
     auto start = std::chrono::high_resolution_clock::now();
 
     exec(s);
+    save_data(s);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
@@ -793,6 +874,7 @@ int run_standard(const env_param& e,
     auto start = std::chrono::high_resolution_clock::now();
 
     exec(s);
+    save_data(s);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
@@ -801,7 +883,7 @@ int run_standard(const env_param& e,
     auto rand_start = std::chrono::high_resolution_clock::now();
 
     auto rand_s = load_sim_last_pop(seed,change_frequency);
-    run_random_conditions(rand_s, n_random_conditions, pop_max, amplitude, "standard_rand_run.csv");
+    run_test_random_conditions(rand_s, n_random_conditions, pop_max, amplitude, "standard_rand_run.csv");
 
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration<float>(stop - rand_start);
@@ -822,6 +904,7 @@ void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>
            << condition.second << std::endl;
     }
 }
+
 void save_data(const simulation& s)
 {
     std::string sim_param_name = create_sim_par_name(s);
@@ -1169,12 +1252,12 @@ void test_simulation()//!OCLINT tests may be many
                     10,
                     1
                    };
-        ind_param i{};
+        ind_param ind{};
         env_param e{3,
                     0.1,
-                    i.get_treshold_energy() * 10
+                    ind.get_treshold_energy() * 10
                    };
-        simulation s (sim_param{e, i, m,p});
+        simulation s (sim_param{e, ind, m,p});
 
         auto food_begin =
                 std::accumulate(s.get_env().get_grid().begin(),
@@ -1348,10 +1431,10 @@ void test_simulation()//!OCLINT tests may be many
     {
         //create a simulation with 100 individuals to ensure there will be collisions early on
         pop_param p{100};
-        ind_param i{};
+        ind_param ind{};
         env_param e{100};
         meta_param m{};
-        simulation s{sim_param{e, i, m, p}};
+        simulation s{sim_param{e, ind, m, p}};
         int n_ticks = 2;
         int n_total_ticks = 4;
 
@@ -1441,9 +1524,9 @@ void test_simulation()//!OCLINT tests may be many
         auto cycle_duration = 1;
         meta_param m{ n_cycles, cycle_duration};
         pop_param p{100};
-        ind_param i{};
+        ind_param ind{};
         env_param e{3};
-        sim_param sp{e, i, m, p};
+        sim_param sp{e, ind, m, p};
         simulation s{sp};
         auto init_env = s.get_env();
         //Run a few ticks to make sure env is different from original
@@ -1634,7 +1717,7 @@ void test_simulation()//!OCLINT tests may be many
 
         simulation s{s_p};
         std::string expected_file_name = create_sim_demo_name(s);
-        exec(s);
+        run_sim_evo(e,i,m,p,true);
 
         assert(exists(expected_file_name));
         auto d_s = load_demographic_sim(expected_file_name);
@@ -1706,8 +1789,8 @@ void test_simulation()//!OCLINT tests may be many
 
         unsigned int pop_size = 3;
         pop_param p_p{pop_size};
-        ind_param i;
-        sim_param s_p{env_param{}, i, m_p, p_p};
+        ind_param ind;
+        sim_param s_p{env_param{}, ind, m_p, p_p};
         simulation s{s_p};
 
         add_new_funders(s);
@@ -1771,7 +1854,7 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e, i, m, p};
 
         simulation s{s_p};
-        exec(s);
+        run_sim_evo(e,i,m,p,true);
 
         std::string expected_file_name = create_funders_success_name(s);
         assert(exists(expected_file_name));
@@ -1833,8 +1916,8 @@ void test_simulation()//!OCLINT tests may be many
                               var_degr_rate};
         pop_param p;
         meta_param m;
-        ind_param i;
-        sim_param s_p{e_p, i, m, p};
+        ind_param ind;
+        sim_param s_p{e_p, ind, m, p};
         simulation s{s_p};
         int repeats = 100;
 
@@ -1944,9 +2027,9 @@ void test_simulation()//!OCLINT tests may be many
                     amplitude,
                     0);
 
-        std::string filename = create_random_condition_name(s,amplitude);
+        std::string filename = create_test_random_condition_name(s,amplitude);
 
-        auto demo_sim = run_random_conditions(s, repeats, pop_max, amplitude, filename);
+        auto demo_sim = run_test_random_conditions(s, repeats, pop_max, amplitude, filename);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           demo_sim.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,
@@ -2033,7 +2116,7 @@ void test_simulation()//!OCLINT tests may be many
         assert(rand_cond == rand_cond2);
     }
 
-    ///The final population is saved at the end of the exec(s) function
+    ///The final population is saved at the end of the run_sim_evo(s) function
     ///as funders
     {
         ind_param i;
@@ -2043,12 +2126,12 @@ void test_simulation()//!OCLINT tests may be many
         pop_param p{100,
                     100};
         simulation s{sim_param{e, i, m, p}};
-        exec(s);
+        run_sim_evo(e, i, m, p,true);
         std::string expected_filename = create_last_pop_name(s);
         assert(prepare_funders(s) == load_funders(expected_filename));
     }
 
-    ///Simulation parameters are saved by the end of exec(s) function
+    ///Simulation parameters are saved by the end of run_sim function
     {
         ind_param i;
         env_param e{5};
@@ -2058,7 +2141,7 @@ void test_simulation()//!OCLINT tests may be many
                     100};
         sim_param s_p{e, i, m, p};
         simulation s{s_p};
-        exec(s);
+        run_sim_evo(e, i, m, p,true);
         std::string expected_filename = create_sim_par_name(s);
         assert(s_p == load_sim_parameters(expected_filename));
     }
@@ -2079,7 +2162,7 @@ void test_simulation()//!OCLINT tests may be many
                     100};
         sim_param s_p{e, i, m, p};
         simulation s{s_p};
-        exec(s);
+        run_sim_evo(e, i, m, p, true);
         simulation s1 = load_sim(seed,change_freq);
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
         assert(s.get_pop().get_param() == s1.get_pop().get_param());
@@ -2106,7 +2189,7 @@ void test_simulation()//!OCLINT tests may be many
                     100};
         sim_param s_p{e, i, m,p};
         simulation s{s_p};
-        exec(s);
+        run_sim_evo(e,i,m,p,true);
         simulation s1 = load_sim_last_pop(seed,change_freq);
         place_start_cells(s.get_pop());
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
@@ -2124,10 +2207,10 @@ void test_simulation()//!OCLINT tests may be many
         pop_param p{1,100};
         int seed = 123;
         int change_freq = 10;
-        meta_param m{10,125,seed,change_freq};
+        meta_param m{2,50,seed,change_freq};
         env_param e{};
         simulation s{sim_param{e, i, m, p}};
-        exec(s);
+        run_sim_evo(e,i,m,p,true);
         auto filename = create_funders_success_name(s);
         auto fund_succ = load_funders_success(filename);
         assert(fund_succ == s.get_funders_success());
@@ -2221,13 +2304,13 @@ void test_simulation()//!OCLINT tests may be many
         auto change_freq = 4848;
         env_param e;
         pop_param p;
-        ind_param i;
+        ind_param ind;
         meta_param m{1,50,
                      seed,
                              change_freq
                     };
 
-        simulation s{sim_param{e, i, m, p}};
+        simulation s{sim_param{e, ind, m, p}};
 
         int n_cycles = 3;
         for(int i = 0; i != n_cycles; i++)

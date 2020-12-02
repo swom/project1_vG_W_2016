@@ -111,6 +111,12 @@ private:
 ///Adds a new vector of funders to the funders_success vector
 void add_new_funders(simulation& s) noexcept;
 
+///Sets the success of the funders fo the cycle
+/// Based on the number of individuals
+/// present at the end of the simulation
+/// descended from that funder
+void add_success_funders(simulation& s) noexcept;
+
 ///Calculates the success of each funder at the end of a cycle
 funders calc_funders_success(const simulation& s);
 
@@ -143,9 +149,9 @@ std::string create_second_to_last_pop_name(const simulation& s);
 std::string create_best_random_condition_name(const simulation& s, double amplitude);
 std::string create_best_random_condition_name(double amplitude, int  change_freq, int seed);
 
-///Creates a name for the file where the run for random conditions is saved
-std::string create_random_condition_name(const simulation& s, double amplitude);
-std::string create_random_condition_name(double amplitude, int change_freq, int seed);
+///Creates a name for the file where the TEST run for random conditions is saved
+std::string create_test_random_condition_name(const simulation& s, double amplitude);
+std::string create_test_random_condition_name(double amplitude, int change_freq, int seed);
 
 ///Creates the name of a funders_success .csv file given
 /// a simulation, or the simulation's seed and change_frequency
@@ -170,6 +176,12 @@ std::string create_last_pop_name(const simulation& s);
 /// the amplitude of the randomness
 /// and the seed of the rng.
 std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int seed);
+
+///Creates a name for the file where the EVO
+/// run for random conditions is saved
+std::string create_rand_evo_name_sim_dem(const simulation& s,
+                                         double amplitude,
+                                         int n_rand_cond);
 
 ///Creates a name for the file where
 /// the deomgraphic of the evolving population
@@ -274,6 +286,25 @@ void reproduce_cycle(simulation&s, int cycle);
 /// to the condition o the n_rand_cond element of the rand_cond vector
 void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond);
 
+///Runs an evolution simulation
+/// starting from the last population of a previous simulation
+/// in a given random condition
+int run_sim_evo_rand(double amplitude,
+                 int change_frequency,
+                 int n_random_conditions,
+                 int pop_max,
+                 int seed,
+                 int rand_cond_n,
+                 bool overwrite);
+
+///Runs an evolution simulation in a given random condition
+demographic_sim run_evo_random_conditions(const simulation& rand_s,
+                                          int n_number_rand_cond,
+                                          int pop_max,
+                                          double amplitude,
+                                          int n_rand_cond,
+                                          std::string name);
+
 ///Creates the reaction norm of the best individuall of a certain simulation (seed, change_freq)
 /// over a range of food, energy and metabolite values (from 0 to max_*)
 /// checking over all conditions witha given interval step
@@ -308,8 +339,6 @@ int run_sim_evo(const env_param& e,
                 const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
-                int change_frequency,
-                int seed,
                 bool overwrite);
 
 ///A standard simulation is created, with given parameters,
@@ -320,8 +349,16 @@ int run_standard(const env_param& e,
                  const pop_param& p,
                  double amplitude,
                  int change_frequency,
-                 int n_random_conditions, int pop_max,
+                 int n_random_conditions,
+                 int pop_max,
                  int seed);
+
+///Runs a poplation from a simulation against a series of random conditions
+demographic_sim run_test_random_conditions(const simulation &s,
+                                           int n_number_rand_cond,
+                                           int pop_max,
+                                           double amplitude,
+                                           std::string name);
 
 ///Resets a simulation to its initial conditions
 void reset_sim(simulation& s) noexcept;
@@ -329,12 +366,7 @@ void reset_sim(simulation& s) noexcept;
 ///Individuals read input from environment and determine their own phenotype
 void response(simulation& s);
 
-///Runs a poplation from a simulation against a series of random conditions
-demographic_sim run_random_conditions(const simulation &s,
-                                      int n_number_rand_cond,
-                                      int pop_max,
-                                      double amplitude,
-                                      std::string name);
+
 
 ///Saves a vector of pairs of randomlly generated env_param and ind_param
 void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>& rand_cond_v,

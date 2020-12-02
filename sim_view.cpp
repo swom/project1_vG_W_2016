@@ -86,6 +86,7 @@ void sim_view::exec(simulation& s) noexcept
 
 bool sim_view::exec_cycle_visual(simulation& s) noexcept
 {
+    add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
           s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
     {
@@ -99,6 +100,7 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
         }
         show(s);
     }
+    add_success_funders(s);
     store_demographics(s);
     dispersal(s);
     s.reset_timesteps();
@@ -356,6 +358,7 @@ int run_visual_evo (const env_param& e,
     simulation s{sim_param{e, i, m, p}};
     sim_view v;
     v.exec(s);
+    save_data(s);
     return 0;
 }
 
@@ -383,7 +386,37 @@ int replay_cycle_from_evo (
     return 0;
 }
 
-int  replay_rand_cond (double change_freq,
+int  replay_rand_cond_evo (double change_freq,
+                       int seed_sim,
+                       int n_conditions,
+                       double amplitude,
+                       int seed_rand_cond,
+                       int rand_cond_n,
+                       int pop_max)
+{
+    auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
+    auto rand_s = load_sim_last_pop(seed_sim,change_freq);
+    rand_s.get_meta_param().get_pop_max() = pop_max;
+
+    sim_view v;
+    reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);
+
+    auto rand_start = std::chrono::high_resolution_clock::now();
+
+    v.exec(rand_s);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random condition n" << rand_cond_n <<": " << duration.count() << "s" << std::endl;
+
+    auto tot_inds = rand_s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
+            rand_s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
+            rand_s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();
+    std::cout<< "n individuals:" << tot_inds << std::endl;
+
+    return 0;
+}
+int  replay_rand_cond_test (double change_freq,
                        int seed_sim,
                        int n_conditions,
                        double amplitude,
@@ -400,7 +433,9 @@ int  replay_rand_cond (double change_freq,
     v.prepare(rand_s);
 
     auto rand_start = std::chrono::high_resolution_clock::now();
+
     v.exec_cycle_visual(rand_s);
+
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
     std::cout<< "random condition n" << rand_cond_n <<": " << duration.count() << "s" << std::endl;
