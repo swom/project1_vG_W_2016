@@ -2,6 +2,8 @@
 
 include(simulation.pri)
 include(simulation_view.pri)
+SOURCES += \
+        main_general.cpp
 
 CONFIG += c++17
 QMAKE_CXXFLAGS += -std=c++17

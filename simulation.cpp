@@ -691,6 +691,10 @@ demographic_sim run_evo_random_conditions(const simulation& s,
 
     simulation rand_s = no_dem_and_fund_copy(s);
 
+    ///For now do not allow the env and ind param
+    /// to change, no matter the freq of change.
+    rand_s.get_meta_param().get_change_freq() = 0;
+
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
     reproduce_rand_cond(rand_s, random_conditions, n_rand_cond);
@@ -1717,7 +1721,8 @@ void test_simulation()//!OCLINT tests may be many
 
         simulation s{s_p};
         std::string expected_file_name = create_sim_demo_name(s);
-        run_sim_evo(e,i,m,p,true);
+        exec(s);
+        save_data(s);
 
         assert(exists(expected_file_name));
         auto d_s = load_demographic_sim(expected_file_name);
@@ -1854,7 +1859,9 @@ void test_simulation()//!OCLINT tests may be many
         sim_param s_p{e, i, m, p};
 
         simulation s{s_p};
-        run_sim_evo(e,i,m,p,true);
+
+        exec(s);
+        save_data(s);
 
         std::string expected_file_name = create_funders_success_name(s);
         assert(exists(expected_file_name));
@@ -2126,7 +2133,10 @@ void test_simulation()//!OCLINT tests may be many
         pop_param p{100,
                     100};
         simulation s{sim_param{e, i, m, p}};
-        run_sim_evo(e, i, m, p,true);
+
+        exec(s);
+        save_data(s);
+
         std::string expected_filename = create_last_pop_name(s);
         assert(prepare_funders(s) == load_funders(expected_filename));
     }
@@ -2141,7 +2151,10 @@ void test_simulation()//!OCLINT tests may be many
                     100};
         sim_param s_p{e, i, m, p};
         simulation s{s_p};
-        run_sim_evo(e, i, m, p,true);
+
+        exec(s);
+        save_data(s);
+
         std::string expected_filename = create_sim_par_name(s);
         assert(s_p == load_sim_parameters(expected_filename));
     }
@@ -2162,7 +2175,10 @@ void test_simulation()//!OCLINT tests may be many
                     100};
         sim_param s_p{e, i, m, p};
         simulation s{s_p};
-        run_sim_evo(e, i, m, p, true);
+
+        exec(s);
+        save_data(s);
+
         simulation s1 = load_sim(seed,change_freq);
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
         assert(s.get_pop().get_param() == s1.get_pop().get_param());
@@ -2189,7 +2205,10 @@ void test_simulation()//!OCLINT tests may be many
                     100};
         sim_param s_p{e, i, m,p};
         simulation s{s_p};
-        run_sim_evo(e,i,m,p,true);
+
+        exec(s);
+        save_data(s);
+
         simulation s1 = load_sim_last_pop(seed,change_freq);
         place_start_cells(s.get_pop());
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
@@ -2210,7 +2229,10 @@ void test_simulation()//!OCLINT tests may be many
         meta_param m{2,50,seed,change_freq};
         env_param e{};
         simulation s{sim_param{e, i, m, p}};
-        run_sim_evo(e,i,m,p,true);
+
+        exec(s);
+        save_data(s);
+
         auto filename = create_funders_success_name(s);
         auto fund_succ = load_funders_success(filename);
         assert(fund_succ == s.get_funders_success());
@@ -2259,7 +2281,7 @@ void test_simulation()//!OCLINT tests may be many
     {
         int seed = 123;
         int change_freq = 10;
-        int funders_generation = 8;
+        int funders_generation = 1;
 
         auto funders_success = load_funders_success(create_funders_success_name(seed, change_freq));
         auto selected_funders = funders_success.get_v_funders()[funders_generation];
@@ -2327,15 +2349,15 @@ void test_simulation()//!OCLINT tests may be many
         assert( std::equal(last_pop.get_pop().get_v_ind().begin(),
                            last_pop.get_pop().get_v_ind().end(),
                            s.get_funders_success().get_v_funders().back().get_v_funder_data().begin(),
-                           [](const individual& ind, const funder_data& funder)
-        {return ind.get_grn() == funder.get_grn();}
+                           [](const individual& i, const funder_data& funder)
+        {return i.get_grn() == funder.get_grn();}
         ));
         //Check before_last_pop
         assert( std::equal(before_last_pop.get_pop().get_v_ind().begin(),
                            before_last_pop.get_pop().get_v_ind().end(),
                            s.get_funders_success().get_v_funders().rbegin()[1].get_v_funder_data().begin(),
-                [](const individual& ind, const funder_data& funder)
-        {return ind.get_grn() == funder.get_grn();}
+                [](const individual& i, const funder_data& funder)
+        {return i.get_grn() == funder.get_grn();}
         ));
 
     }

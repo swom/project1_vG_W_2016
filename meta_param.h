@@ -19,6 +19,11 @@ public:
     ///  and population will change
     int get_change_freq() const noexcept {return m_change_frequency;}
 
+    ///Returns reference to after how many generations
+    ///  the parameters of  environment
+    ///  and population will change
+    int& get_change_freq() noexcept {return m_change_frequency;}
+
     ///Returns the number of timesteps after which collision are checked
     int get_collision_check_interval() const noexcept {return m_collision_check_interval; }
 

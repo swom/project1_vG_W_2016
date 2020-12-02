@@ -1,6 +1,8 @@
 # Entry point for user
 
 include(simulation.pri)
+SOURCES += \
+        main_logic_only.cpp
 
 DEFINES += LOGIC_ONLY
 

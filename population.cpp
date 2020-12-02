@@ -1534,10 +1534,9 @@ void test_population() noexcept  //!OCLINT
     {
         int seed = 123;
         int change_freq = 10;
-        int funders_generation = 8;
+        int funders_generation = 1;
 
         population p{};
-
 
         auto funders_success = load_funders_success(create_funders_success_name(seed, change_freq));
         auto selected_funders = funders_success.get_v_funders()[funders_generation];

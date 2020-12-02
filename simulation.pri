@@ -33,7 +33,6 @@ SOURCES += \
     grn.cpp \
     ind_param.cpp \
     individual.cpp \
-    main.cpp \
     meta_param.cpp \
     phenotype.cpp \
     pop_param.cpp \
