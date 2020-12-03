@@ -39,11 +39,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
 #endif
 
-    if (args.size() > 1 && args[1] == "--profile")
-    {
-        test();
-        return 0;
-    }
 
     int n_cycles = 200;
     int cycle_duration = 125;
@@ -97,7 +92,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.01
                };
 
-
+    if (args.size() > 1 && args[1] == "--profile")
+    {
+        meta_param meta{10,100};
+        simulation s{sim_param{e, i, meta, p}};
+        exec(s);
+        return 0;
+    }
     if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e, i, m, p,
