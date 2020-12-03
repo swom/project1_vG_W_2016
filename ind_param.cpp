@@ -57,7 +57,7 @@ ind_param::ind_param(double radius,
 
 std::ostream& operator<<(std::ostream& os, const ind_param& p)
 {
-    os << p.get_radius()
+    os << p.get_base_radius()
        << " , " << p.get_uptake_rate()
        << " , " << p.get_uptake_mean()
        << " , " << p.get_uptake_var()
@@ -141,8 +141,8 @@ std::ifstream& operator>>(std::ifstream& is, ind_param& p)
 
 bool operator==(const ind_param& lhs, const ind_param& rhs) noexcept
 {
-    auto radius = lhs.get_radius() - rhs.get_radius() < 0.00001
-            && lhs.get_radius() - rhs.get_radius() > -0.00001 ;
+    auto radius = lhs.get_base_radius() - rhs.get_base_radius() < 0.00001
+            && lhs.get_base_radius() - rhs.get_base_radius() > -0.00001 ;
     auto trheshold = lhs.get_treshold_energy() - rhs.get_treshold_energy() < 0.00001
             && lhs.get_treshold_energy() - rhs.get_treshold_energy() > -0.00001;
     auto uptake = lhs.get_uptake_rate() - rhs.get_uptake_rate() < 0.0001
@@ -243,7 +243,7 @@ ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
 ind_param change_range_ind_param(const ind_param& i, double amplitude)
 {
     ind_param ind{
-        i.get_radius(),
+        i.get_base_radius(),
                 i.get_treshold_energy(),
                 i.get_uptake_rate(),
                 i.get_uptake_mean(),

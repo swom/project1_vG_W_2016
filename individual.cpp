@@ -13,6 +13,7 @@ individual::individual(ind_param ind_parameters,
     m_y{y_pos},
     m_energy{energy},
     m_phenotype{phenotype},
+    m_radius{m_ind_param.get_base_radius()},
     m_sporulation_timer{sporulation_timer}
 {
 
@@ -51,7 +52,7 @@ void active_metabolism(individual& i) noexcept
 
 bool are_colliding(individual &lhs, individual &rhs, double wiggle_room) noexcept
 {
-    auto radii_sum = lhs.get_param().get_radius() + rhs.get_param().get_radius();
+    auto radii_sum = lhs.get_radius() + rhs.get_radius();
     const double sqrd_actual_distance = squared_distance(lhs,rhs) ;
     //Almost never called but to make sure we do not divide by 0
     //In  get_displacement()
@@ -105,6 +106,10 @@ void divides(individual& i,
     double offs_init_en = i.split_excess_energy();
     i.set_energy(offs_init_en);
     individual daughter = i;
+
+    update_radius(i);
+    update_radius(daughter);
+
     mutates(i, rng, mu_p, mu_st);
     mutates(daughter, rng, mu_p, mu_st);
     set_pos(daughter,calculate_daughter_pos(daughter, repr_angle));
@@ -169,8 +174,8 @@ int find_grid_index(const individual& i, double grid_side)
 std::pair<double,double> calculate_daughter_pos(individual& i, double rnd_angle) noexcept
 {
     std::pair<double, double> pos;
-    pos.first = i.get_x() + cos(rnd_angle) * 2 * i.get_param().get_radius();
-    pos.second += i.get_y() + sin(rnd_angle) * 2 * i.get_param().get_radius();
+    pos.first = i.get_x() + cos(rnd_angle) * 2 * i.get_radius();
+    pos.second += i.get_y() + sin(rnd_angle) * 2 * i.get_radius();
     return pos;
 }
 
@@ -229,14 +234,14 @@ bool is_spore(const individual& i) noexcept
 double half_overlap(const individual& lhs, const individual& rhs , double wiggle_room) noexcept
 {
     auto dist = distance(lhs,rhs);
-    auto sum_of_radiuses = lhs.get_param().get_radius() + rhs.get_param().get_radius();
+    auto sum_of_radiuses = lhs.get_radius() + rhs.get_radius();
 
     //if circles are one into the other
-    if (dist < std::max(lhs.get_param().get_radius(),rhs.get_param().get_radius()))
+    if (dist < std::max(lhs.get_radius(), rhs.get_radius()))
     {
-        return (std::max(lhs.get_param().get_radius(),rhs.get_param().get_radius()) -
+        return (std::max(lhs.get_radius(),rhs.get_radius()) -
                 dist +
-                std::min(lhs.get_param().get_radius(),rhs.get_param().get_radius())) / 2;
+                std::min(lhs.get_radius(),rhs.get_radius())) / 2;
     }
 
     //if circles partially overlap or
@@ -331,6 +336,12 @@ void starts_sporulation(individual& i)
     i.set_phen(phenotype::sporulating);
 }
 
+void update_radius(individual& i)
+{
+    i.get_radius() = i.get_param().get_base_radius()/* +
+            i.get_param().get_uptake_mean() * i.get_energy()*/;
+}
+
 bool will_sporulate(individual& i) noexcept
 {
     return i.get_grn().get_output_spo() == 0;
@@ -344,7 +355,7 @@ void test_individual()//!OCLINT tests may be many
     {
         double starting_size = 14.0;
         individual i(ind_param{starting_size});
-        assert(i.get_param().get_radius() - starting_size < 0.0000001);
+        assert(i.get_radius() - starting_size < 0.0000001);
     }
 
     //An individual should be initialized at a certain position
@@ -478,9 +489,9 @@ void test_individual()//!OCLINT tests may be many
         double wiggle_room = 0.00001;
         //Two individuals overlap by half their radius
         individual lhs(ind_param{}, 0, 0);
-        individual rhs(ind_param{}, 0,lhs.get_param().get_radius());
-        assert(half_overlap(lhs, rhs, wiggle_room) - (lhs.get_param().get_radius() / 2 + wiggle_room) < 0.000001 &&
-               half_overlap(lhs, rhs, wiggle_room) - (lhs.get_param().get_radius() / 2 + wiggle_room) > -0.000001 );
+        individual rhs(ind_param{}, 0,lhs.get_radius());
+        assert(half_overlap(lhs, rhs, wiggle_room) - (lhs.get_radius() / 2 + wiggle_room) < 0.000001 &&
+               half_overlap(lhs, rhs, wiggle_room) - (lhs.get_radius() / 2 + wiggle_room) > -0.000001 );
     }
 
     //Given  2 overlapping individuals lhs and rhs:
@@ -513,7 +524,7 @@ void test_individual()//!OCLINT tests may be many
         lhs.displace();
         rhs.displace();
         auto dist = distance(lhs,rhs);
-        auto radii_sum = lhs.get_param().get_radius() + rhs.get_param().get_radius();
+        auto radii_sum = lhs.get_radius() + rhs.get_radius();
         auto space_btw_circles = dist - radii_sum;
         assert( space_btw_circles < 0.00001
                 && space_btw_circles > -0.00001);

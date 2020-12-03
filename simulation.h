@@ -388,7 +388,7 @@ int tick(simulation& s);
 
 ///Runs all necessary actions for a timestep but
 /// check collision and resolves them only every n timesteps
-int tick_sparse_collision_resolution(simulation& s, int n_ticks);
+int tick_sparse_collision_resolution(simulation& s, int n_ticks = 0);
 
 ///Stores the demographic of the population in the simulation
 /// at that point in time

@@ -45,6 +45,12 @@ public:
     /// whih individual is descending
     std::vector<int>& get_ancestor() noexcept {return m_ancestor;}
 
+    ///Gets the reference to the value of the radius
+    const double& get_radius() const noexcept {return m_radius;}
+
+    ///Gets the reference to the value of the radius
+    double& get_radius()  noexcept {return m_radius;}
+
     ///Gets the flag that signal if the individual has been drawn to be member of the new pop
     bool get_drawn_flag() const noexcept {return m_is_drawn;}
 
@@ -170,6 +176,9 @@ private:
     ///The phenotype of the individual
     phenotype m_phenotype;
 
+    /// The base radius of an individual
+    double m_radius;
+
     ///The amount of timesteps an individual has been sporulating
     int m_sporulation_timer;
 };
@@ -289,6 +298,9 @@ void sporulating_metabolism(individual& i) noexcept;
 ///Checks and updates the timer of sporulating individuals
 /// and changes them into spores if they have sporulated long enough
 void sporulation(individual& i) noexcept;
+
+///Updates the radius based on the level of internal energy of the individual
+void update_radius(individual& i);
 
 ///Determines if the output of the network will make the individual
 /// become of ind_type::sporulating

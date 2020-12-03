@@ -464,6 +464,9 @@ simulation load_sim(int seed, int change_freq)
                 = last_pop.get_v_funder_data()[i].get_grn();
     }
 
+    update_radius_pop(s.get_pop());
+    place_start_cells(s.get_pop());
+
     return s;
 }
 
@@ -483,9 +486,8 @@ simulation load_sim_last_pop(int seed, int change_freq)
                 = last_pop.get_v_funder_data()[i].get_grn();
     }
 
-
+    update_radius_pop(s.get_pop());
     place_start_cells(s.get_pop());
-
 
     //Change internal state of rng member of simulation
     //to avoid pseudo rng to replicate results in different runs
@@ -515,9 +517,8 @@ simulation load_sim_before_last_pop(int seed, int change_freq)
                 = last_pop.get_v_funder_data()[i].get_grn();
     }
 
-
+    update_radius_pop(s.get_pop());
     place_start_cells(s.get_pop());
-
 
     //Change internal state of rng member of simulation
     //to avoid pseudo rng to replicate results in different runs.
@@ -550,6 +551,7 @@ simulation load_best_ind_for_rand_cond(int seed, int change_freq)
     {
         individual.get_grn() = best_ind_grn;
     }
+    update_radius_pop(s.get_pop());
 
     place_start_cells(s.get_pop());
 
@@ -592,7 +594,10 @@ void reproduce_cycle(simulation&s, int cycle)
 {
     reproduce_cycle_env(s, cycle);
     s.get_pop().set_pop_inds(pop_from_funders(s.get_funders_success(), s.get_demo_sim(), cycle));
+
+    update_radius_pop(s.get_pop());
     place_start_cells(s.get_pop());
+
 }
 
 void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond)
@@ -988,14 +993,15 @@ int tick_sparse_collision_resolution(simulation& s, int n_ticks)
     secretion_metabolite(s);
     //death(s.get_pop());
     jordi_death(s.get_pop());
+    update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());
     if( n_ticks > 0 && s.get_timestep() % n_ticks == 0)
     {
-        time += manage_static_collisions(s.get_pop());
+        manage_static_collisions(s.get_pop());
     }
     else if(n_ticks == 0 && division_happens)
     {
-        time += manage_static_collisions(s.get_pop());
+        manage_static_collisions(s.get_pop());
     }
     degradation_metabolite(s.get_env());
     diffusion(s.get_env());
@@ -1617,6 +1623,37 @@ void test_simulation()//!OCLINT tests may be many
         }
     }
 
+    //All inds have the same size after dispersal
+    {
+
+        int time = 50;
+        env_param e;
+        ind_param ind;
+        meta_param m;
+        pop_param p;
+        sim_param sp{e, ind, m, p};
+        simulation s{sp};
+
+        for( int i = 0; i != time; i++)
+        {
+            tick_sparse_collision_resolution(s);
+        }
+
+        assert( s.get_pop().get_v_ind().end() !=
+                std::adjacent_find( s.get_pop().get_v_ind().begin(),
+                                    s.get_pop().get_v_ind().end(),
+                                    [](const auto& lhs, const auto& rhs)
+        {return lhs.get_radius() != rhs.get_radius();}));
+
+        dispersal(s);
+
+        assert( s.get_pop().get_v_ind().end() ==
+                std::adjacent_find( s.get_pop().get_v_ind().begin(),
+                                    s.get_pop().get_v_ind().end(),
+                                    [](const auto& lhs, const auto& rhs)
+        {return lhs.get_radius() != rhs.get_radius();}));
+    }
+
     //All individuals in a simulation can respond to their environment and surrounding
     {
         double food_amount = 3.14;
@@ -2180,6 +2217,9 @@ void test_simulation()//!OCLINT tests may be many
         save_data(s);
 
         simulation s1 = load_sim(seed,change_freq);
+        update_radius_pop(s1.get_pop());
+        place_start_cells(s1.get_pop());
+
         assert(s.get_pop().get_v_ind() == s1.get_pop().get_v_ind());
         assert(s.get_pop().get_param() == s1.get_pop().get_param());
         assert(s.get_env().get_param() == s1.get_env().get_param());

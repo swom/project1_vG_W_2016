@@ -41,7 +41,7 @@ public:
     double get_spor_metabolic_rate_var() const noexcept {return m_var_spor_metabolic_rate;}
 
     ///gets radius of individual
-    double get_radius() const noexcept {return m_radius;}
+    double get_base_radius() const noexcept {return m_radius;}
 
     ///Gets the reproduction probability of an ind once sufficient energy is gathered
     double get_repr_prob() const noexcept {return m_repr_prob;}

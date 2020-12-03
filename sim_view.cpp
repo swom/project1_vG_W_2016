@@ -90,6 +90,7 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
           s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
     {
+        show(s);
         bool must_quit{process_events()};
         if (must_quit)
             return true;
@@ -98,7 +99,6 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
             tick_sparse_collision_resolution(s,
                                              s.get_meta_param().get_collision_check_interval());
         }
-        show(s);
     }
     add_success_funders(s);
     store_demographics(s);
@@ -171,7 +171,7 @@ void sim_view::prepare_pop(const simulation& s) noexcept
 {
     if(s.get_pop().get_v_ind().size() == 0)
     {
-        auto r = individual{}.get_param().get_radius() * m_scale;
+        auto r = individual{}.get_radius() * m_scale;
         // Create the sprite
         sf::CircleShape circle;
         circle.setRadius(r);
@@ -185,11 +185,10 @@ void sim_view::prepare_pop(const simulation& s) noexcept
         return;
     }
 
-    for (size_t i = 0 ; i != s.get_pop().get_v_ind().size(); i++)
+    for (const auto& ind :s.get_pop().get_v_ind())
     {
-        const auto& ind = s.get_pop().get_v_ind()[i];
         // Type conversions that simplify notation
-        const float r{static_cast<float>(ind.get_param().get_radius()) * m_scale};
+        const float r{static_cast<float>(ind.get_radius()) * m_scale};
         const float x{static_cast<float>(ind.get_x()) * m_scale};
         const float y{static_cast<float>(ind.get_y()) * m_scale};
 
@@ -263,6 +262,12 @@ void sim_view::update_pop(const simulation& s) noexcept
             float y = m_scale * static_cast<float>(s.get_pop().get_v_ind()[i].get_y());
             m_pop_shapes[i].setPosition(x, y);
         }
+    }
+
+    for( size_t i = 0; i != m_pop_shapes.size(); i++)
+    {
+        float radius = m_scale * static_cast<float>(s.get_pop().get_v_ind()[i].get_radius());
+        m_pop_shapes[i].setRadius(radius);
     }
 
     for( size_t i = 0; i != m_pop_shapes.size(); i++)

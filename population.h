@@ -141,7 +141,8 @@ void displace_inds(std::vector<individual>& population) noexcept;
 ///Selects a new population of founders, swaps it with the old and positions them in hexagon patter
 void fund_new_pop(population& p) noexcept;
 
-///The new population becomes the actual population, the old population is cancelled
+///The new population becomes the actual population,
+///  the old population is cancelled
 void place_new_pop(population& p) noexcept;
 
 ///finds the indexes of the individuals ready to divide
@@ -253,6 +254,8 @@ void senescence(population &p) noexcept;
 
 ///Kills individuals with energy = 0
 void starvation(population &p) noexcept;
+
+void update_radius_pop(population& p);
 
 void test_population() noexcept;
 #endif // POPULATION_H

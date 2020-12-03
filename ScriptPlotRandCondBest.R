@@ -112,7 +112,7 @@ f0a3 = f0a3 %>%
 
 #find in which of the 3 quantile(0.33,0.66,1) 
 # is each condition's average relative spore production
-qf = f0a3 %>% 
+f0a3 = f0a3 %>% 
   group_by(condition) %>% 
   mutate(rel_prod_quantile_cond = 
            if(avg_cond < quantile(f0a3$avg_cond,0.33))
@@ -136,27 +136,38 @@ qf = f0a3 %>%
 
 
 #plot 
-f0a3 %>%   
+a =f0a3 %>%  
+  subset(as.numeric(seed) < 51) %>% 
   ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
   facet_grid(change_freq  ~ amplitude)
 
 #plot the different sd quantiles for pops
-f0a3 %>%   
+b =f0a3 %>%   
+  subset(as.numeric(seed) < 51) %>% 
   ggplot(aes(condition, seed, fill = sd_pop_quantile)) + 
   geom_tile(color = "black", size = 0.5) 
 
 #plot the different sd quantiles for conditions
-f0a3 %>%   
+c =f0a3 %>%   
+  subset(as.numeric(seed) < 51) %>% 
   ggplot(aes(condition, seed, fill = sd_cond_quantile)) + 
   geom_tile(color = "black", size = 0.5) 
 
-#plot the different ratio_Value quantiles for pops
-qf %>%   
+#plot the different avg_ratio_Value quantiles for pops
+d = f0a3 %>%  
+  subset(as.numeric(seed) < 51) %>% 
   ggplot(aes(condition, seed, fill = rel_prod_quantile_pop)) + 
   geom_tile(color = "black", size = 0.5) 
 
-#plot the different ratio_Value quantiles for conditions
-qf %>%   
+#plot the different avg_ratio_Value quantiles for conditions
+e = f0a3 %>% 
+  subset(as.numeric(seed) < 51) %>% 
   ggplot(aes(condition, seed, fill = rel_prod_quantile_cond)) + 
   geom_tile(color = "black", size = 0.5) 
+
+ggarrange(b,c,d,e,
+          labels = c("sd_q_pop", "sd_q_cond",
+                     "avg_q_pop", "avg_q_cond"),
+          ncol = 2, nrow = 2,
+          align = "v")

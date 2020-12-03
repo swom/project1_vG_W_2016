@@ -201,6 +201,8 @@ void fund_new_pop(population& p) noexcept
 {
     select_new_pop(p);
     place_new_pop(p);
+    reset_output_nodes_pop(p);
+    update_radius_pop(p);
     assign_ancestor_ID(p.get_v_ind()).swap(p.get_v_ind());
     place_start_cells(p);
 }
@@ -323,9 +325,9 @@ int manage_static_collisions(population &p)
             p.get_relax()(p.get_v_ind().begin(), p.get_v_ind().end(),
                           [](const individual& i)
                           // individual to particle_t conversion
-    { return particle_t{ glm::vec2{i.get_x(), i.get_y()}, static_cast<float>(i.get_param().get_radius()) }; },
+    { return particle_t{ glm::vec2{i.get_x(), i.get_y()}, static_cast<float>(i.get_radius()) }; },
     [](individual& i, const particle_t& part)
-    { i.set_x(part.pos.x); i.set_y(part.pos.y); i.get_param().set_radius(part.radius); }
+    { i.set_x(part.pos.x); i.set_y(part.pos.y); i.get_radius() = part.radius; }
             );
     return time;
 }
@@ -395,7 +397,7 @@ void place_start_cells(population &p) noexcept
     unsigned int placed_ind = 0;
 
     // d is the distance between 2 individuals's centers
-    double d = 2 * (p.get_v_ind()[0].get_param().get_radius() + p.get_param().get_min_dist());
+    double d = 2 * (p.get_v_ind()[0].get_radius() + p.get_param().get_min_dist());
 
     for(int i = 0; i != n; i++)
     {
@@ -425,7 +427,6 @@ void place_start_cells(population &p) noexcept
 void place_new_pop(population &p) noexcept
 {
     p.get_v_ind().swap(p.get_new_v_ind());
-    reset_output_nodes_pop(p);
     p.get_new_v_ind().clear();
 }
 
@@ -446,13 +447,13 @@ possible_collisions_x(individual focal_ind, std::vector<individual>& pop)
     auto first_x = std::lower_bound(
                 pop.begin(), pop.end(), focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_x() + lhs.get_param().get_radius() < rhs.get_x() - rhs.get_param().get_radius();}
+    {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
     );
 
     auto last_x = std::upper_bound(
                 pop.begin(),pop.end(), focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_x() + lhs.get_param().get_radius() < rhs.get_x() - rhs.get_param().get_radius();}
+    {return lhs.get_x() + lhs.get_radius() < rhs.get_x() - rhs.get_radius();}
     );
 
     return range = {first_x, last_x};
@@ -471,14 +472,14 @@ possible_collisions_y(individual focal_ind,
     auto first_y = std::lower_bound(
                 first_x,last_x,focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_y() + lhs.get_param().get_radius() < rhs.get_y() - rhs.get_param().get_radius();}
+    {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
     );
     if(first_y == pop.end()){first_y = pop.begin();}
 
     auto last_y = std::upper_bound(
                 first_x,last_x,focal_ind,
                 [](const individual& lhs, const individual& rhs)
-    {return lhs.get_y() + lhs.get_param().get_radius() < rhs.get_y() - rhs.get_param().get_radius();}
+    {return lhs.get_y() + lhs.get_radius() < rhs.get_y() - rhs.get_radius();}
     );
 
     return range =  {first_y,last_y};
@@ -507,6 +508,7 @@ void reset_drawn_fl_new_pop(population &p) noexcept
 void reset_pop(population& p) noexcept
 {
     p.get_v_ind().resize(p.get_param().get_pop_start_size());
+
     place_start_cells(p);
     for(auto& ind : p.get_v_ind())
     {
@@ -602,6 +604,14 @@ void starvation( population& p) noexcept
                 p.get_v_ind().begin(), p.get_v_ind().end(), [](const individual &i){return is_dead(i);}
             )
             ,p.get_v_ind().end());
+}
+
+void update_radius_pop(population& p)
+{
+    for(auto& ind : p.get_v_ind())
+    {
+        update_radius(ind);
+    }
 }
 
 void test_population() noexcept  //!OCLINT
@@ -861,7 +871,7 @@ void test_population() noexcept  //!OCLINT
                 );
         assert(!has_collision(s));
         assert(distance(s.get_ind(0), s.get_ind(1)) -
-               (s.get_ind(0).get_param().get_radius() + s.get_ind(1).get_param().get_radius()) < 0.1);
+               (s.get_ind(0).get_radius() + s.get_ind(1).get_radius()) < 0.1);
     }
 
     //Given a focal individual it is possible to find the individuals that could potentially
@@ -890,7 +900,7 @@ void test_population() noexcept  //!OCLINT
         //(the end of the vector if the focal is the last element
         set_pos(s.get_ind(0),
                 std::pair<double,double>{
-                    s.get_ind(1).get_x() - s.get_ind(1).get_param().get_radius(),
+                    s.get_ind(1).get_x() - s.get_ind(1).get_radius(),
                     s.get_ind(1).get_y()
                 }
                 );
@@ -915,7 +925,7 @@ void test_population() noexcept  //!OCLINT
         set_pos(s.get_ind(0),
                 std::pair<double,double>{
                     s.get_ind(1).get_x(),
-                    s.get_ind(1).get_y() + s.get_ind(1).get_param().get_radius()
+                    s.get_ind(1).get_y() + s.get_ind(1).get_radius()
                 }
                 );
         sort_inds_by_x_inc(s.get_v_ind().begin(),s.get_v_ind().end());
