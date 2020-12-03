@@ -141,7 +141,7 @@ int continue_evo(int seed, int change_freq);
 ///Creates the name for the before to last population file
 /// where the before last funder object will be saved
 /// This is then used to find the most succesful individuals in a sim
-std::string create_second_to_last_pop_name(const simulation& s);
+std::string create_before_last_pop_name(const simulation& s,const std::string& prefix = "");
 
 ///Creates a name for the file where the
 /// run of  only the best individual
@@ -167,7 +167,7 @@ std::string create_last_pop_name(int seed, int change_freq);
 ///Creates the name for the last population of an
 /// evolutionary run so that it can be uploaded
 /// for testing against random conditions given a simulation
-std::string create_last_pop_name(const simulation& s);
+std::string create_last_pop_name(const simulation& s, const std::string& prefix = "");
 
 ///Creates the name for the file
 /// where to save a vector of pairs
@@ -176,12 +176,6 @@ std::string create_last_pop_name(const simulation& s);
 /// the amplitude of the randomness
 /// and the seed of the rng.
 std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int seed);
-
-///Creates a name for the file where the EVO
-/// run for random conditions is saved
-std::string create_rand_evo_name_sim_dem(const simulation& s,
-                                         double amplitude,
-                                         int n_rand_cond);
 
 ///Creates a name for the file where
 /// the deomgraphic of the evolving population
@@ -215,6 +209,9 @@ std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(con
                                                                              int seed = 0);
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
+
+///Returns a demographic cycle object storing data about a population
+demographic_cycle demographics(const simulation &s, const env_param&e) noexcept;
 
 ///Runs a simulation for a given amount of cycles
 /// stated by the simulation meta parameters
@@ -375,10 +372,19 @@ void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>
 ///Save all necessary data at the end of the simulation
 void save_data(const simulation& s);
 
-///All individuals secrete metabolite into environment
+///Saves the funder that fund the before last cycle
+funders save_before_last_pop(const simulation& s, std::string prefix);
+
+///Saves the funder that fund the before last cycle
+funders save_last_pop(const simulation& s, const std::string &prefix);
+
+///saves the before last pop and the last pop,
+/// a prefix can be added to the file names to
+/// disinguish last pops coming from different kinds of simulations
+std::vector<funders> save_two_last_pops(const simulation& s, const std::string &prefix = "");
+
+ ///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);
-
-
 
 ///Changes the demographic cycle object with a mroe recent one
 void store_demographics(simulation &s) noexcept;

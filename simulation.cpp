@@ -148,9 +148,9 @@ std::string create_funders_success_name(const simulation& s)
     };
 }
 
-std::string create_last_pop_name(const simulation& s)
+std::string create_last_pop_name(const simulation& s, const std::string &prefix)
 {
-    return  std::string{
+    return prefix + std::string{
         "last_pop_s" +
         std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
@@ -159,21 +159,10 @@ std::string create_last_pop_name(const simulation& s)
     };
 }
 
-std::string create_before_last_pop_name(const simulation& s)
+std::string create_before_last_pop_name(const simulation& s, const std::string &prefix)
 {
-    return  std::string{
+    return prefix + std::string{
         "before_last_pop_s" +
-        std::to_string(s.get_meta_param().get_seed()) +
-                "change_" +
-                std::to_string(s.get_meta_param().get_change_freq()) +
-                ".csv"
-    };
-}
-
-std::string create_second_to_last_pop_name(const simulation& s)
-{
-    return  std::string{
-        "second_to_last_pop_s" +
         std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
@@ -228,22 +217,6 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
                 "_amplitude_"+
                 std::to_string(amplitude)+
                 ".csv"
-    };
-}
-
-std::string create_rand_evo_name_sim_dem(const simulation& rand_s,
-                                         double amplitude,
-                                         int n_rand_cond)
-{
-    return  std::string{
-        "rand_evo_demographic_s" +
-        std::to_string(rand_s.get_meta_param().get_seed()) +
-                "change_" +
-                std::to_string(rand_s.get_meta_param().get_change_freq()) +
-                "amplitude_" +
-                std::to_string(amplitude) +
-                "cond_n_" +
-                std::to_string(n_rand_cond)
     };
 }
 
@@ -326,6 +299,19 @@ void change_params(simulation& s, const env_param& e, const ind_param& i)
     ///Change ind_params of all inds in pop
     s.get_pop().get_v_ind() = change_inds(s.get_pop(),i);
 
+}
+
+demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
+{
+
+    auto p = s.get_pop();
+    return demographic_cycle{
+        count_actives(p),
+                count_spores(p),
+                count_sporulating(p),
+                s.get_timestep(),
+                e,
+                p.get_v_ind().begin()->get_param()};
 }
 
 void dispersal(simulation &s)
@@ -685,7 +671,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                                           int pop_max,
                                           double amplitude,
                                           int n_rand_cond,
-                                          std::string name)
+                                          std::string prefix)
 {
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
@@ -706,7 +692,8 @@ demographic_sim run_evo_random_conditions(const simulation& s,
 
     exec(rand_s);
 
-    save_demographic_sim(rand_s.get_demo_sim(), name);
+    save_demographic_sim(rand_s.get_demo_sim(), prefix + create_sim_demo_name(s));
+    save_two_last_pops(s, prefix);
 
     return rand_s.get_demo_sim();
 }
@@ -819,9 +806,9 @@ int run_sim_evo_rand(double amplitude,
 {
     auto s = load_sim_last_pop(seed,change_frequency);
 
-    auto name = create_rand_evo_name_sim_dem(s, amplitude, rand_cond_n);
+    auto prefix = "rand_evo_a" + std::to_string(amplitude) + "cond_" + std::to_string(rand_cond_n);
 
-    if(exists(name) && !overwrite)
+    if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
     {
         std::cout << "The random conditions for this simulation"
                      " have already been tested!" << std::endl;
@@ -834,7 +821,7 @@ int run_sim_evo_rand(double amplitude,
                               pop_max,
                               amplitude,
                               rand_cond_n,
-                              name);
+                              prefix);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
@@ -925,13 +912,7 @@ void save_data(const simulation& s)
 
     save_sim_parameters(s_p, sim_param_name);
 
-    //saves the funders that initiated the last cycle
-    std::string before_last_pop_name = create_before_last_pop_name(s);
-    save_funders(s.get_funders_success().get_v_funders().back(), before_last_pop_name);
-
-    //saves the funders that would initiate the cycle after the last
-    std::string last_pop_name = create_last_pop_name(s);
-    save_funders(prepare_funders(s), last_pop_name);
+    save_two_last_pops(s);
 
     std::string sim_demo_name = create_sim_demo_name(s);
 
@@ -940,6 +921,29 @@ void save_data(const simulation& s)
     std::string funders_success_name = create_funders_success_name(s);
 
     save_funders_success(s.get_funders_success(), funders_success_name);
+}
+
+
+funders save_before_last_pop(const simulation& s, std::string prefix)
+{
+    std::string before_last_pop_name = create_before_last_pop_name(s, prefix);
+    save_funders(s.get_funders_success().get_v_funders().back(), before_last_pop_name);
+    return s.get_funders_success().get_v_funders().back();
+}
+
+funders save_last_pop(const simulation& s, const std::string& prefix)
+{
+    std::string last_pop_name =  create_last_pop_name(s, prefix);
+    auto real_last_new_funders = prepare_funders(s);
+    save_funders(real_last_new_funders, last_pop_name);
+    return real_last_new_funders;
+}
+
+std::vector<funders> save_two_last_pops(const simulation& s, const std::string& prefix)
+{
+    auto before_last = save_before_last_pop(s, prefix);
+    auto last = save_last_pop(s, prefix);
+    return std::vector<funders>{before_last, last};
 }
 
 void secretion_metabolite(simulation& s)
@@ -1012,7 +1016,7 @@ int tick_sparse_collision_resolution(simulation& s, int n_ticks)
 demographic_sim update_demographics(const simulation& s) noexcept
 {
     auto d_s = s.get_demo_sim();
-    d_s.get_demo_cycles().push_back(demographics(s.get_pop(), s.get_env().get_param()));
+    d_s.get_demo_cycles().push_back(demographics(s, s.get_env().get_param()));
     return d_s;
 }
 
@@ -1262,12 +1266,12 @@ void test_simulation()//!OCLINT tests may be many
                     10,
                     1
                    };
-        ind_param ind{};
+        ind_param indiviual{};
         env_param e{3,
                     0.1,
-                    ind.get_treshold_energy() * 10
+                    indiviual.get_treshold_energy() * 10
                    };
-        simulation s (sim_param{e, ind, m,p});
+        simulation s (sim_param{e, indiviual, m,p});
 
         auto food_begin =
                 std::accumulate(s.get_env().get_grid().begin(),
@@ -1639,11 +1643,11 @@ void test_simulation()//!OCLINT tests may be many
             tick_sparse_collision_resolution(s);
         }
 
-        assert( s.get_pop().get_v_ind().end() !=
-                std::adjacent_find( s.get_pop().get_v_ind().begin(),
-                                    s.get_pop().get_v_ind().end(),
-                                    [](const auto& lhs, const auto& rhs)
-        {return lhs.get_radius() != rhs.get_radius();}));
+        //        assert( s.get_pop().get_v_ind().end() !=
+        //                std::adjacent_find( s.get_pop().get_v_ind().begin(),
+        //                                    s.get_pop().get_v_ind().end(),
+        //                                    [](const auto& lhs, const auto& rhs)
+        //        {return lhs.get_radius() != rhs.get_radius();}));
 
         dispersal(s);
 
@@ -1716,6 +1720,49 @@ void test_simulation()//!OCLINT tests may be many
             assert(is_sporulating(ind));
         }
     }
+
+    //It is possible to extract the demographic state of a population
+    {
+        env_param e;
+        ind_param i;
+        meta_param m;
+        pop_param p{0};
+        sim_param sp{e,i,m,p};
+        simulation s{sp};
+        assert(s.get_pop().get_pop_size() == 0);
+
+        int n_spores = 2;
+        int n_sporulating = 3;
+        int n_actives = 4;
+        individual ind{ind_param{}};
+
+        ind.set_phen(phenotype::spore);
+        for(int i = 0; i != n_spores; i++)
+        {
+            s.get_pop().get_v_ind().push_back(ind);
+        }
+
+        ind.set_phen(phenotype::sporulating);
+        for(int i = 0; i != n_sporulating; i++)
+        {
+            s.get_pop().get_v_ind().push_back(ind);
+        }
+
+        ind.set_phen(phenotype::active);
+        for(int i = 0; i != n_actives; i++)
+        {
+            s.get_pop().get_v_ind().push_back(ind);
+        }
+
+        assert(s.get_pop().get_pop_size() == n_spores + n_sporulating + n_actives);
+
+        demographic_cycle d_c = demographics(s, env_param{});
+
+        assert(d_c.get_n_spores() == n_spores);
+        assert(d_c.get_n_sporulating() == n_sporulating);
+        assert(d_c.get_n_actives() == n_actives);
+    }
+
     //It is possible to store the demographics
     //of the population contained in a simulation
     //at a certain point in time in a vector
@@ -2017,12 +2064,12 @@ void test_simulation()//!OCLINT tests may be many
     //That will be use to store the particular parameters that can change throughout the simulation
     {
         simulation s;
-        demographic_cycle d_c = demographics(s.get_pop(), s.get_env().get_param());
+        demographic_cycle d_c = demographics(s, s.get_env().get_param());
         assert(d_c.get_ind_param() == s.get_pop().get_v_ind().begin()->get_param());
         assert(d_c.get_env_param() == s.get_env().get_param());
         change_env(s);
         change_pop(s);
-        demographic_cycle d_c1 = demographics(s.get_pop(), s.get_env().get_param());
+        demographic_cycle d_c1 = demographics(s, s.get_env().get_param());
         assert(d_c != d_c1);
     }
 
@@ -2399,6 +2446,57 @@ void test_simulation()//!OCLINT tests may be many
                 [](const individual& i, const funder_data& funder)
         {return i.get_grn() == funder.get_grn();}
         ));
+
+    }
+
+    ///It is possible to add a prefix to the files
+    /// where befoer last and last population are saved
+    {
+        env_param e;
+        ind_param i;
+        meta_param m{3,
+                     20};
+        pop_param p{2};
+        sim_param sp{e,i,m,p};
+        simulation s{sp};
+
+        std::string prefix_3_cycles = "3_cycles";
+        std::string prefix_6_cycles = "6_cycles";
+        std::string expexcted_name_3_cycles_last_pop = prefix_3_cycles + "last_pop_s1change_0.csv";
+        std::string expexcted_name_6_cycles_last_pop = prefix_6_cycles + "last_pop_s1change_0.csv";
+        std::string expexcted_name_3_cycles_b_l_p = prefix_3_cycles + "before_last_pop_s1change_0.csv";
+        std::string expexcted_name_6_cycles_b_l_p = prefix_6_cycles + "before_last_pop_s1change_0.csv";
+        exec(s);
+        save_before_last_pop(s,prefix_3_cycles);
+        save_last_pop(s,prefix_3_cycles);
+        assert(exists(expexcted_name_3_cycles_b_l_p));
+        assert(exists(expexcted_name_3_cycles_last_pop));
+
+        exec(s);
+        save_before_last_pop(s,prefix_6_cycles);
+        save_last_pop(s,prefix_6_cycles);
+        assert(exists(expexcted_name_6_cycles_last_pop));
+        assert(exists(expexcted_name_6_cycles_b_l_p));
+    }
+    ///The two last population of funders can be saved
+    {
+        env_param e;
+        ind_param i;
+        meta_param m{3,
+                     20};
+        pop_param p{2};
+        sim_param sp{e,i,m,p};
+        simulation s{sp};
+
+        exec(s);
+        auto last_2_pops = save_two_last_pops(s);
+
+        auto last_pop = load_funders(create_last_pop_name(s));
+        auto before_last_pop = load_funders(create_before_last_pop_name(s));
+
+        std::vector<funders> load_last_2_pops{before_last_pop, last_pop};
+
+        assert(last_2_pops == load_last_2_pops);
 
     }
 

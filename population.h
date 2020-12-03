@@ -100,7 +100,7 @@ std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noe
 int count_hex_layers(int pop_size)  noexcept ;
 
 ///Counts number of active individuals in a population
-int count_active(const population& pop);
+int count_actives(const population& pop);
 
 ///Counts the number of spores in a population
 int count_spores(const population& pop);
@@ -127,9 +127,6 @@ std::vector<individual> change_inds(const population &p, const ind_param &new_in
 
 ///Removes dead inidviduals from population vector
 void death(population& p) noexcept;
-
-///Returns a demographic cycle object storing data about a population
-demographic_cycle demographics(const population&p, const env_param&e) noexcept;
 
 ///The individuals in the vector are copied at the end of the pop vector
 bool division(population& p) noexcept;

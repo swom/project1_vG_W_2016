@@ -10,6 +10,7 @@ public:
     demographic_cycle(int n_actives,
                       int n_spores,
                       int n_sporulating,
+                      int n_ticks,
                       env_param env_p,
                       ind_param ind_p);
 
@@ -23,19 +24,27 @@ public:
     int get_n_sporulating() const noexcept {return m_n_sporulating;}
     ///Returns number of spores
     int get_n_actives() const noexcept {return m_n_actives;}
+    ///Returns the number of ticks it took the cycle to complete
+    const int& get_n_ticks() const noexcept {return  m_n_ticks;}
 
 private:
 
     ///number of active individuals in the pop at that moment
     int m_n_actives;
+
     ///number of spores in the pop at that moment
     int m_n_spores;
+
     ///number of sporulating individuals in the pop at that moment
     int m_n_sporulating;
+
+    ///Number of ticks it took the cycle to complete
+    int m_n_ticks;
 
     ///The env_param that are set in the simulation when
     /// The demographic_cycle is instantiated
     env_param m_env_param;
+
     ///The ind_param that are set in the simulation when
     /// The demographic_cycle is instantiated
     ind_param m_ind_param;

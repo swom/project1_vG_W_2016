@@ -39,7 +39,11 @@ demographic_sim load_demographic_sim(
             abort();
         }
     demographic_sim d_s;
-    demographic_cycle d_c{0,0,0, env_param{}, ind_param{}};
+    demographic_cycle d_c{0,
+                          0,
+                          0,
+                          0,
+                          env_param{}, ind_param{}};
     std::string dummy;
     while(f >> dummy)//Skips the cycle number
     {
@@ -82,9 +86,12 @@ ind_param ind;
         int n_spores = 2;
         int n_sporulating = 3;
         int n_actives = 4;
+        int n_ticks = 5;
+
         demographic_cycle ex{n_actives,
                     n_spores,
                     n_sporulating,
+                    n_ticks,
                             e,
                             ind};
 

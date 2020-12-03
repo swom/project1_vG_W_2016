@@ -147,17 +147,6 @@ void death(population &p) noexcept
     senescence(p);
 }
 
-demographic_cycle demographics(const population &p, const env_param &e) noexcept
-{
-
-
-    return demographic_cycle{count_actives(p),
-                count_spores(p),
-                count_sporulating(p),
-                e,
-                p.get_v_ind().begin()->get_param()};
-}
-
 bool division(population &p) noexcept
 {
     auto  div_inds  = get_dividing_individuals(p);
@@ -1413,43 +1402,6 @@ void test_population() noexcept  //!OCLINT
         for(auto ind_modulus : v_modulus)
             assert( ind_modulus < 0.0000000001 || (ind_modulus > M_PI / (6 * n_hex_l) - 0.1 && ind_modulus <= M_PI / (6 * n_hex_l) + 0.1));
         assert(!has_collision(p));
-    }
-
-    //It is possible to extract the demographic state of a population
-    {
-        population p{0};
-        assert(p.get_pop_size() == 0);
-
-        int n_spores = 2;
-        int n_sporulating = 3;
-        int n_actives = 4;
-        individual ind{ind_param{}};
-
-        ind.set_phen(phenotype::spore);
-        for(int i = 0; i != n_spores; i++)
-        {
-            p.get_v_ind().push_back(ind);
-        }
-
-        ind.set_phen(phenotype::sporulating);
-        for(int i = 0; i != n_sporulating; i++)
-        {
-            p.get_v_ind().push_back(ind);
-        }
-
-        ind.set_phen(phenotype::active);
-        for(int i = 0; i != n_actives; i++)
-        {
-            p.get_v_ind().push_back(ind);
-        }
-
-        assert(p.get_pop_size() == n_spores + n_sporulating + n_actives);
-
-        demographic_cycle d_c = demographics(p, env_param{});
-
-        assert(d_c.get_n_spores() == n_spores);
-        assert(d_c.get_n_sporulating() == n_sporulating);
-        assert(d_c.get_n_actives() == n_actives);
     }
 
     //It is possible to assign a unique ID to each ind in a population
