@@ -1488,32 +1488,6 @@ void test_population() noexcept  //!OCLINT
         assert(p.get_v_ind() != new_p);
     }
 
-    ///It is possible to set inds in a pop
-    /// from a funders object so that pop has
-    /// the same number of individuals
-    /// as the ones in the funder object
-    /// as well as with the same neural networks
-    {
-        int seed = 123;
-        int change_freq = 10;
-        int funders_generation = 1;
 
-        population p{};
-
-        auto funders_success = load_funders_success(create_funders_success_name(seed, change_freq));
-        auto selected_funders = funders_success.get_v_funders()[funders_generation];
-
-        auto demo_sim = load_demographic_sim(create_sim_demo_name(seed,change_freq));
-        auto selected_conditions = demo_sim.get_demo_cycles()[funders_generation];
-
-        p.set_pop_inds(pop_from_funders(funders_success, demo_sim, funders_generation));
-
-        for( int i = 0; i != p.get_pop_size(); i++)
-        {
-            assert(p.get_ind(i).get_param() == selected_conditions.get_ind_param());
-            assert(p.get_ind(i).get_grn() == selected_funders.get_v_funder_data()[i].get_grn());
-        }
-
-    }
 #endif
 }

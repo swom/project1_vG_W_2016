@@ -304,7 +304,7 @@ void change_params(simulation& s, const env_param& e, const ind_param& i)
 demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 {
 
-    auto p = s.get_pop();
+    const auto& p = s.get_pop();
     return demographic_cycle{
         count_actives(p),
                 count_spores(p),
@@ -1761,6 +1761,46 @@ void test_simulation()//!OCLINT tests may be many
         assert(d_c.get_n_spores() == n_spores);
         assert(d_c.get_n_sporulating() == n_sporulating);
         assert(d_c.get_n_actives() == n_actives);
+    }
+
+    ///It is possible to set inds in a pop
+    /// from a funders object so that pop has
+    /// the same number of individuals
+    /// as the ones in the funder object
+    /// as well as with the same neural networks
+    {
+        int seed = 123;
+        int change_freq = 4567;
+        int funders_generation = 1;
+        meta_param m{3,
+                    2,
+                    seed,
+                    change_freq};
+
+        env_param e;
+        ind_param i;
+        pop_param p;
+        sim_param sp{e,i,m,p};
+        simulation s{sp};
+
+        exec(s);
+        save_data(s);
+        population pop{};
+
+        auto funders_success = load_funders_success(create_funders_success_name(seed, change_freq));
+        auto selected_funders = funders_success.get_v_funders()[funders_generation];
+
+        auto demo_sim = load_demographic_sim(create_sim_demo_name(seed,change_freq));
+        auto selected_conditions = demo_sim.get_demo_cycles()[funders_generation];
+
+        pop.set_pop_inds(pop_from_funders(funders_success, demo_sim, funders_generation));
+
+        for( int i = 0; i != pop.get_pop_size(); i++)
+        {
+            assert(pop.get_ind(i).get_param() == selected_conditions.get_ind_param());
+            assert(pop.get_ind(i).get_grn() == selected_funders.get_v_funder_data()[i].get_grn());
+        }
+
     }
 
     //It is possible to store the demographics
