@@ -15,8 +15,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=run_rand_evo
-#SBATCH --output=run_rand_evo.log
+#SBATCH --job-name=run_multiple_rand_evo
+#SBATCH --output=rand_evo_multiple.log
 
 module load Qt5
 export CC=g++
@@ -27,23 +27,13 @@ make clean
 qmake simulation_logic_only.pro
 make 
 
-change_freqs=(0)
-amplitude=(3)
-for i in $(seq 1 100)
+
+  for i in $(seq 1 30)
 do
-  for j in "${change_freqs[@]}"
-do
-	for z in "${amplitude[@]}"
-do
-		for k in $(seq 1 50)
+  for k in $(seq 1 50)
 do
   echo $i
-  echo $j
-  echo $z
   echo $k
-
-  sbatch run_rand_evo.sh $i $j $z $k
-		done
-	done
-  done
-done 
+  sbatch run_rand_evo.sh $i $k
+done
+done

@@ -28,7 +28,11 @@ void test() {
 int main(int argc, char ** argv) //!OCLINT tests may be long
 {
 
+<<<<<<< HEAD
     const std::vector<std::string> args(argv, argv + argc);
+=======
+      const std::vector<std::string> args(argv, argv + argc);
+>>>>>>> a052dccd047cabd7da9211034361dd7f3c9ecf1f
 
 #ifndef NDEBUG
     if (args.size() > 1 && args[1] == "--test")

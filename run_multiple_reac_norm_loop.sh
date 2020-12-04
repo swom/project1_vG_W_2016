@@ -34,6 +34,6 @@ do
 do
   echo $i
   echo $j
-sbatch --partition=gelifes run_reac_norm_loop.sh $i $j 
+sbatch run_reac_norm_loop.sh $i $j 
   done
 done 
