@@ -3,6 +3,7 @@ library(dplyr)
 library(stringr)
 library(ggplot2)
 library(ggpubr)
+library(pals)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 setwd(paste(dir,"vG_W_2016_data", sep = "/"))
 rand_demographic = data.frame()
@@ -50,15 +51,16 @@ rand_demographic$variable = as.factor(rand_demographic$variable)
 f = 
   rand_demographic %>%
   subset(variable == "spore") %>% 
-  group_by(amplitude, change_freq, condition) %>% 
+  group_by(amplitude, condition) %>% 
   mutate(
     "ratio_value" = value / max(value)
   )
 
 f %>% 
   subset(variable == "spore") %>% 
-  ggplot(aes(condition, seed, fill = value)) + 
+  ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
+  scale_fill_gradientn(colors = cubehelix(10))+
   facet_grid(change_freq  ~ amplitude)
 
 #Now only look at chnage_freq 0 and amplitude 3

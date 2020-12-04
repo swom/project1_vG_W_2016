@@ -353,8 +353,6 @@ void exec(simulation& s) noexcept
         s.reset_timesteps();
         s.tick_cycles();
     }
-
-    save_data(s);
 }
 
 void feeding(simulation& s)
@@ -811,7 +809,7 @@ int run_sim_evo_rand(double amplitude,
 
     if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
     {
-        std::cout << "The random conditions for this simulation"
+        std::cout << "The evolution in random conditions for this simulation"
                      " have already been tested!" << std::endl;
         return 0;
     }
