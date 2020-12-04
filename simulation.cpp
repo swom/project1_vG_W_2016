@@ -688,7 +688,11 @@ demographic_sim run_evo_random_conditions(const simulation& s,
 
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
+    std::cout<< "ok before reproduce random condition" << std::endl;
+
     reproduce_rand_cond(rand_s, random_conditions, n_rand_cond);
+
+    std::cout<< "ok reproduce random condition" << std::endl;
 
     exec(rand_s);
 
@@ -804,7 +808,11 @@ int run_sim_evo_rand(double amplitude,
                      int rand_cond_n,
                      bool overwrite)
 {
+    std::cout<< "ok before the loading last_pop" << std::endl;
+
     auto s = load_sim_last_pop(seed,change_frequency);
+
+    std::cout<< "ok load last_pop" << std::endl;
 
     auto prefix = "rand_evo_a" + std::to_string(amplitude) + "cond_" + std::to_string(rand_cond_n);
 
@@ -814,6 +822,8 @@ int run_sim_evo_rand(double amplitude,
                      " have already been tested!" << std::endl;
         return 0;
     }
+
+    std::cout<< "ok before run random" << std::endl;
 
     auto rand_start = std::chrono::high_resolution_clock::now();
     run_evo_random_conditions(s,
