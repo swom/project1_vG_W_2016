@@ -673,6 +673,8 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                                           int n_rand_cond,
                                           std::string prefix)
 {
+    std::cout<< "n random condition = " << n_number_rand_cond << std::endl;
+
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
                 s.get_pop().get_v_ind().begin()->get_param(),
