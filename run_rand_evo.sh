@@ -21,5 +21,5 @@
 
 echo "seed" $1
 echo "freq" $2
-./simulation_logic_only --rand_evo s$1 f0 a3 n50 sr0 rn29
+./simulation_logic_only --rand_evo s$1 f0 a3 n50 sr0 rn$2
 
