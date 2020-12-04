@@ -98,7 +98,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         exec(s);
         return 0;
     }
-    if(args.size() > 1 && args[1] == "--sim")
+    else if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e, i, m, p,
                     overwrite);
