@@ -158,7 +158,6 @@ bool division(population &p) noexcept
             int div_ind = div_inds[i];
             if(repr_prob(p.get_rng()) < p.get_ind(div_ind).get_param().get_repr_prob())
             {
-
                 divides(p.get_ind(div_ind),
                         p.get_v_ind(),
                         repr_angle(p),

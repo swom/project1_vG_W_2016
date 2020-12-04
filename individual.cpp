@@ -103,6 +103,7 @@ void divides(individual& i,
              std::bernoulli_distribution mu_p,
              std::normal_distribution<double> mu_st)
 {
+    assert( i.get_phen() == phenotype::active);
     double offs_init_en = i.split_excess_energy();
     i.set_energy(offs_init_en);
     individual daughter = i;
