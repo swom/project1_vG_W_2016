@@ -673,10 +673,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                                           int n_rand_cond,
                                           std::string prefix)
 {
-    std::cout<< "n random conditions = " << n_number_rand_cond << std::endl;
-    std::cout<< "random condition n= " << n_rand_cond << std::endl;
-
-    auto random_conditions = create_rand_conditions_unif(
+   auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
                 s.get_pop().get_v_ind().begin()->get_param(),
                 n_number_rand_cond,
@@ -691,11 +688,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
 
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
-    std::cout<< "ok before reproduce random condition" << std::endl;
-
     reproduce_rand_cond(rand_s, random_conditions, n_rand_cond);
-
-    std::cout<< "ok reproduce random condition" << std::endl;
 
     exec(rand_s);
 
