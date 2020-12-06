@@ -323,6 +323,7 @@ void dispersal(simulation &s)
 
 void exec_cycle(simulation& s) noexcept
 {
+    auto rand_start = std::chrono::high_resolution_clock::now();
 
     add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
@@ -335,6 +336,10 @@ void exec_cycle(simulation& s) noexcept
     store_demographics(s);
     dispersal(s);
 
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random_cond_evo cycle n " << s.get_cycle() <<
+                ":" << duration.count() << "s" << std::endl;
 }
 
 void exec(simulation& s) noexcept
@@ -693,7 +698,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
     std::cout << "saving demographics" << std::endl;
     save_demographic_sim(rand_s.get_demo_sim(), prefix + create_sim_demo_name(s));
     std::cout << "saving last two pops" << std::endl;
-    save_two_last_pops(s, prefix);
+    save_two_last_pops(rand_s, prefix);
 
     return rand_s.get_demo_sim();
 }

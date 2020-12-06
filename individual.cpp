@@ -303,6 +303,7 @@ void set_pos(individual& i, std::pair<double, double> pos)  noexcept
 void sporulation(individual& i) noexcept
 {
 
+    assert(i.get_phen() == phenotype::sporulating);
     i.tick_spo_timer();
     assert(i.get_spo_timer() <= i.get_param().get_transformation_time());
     if(i.get_spo_timer() == i.get_param().get_transformation_time())

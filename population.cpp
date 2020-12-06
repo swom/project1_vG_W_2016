@@ -484,6 +484,7 @@ void reset_output_nodes_pop(population &p) noexcept
     {
         ind.get_grn().set_all_out_nodes(true);
         ind.set_phen(phenotype::active);
+        ind.reset_spo_timer();
     }
 }
 
