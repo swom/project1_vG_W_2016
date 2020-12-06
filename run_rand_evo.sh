@@ -20,6 +20,6 @@
 #SBATCH --output=rand_evo_%j.log
 
 echo "seed" $1
-echo "freq" $2
+echo "n_condition" $2
 ./simulation_logic_only --rand_evo s$1 f0 a3 n50 sr0 rn$2
 
