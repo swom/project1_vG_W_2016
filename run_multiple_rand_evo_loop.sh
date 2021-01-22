@@ -28,7 +28,7 @@ qmake simulation_logic_only.pro
 make 
 
 
-  for i in $(seq 1 30)
+  for i in $(seq 31 60)
 do
   for k in $(seq 1 50)
 do
