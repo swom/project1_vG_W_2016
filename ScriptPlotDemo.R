@@ -3,7 +3,7 @@ library(tidyr)
 library(stringr)
 library(ggplot2)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
-setwd(paste(dir,"/vG_W_2016_data",sep = ""))
+setwd(paste(dir,"/vG_W_2016_data/evo",sep = ""))
 demographic = data.frame()
 
 for (i in  list.files(path = '.',pattern = "sim_demographic_s\\d+change_\\d+"))
@@ -34,10 +34,11 @@ demographic$change_freq = as.factor(demographic$change_freq)
 demographic$variable = as.factor(demographic$variable)
 
 demographic %>% 
-  # subset(variable == "spore") %>% 
-  ggplot(aes(cycle,value, color = variable)) + 
-  geom_point(alpha = 0.1)  +
-  geom_smooth(method='lm', formula= y~x) +
+  subset(variable == "active") %>%
+  subset(seed == 1) %>% 
+  subset(cycle < 401) %>%
+  ggplot(aes(cycle,value)) + 
+  geom_point(color = "blue")  +
   facet_grid(change_freq ~ .)
 
 

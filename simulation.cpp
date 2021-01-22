@@ -346,7 +346,17 @@ void exec(simulation& s) noexcept
 {
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
+        auto start = std::chrono::high_resolution_clock::now();
+
         exec_cycle(s);
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - start);
+        std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
+                    "time: " << duration.count() << "s" << std::endl <<
+                    "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
+                    std::endl;
+
         if(s.get_cycle() != 0
                 && s.get_meta_param().get_change_freq() != 0
                 && s.get_cycle() % s.get_meta_param().get_change_freq() == 0
@@ -479,8 +489,11 @@ simulation load_sim_last_pop(int seed, int change_freq)
     place_start_cells(s.get_pop());
 
     //Change internal state of rng member of simulation
-    //to avoid pseudo rng to replicate results in different runs
-    auto scramble_rng = std::minstd_rand(std::time(NULL));
+    //to avoid pseudo rng to replicate results in different runs.
+    //I do it based on the weight of the last connection of
+    //last ind in the pop, so that runs replicate consistently.
+    auto scramble_seed = s.get_pop().get_v_ind().back().get_grn().get_H2O().back().back();
+    auto scramble_rng = std::minstd_rand(scramble_seed);
     auto scramble_n = std::uniform_int_distribution(50,100)(scramble_rng);
     for(int i = 0; i != scramble_n; i++)
     {
@@ -591,7 +604,15 @@ void reproduce_cycle(simulation&s, int cycle)
 
 void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond)
 {
-    change_params(s, rand_cond[n_rand_cond].first, rand_cond[n_rand_cond].second);
+    if(n_rand_cond < static_cast<int>(rand_cond.size()))
+    {
+        change_params(s, rand_cond[n_rand_cond].first, rand_cond[n_rand_cond].second);
+    }
+    else
+    {
+        std::cerr << "Random condition n: " << n_rand_cond << "does not exist";
+        abort();
+    }
 }
 
 void reset_sim(simulation& s) noexcept
@@ -692,13 +713,21 @@ demographic_sim run_evo_random_conditions(const simulation& s,
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
     reproduce_rand_cond(rand_s, random_conditions, n_rand_cond);
+    auto start = std::chrono::high_resolution_clock::now();
 
     exec(rand_s);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout<< "duration : " << duration.count() << "s" << std::endl <<
+                "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
+                std::endl;
 
     std::cout << "saving demographics" << std::endl;
     save_demographic_sim(rand_s.get_demo_sim(), prefix + create_sim_demo_name(s));
     std::cout << "saving last two pops" << std::endl;
-    save_two_last_pops(rand_s, prefix);
+    save_funders_success(rand_s.get_funders_success(),
+                         prefix + create_funders_success_name(rand_s));
 
     return rand_s.get_demo_sim();
 }
@@ -821,7 +850,7 @@ int run_sim_evo_rand(double amplitude,
         return 0;
     }
 
-    auto rand_start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     run_evo_random_conditions(s,
                               n_random_conditions,
                               pop_max,
@@ -830,7 +859,7 @@ int run_sim_evo_rand(double amplitude,
                               prefix);
 
     auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float>(stop - rand_start);
+    auto duration = std::chrono::duration<float>(stop - start);
     std::cout<< "random condition evo :" << duration.count() << "s" << std::endl;
     return 0;
 }
@@ -1001,7 +1030,7 @@ int tick_sparse_collision_resolution(simulation& s, int n_ticks)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    //death(s.get_pop());
+    death(s.get_pop());
     jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());

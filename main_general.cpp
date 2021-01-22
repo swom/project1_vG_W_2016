@@ -40,7 +40,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 #endif
 
 
-    int n_cycles = 200;
+    int n_cycles = 500;
     int cycle_duration = 125;
     int seed = 0;
     int change_freq = 0;
@@ -82,7 +82,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                 0.0,
                };
 
-    env_param e{200,
+    env_param e{100,
                 0.1,
                 10,
                 0.1,

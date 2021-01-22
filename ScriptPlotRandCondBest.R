@@ -5,7 +5,8 @@ library(ggplot2)
 library(ggpubr)
 library(pals)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
-setwd(paste(dir,"vG_W_2016_data", sep = "/"))
+# setwd(paste(dir,"vG_W_2016_data/evo", sep = "/"))
+setwd("C:/Users/p288427/Desktop/500cycles old sim_par")
 rand_demographic = data.frame()
 
 for (i in  list.files(path = '.',pattern = "best_ind_random_cond_sim_demographic_s\\d+_change_\\d+_amplitude_\\d+.*"))
@@ -60,7 +61,7 @@ f %>%
   subset(variable == "spore") %>% 
   ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
-  scale_fill_gradientn(colors = cubehelix(10))+
+  scale_fill_gradientn(colors = rev(cubehelix(10)))+
   facet_grid(change_freq  ~ amplitude)
 
 #Now only look at chnage_freq 0 and amplitude 3
@@ -71,7 +72,7 @@ f %>%
 
 f0a3 = f %>% 
   subset(change_freq == "0") %>% 
-  subset(amplitude == "3.000000") %>% 
+  subset(amplitude == "1.500000") %>% 
   group_by(condition) %>% 
   mutate( sd_cond = sd(ratio_value)) %>% 
   mutate(avg_cond = mean(ratio_value)) %>% 
@@ -136,13 +137,86 @@ f0a3 = f0a3 %>%
          {3}) %>% 
   ungroup()
 
+#####create Jordi's color palette#####
+drsimonj_colors <- c(
+  `red`        = "#d11141",
+  `green`      = "#00b159",
+  `blue`       = "#00aedb"
+)
+#' Function to extract drsimonj colors as hex codes
+#'
+#' @param ... Character names of drsimonj_colors 
+#'
+drsimonj_cols <- function(...) {
+  cols <- c(...)
+  
+  if (is.null(cols))
+    return (drsimonj_colors)
+  
+  drsimonj_colors[cols]
+}
+#combine colors into palette
+drsimonj_palettes <- list(
+  `main`  = drsimonj_cols("red", "blue", "green"),
+  `cool`  = drsimonj_cols("red", "green")
+  
+)
+#' Return function to interpolate a drsimonj color palette
+#'
+#' @param palette Character name of palette in drsimonj_palettes
+#' @param reverse Boolean indicating whether the palette should be reversed
+#' @param ... Additional arguments to pass to colorRampPalette()
+#'
+drsimonj_pal <- function(palette = "main", reverse = FALSE, ...) {
+  pal <- drsimonj_palettes[[palette]]
+  
+  if (reverse) pal <- rev(pal)
+  
+  colorRampPalette(pal, ...)
+}
+#' Color scale constructor for drsimonj colors
+#'
+#' @param palette Character name of palette in drsimonj_palettes
+#' @param discrete Boolean indicating whether color aesthetic is discrete or not
+#' @param reverse Boolean indicating whether the palette should be reversed
+#' @param ... Additional arguments passed to discrete_scale() or
+#'            scale_color_gradientn(), used respectively when discrete is TRUE or FALSE
+#'
+scale_color_drsimonj <- function(palette = "main", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- drsimonj_pal(palette = palette, reverse = reverse)
+  
+  if (discrete) {
+    discrete_scale("colour", paste0("drsimonj_", palette), palette = pal, ...)
+  } else {
+    scale_color_gradientn(colours = pal(256), ...)
+  }
+}
 
-#plot 
+#' Fill scale constructor for drsimonj colors
+#'
+#' @param palette Character name of palette in drsimonj_palettes
+#' @param discrete Boolean indicating whether color aesthetic is discrete or not
+#' @param reverse Boolean indicating whether the palette should be reversed
+#' @param ... Additional arguments passed to discrete_scale() or
+#'            scale_fill_gradientn(), used respectively when discrete is TRUE or FALSE
+#'
+scale_fill_drsimonj <- function(palette = "main", discrete = TRUE, reverse = FALSE, ...) {
+  pal <- drsimonj_pal(palette = palette, reverse = reverse)
+  
+  if (discrete) {
+    discrete_scale("fill", paste0("drsimonj_", palette), palette = pal, ...)
+  } else {
+    scale_fill_gradientn(colours = pal(256), ...)
+  }
+}
+
+#####plot##### 
 a =f0a3 %>%  
-  subset(as.numeric(seed) < 51) %>% 
+  # subset(as.numeric(seed) < 51) %>% 
   ggplot(aes(condition, seed, fill = ratio_value)) + 
   geom_tile(color = "black", size = 0.5) +
-  facet_grid(change_freq  ~ amplitude)
+  scale_fill_gradientn(colours = rev(cubehelix(10))) +
+facet_grid(change_freq  ~ amplitude)
 
 #plot the different sd quantiles for pops
 b =f0a3 %>%   

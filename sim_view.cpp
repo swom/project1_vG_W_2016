@@ -86,6 +86,8 @@ void sim_view::exec(simulation& s) noexcept
 
 bool sim_view::exec_cycle_visual(simulation& s) noexcept
 {
+    auto rand_start = std::chrono::high_resolution_clock::now();
+
     add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
           s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
@@ -104,6 +106,14 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
     store_demographics(s);
     dispersal(s);
     s.reset_timesteps();
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - rand_start);
+    std::cout<< "random_cond_evo cycle n " << s.get_cycle() << ":" << std::endl <<
+                "time: " << duration.count() << "s" << std::endl <<
+                "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
+                std::endl;
+
     return false;
 }
 
@@ -392,12 +402,12 @@ int replay_cycle_from_evo (
 }
 
 int  replay_rand_cond_evo (double change_freq,
-                       int seed_sim,
-                       int n_conditions,
-                       double amplitude,
-                       int seed_rand_cond,
-                       int rand_cond_n,
-                       int pop_max)
+                           int seed_sim,
+                           int n_conditions,
+                           double amplitude,
+                           int seed_rand_cond,
+                           int rand_cond_n,
+                           int pop_max)
 {
     auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
     auto rand_s = load_sim_last_pop(seed_sim,change_freq);
@@ -422,12 +432,12 @@ int  replay_rand_cond_evo (double change_freq,
     return 0;
 }
 int  replay_rand_cond_test (double change_freq,
-                       int seed_sim,
-                       int n_conditions,
-                       double amplitude,
-                       int seed_rand_cond,
-                       int rand_cond_n,
-                       int pop_max)
+                            int seed_sim,
+                            int n_conditions,
+                            double amplitude,
+                            int seed_rand_cond,
+                            int rand_cond_n,
+                            int pop_max)
 {
     auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
     auto rand_s = load_sim_last_pop(seed_sim,change_freq);
