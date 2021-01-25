@@ -140,7 +140,20 @@ ggplot(data = demographic %>% subset(cycle == max(cycle))) +
             color = "black", size = 0.5) +
   scale_fill_gradientn(colors = rev(cubehelix(10)))
 
-####heatmap clustered####
+
+
+###value
+ggplot(data = demographic %>% subset(cycle == min(cycle))) +
+  geom_tile(aes(condition, seed, fill = value),
+            color = "black", size = 0.5) +
+  scale_fill_gradientn(colors = rev(cubehelix(10)))
+
+ggplot(data = demographic %>% subset(cycle == max(cycle))) +
+  geom_tile(aes(condition, seed, fill = value),
+            color = "black", size = 0.5) +
+  scale_fill_gradientn(colors = rev(cubehelix(10)))
+
+####heatmap cluster for production of spores####
 col<- colorRampPalette(c("red", "blue", "green"))(20)
 
 #start
@@ -154,6 +167,7 @@ clust_dem_start = demographic %>%
 heatmap(as.matrix(clust_dem_start) , scale = "none",
         col = col)
 
+
 #end
 clust_dem_end = demographic %>% 
   subset(cycle == max(cycle)) %>% 
@@ -165,18 +179,20 @@ clust_dem_end = demographic %>%
 heatmap(as.matrix(clust_dem_end) , scale = "none",
         col = col)
 
-###value
-ggplot(data = demographic %>% subset(cycle == min(cycle))) +
-  geom_tile(aes(condition, seed, fill = value),
-            color = "black", size = 0.5) +
-  scale_fill_gradientn(colors = rev(cubehelix(10)))
 
-ggplot(data = demographic %>% subset(cycle == max(cycle))) +
-  geom_tile(aes(condition, seed, fill = value),
-            color = "black", size = 0.5) +
-  scale_fill_gradientn(colors = rev(cubehelix(10)))
+####heatmap cluster for delta in ranking####
+col<- colorRampPalette(c("red", "blue", "green"))(20)
+
+#start
+clust_delta = demographic %>% 
+  subset(cycle == max(cycle)) %>% 
+  select(seed, delta_rv_start_end, condition) %>% 
+  spread(condition, delta_rv_start_end) %>% 
+  column_to_rownames(var = "seed")
 
 
+heatmap(as.matrix(clust_delta) , scale = "none",
+        col = rev(cubehelix(10)))
 ####Plotting variance of production over time for conditions####
 var_demo = demographic %>% 
   ungroup() %>% 
