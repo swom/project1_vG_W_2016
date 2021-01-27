@@ -489,9 +489,11 @@ simulation load_sim_last_pop(int seed, int change_freq)
     place_start_cells(s.get_pop());
 
     //Change internal state of rng member of simulation
-    //to avoid pseudo rng to replicate results in different runs.
+    //to avoid pseudo rng to replicate same exact mutations
+    //in different kinds runs.
     //I do it based on the weight of the last connection of
-    //last ind in the pop, so that runs replicate consistently.
+    //last ind in the pop, so that runs of the same type
+    //replicate consistently.
     auto scramble_seed = s.get_pop().get_v_ind().back().get_grn().get_H2O().back().back();
     auto scramble_rng = std::minstd_rand(scramble_seed);
     auto scramble_n = std::uniform_int_distribution(50,100)(scramble_rng);
@@ -523,13 +525,13 @@ simulation load_sim_before_last_pop(int seed, int change_freq)
     place_start_cells(s.get_pop());
 
     //Change internal state of rng member of simulation
-    //to avoid pseudo rng to replicate results in different runs.
-
-    //Pick a number that should be random, but consistently the same
-    //if you reload from the same file
-    auto rng_seed = s.get_pop().get_v_ind()[0].get_grn().get_H2H()[0][0];
-
-    std::minstd_rand scramble_rng{rng_seed};
+    //to avoid pseudo rng to replicate same exact mutations
+    //in different kinds runs.
+    //I do it based on the weight of the last connection of
+    //last ind in the pop, so that runs of the same type
+    //replicate consistently.
+    auto scramble_seed = s.get_pop().get_v_ind().back().get_grn().get_H2O().back().back();
+    auto scramble_rng = std::minstd_rand(scramble_seed);
     auto scramble_n = std::uniform_int_distribution(50,100)(scramble_rng);
     for(int i = 0; i != scramble_n; i++)
     {
@@ -1030,7 +1032,7 @@ int tick_sparse_collision_resolution(simulation& s, int n_ticks)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    death(s.get_pop());
+    //death(s.get_pop());
     jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());

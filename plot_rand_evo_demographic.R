@@ -8,66 +8,92 @@ library(pals)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
+hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
+hd_rand_evo_1 = "C:/Users/p288427/Desktop/hd_rand_evo_1"
 
 setwd(rand_evo_dir)
-# demographic = data.frame()
-# 
-# 
-# for (i in  list.files(path = '.',pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
-# {
-#   replicate = read.csv(i)
-#   replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-#   replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
-#   replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
-#   colnames(replicate) = colnames(demographic)
-#   demographic = rbind(replicate,demographic)
-# }
-# 
-# n_columns = ncol(demographic)
-# demographic = demographic[,-c(6: (n_columns - 3) )]
-# colnames(demographic)= c("cycle",
-#                          "active",
-#                          "spore",
-#                          "sporu" ,
-#                          "n_timesteps",
-#                          "seed",
-#                          "change_freq",
-#                          "condition"
-# )
-# 
-# demographic <- pivot_longer(
-#   demographic, 
-#   cols = c("active", "spore", "sporu"),
-#   names_to = "variable"
-# )
-# demographic$seed = as.factor(demographic$seed) 
-# demographic$change_freq = as.factor(demographic$change_freq) 
-# demographic$variable = as.factor(demographic$variable)
-# demographic$condition = as.factor(demographic$condition)
-# demographic$n_timesteps = as.factor(demographic$n_timesteps)
-# 
-# # create new columns for ratio of spore produced and starting production
-# demographic = demographic %>%
-#   subset(variable == "spore") %>% 
-#   group_by(condition,cycle) %>% 
-#   mutate(
-#     "ratio_value" = value / max(value)
-#   ) %>% 
-#   ungroup() %>% 
-#   group_by(condition, seed) %>% 
-#   mutate("ratio_start_production" = ratio_value[min(cycle)]) %>% 
-#   mutate("ratio_end_production" = ratio_value[max(cycle)]) %>% 
-#   mutate("delta_rv_start_end" = ratio_start_production - ratio_end_production) %>% 
-#   mutate("start_production" = value[min(cycle)])  %>% 
-#   ungroup() %>% 
-#   group_by(condition) %>% 
-#   mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>% 
-#   ungroup() %>% 
-#   subset(condition != 50)
-# 
+demographic = data.frame()
+
+
+for (i in  list.files(path = '.',pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+{
+  if(file.size(i) <= 0) next()
+  replicate = read.csv(i)
+  replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+  replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
+  replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
+  colnames(replicate) = colnames(demographic)
+  demographic = rbind(replicate,demographic)
+}
+
+n_columns = ncol(demographic)
+colnames(demographic)= c("cycle",
+                         "active",
+                         "spore",
+                         "sporu" ,
+                         "n_timesteps",
+                          sprintf("env_p_%s",seq(1:n_columns - 5 - 3)),
+                         "seed",
+                         "change_freq",
+                         "condition")
+
+
+demographic <- pivot_longer(
+  demographic,
+  cols = c("active", "spore", "sporu"),
+  names_to = "variable"
+)
+
+demographic$seed = as.factor(demographic$seed)
+demographic$change_freq = as.factor(demographic$change_freq)
+demographic$variable = as.factor(demographic$variable)
+demographic$condition = as.factor(demographic$condition)
+demographic$n_timesteps = as.factor(demographic$n_timesteps)
+
+# create new columns for ratio of spore produced and starting production
+demographic = demographic %>%
+  subset(variable == "spore") %>%
+  group_by(condition,cycle) %>%
+  mutate(
+    "ratio_value" = value / max(value)
+  ) %>%
+  ungroup() %>%
+  group_by(condition, seed) %>%
+  mutate("ratio_start_production" = ratio_value[min(cycle)]) %>%
+  mutate("ratio_end_production" = ratio_value[max(cycle)]) %>%
+  mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production) %>%
+  mutate("start_production" = value[min(cycle)])  %>%
+  ungroup() %>%
+  group_by(condition) %>%
+  mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
+  ungroup() %>%
+  subset(condition != 50)
+
 # save(demographic, file = "rand_evo_demo.R")
 
+setwd(rand_evo_dir)
 load(file = "rand_evo_demo.R")
+
+####load hd_rand condition from 0 : 49###
+setwd(hd_rand_evo)
+load(file = "hd_rand_evo_demo.R")
+
+hd_demographic = hd_demographic %>% subset(condition != 0)
+hd_demographic$seed = as.factor(as.numeric(hd_demographic$seed) + 900) 
+
+####load hd_rand condition from 1 : 50###
+setwd(hd_rand_evo_1)
+load(file = "hd_rand_evo_demo_1.R")
+
+hd_demographic_1$seed = as.factor(as.numeric(hd_demographic_1$seed) + 900) 
+hd_demographic_1 %>% mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production)
+                            
+
+
+demographic %>%
+  mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production)
+
+demo = rbind(demographic, hd_demographic_1)
 
 ####select top 20 seeds for spore production####
 top_20 = data.frame()
@@ -104,7 +130,8 @@ top_20$seed = as.factor(top_20$seed)
 top_dem = top_20 %>% left_join(demographic ) %>% drop_na()
 
 ###Plotting ratio-value beginning and end plus points of value####
-ggplot(data = demographic %>% subset(change_freq == 0)) +
+
+ggplot(data = demographic  %>% subset(change_freq == 0)) +
   geom_rect(aes(ymin=min(value),
                 ymax= max(value)  + 1,
                 xmin=min(cycle),
@@ -130,7 +157,7 @@ ggplot(data = demographic %>% subset(cycle == max(cycle))) +
 ###Plotting start or end value####
 ###ratio_value
 
-ggplot(data = demographic %>% subset(cycle == min(cycle))) +
+ggplot(data = demo %>% subset(cycle == min(cycle))) +
   geom_tile(aes(condition, seed, fill = ratio_value),
             color = "black", size = 0.5) +
   scale_fill_gradientn(colors = rev(cubehelix(10)))
