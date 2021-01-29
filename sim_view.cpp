@@ -416,6 +416,10 @@ int  replay_rand_cond_evo (double change_freq,
     sim_view v;
     reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);
 
+    std::vector<double> rnd_n;
+    for(int i = 0; i !=5; i++)
+    rnd_n.push_back( rand_s.get_rng()());
+
     auto rand_start = std::chrono::high_resolution_clock::now();
 
     v.exec(rand_s);

@@ -5,7 +5,9 @@ library(stringi)
 library(rlist)
 library(igraph)
 library(ggraph)
+library(ggnetwork)
 library(networkD3)
+library(magick)
 
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
@@ -38,9 +40,9 @@ best = funders %>%
 
 funders$ID = str_sub(funders$ID, end = - 3)
 #find line of descent of best individual
-best_descent =  filter(funders, stri_startswith_fixed(bestID, funders$ID))
+best_descent =  filter(funders, stri_startswith_fixed(best$ID, funders$ID))
 
-
+###plot network####
 #assuming we know network architecture:
 # 3-3-2, fully connected, with hidden layer fully connected to itself
 n_nodes_l1 = 3
@@ -59,7 +61,8 @@ l =   cbind(
     seq(1:n_nodes_l2),
     seq(1:n_nodes_l3) + 0.5 ))
 l[n_nodes_l1 + n_nodes_l2 / 2 + 1] = l[n_nodes_l1 + n_nodes_l2 / 2 + 1] + 0.5
-  
+colnames(l) = c("x","y")
+
 for(row in 1:nrow(best_descent))
 {
   #get clean dataframe(no characters)
@@ -144,11 +147,11 @@ for(row in 1:nrow(best_descent))
   
   E(network_d)$color = as.factor(connections$w_sign)
   
-  # jpeg(paste("Plot","s",funder_mod$seed,
-  #            "change",funder_mod$change,
-  #            "cycle",funder_mod$row,".jpg", sep = "_")
-  #      ,width = 350,
-  #      height = "350")
+  jpeg(paste("Plot","s",funder_mod$seed,
+             "change",funder_mod$change,
+             "cycle",row,".png", sep = "_")
+       ,width = 700,
+       height = 700)
   
   plot(network_d, layout = l,
        edge.curved = d,
@@ -158,8 +161,47 @@ for(row in 1:nrow(best_descent))
        edge.lty = c("solid"),
        edge.width = abs(E(network_d)$weight/max(E(network_d)$weight) * 10),             # Edge width, defaults to 1
        main = row)
-  # dev.off()
+  dev.off()
   
 }
 
+#Create gif
+pics = paste(evo_dir,"pics", sep = "/")
+## list file names and read in
+imgs <- list.files(pics, full.names = TRUE)
+img_list <- lapply(imgs, image_read)
 
+
+## join the images together
+img_joined <- image_join(img_list)
+
+## animate at 2 frames per second
+img_animated <- image_animate(img_joined, fps = 25)
+
+## view animated image
+img_animated
+
+## save to disk
+image_write(image = img_animated,
+            path = "grn-evo.gif")
+
+
+#####Other network plot methods#####
+###None seem to inclide self-loops, meh...###
+g = ggnetwork::ggnetwork(network_d, layout = l, loop = T )
+g$w_sign = as.factor(g$w_sign)
+ggplot(g, aes(x = x, y = y, xend = xend, yend = yend)) +
+  ggnetwork::geom_edges(aes(linetype = "solid",
+                            color = w_sign,
+                            size = abs(weight))) +
+  geom_nodes(color = "green", size = 1)+
+  geom_nodetext(aes(label = name),
+                fontface = "bold") 
+  
+  
+test <- igraph::graph_from_data_frame(d = connections,
+                                           vertices = nodes,
+                                           directed = T)
+test$layout = l
+V(test)$labels = as.factor(nodes$nodes)
+MetamapsDB::ig2ggplot(test)

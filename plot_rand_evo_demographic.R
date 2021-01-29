@@ -8,92 +8,141 @@ library(pals)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
-hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
-hd_rand_evo_1 = "C:/Users/p288427/Desktop/hd_rand_evo_1"
+hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo/hd_rand_evo"
+hd_rand_evo_1 = "C:/Users/p288427/Desktop/hd_rand_evo/hd_rand_evo_1"
+hd_rand_evo_2 = "C:/Users/p288427/Desktop/hd_rand_evo/hd_rand_evo_2"
 
+#####read data####
 setwd(rand_evo_dir)
-demographic = data.frame()
+# demographic = data.frame()
+# 
+# 
+# for (i in  list.files(path = '.',pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+# {
+#   if(file.size(i) <= 0) next()
+#   replicate = read.csv(i)
+#   replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+#   replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
+#   replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
+#   colnames(replicate) = colnames(demographic)
+#   demographic = rbind(replicate,demographic)
+# }
+# 
+# n_columns = ncol(demographic)
+# colnames(demographic)= c("cycle",
+#                          "active",
+#                          "spore",
+#                          "sporu" ,
+#                          "n_timesteps",
+#                           sprintf("env_p_%s",seq(1:(n_columns - 5 - 3))),
+#                          "seed",
+#                          "change_freq",
+#                          "condition")
+# 
+# 
+# demographic <- pivot_longer(
+#   demographic,
+#   cols = c("active", "spore", "sporu"),
+#   names_to = "variable"
+# )
+# 
+# demographic$seed = as.factor(demographic$seed)
+# demographic$change_freq = as.factor(demographic$change_freq)
+# demographic$variable = as.factor(demographic$variable)
+# demographic$condition = as.factor(demographic$condition)
+# demographic$n_timesteps = as.factor(demographic$n_timesteps)
+# 
+# # create new columns for ratio of spore produced and starting production
+# demographic = demographic %>%
+#   subset(variable == "spore") %>%
+#   group_by(condition,cycle) %>%
+#   mutate(
+#     "ratio_value" = value / max(value)
+#   ) %>%
+#   ungroup() %>%
+#   group_by(condition, seed) %>%
+#   mutate("ratio_start_production" = ratio_value[min(cycle)]) %>%
+#   mutate("ratio_end_production" = ratio_value[max(cycle)]) %>%
+#   mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production) %>%
+#   mutate("start_production" = value[min(cycle)])  %>%
+#   ungroup() %>%
+#   group_by(condition) %>%
+#   mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
+#   ungroup() %>%
+#   subset(condition != 50)
+# 
+#  = demographic
+# save(, file = "hd""_rand_evo_demo_"2".R")
 
-
-for (i in  list.files(path = '.',pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
-{
-  if(file.size(i) <= 0) next()
-  replicate = read.csv(i)
-  replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-  replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
-  replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
-  colnames(replicate) = colnames(demographic)
-  demographic = rbind(replicate,demographic)
-}
-
-n_columns = ncol(demographic)
-colnames(demographic)= c("cycle",
-                         "active",
-                         "spore",
-                         "sporu" ,
-                         "n_timesteps",
-                          sprintf("env_p_%s",seq(1:n_columns - 5 - 3)),
-                         "seed",
-                         "change_freq",
-                         "condition")
-
-
-demographic <- pivot_longer(
-  demographic,
-  cols = c("active", "spore", "sporu"),
-  names_to = "variable"
-)
-
-demographic$seed = as.factor(demographic$seed)
-demographic$change_freq = as.factor(demographic$change_freq)
-demographic$variable = as.factor(demographic$variable)
-demographic$condition = as.factor(demographic$condition)
-demographic$n_timesteps = as.factor(demographic$n_timesteps)
-
-# create new columns for ratio of spore produced and starting production
-demographic = demographic %>%
-  subset(variable == "spore") %>%
-  group_by(condition,cycle) %>%
-  mutate(
-    "ratio_value" = value / max(value)
-  ) %>%
-  ungroup() %>%
-  group_by(condition, seed) %>%
-  mutate("ratio_start_production" = ratio_value[min(cycle)]) %>%
-  mutate("ratio_end_production" = ratio_value[max(cycle)]) %>%
-  mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production) %>%
-  mutate("start_production" = value[min(cycle)])  %>%
-  ungroup() %>%
-  group_by(condition) %>%
-  mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
-  ungroup() %>%
-  subset(condition != 50)
-
-# save(demographic, file = "rand_evo_demo.R")
-
+####load results of all seeds in conditions 1:50####
+# object name: demographic
 setwd(rand_evo_dir)
 load(file = "rand_evo_demo.R")
 
 ####load hd_rand condition from 0 : 49###
+#object name : hd_demographic
 setwd(hd_rand_evo)
 load(file = "hd_rand_evo_demo.R")
-
+#change seed to avoid overlapping in plots
 hd_demographic = hd_demographic %>% subset(condition != 0)
 hd_demographic$seed = as.factor(as.numeric(hd_demographic$seed) + 900) 
 
 ####load hd_rand condition from 1 : 50###
+#object name : hd_demographic_1
 setwd(hd_rand_evo_1)
 load(file = "hd_rand_evo_demo_1.R")
-
-hd_demographic_1$seed = as.factor(as.numeric(hd_demographic_1$seed) + 900) 
+#change seed to avoid overlapping in plots
+hd_demographic_1$seed = as.factor(as.numeric(hd_demographic_1$seed) + 9000) 
 hd_demographic_1 %>% mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production)
-                            
 
+####load hd_rand condition from 1 : 50###
+#object name : hd_demographic_2
+setwd(hd_rand_evo_2)
+load(file = "hd_rand_evo_demo_2.R")
+#change seed to avoid overlapping in plots
+hd_demographic_2$seed = as.factor(as.numeric(hd_demographic_2$seed) + 5000) 
+hd_demographic_2 %>% mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production)
 
-demographic %>%
-  mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production)
+###create unique dataframe                             
+demo = rbind(demographic, 
+             hd_demographic_2)
 
-demo = rbind(demographic, hd_demographic_1)
+####make sure env conditions are the same####
+
+#make sure conditions stay the same throughout a simulation
+length(demographic %>% 
+  group_by(condition, seed) %>% 
+  unique()) == 1
+#get all different conditions existing in demo with seed for reference
+demographic_conditions_cycle =
+  demographic %>% 
+  select(starts_with("env_p") | condition | cycle | seed) %>% 
+  group_by(condition) %>% 
+  subset(!duplicated(env_p_3))
+
+hd_demographic_conditions =
+  hd_demographic %>% 
+  select(starts_with("env_p")|condition) %>% 
+  group_by(condition) %>% 
+  unique()
+
+hd_demographic_1_conditions =
+  hd_demographic_1 %>% 
+  select(starts_with("env_p")|condition) %>% 
+  group_by(condition) %>% 
+  unique()  
+
+hd_demographic_2_conditions =
+  hd_demographic_2 %>% 
+  select(starts_with("env_p")|condition) %>% 
+  group_by(condition) %>% 
+  unique() 
+
+r_hd = hd_demographic_conditions %>% 
+  subset(condition %in% hd_demographic_1_conditions$condition) %>% 
+  unique()
+
+all_equal(r_hd,hd_demographic_1_conditions, convert = T) 
 
 ####select top 20 seeds for spore production####
 top_20 = data.frame()
@@ -149,8 +198,10 @@ ggplot(data = demographic  %>% subset(change_freq == 0)) +
 
 
 ####Plotting diff between rvalue end vs start normalized####
-ggplot(data = demographic %>% subset(cycle == max(cycle))) +
-  geom_tile(aes(condition, seed, fill = delta_rv_start_end),
+ggplot(data = demo %>% subset(cycle == max(cycle))) +
+  geom_tile(aes(condition,
+                seed,
+                fill = ratio_end_production - ratio_start_production),
             color = "black", size = 0.5) + 
   scale_fill_gradientn("Delta", colors = rev(cubehelix(10))) 
 
