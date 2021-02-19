@@ -28,9 +28,9 @@ qmake simulation_logic_only.pro
 make 
 
 
-  for i in $(seq 31 60)
+  for i in $(seq 1 30)
 do
-  for k in $(seq 1 50)
+  for k in $(seq 0 49)
 do
   echo $i
   echo $k
