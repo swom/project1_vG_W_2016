@@ -46,8 +46,8 @@ bool operator==(const GRN& lhs, const GRN& rhs)
     bool h2h = compare_weights_with_tolerance(lhs.get_H2H() , rhs.get_H2H());
     bool h2o = compare_weights_with_tolerance(lhs.get_H2O(), rhs.get_H2O());
     bool i2h = compare_weights_with_tolerance(lhs.get_I2H(), rhs.get_I2H());
-    bool hid_t = lhs.get_hid_tresh() == rhs.get_hid_tresh();
-    bool out_t = lhs.get_out_tresh() == rhs.get_out_tresh();
+    bool hid_t = compare_with_tolerance(lhs.get_hid_tresh(), rhs.get_hid_tresh());
+    bool out_t = compare_with_tolerance(lhs.get_out_tresh(), rhs.get_out_tresh());
     bool hid_n = lhs.get_hidden_nodes() == rhs.get_hidden_nodes();
     //We do not look at input and output nodes since they might vary
     //depending on the status of the simulation

@@ -329,7 +329,7 @@ void exec_cycle(simulation& s) noexcept
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
           s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
     {
-        tick_sparse_collision_resolution(s,
+        tick(s,
                                          s.get_meta_param().get_collision_check_interval());
     }
     add_success_funders(s);
@@ -1004,7 +1004,7 @@ void store_demographics( simulation& s) noexcept
     s.set_demo_sim(update_demographics(s));
 }
 
-int tick(simulation& s)
+int tick(simulation& s, int n_ticks)
 {
     int time = 0;
     response(s);
@@ -1012,27 +1012,7 @@ int tick(simulation& s)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    //death(s.get_pop());
-    jordi_death(s.get_pop());
-    if(division(s.get_pop()))
-    {
-        time += manage_static_collisions(s.get_pop());
-    }
-    degradation_metabolite(s.get_env());
-    diffusion(s.get_env());
-    s.tick_timesteps();
-    return time;
-}
-
-int tick_sparse_collision_resolution(simulation& s, int n_ticks)
-{
-    int time = 0;
-    response(s);
-    //feeding(s);
-    jordi_feeding(s);
-    metabolism_pop(s.get_pop());
-    secretion_metabolite(s);
-    //death(s.get_pop());
+    death(s.get_pop());
     jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());
@@ -1503,7 +1483,7 @@ void test_simulation()//!OCLINT tests may be many
         //check that collisions are resolved only every n_ticks
         for(int i = 0; i != n_total_ticks; i++)
         {
-            tick_sparse_collision_resolution(s, n_ticks);
+            tick(s, n_ticks);
 
             //the timestep is updated in tick so you need to check
             //for timestep - 1
@@ -1677,7 +1657,7 @@ void test_simulation()//!OCLINT tests may be many
 
         for( int i = 0; i != time; i++)
         {
-            tick_sparse_collision_resolution(s);
+            tick(s);
         }
 
         //        assert( s.get_pop().get_v_ind().end() !=

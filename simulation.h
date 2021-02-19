@@ -389,12 +389,9 @@ void secretion_metabolite(simulation& s);
 ///Changes the demographic cycle object with a mroe recent one
 void store_demographics(simulation &s) noexcept;
 
-///Runs all the necessary actions for a timestep to happen
-int tick(simulation& s);
-
 ///Runs all necessary actions for a timestep but
 /// check collision and resolves them only every n timesteps
-int tick_sparse_collision_resolution(simulation& s, int n_ticks = 0);
+int tick(simulation& s, int n_ticks = 0);
 
 ///Stores the demographic of the population in the simulation
 /// at that point in time
