@@ -68,6 +68,5 @@ demographic_cycle load_demographic_cycle(const std::string& filename);
 ///Saves the demographic of one cycle
 void save_demographic_cycle(const demographic_cycle& p, const std::string& filename);
 
-void test_demographic_cycle() noexcept;
 
 #endif // DEMOGRAPHIC_CYCLE_H

@@ -57,6 +57,5 @@ std::vector<int> load_ancestor_ID(std::ifstream& is);
 ///Saves the funder_data to a given text_file
 void save_funder_data(const funder_data& f_d, const std::string& filename);
 
-void test_funder_data() noexcept;
 
 #endif // FUNDER_DATA_H

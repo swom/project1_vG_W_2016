@@ -71,4 +71,6 @@ win32{
   LIBS += -lwinmm                 #Dependency
 }
 
+DISTFILES +=
+
 

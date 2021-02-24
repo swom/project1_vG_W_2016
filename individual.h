@@ -1,6 +1,4 @@
-
-
- #ifndef INDIVIDUAL_H
+#ifndef INDIVIDUAL_H
 #define INDIVIDUAL_H
 #include "env_grid_cell.h"
 #include "grn.h"
@@ -306,6 +304,5 @@ void update_radius(individual& i);
 /// become of ind_type::sporulating
 bool will_sporulate(individual& i) noexcept;
 
-void test_individual();
 
 #endif // INDIVIDUAL_H

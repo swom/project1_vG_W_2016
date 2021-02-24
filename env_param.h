@@ -91,14 +91,14 @@ std::ifstream& operator>>(std::ifstream& is, env_param& p);
 /// given env_param
 /// whith new values drawn from a normal distribution
 /// with mean and variance as indicated by the m_mean* and m_var* members
-env_param change_env_param_norm(const env_param& e, std::minstd_rand &rng) noexcept;
+env_param change_env_param_norm(env_param e, std::minstd_rand &rng) noexcept;
 
 ///Returns a new env_param that is a changed version of the
 /// given env_param
 /// whith new values drawn from a uniform distribution
 /// with mean as indicated by the m_mean* members
 /// and range = m_mean* -/+ 3 * m_var* members
-env_param change_env_param_unif(const env_param& e, std::minstd_rand& rng) noexcept;
+env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept;
 
 
 env_param load_env_parameters( const std::string& filename);
@@ -110,6 +110,5 @@ env_param change_range_env_param(const env_param& e, double amplitude);
 
 void save_env_parameters( const env_param& p, const std::string& filename);
 
-void test_env_param() noexcept;
 
 #endif // ENV_PARAM_H

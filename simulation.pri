@@ -1,6 +1,7 @@
 # Entry point for user
 
 HEADERS += \
+    $$PWD/env_changer.h \
     demographic_cycle.h \
     demographic_sim.h \
     env_grid_cell.h \
@@ -22,6 +23,7 @@ HEADERS += \
     utilities.h
 
 SOURCES += \
+    $$PWD/env_changer.cpp \
     demographic_cycle.cpp \
     demographic_sim.cpp \
     env_grid_cell.cpp \

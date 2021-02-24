@@ -64,5 +64,4 @@ void take_replay_cycle_arg(const std::vector<std::string>& args, int& replay_cyc
 void take_seed_arg(const std::vector<std::string>& args, int& seed);
 
 
-void test_utilities() noexcept;
 #endif // UTILITIES_H

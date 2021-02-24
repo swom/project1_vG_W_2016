@@ -1,6 +1,7 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 
+#include "env_changer.h"
 #include "environment.h"
 #include "individual.h"
 #include "population.h"
@@ -133,7 +134,7 @@ void change_pop( simulation& s);
 
 ///Changes the parameters of the simulation given two objects of the env_ and ind_
 /// parameter classes
-void change_params(simulation& s, const env_param& e, const ind_param& i);
+void set_new_params(simulation& s, const env_param& e, const ind_param& i);
 
 ///Continues evolution of an already run evolution simulation with a given seed and change of freq
 int continue_evo(int seed, int change_freq);
@@ -397,6 +398,5 @@ int tick(simulation& s, int n_ticks = 0);
 /// at that point in time
 demographic_sim update_demographics(const simulation& s) noexcept;
 
-void test_simulation();
 
 #endif // SIMULATION_H

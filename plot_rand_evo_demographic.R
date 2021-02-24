@@ -242,31 +242,25 @@ cub_hel <- rev(cubehelix(n_colors))
 
 #the vector needs to be longer the the number of colors picked in the color palettes
 ####for overall_ratio_value
-ov_min = min(dem$overall_r_value)
-ov_max = max(dem$overall_r_value)
-ov_delta = ov_max - ov_min
+ov_qntl= quantile(dem$overall_r_value)
 sections_ov_value = unique(
-  c( seq(ov_min, ov_min + ov_delta/3, length = as.integer(n_colors/3 + 1)),
-     seq(ov_min + ov_delta/3, ov_min + ov_delta*2/3, length = as.integer(n_colors/3 + 2) ),
-     seq(ov_min + ov_delta*2/3, ov_min + ov_delta,length = as.integer(n_colors/3 + 2) )))
+  c( seq(ov_qntl[1], ov_qntl[2], length = as.integer(n_colors/3 + 4)),
+     seq(ov_qntl[2], ov_qntl[4], length = as.integer(n_colors/3 + 1) ),
+     seq(ov_qntl[4], ov_qntl[5], length = as.integer(n_colors/3) )))
 
 ####for ratio_value
-rv_min = min(dem$ratio_value)
-rv_max = max(dem$ratio_value)
-rv_delta = rv_max - rv_min
+rv_qntl = quantile(dem$ratio_value)
 sections_rv_value = unique(
-  c( seq(rv_min, rv_min + rv_delta/2, length = as.integer(n_colors/3 + 1)),
-     seq(rv_min + rv_delta/2, rv_min + rv_delta*4/5, length = as.integer(n_colors/3 + 2)),
-     seq(rv_min + rv_delta*4/5, rv_min + rv_delta, length = as.integer(n_colors/3 + 2))))
+  c( seq(rv_qntl[1], rv_qntl[2], length = as.integer(n_colors/3 + 4)),
+     seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 ))))
 
 ####for value
-v_min = min(dem$spore)
-v_max = max(dem$spore)
-v_delta = v_max - v_min
+v_qntl = quantile(dem$spore)
 sections_v_value = unique(
-  c( seq(v_min, v_min + v_delta/2, length = as.integer(n_colors/3 + 1)),
-     seq(v_min + v_delta/2, v_min +  v_delta*3/4, length = as.integer(n_colors/3 + 2)),
-     seq(v_min + v_delta*3/4, v_min + v_delta,length = as.integer(n_colors/3 + 2))))
+  c( seq(v_qntl[1], v_qntl[2], length = as.integer(n_colors/3 + 4)),
+     seq(v_qntl[2], v_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(v_qntl[4], v_qntl[5], length = as.integer(n_colors/3))))
 
 
 ###Plotting ratio-value beginning and end plus points of value####
@@ -372,7 +366,7 @@ heatmap.2(as.matrix(clust_dem_start) ,
         Colv = start_clust_col,
         scale = "none",
         trace = "none",
-        col = cub_hel, 
+        col = rbg, 
         breaks = sections_rv_value,
         main = "start_c_start")
 
@@ -482,7 +476,7 @@ heatmap.2(as.matrix(clust_dem_ov_end) ,
         Colv = start_clust_col,
         scale = "none",
         trace = "none",
-        col = cub_hel,
+        col = rbg,
         main = "end_c_start",
         breaks = sections_ov_value)
 

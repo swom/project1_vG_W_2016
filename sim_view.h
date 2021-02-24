@@ -1,17 +1,15 @@
 #ifndef SIM_VIEW_H
 #define SIM_VIEW_H
 #include "grid_view.h"
-#include "simulation.h"
 #include <SFML/Graphics.hpp>
 
 
-/// The game's main window
-/// Displays the game class
+/// The GUI main window
 class sim_view
 {
 public:
 
-    sim_view(float start_zoom = 10,
+    sim_view(float start_zoom = 5,
              float zoom_step = 0.01f,
              float pan_step = 2.f,
              float scale = 10);

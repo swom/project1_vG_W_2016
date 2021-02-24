@@ -40,5 +40,4 @@ demographic_sim load_demographic_sim(const std::string& filename);
 ///Saves the object demographic_sim to a given filename
 void save_demographic_sim(const demographic_sim& d_s, const std::string& filename);
 
-void test_demographic_sim();
 #endif // DEMOGRAPHIC_SIM_H
