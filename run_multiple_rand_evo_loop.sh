@@ -10,7 +10,7 @@
 #   sbatch ./run_multiple_rand_evo_loop.sh
 #
 # Peregrine directives:
-#SBATCH --time=1:00:00
+#SBATCH --time=240:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
@@ -37,3 +37,9 @@ do
   sbatch run_rand_evo.sh $i $k
 done
 done
+
+#move funders_success files directly in data partition
+watch -n 1200 mv rand_evo_a?*fund* ../../../data/p288427/
+#copy sim_demographic files to data partition but keep also in home
+#thus the program will check if it has run the same simulation twice
+watch -n 1331 cp rand_evo_a?*sim* ../../../data/p288427/
