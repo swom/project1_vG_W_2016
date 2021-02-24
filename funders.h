@@ -56,5 +56,4 @@ funders load_funders(const std::string& filename);
 ///Saves funders to a given filename
 void save_funders(funders f, const std::string& filename);
 
-void test_funders() noexcept;
 #endif // FUNDERS_H

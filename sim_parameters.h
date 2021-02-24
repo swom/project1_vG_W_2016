@@ -66,6 +66,4 @@ sim_param load_sim_parameters( const std::string& filename);
 void save_sim_parameters( const sim_param& p, const std::string& filename);
 
 
-void test_sim_param() noexcept;
-
 #endif // SIM_PARAMETERS_H

@@ -123,7 +123,7 @@ bool calc_tot_displ_pop(population& population);
 ///Creates a new vector of individual
 ///which is the same population with
 //different params of the individuals in the population
-std::vector<individual> change_inds(const population &p, const ind_param &new_ind_params);
+std::vector<individual> set_new_ind_par(std::vector<individual> new_p_v, const ind_param &new_ind_params);
 
 ///Removes dead inidviduals from population vector
 void death(population& p) noexcept;
@@ -150,6 +150,9 @@ std::vector<double> get_excess_energies(const population& p) noexcept;
 
 ///Gets an individual's energy
 double get_ind_en(const population& p, int i);
+
+///Gets the position of an individual as a st::pair<double,double> object
+std::pair<double, double> get_ind_pos(const individual& i);
 
 //Pop
 ///Gets an individual's treshold energy
@@ -184,8 +187,8 @@ std::vector<double> modulus_of_btw_ind_angles(population& p, double ang_rad);
 ///Checks if a mutation happens given the mutation probability of a simulation
 bool mut_happens(population& p) noexcept;
 
-///Gives back the mutation size based on initialization parameters
-double mut_step() noexcept;
+///returns size of one mutation, based on initialization parameters
+double mut_step(population& p) noexcept;
 
 ///Moves individuals that are perfectly on top of each other a little bit
 ///to allow correct displacement
@@ -254,5 +257,4 @@ void starvation(population &p) noexcept;
 
 void update_radius_pop(population& p);
 
-void test_population() noexcept;
 #endif // POPULATION_H

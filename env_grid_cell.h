@@ -86,7 +86,6 @@ double metab_flux(const env_grid_cell &lhs, const env_grid_cell &rhs) noexcept;
 ///Degrades the amount of metabolite in the grid_cell by a value equal to the degradation rate
 void metabolite_degrades(env_grid_cell& g, double degrad_rate) noexcept;
 
-void test_env_grid_cell();
 
 
 #endif // ENVIRONMENT_GRID_CELL_H

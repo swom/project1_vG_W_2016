@@ -35,7 +35,7 @@ public:
     const env_param get_param() const noexcept {return m_env_param;}
 
     ///Sets new env_param
-    void set_param(const env_param& e_p) noexcept {m_env_param = e_p;}
+    void set_new_env_param(const env_param& e_p) noexcept {m_env_param = e_p;}
 
 private:
     env_param m_env_param;
@@ -106,7 +106,6 @@ void reset_env(environment& e, int grid_side, double diff_coeff, double food);
 ///Resets the environment to new parameters
 void reset_env(environment& e);
 
-void test_environment();
 
 #endif // ENVIRONMENT_H
 

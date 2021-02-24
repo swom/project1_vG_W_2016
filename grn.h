@@ -162,8 +162,14 @@ bool compare_weights_with_tolerance(const std::vector<std::vector<double>>& lhs,
 ///Creates the name for a rection norm file
 std::string create_reaction_norm_name(int seed, int change_freq);
 
+///Loads a grn given a filename
+GRN load_grn( const std::string& filename);
+
 ///Gets the layer weights from a ifstream file
 std::vector<double> load_node_weights(std::ifstream& is);
+
+///Loads a reaction norm given a filename
+std::vector<std::vector<double>> load_reaction_norm(std::string filename);
 
 ///Input nodes update the states of output nodes
 std::vector<double> hid_updates_hid(GRN& g) noexcept;
@@ -271,7 +277,4 @@ double weights_mean (const GRN& g) noexcept;
 ///Calculates the variance of weights in a GRN
 double weights_var(const GRN& g) noexcept;
 
-
-
-void test_GRN();
 #endif // GRN_H

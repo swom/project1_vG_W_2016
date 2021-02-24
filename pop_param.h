@@ -94,6 +94,4 @@ pop_param load_pop_parameters(const std::string& filename );
 //Saves the population parameters to a given file name
 void save_pop_parameters(const pop_param& p, const std::string& filename);
 
-void test_pop_param() noexcept;
-
 #endif // POP_PARAM_H

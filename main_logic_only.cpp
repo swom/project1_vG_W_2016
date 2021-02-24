@@ -3,41 +3,11 @@
 #include <iostream>
 #include <string>
 
-void test() {
-    test_demographic_cycle();
-    test_demographic_sim();
-    test_env_grid_cell();
-    test_environment();
-    test_env_param();
-    test_funder_data();
-    test_funders();
-    test_funders_success();
-    test_GRN();
-    test_ind_param();
-    test_individual();
-    test_phenotype();
-    test_meta_param();
-    test_pop_param();
-    test_population();
-    test_simulation();
-    test_sim_param();
-    test_utilities();
-}
-
 
 int main(int argc, char ** argv) //!OCLINT tests may be long
 {
 
       const std::vector<std::string> args(argv, argv + argc);
-
-#ifndef NDEBUG
-    if (args.size() > 1 && args[1] == "--test")
-    {
-        test();
-        // We've already tested, so the program is done
-        return 0;
-    }
-#endif
 
     int n_cycles = 500;
     int cycle_duration = 125;

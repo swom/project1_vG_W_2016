@@ -44,6 +44,5 @@ GRN find_last_gen_best_ind_grn(const funders_success& funders_success);
 ///Saves a funders success object to a given filename
 void save_funders_success(const funders_success& f_s,const std::string& filename);
 
-void test_funders_success() noexcept;
 
 #endif // FUNDER_SUCCESS_H

@@ -81,5 +81,4 @@ meta_param load_meta_parameters( const std::string& filename);
 //Saves the parameters to a given file name
 void save_meta_parameters( const meta_param& p, const std::string& filename);
 
-void test_meta_param() noexcept;
 #endif // META_PARAM_H

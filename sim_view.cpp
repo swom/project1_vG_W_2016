@@ -98,21 +98,22 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
             return true;
         if(!m_stop)
         {
-            tick_sparse_collision_resolution(s,
-                                             s.get_meta_param().get_collision_check_interval());
+            tick(s, s.get_meta_param().get_collision_check_interval());
         }
     }
-    add_success_funders(s);
-    store_demographics(s);
-    dispersal(s);
-    s.reset_timesteps();
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
     std::cout<< "random_cond_evo cycle n " << s.get_cycle() << ":" << std::endl <<
                 "time: " << duration.count() << "s" << std::endl <<
                 "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
+                "n_timesteps: " << s.get_timestep() << std::endl <<
                 std::endl;
+
+    add_success_funders(s);
+    store_demographics(s);
+    dispersal(s);
+    s.reset_timesteps();
 
     return false;
 }
@@ -411,14 +412,32 @@ int  replay_rand_cond_evo (double change_freq,
 {
     auto rand_cond = load_random_conditions(create_name_vec_rand_cond(n_conditions, amplitude, seed_rand_cond));
     auto rand_s = load_sim_last_pop(seed_sim,change_freq);
+
+    rand_s.get_pop().get_param() = pop_param{1,100,0.01,0.0015,0.1,0.01,10};
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
     sim_view v;
     reproduce_rand_cond(rand_s,rand_cond, rand_cond_n);
 
-    std::vector<double> rnd_n;
-    for(int i = 0; i !=5; i++)
-    rnd_n.push_back( rand_s.get_rng()());
+    //just change uptake rate for testing
+    auto uptake_rate = 0.115;
+    auto i = rand_s.get_pop().get_v_ind()[0].get_param();
+    i.set_uptake_rate(uptake_rate);
+    rand_s.get_pop().set_pop_inds(set_new_ind_par(rand_s.get_pop().get_v_ind(),i));
+
+    std::cout << "uptake rate: " << uptake_rate << std::endl;
+
+    ///keep this for repeatability
+    ///(it is useless but if taken away will change rng behaviour in replicates)
+    ///I am an idiot
+    {
+        std::vector<double> rnd_n;
+        for(int i = 0; i !=5; i++)
+            rnd_n.push_back( rand_s.get_rng()());
+    }
+
+    std::cout<< "base_fitness: " << rand_s.get_pop().get_param().get_base_disp_prob()
+             <<" spore advantage: " << rand_s.get_pop().get_param().get_spo_adv() << std::endl;
 
     auto rand_start = std::chrono::high_resolution_clock::now();
 
@@ -428,6 +447,7 @@ int  replay_rand_cond_evo (double change_freq,
     auto duration = std::chrono::duration<float>(stop - rand_start);
     std::cout<< "random condition n" << rand_cond_n <<": " << duration.count() << "s" << std::endl;
 
+    save_demographic_sim(rand_s.get_demo_sim(),"test_death_selection" + create_sim_demo_name(rand_s));
     auto tot_inds = rand_s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
             rand_s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
             rand_s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();

@@ -2,7 +2,7 @@
 #ifndef GRID_VIEW_H
 #define GRID_VIEW_H
 #include "SFML/Graphics.hpp"
-#include "environment.h"
+#include "simulation.h"
 
 class grid_view : public sf::Drawable, public sf::Transformable
 {

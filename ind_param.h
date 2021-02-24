@@ -12,7 +12,7 @@ public:
               double treshold_energy = 10,
               double uptake_rate = 0.1,
               double uptake_rate_mean = 0.1,
-              double uptake_rate_var = 0.01,
+              double uptake_rate_var = 0, //.006, //value which avoids pop to reach cap for sure for sure
               double metabolic_rate = 0.01,
               double reproduction_prob = 0.5,
               double reproduction_prob_mean = 0.5,
@@ -80,15 +80,26 @@ public:
     ///Sets the reproduciton probability
     void set_repr_prob(double p) noexcept {m_repr_prob = p;}
 
+    ///Sets the var for repr_prob
+    void set_repr_prob_var(double new_var) noexcept {m_var_repr_prob = new_var;}
+
     ///Sets the metabolic rate of sporulating individuals
     void set_spor_metabolic_rate(double m) noexcept {m_spor_metabolic_rate = m;}
+
+    ///Sets the var for spore metabolic rate
+    void set_spor_met_rate_var(double new_var) noexcept {m_var_spor_metabolic_rate = new_var;}
 
     ///Sets the number of timesteps required to transform into a spore
     void set_transformation_time(int t) noexcept {m_transformation_time = t;}
 
+    ///Sets the range of transformation times
+    void set_transformation_t_range(int new_range) noexcept {m_transformation_range = new_range;}
+
     ///Sets the uptake rate of nutrient of an individual
     void set_uptake_rate(double u) noexcept {m_uptake_rate = u;}
 
+    ///Sets the var for uptake rate
+    void set_uptake_var(double new_var) noexcept {m_var_uptake_rate = new_var;}
 private:
 
     ///The rate at which internal energy is depleted
@@ -184,7 +195,7 @@ ind_param load_ind_parameters( const std::string& filename);
 ///Returns a env_param whose variances are the variances
 /// of the given env_param object multiplied
 /// by a factor = amplitude
-ind_param change_range_ind_param(const ind_param& i, double amplitude);
+ind_param change_range_ind_param(ind_param i, double amplitude);
 
 //Saves an instance of ind_param to a file name
 void save_ind_parameters( const ind_param& p, const std::string& filename);
