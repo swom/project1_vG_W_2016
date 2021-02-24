@@ -710,10 +710,12 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                 std::endl;
 
     std::cout << "saving demographics" << std::endl;
-    save_demographic_sim(rand_s.get_demo_sim(), prefix + create_sim_demo_name(s));
+    save_demographic_sim(rand_s.get_demo_sim(), prefix + create_sim_demo_name(s) + "_no_upt_rate");
     std::cout << "saving funders" << std::endl;
     save_funders_success(rand_s.get_funders_success(),
-                         prefix + create_funders_success_name(rand_s));
+                         prefix +
+                         create_funders_success_name(rand_s) +
+                         "_no_upt_rate");
 
     return rand_s.get_demo_sim();
 }
