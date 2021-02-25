@@ -14,7 +14,7 @@ hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
 
 
 #####read data####
-setwd(hd_rand_evo)
+setwd(hd_rand_evo_no_upt)
 demographic = data.frame()
 
 
@@ -92,11 +92,10 @@ c_check %>%
   subset(n_timesteps != 125) %>% 
   subset(total_n < 9000)
 
-####check whihc environmental parameters induce####
-
+####plot mean n_timesteps for condition seed combo####
 #summarise conditions and timestep
 cond_tmstps = dem %>% 
-  group_by(condition) %>% 
+  group_by(condition,seed) %>% 
   summarise_all(mean) %>% 
   ungroup() %>% 
   select(starts_with("env_")|starts_with("n_time"),
@@ -106,6 +105,9 @@ cond_tmstps = dem %>%
 
 ggplot(data = cond_tmstps)+
   geom_tile(aes(x = condition, y = seed, fill = n_timesteps))
+
+
+####check whihc environmental parameters induce####
 
 #select only relevant conditions
 plot_tmstps = cond_tmstps %>% 
@@ -117,7 +119,8 @@ ggplot(data = plot_tmstps)+
   geom_smooth(aes(x = value, y = total_n))+
   facet_grid(.  ~ variable )
 
-
+c = plot_tmstps %>% 
+  filter(variable == "env_p_10")
 
 
 ####subset only those simulation where pop cap is never reached####
@@ -571,6 +574,7 @@ heatmap.2(as.matrix(clust_dem_v_start) ,
           scale = "none",
           trace = "none",
           col = rbg,
+          main = "start_c_start",
           breaks = sections_v_value)
 
 
