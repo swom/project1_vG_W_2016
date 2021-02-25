@@ -217,13 +217,15 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
     };
 }
 
-std::string create_sim_demo_name(const simulation& s)
+std::string create_sim_demo_name(const simulation& s, std::string prefix = "", std::string suffix = "")
 {
     return  std::string{
+        prefix +
         "sim_demographic_s" +
         std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
+                suffix +
                 ".csv"
     };
 }
@@ -710,7 +712,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                 std::endl;
 
     std::cout << "saving demographics" << std::endl;
-    save_demographic_sim(rand_s.get_demo_sim(), prefix + create_sim_demo_name(s) + "_no_upt_rate");
+    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, prefix, "_no_upt_rate"));
     std::cout << "saving funders" << std::endl;
     save_funders_success(rand_s.get_funders_success(),
                          prefix +
