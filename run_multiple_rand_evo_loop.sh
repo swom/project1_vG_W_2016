@@ -28,7 +28,7 @@ qmake simulation_logic_only.pro
 make 
 
 
-  for i in $(seq 1 30)
+  for i in $(seq 31 60)
 do
   for k in $(seq 0 49)
 do
@@ -43,4 +43,8 @@ done
 #copy sim_demographic files to data partition but keep also in home
 #thus the program will check if it has run the same simulation twice
 
+<<<<<<< HEAD
 watch -n 1200 "mv rand_evo_a?*fund* ../../../data/p288427/ || true && cp rand_evo_a?*sim* ../../../data/p288427/"
+=======
+watch -n 1200 "mv rand_evo_a?*fund* ../../../data/p286268/ || true && cp rand_evo_a?*sim* ../../../data/p286268/"
+>>>>>>> 2e5e6ec520511abee3a5afa23dab4b57282f0e7d
