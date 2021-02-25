@@ -685,7 +685,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
 {
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
-                s.get_pop().get_v_ind().begin()->get_param(),
+                ind_param{},
                 n_number_rand_cond,
                 amplitude,
                 0);

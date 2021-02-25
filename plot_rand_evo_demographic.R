@@ -10,6 +10,7 @@ dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
+hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
 
 
 #####read data####
@@ -76,7 +77,10 @@ save(hd_demographic, file = "hd_rand_evo_demo.R")
 setwd(hd_rand_evo)
 load(file = "hd_rand_evo_demo.R")
 
-dem = hd_demographic %>% subset(change_freq == "0")
+setwd(hd_rand_evo_no_upt)
+load(file = "hd_rand_evo_demo_no_upt_r.R")
+
+dem = hd_demographic_no_upt
 
 ####make sure each cycle is either 125 timesteps or around 10000 inds####
 c_check = dem %>% 
@@ -95,7 +99,10 @@ cond_tmstps = dem %>%
   group_by(condition) %>% 
   summarise_all(mean) %>% 
   ungroup() %>% 
-  select(starts_with("env_")|starts_with("n_time"),total_n) 
+  select(starts_with("env_")|starts_with("n_time"),
+         total_n,
+         condition,
+         seed) 
 
 ggplot(data = cond_tmstps)+
   geom_tile(aes(x = condition, y = seed, fill = n_timesteps))
@@ -574,7 +581,7 @@ heatmap.2(as.matrix(clust_dem_v_end) ,
           Colv = start_clust_col,
           scale = "none",
           trace = "none",
-          col = cub_hel,
+          col = rbg,
           main = "end_c_start",
           breaks = sections_v_value)
 
