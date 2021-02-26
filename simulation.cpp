@@ -135,8 +135,8 @@ std::string create_best_random_condition_name(double amplitude, int change_freq,
 }
 
 std::string create_funders_success_name(const simulation& s,
-                                        std::string prefix = "",
-                                        std::string suffix = "")
+                                        std::string prefix,
+                                        std::string suffix)
 {
     return  std::string{
         prefix +
@@ -221,7 +221,7 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
     };
 }
 
-std::string create_sim_demo_name(const simulation& s, std::string prefix = "", std::string suffix = "")
+std::string create_sim_demo_name(const simulation& s, std::string prefix, std::string suffix)
 {
     return  std::string{
         prefix +

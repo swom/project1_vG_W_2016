@@ -156,7 +156,7 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
 
 ///Creates the name of a funders_success .csv file given
 /// a simulation, or the simulation's seed and change_frequency
-std::string create_funders_success_name(const simulation& s);
+std::string create_funders_success_name(const simulation& s, std::string prefix = "", std::string suffix = "");
 std::string create_funders_success_name(int seed, int change_freq);
 
 ///Creates the name for the last population of an
@@ -181,7 +181,7 @@ std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int
 ///Creates a name for the file where
 /// the deomgraphic of the evolving population
 /// in random environment is saved
-std::string create_sim_demo_name(const simulation& s);
+std::string create_sim_demo_name(const simulation& s, std::string prefix = "", std::string suffix = "");
 
 ///Creates a name for the file where the parameters
 /// of the evolving population in random environment is saved
