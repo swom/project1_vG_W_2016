@@ -12,7 +12,7 @@ public:
               double treshold_energy = 10,
               double uptake_rate = 0.1,
               double uptake_rate_mean = 0.1,
-              double uptake_rate_var = 0, //.006, //value which avoids pop to reach cap for sure for sure
+              double uptake_rate_var = 0.00000, //.006, //value which avoids pop to reach cap for sure for sure
               double metabolic_rate = 0.01,
               double reproduction_prob = 0.5,
               double reproduction_prob_mean = 0.5,

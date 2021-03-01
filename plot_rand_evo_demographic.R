@@ -14,7 +14,7 @@ hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
 
 
 #####read data####
-setwd(hd_rand_evo_no_upt)
+setwd(hd_rand_evo)
 demographic = data.frame()
 
 
@@ -50,12 +50,17 @@ demographic$n_timesteps = as.numeric(demographic$n_timesteps)
 
 # create new columns for ratio of spore produced and starting production
 demographic = demographic %>%
-  group_by(seed,condition,cycle) %>%
+  group_by(seed,condition,cycle, change_freq) %>%
   mutate(total_n = sum(c_across(c(spore, sporu, active)))) %>% 
   ungroup() %>%
   group_by(condition,cycle) %>%
   mutate(
     "ratio_value" = spore / max(spore)
+  ) %>%
+  ungroup() %>%
+  group_by(condition,cycle, seed) %>%
+  mutate(
+    "change_value" = spore / spore[min(cycle)] - 1
   ) %>%
   ungroup() %>%
   group_by(condition, seed) %>%
@@ -67,7 +72,7 @@ demographic = demographic %>%
   group_by(condition) %>%
   mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
   mutate("overall_r_value" = spore / max(spore)) %>% 
-ungroup()
+  ungroup()
 
 hd_demographic  = demographic
 save(hd_demographic, file = "hd_rand_evo_demo.R")
@@ -119,8 +124,10 @@ ggplot(data = plot_tmstps)+
   geom_smooth(aes(x = value, y = total_n))+
   facet_grid(.  ~ variable )
 
-c = plot_tmstps %>% 
-  filter(variable == "env_p_10")
+c = dem %>% 
+  filter(total_n > 11000) %>% 
+  select(spore, sporu, active, total_n, n_timesteps)
+
 
 
 ####subset only those simulation where pop cap is never reached####
@@ -258,12 +265,19 @@ sections_ov_value = unique(
      seq(ov_qntl[2], ov_qntl[4], length = as.integer(n_colors/3 + 1) ),
      seq(ov_qntl[4], ov_qntl[5], length = as.integer(n_colors/3) )))
 
-####for ratio_value
+####for ratio_value cluster
 rv_qntl = quantile(dem$ratio_value)
 sections_rv_value = unique(
   c( seq(rv_qntl[1], rv_qntl[2], length = as.integer(n_colors/3 + 4)),
      seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 + 1)),
      seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 ))))
+
+####for ratio_value trend plot
+rv_qntl = quantile(dem$ratio_value)
+sections_rv_value_plot = unique(
+  c( seq(rv_qntl[1], rv_qntl[2], length = as.integer(n_colors/3 - 2)),
+     seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 - 1)),
+     seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 + 8))))
 
 ####for value
 v_qntl = quantile(dem$spore)
@@ -275,7 +289,7 @@ sections_v_value = unique(
 
 ###Plotting ratio-value beginning and end plus points of value####
 
-ggplot(data = dem_all_tmstps) +
+ggplot(data = dem_all_tmstps %>% pivot_longer(c(spore, sporu, active, total_n))) +
   # geom_rect(aes(ymin=min(spore),
   #               ymax= max(spore)  + 1,
   #               xmin=min(cycle),
@@ -287,14 +301,33 @@ ggplot(data = dem_all_tmstps) +
   #               xmax= max(cycle),
   #               fill = ratio_end_production), alpha =0.5) +
   # geom_point(aes(cycle,spore)) +
-  # scale_fill_gradientn("Ratio",colors = cubehelix(10)) +
-  geom_line(aes(cycle,spore)) +
+# scale_fill_gradientn("Ratio",colors = cubehelix(10)) +
+geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../research presentation/rv_s_e_p_only_complete_cycle.png",
-       width = 50,
-       height = 30, 
-       units = "cm")
+ggsave("../research presentation/rv_s_e_p_only_complete_cycle.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm",
+       limitsize = F)
+####Plotting improvement value and ratio value####
+
+ggplot(data = dem %>% pivot_longer(c(change_value,ratio_value))) +
+  geom_rect(data = dem, 
+            aes(xmin=cycle,
+                xmax=cycle+1,
+                ymin=min(min(change_value),min(ratio_value)),
+                ymax=max(max(change_value),max(ratio_value)), 
+                fill = ratio_value)) +
+  geom_line(aes(cycle, value, color = name)) +
+  scale_fill_gradientn("Ratio",colors = cub_hel, breaks = rv_qntl) +
+  facet_grid(seed ~ condition)
+
+ggsave("../research presentation/improvement+ratio_only_complete_cycle.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm",
+       limitsize = F)
 
 ####Plotting diff between rvalue end vs start normalized####
 ggplot(data = dem%>% subset(cycle == max(cycle))) +
@@ -372,44 +405,44 @@ end_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_end)))))
 #clust_Start
 #plot start with clust_start
 heatmap.2(as.matrix(clust_dem_start) ,
-        Rowv = start_clust_row,
-        Colv = start_clust_col,
-        scale = "none",
-        trace = "none",
-        col = rbg, 
-        breaks = sections_rv_value,
-        main = "start_c_start")
+          Rowv = start_clust_row,
+          Colv = start_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg, 
+          breaks = sections_rv_value,
+          main = "start_c_start")
 
 #plot end with clust_start
 heatmap.2(as.matrix(clust_dem_end) ,
-        Rowv = start_clust_row,
-        Colv = start_clust_col,
-        scale = "none",
-        trace = "none",
-        col = rbg, 
-        breaks = sections_rv_value,
-        main = "end_c_start")
+          Rowv = start_clust_row,
+          Colv = start_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg, 
+          breaks = sections_rv_value,
+          main = "end_c_start")
 
 #clust_end
 #plot start with clust_end
 heatmap.2(as.matrix(clust_dem_start) ,
-        Rowv = end_clust_row,
-        Colv = end_clust_col,
-        scale = "none",
-        trace = "none",
-        col = rbg, 
-        breaks = sections_rv_value,
-        main = "start_c_end")
+          Rowv = end_clust_row,
+          Colv = end_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg, 
+          breaks = sections_rv_value,
+          main = "start_c_end")
 
 #plot end with clust_end
 heatmap.2(as.matrix(clust_dem_end) ,
-        Rowv = end_clust_row,
-        Colv = end_clust_col,
-        scale = "none",
-        trace = "none",
-        col = rbg, 
-        breaks = sections_rv_value,
-        main = "end_c_end")
+          Rowv = end_clust_row,
+          Colv = end_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg, 
+          breaks = sections_rv_value,
+          main = "end_c_end")
 
 #plot in loop for all cycle and save images
 for(cycle_n in min(dem$cycle) : max(dem$cycle))
@@ -428,13 +461,13 @@ for(cycle_n in min(dem$cycle) : max(dem$cycle))
   
   #by keeping clustering structure fixed
   heatmap.2(as.matrix(clust_dem) ,
-          Rowv = start_clust_row,
-          Colv = start_clust_col,
-          scale = "none",
-          trace = "none",
-          col = rbg, 
-          breaks = sections_rv_value,
-          main = cycle_n)
+            Rowv = start_clust_row,
+            Colv = start_clust_col,
+            scale = "none",
+            trace = "none",
+            col = rbg, 
+            breaks = sections_rv_value,
+            main = cycle_n)
   
   dev.off() 
 }
@@ -471,45 +504,45 @@ end_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_ov_end)))))
 #clust_Start
 #plot start with clust_start
 heatmap.2(as.matrix(clust_dem_ov_start) ,
-        Rowv = start_clust_row,
-        Colv = start_clust_col,
-        scale = "none",
-        trace = "none",
-        col = rbg,
-        breaks = sections_ov_value)
+          Rowv = start_clust_row,
+          Colv = start_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg,
+          breaks = sections_ov_value)
 
 
 
 #plot end with clust_start
 heatmap.2(as.matrix(clust_dem_ov_end) ,
-        Rowv = start_clust_row,
-        Colv = start_clust_col,
-        scale = "none",
-        trace = "none",
-        col = rbg,
-        main = "end_c_start",
-        breaks = sections_ov_value)
+          Rowv = start_clust_row,
+          Colv = start_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg,
+          main = "end_c_start",
+          breaks = sections_ov_value)
 
 #clust_end
 #plot start with clust_end
 heatmap.2(as.matrix(clust_dem_ov_start) ,
-        Rowv = end_clust_row,
-        Colv = end_clust_col,
-        scale = "none",
-        trace = "none",
-        col = cub_hel,
-        main = "start_c_end",
-        breaks = sections_ov_value)
+          Rowv = end_clust_row,
+          Colv = end_clust_col,
+          scale = "none",
+          trace = "none",
+          col = cub_hel,
+          main = "start_c_end",
+          breaks = sections_ov_value)
 
 #plot end with clust_end
 heatmap.2(as.matrix(clust_dem_ov_end) ,
-        Rowv = end_clust_row,
-        Colv = end_clust_col,
-        scale = "none",
-        trace = "none",
-        col = cub_hel,
-        main = "end_c_end",
-        breaks = sections_ov_value)
+          Rowv = end_clust_row,
+          Colv = end_clust_col,
+          scale = "none",
+          trace = "none",
+          col = cub_hel,
+          main = "end_c_end",
+          breaks = sections_ov_value)
 
 #plot in loop for all cycle and save images
 for(cycle_n in min(dem$cycle) : max(dem$cycle))
@@ -528,13 +561,13 @@ for(cycle_n in min(dem$cycle) : max(dem$cycle))
   
   #by keeping clustering structure fixed
   heatmap.2(as.matrix(clust_dem) ,
-          Rowv = start_clust_row,
-          Colv = start_clust_col,
-          scale = "none",
-          trace = "none",
-          col = rbg, 
-          main = cycle_n,
-          breaks = sections_ov_value)
+            Rowv = start_clust_row,
+            Colv = start_clust_col,
+            scale = "none",
+            trace = "none",
+            col = rbg, 
+            main = cycle_n,
+            breaks = sections_ov_value)
   
   dev.off() 
 }
@@ -648,7 +681,7 @@ clust_delta = dem %>%
 
 
 heatmap.2(as.matrix(clust_delta) , scale = "none",
-        col = rbg)
+          col = rbg)
 
 #plot it next to start ratio_value
 par(mfrow=c(1,2))
@@ -656,18 +689,18 @@ layout(matrix(c(1,2), 1, 2, byrow = FALSE))
 
 #by keeping clustering structure fixed
 heatmap.2(as.matrix(clust_dem_start) ,
-        Rowv = start_clust_row,
-        Colv = start_clust_col,
-        scale = "none",
-        col = cub_hel, 
-        main = "start_ratio_value")
+          Rowv = start_clust_row,
+          Colv = start_clust_col,
+          scale = "none",
+          col = cub_hel, 
+          main = "start_ratio_value")
 #by keeping clustering structure fixed
 heatmap.2(as.matrix(clust_delta) ,
-        Rowv = start_clust_row,
-        Colv = start_clust_col,
-        scale = "none",
-        col = cub_hel, 
-        main = "delta_ratio_value")
+          Rowv = start_clust_row,
+          Colv = start_clust_col,
+          scale = "none",
+          col = cub_hel, 
+          main = "delta_ratio_value")
 
 ####Plotting variance of production over time for conditions####
 var_demo = dem %>% 
