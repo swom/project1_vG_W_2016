@@ -1,6 +1,6 @@
 #ifndef SIM_PARAMETERS_H
 #define SIM_PARAMETERS_H
-#include"env_param.h"
+#include"env_changer.h"
 #include"pop_param.h"
 #include"meta_param.h"
 
@@ -9,24 +9,11 @@
 class sim_param
 {
 public:
-    sim_param(unsigned int start_pop_size = 1,
-              unsigned int exp_new_pop_size = 1,
-              double min_dist = 0.1,
-              int grid_side = 1,
-              double diff_coeff = 0.1,
-              double init_food = 1.0,
-              double mutation_prob = 0.01,
-              double mutation_step = 0.1,
-              double base_disp_prob = 0.01,
-              double spore_advantage = 10.0,
-              double reproduction_prob = 0.1,
-              double metab_degrad_rate = 0.1
-            , int n_cycles = 1, int cycle_duration = 2);
 
-    sim_param(env_param e, ind_param i, meta_param m, pop_param p);
+    sim_param(env_changer e, ind_param i, meta_param m, pop_param p);
 
     ///Gets const reference to population parameter
-    const env_param& get_env_param() const noexcept {return m_env_param;}
+    const env_changer& get_env_changer() const noexcept {return m_env_changer;}
 
     ///Gets const reference to metaparameters
     const meta_param& get_meta_param() const noexcept {return  m_meta_param;}
@@ -41,7 +28,7 @@ public:
 private:
 
     ///Parameters for the environment
-    env_param m_env_param;
+    env_changer m_env_changer;
 
     ///Parameters pertaining individuals
     ind_param m_ind_param;

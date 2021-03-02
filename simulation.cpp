@@ -11,7 +11,8 @@
 
 simulation::simulation(sim_param param):
     m_pop(param.get_pop_param(), param.get_ind_param()),
-    m_e{param.get_env_param()},
+    m_e{param.get_env_changer().get_mean_params()},
+    m_env_changer{param.get_env_changer()},
     m_meta_param{param.get_meta_param()}
 {
     m_rng.seed(m_meta_param.get_seed());
@@ -314,8 +315,6 @@ void dispersal(simulation &s)
 
 void exec_cycle(simulation& s) noexcept
 {
-    auto rand_start = std::chrono::high_resolution_clock::now();
-
     add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
           s.get_pop().get_pop_size() < s.get_meta_param().get_pop_max())
@@ -325,11 +324,6 @@ void exec_cycle(simulation& s) noexcept
     add_success_funders(s);
     store_demographics(s);
     dispersal(s);
-
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float>(stop - rand_start);
-    std::cout<< "random_cond_evo cycle n " << s.get_cycle() <<
-                ":" << duration.count() << "s" << std::endl;
 }
 
 void exec(simulation& s) noexcept
@@ -683,7 +677,7 @@ demographic_sim run_test_random_conditions(const simulation& s,
 }
 
 demographic_sim run_evo_random_conditions(const simulation& s,
-                                          int n_number_rand_cond,
+                                          int number_rand_cond,
                                           int pop_max,
                                           double amplitude,
                                           int n_rand_cond,
@@ -692,7 +686,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
                 ind_param{},
-                n_number_rand_cond,
+                number_rand_cond,
                 amplitude,
                 0);
 
@@ -824,7 +818,7 @@ int run_sim_rand(double amplitude,
 
 int run_sim_evo_rand(double amplitude,
                      int change_frequency,
-                     int n_random_conditions,
+                     int number_random_conditions,
                      int pop_max,
                      int seed,
                      int rand_cond_n,
@@ -844,7 +838,7 @@ int run_sim_evo_rand(double amplitude,
 
     auto start = std::chrono::high_resolution_clock::now();
     run_evo_random_conditions(s,
-                              n_random_conditions,
+                              number_random_conditions,
                               pop_max,
                               amplitude,
                               rand_cond_n,
@@ -932,7 +926,7 @@ void save_data(const simulation& s)
 {
     std::string sim_param_name = create_sim_par_name(s);
 
-    sim_param s_p{s.get_env().get_param(),
+    sim_param s_p{s.get_env_changer(),
                 s.get_pop().get_ind(0).get_param(),
                 s.get_meta_param(),
                 s.get_pop().get_param()};

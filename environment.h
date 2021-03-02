@@ -2,7 +2,7 @@
 #define ENVIRONMENT_H
 #include "vector"
 #include "env_grid_cell.h"
-#include "env_param.h"
+#include "env_changer.h"
 
 class environment
 {

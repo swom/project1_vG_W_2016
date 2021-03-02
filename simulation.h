@@ -14,7 +14,11 @@ class simulation
 {
 public:
 
-    simulation(sim_param param = sim_param());
+    simulation(sim_param param = sim_param{
+            env_changer{},
+            ind_param{},
+            meta_param{},
+            pop_param{}});
 
     ///Returns const ref to the data structure containing the
     /// demographics of the population at different points in time
@@ -29,6 +33,9 @@ public:
 
     ///Gets the reference to environment of a simulation
     environment& get_env() noexcept {return m_e;}
+
+    ///Get const ref to environamental changer
+    const env_changer& get_env_changer() const  noexcept {return m_env_changer;}
 
     ///Gets const ref to the funders_success object
     const funders_success& get_funders_success() const noexcept {return m_funder_success;}
@@ -96,6 +103,9 @@ private:
 
     ///The environment class containing the grid where substances(food, metabolite) are
     environment m_e;
+
+    ///The env_changer
+    env_changer m_env_changer;
 
     ///The metaparameters of a simulation: how many cycles, how long each cycle etc.
     meta_param m_meta_param;
@@ -288,16 +298,16 @@ void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, in
 /// starting from the last population of a previous simulation
 /// in a given random condition
 int run_sim_evo_rand(double amplitude,
-                 int change_frequency,
-                 int n_random_conditions,
-                 int pop_max,
-                 int seed,
-                 int rand_cond_n,
-                 bool overwrite);
+                     int change_frequency,
+                     int n_random_conditions,
+                     int pop_max,
+                     int seed,
+                     int rand_cond_n,
+                     bool overwrite);
 
 ///Runs an evolution simulation in a given random condition
 demographic_sim run_evo_random_conditions(const simulation& rand_s,
-                                          int n_number_rand_cond,
+                                          int number_rand_cond,
                                           int pop_max,
                                           double amplitude,
                                           int n_rand_cond,
@@ -384,7 +394,7 @@ funders save_last_pop(const simulation& s, const std::string &prefix);
 /// disinguish last pops coming from different kinds of simulations
 std::vector<funders> save_two_last_pops(const simulation& s, const std::string &prefix = "");
 
- ///All individuals secrete metabolite into environment
+///All individuals secrete metabolite into environment
 void secretion_metabolite(simulation& s);
 
 ///Changes the demographic cycle object with a mroe recent one

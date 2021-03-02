@@ -1,4 +1,12 @@
-#include"tests.h"
+#include"test_simulation.h"
+
+void test_env_changer_init(){
+
+    env_changer ec{};
+    simulation s{sim_param{ec, ind_param{}, meta_param{}, pop_param{}}};
+
+    assert(s.get_env_changer() == ec);
+}
 
 void test_simulation()//!OCLINT tests may be many
 {
@@ -6,36 +14,33 @@ void test_simulation()//!OCLINT tests may be many
 
     //A simulation can be initialized by getting a sim_parmater class as an argument
     {
-        unsigned int pop_size = 1;
-        unsigned int exp_new_pop_size = 1;
-        double min_dist = 0.1;
         int grid_side = 1;
         double diff_coeff = 0.1;
         double init_food = 1.0;
+        double metab_degr_rate = 0.1;
+        env_param e{grid_side,diff_coeff, init_food, metab_degr_rate};
+
+        unsigned int pop_size = 1;
+        unsigned int exp_new_pop_size = 1;
+        double min_dist = 0.1;
         double mutation_prob = 0.01;
         double mutation_step = 0.1;
         double base_disp_prob = 0.01;
         double spore_advantage = 10.0;
-        double repr_trsh = 0.1;
-        double metab_degr_rate = 0.1;
+        pop_param p{pop_size,
+                    exp_new_pop_size,
+                    min_dist,
+                    mutation_prob,
+                    mutation_step,
+                    base_disp_prob,
+                    spore_advantage};
+
         int n_cycles = 42;
         int cycle_duration = 5;
+        meta_param m{n_cycles, cycle_duration};
 
-        sim_param s_p(pop_size,
-                      exp_new_pop_size,
-                      min_dist,
-                      grid_side,
-                      diff_coeff,
-                      init_food,
-                      mutation_prob,
-                      mutation_step,
-                      base_disp_prob,
-                      spore_advantage,
-                      repr_trsh,
-                      metab_degr_rate,
-                      n_cycles,
-                      cycle_duration
-                      );
+
+        sim_param s_p{e,ind_param{}, m, p};
         simulation s(s_p);
         //tests for pop_param
         assert(s.get_pop().get_v_ind().size() == pop_size);
@@ -75,17 +80,18 @@ void test_simulation()//!OCLINT tests may be many
 
     //A simulation can be initialized with a certain amount
     //of food in all the cells of its environment grid
-    //1 by default
+    //10 by default
     {
         simulation s;
         for( auto& grid_cell : s.get_env().get_grid())
         {
-            assert(grid_cell.get_food() - 1 < 0.000001
-                   && grid_cell.get_food() - 1 > -0.0000001);
+            assert(grid_cell.get_food() - 10 < 0.000001
+                   && grid_cell.get_food() - 10 > -0.0000001);
         }
 
         double starting_food = 3.14;
-        simulation s1 (sim_param{1, 1, 1, 1, 0.1, starting_food});
+        env_changer e{env_param{1,0.01,starting_food}};
+        simulation s1 (sim_param{e, ind_param{}, meta_param{}, pop_param{}});
         for( auto& grid_cell : s1.get_env().get_grid())
         {
             assert(grid_cell.get_food() - starting_food < 0.000001
@@ -95,7 +101,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //Individuals can take up energy from the environment
     {
-        simulation s(sim_param{1,1,0.1,2});
+        simulation s(sim_param{env_changer{}, ind_param{}, meta_param{}, pop_param{}});
         double total_food_init = std::accumulate
                 (
                     s.get_env().get_grid().begin(),
@@ -144,7 +150,7 @@ void test_simulation()//!OCLINT tests may be many
 
     //Individuals outside the grid do not feed
     {
-        simulation s(sim_param{1,1,0.1,2});
+        simulation s(sim_param{env_changer{}, ind_param{}, meta_param{}, pop_param{}});
 
         double total_food_init = std::accumulate
                 (
@@ -189,7 +195,9 @@ void test_simulation()//!OCLINT tests may be many
     //determine phenotype(based on previous timestep),
     // feed, than reproduce, than substances diffuse
     {
-        simulation s(sim_param{1,1,0.1,3,1,1,0});
+        //create a grid with side bigger than 1
+        int grid_side = 2;
+        simulation s(sim_param{env_changer{env_param{grid_side}}, ind_param{}, meta_param{}, pop_param{}});
         //Set all the hid nodes and H2O and H2H weights to one so
         //that we are sure the phenotype will stay = active;
         for(auto& ind : s.get_pop().get_v_ind())
@@ -338,7 +346,8 @@ void test_simulation()//!OCLINT tests may be many
     //A simulation is initiallized with a degradation rate
     {
         double degradation_rate = 0.314;
-        simulation s(sim_param{0,0,0,0,1,0,0,0,0,0,0,degradation_rate});
+        env_param e{1,0.01,0,degradation_rate};
+        simulation s(sim_param{env_changer{e}, ind_param{}, meta_param{}, pop_param{}});
         assert(s.get_env().get_param().get_degr_rate() - degradation_rate < 0.000001 &&
                s.get_env().get_param().get_degr_rate() - degradation_rate > -0.000001);
     }
@@ -346,7 +355,8 @@ void test_simulation()//!OCLINT tests may be many
     {
         double degradation_rate = 0.314;
         double init_metab = degradation_rate;
-        simulation s(sim_param{1,0,0,1,1,0,0,0,0,0,0,degradation_rate});
+        env_param e{1,0.01,0,degradation_rate};
+        simulation s(sim_param{env_changer{e}, ind_param{}, meta_param{}, pop_param{}});
 
         for(auto& grid_cell : s.get_env().get_grid())
         {
@@ -387,7 +397,10 @@ void test_simulation()//!OCLINT tests may be many
 
     //every timestep/tick collisions are handled
     {
-        simulation s(sim_param{7,3});
+        pop_param p{7};
+        env_param e{3};
+        simulation s(sim_param{env_changer{e}, ind_param{}, meta_param{}, p});
+
         //The central individual in this population
         //after a tick should reproduce
         auto init_pop_size = s.get_pop().get_v_ind().size();
@@ -573,9 +586,13 @@ void test_simulation()//!OCLINT tests may be many
     {
         unsigned int pop_size = 1000;
         unsigned int new_pop_size = 100;
+
         auto food = 42.1;
         auto metabolite = 42.1;
-        simulation s(sim_param{pop_size,new_pop_size});
+
+        pop_param p{pop_size, new_pop_size};
+        simulation s(sim_param{env_changer{}, ind_param{}, meta_param{}, p});
+
         for(auto& grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(food);
@@ -643,7 +660,11 @@ void test_simulation()//!OCLINT tests may be many
         double food_amount = 3.14;
         double metabolite_amount = 3.14;
         double energy_amount = 3.14;
-        simulation s(sim_param{2,1,0.1,4});
+
+        pop_param p{2};
+        env_param e{4};
+        simulation s(sim_param{env_changer{e}, ind_param{}, meta_param{}, p});
+
         for(auto & grid_cell : s.get_env().get_grid())
         {
             grid_cell.set_food(food_amount);
@@ -704,10 +725,10 @@ void test_simulation()//!OCLINT tests may be many
     //It is possible to extract the demographic state of a population
     {
         env_param e;
-        ind_param i;
+        ind_param i_p;
         meta_param m;
         pop_param p{0};
-        sim_param sp{e,i,m,p};
+        sim_param sp{e,i_p,m,p};
         simulation s{sp};
         assert(s.get_pop().get_pop_size() == 0);
 
@@ -753,14 +774,14 @@ void test_simulation()//!OCLINT tests may be many
         int change_freq = 4567;
         int funders_generation = 1;
         meta_param m{3,
-                    2,
-                    seed,
-                    change_freq};
+                     2,
+                     seed,
+                             change_freq};
 
         env_param e;
-        ind_param i;
+        ind_param i_p;
         pop_param p;
-        sim_param sp{e,i,m,p};
+        sim_param sp{e,i_p,m,p};
         simulation s{sp};
 
         exec(s);
@@ -1520,6 +1541,7 @@ void test_simulation()//!OCLINT tests may be many
 
     }
 
+    test_env_changer_init();
 #endif
 }
 

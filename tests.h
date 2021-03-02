@@ -3,7 +3,7 @@
 
 #include<cassert>
 
-#include "simulation.h"
+#include "test_simulation.h"
 
 void test_all();
 
