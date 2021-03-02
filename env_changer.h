@@ -29,5 +29,8 @@ bool operator==(const env_changer& lhs, const env_changer& rhs) noexcept;
 
 bool operator!=(const env_changer& lhs, const env_changer& rhs) noexcept;
 
+env_changer load_env_changer(const std::string& filename);
+
+void save_env_changer(const env_changer& p, const std::string& filename);
 
 #endif // ENV_CHANGER_H

@@ -1,5 +1,6 @@
 #include "test_env_changer.h"
 #include <cassert>
+#include <random>
 
 ///An env_changer is constructed with env_param and an amplitude
 void test_e_c_constructor(){
@@ -45,6 +46,7 @@ void test_max_amplitude(){
 void test_env_changer(){
 
     test_e_c_constructor();
+    test_ec_load_save();
     test_legal_amplitude();
     test_max_amplitude();
     test_change();
@@ -52,6 +54,7 @@ void test_env_changer(){
 }
 
 //env_param object can be loaded and saved to a given file name
+void test_ec_load_save()
 {
     int grid_side = 666;
     double diff_coeff = 0.12;
@@ -62,7 +65,7 @@ void test_env_changer(){
     double var_diff_coeff = 0.05;
     double var_degr_rate = 0.012;
 
-    env_param p{grid_side,
+    env_param e{grid_side,
                 diff_coeff,
                 init_food,
                 metab_degrad_rate,
@@ -71,21 +74,19 @@ void test_env_changer(){
                 var_diff_coeff,
                 var_degr_rate};
 
+    double amplitude = 3.14;
+
+    env_changer ec{e, amplitude};
     //Test load and save
-    const std::string filename = "env_param.csv";
-    save_env_parameters(p, filename);
-    const env_param q = load_env_parameters(filename);
-    assert(p == q);
+    const std::string filename = "env_changer.csv";
+    save_env_changer(ec, filename);
+    const env_changer q = load_env_changer(filename);
+    assert(ec == q);
     //Test >> operator overload
     std::ifstream f(filename);
     env_param s;
     f >> s;
-    assert(s == p);
-}
-{
-    const env_param p;
-    std::ostringstream s;
-    s << p;
+    assert(s == ec);
 }
 
 ///Environmental parameters can be changed
@@ -98,6 +99,9 @@ void test_env_changer(){
 ///
 /// For the uniform dostribution the range is:
 /// [m_mean* - 3 * m_var, m_mean + 3 * m_var]
+///
+///
+void test_change_of_env()
 {
     std::random_device r;
     std::minstd_rand rng{r()};
@@ -155,6 +159,8 @@ void test_env_changer(){
 /// It is possible to create env_ param object
 /// starting from initial ones,
 /// that have a wider range of possible values
+///
+void test_change_of_amplitude()
 {
     env_param e;
     double amplitude = 1.50;

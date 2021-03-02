@@ -38,3 +38,24 @@ bool operator!=(const env_changer& lhs, const env_changer& rhs) noexcept
 {
 return !(lhs == rhs);
 }
+
+void save_env_changer(
+        const env_changer& p,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    f << p;
+}
+
+env_changer load_env_changer(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    env_changer e;
+    f >> e;
+
+    return e;
+}
+
