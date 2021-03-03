@@ -1,0 +1,33 @@
+on:
+  push:
+  pull_request:
+
+name: check
+
+jobs:
+  check:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+
+      - name: Install Codecov
+        run: sudo pip install codecov
+
+      - name: qmake
+        run: qmake simulation_test.pro
+
+      - name: make
+        run: make debug --silent
+
+      - name: run
+        run: ./simulation_test
+
+      - name: Measure codecov
+        run:
+          ./get_code_cov.sh >/dev/null
+          codecov >/dev/null
+          bash <(curl -s https://codecov.io/bash)
+
