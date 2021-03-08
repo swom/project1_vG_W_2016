@@ -117,4 +117,13 @@ void test_env_param() noexcept //!OCLINT
         assert(e.get_var_diff_coeff() - (e2.get_var_diff_coeff() / amplitude) < 0.00001
                && e.get_var_diff_coeff() - (e2.get_var_diff_coeff() / amplitude) > -0.00001);
     }
+
+    ///Saving to json is possible
+    {
+       std::string name = "json_env_test.json";
+       env_param e;
+       save_env_parameters_json(e, name);
+       auto e1 = load_env_parameters_json(name);
+       assert(e == e1);
+    }
 }

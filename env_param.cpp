@@ -1,4 +1,5 @@
 #include "env_param.h"
+#include "json.hpp"
 #include <cassert>
 
 env_param::env_param(int grid_side,
@@ -32,9 +33,10 @@ env_param::env_param(int grid_side,
     assert(m_mean_degr_rate - m_var_degr_rate * 3 > -0.0000000001);
 }
 
+
+
 std::ostream& operator<<(std::ostream& os, const env_param& e)
 {
-
 
     os << e.get_grid_side() << " , "
        << e.get_init_food() << " , "
@@ -48,8 +50,9 @@ std::ostream& operator<<(std::ostream& os, const env_param& e)
     return os;
 }
 
-std::ifstream& operator>>(std::ifstream& is, env_param& e)
+std::ifstream& operator >>(std::ifstream& is, env_param& e)
 {
+
     int grid_side;
     double diff_coeff;
     double init_food;
@@ -144,7 +147,7 @@ env_param change_range_env_param(const env_param& e, double amplitude)
                 e.get_mean_degr_rate(),
                 e.get_var_diff_coeff() * amplitude,
                 e.get_var_degr_rate() * amplitude}
-            ;
+    ;
     return env;
 }
 
@@ -155,6 +158,29 @@ void save_env_parameters(
 {
     std::ofstream f(filename);
     f << p;
+}
+
+void save_env_parameters_json(
+        const env_param& p,
+        const std::string& filename
+        )
+{
+    std::ofstream os(filename);
+    nlohmann::json json_out;
+    json_out = p;
+    os << json_out;
+}
+
+env_param load_env_parameters_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    env_param e;
+    nlohmann::json json_in;
+    f >> json_in;
+
+    return e = json_in;
 }
 
 env_param load_env_parameters(

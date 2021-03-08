@@ -71,6 +71,17 @@ void save_meta_parameters(
     f << p;
 }
 
+void save_meta_parameters_json(
+        const meta_param& p,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    nlohmann::json json_out;
+    json_out = p;
+    f << json_out;
+}
+
 meta_param load_meta_parameters(
         const std::string& filename
         )
@@ -78,6 +89,19 @@ meta_param load_meta_parameters(
     std::ifstream f(filename);
     meta_param p;
     f >> p;
+
+    return p;
+}
+
+meta_param load_meta_parameters_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    meta_param p;
+    nlohmann::json json_in;
+    f >> json_in;
+    p = json_in;
 
     return p;
 }

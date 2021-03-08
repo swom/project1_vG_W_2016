@@ -2,14 +2,42 @@
 #include <cassert>
 #include <random>
 
-///An env_changer is constructed with env_param and an amplitude
+void test_env_changer(){
+
+    test_e_c_constructor();
+    test_ec_load_save();
+    test_legal_amplitude();
+    test_max_amplitude();
+    test_change();
+
+}
+
+///An env_changer is constructed with:
+///  env_param,
+///  amplitude,
+///  rng_seed,
+///  var_diff_coeff,
+/// var_degr_rate
 void test_e_c_constructor(){
 
     env_param intial_mean_params{};
+
     double amplitude = 1.2345456;
-    env_changer ec{intial_mean_params, amplitude};
+    int seed = 0;
+    double var_diff_coeff = 0.123;
+    double var_degr_rate = 0.456;
+
+    env_changer ec{intial_mean_params,
+                amplitude,
+                seed,
+                var_degr_rate,
+                var_diff_coeff};
+
     assert(ec.get_amplitude() == amplitude);
     assert(ec.get_mean_params() == intial_mean_params);
+    assert(ec.get_rng()() == std::minstd_rand(seed)());
+    assert(ec.get_var_diff() == var_diff_coeff);
+    assert(ec.get_var_degr() == var_degr_rate);
 }
 
 ///An env_changer can produce an env_param object that
@@ -20,7 +48,7 @@ void test_change() {
     double amplitude = 0.2;
     env_changer ec{env_param{}, amplitude};
 
-//    change
+    //    change
 }
 
 ///The maximum amplitude can be 1
@@ -40,18 +68,10 @@ void test_max_amplitude(){
     int repeats = 10000;
     for(int i = 0; i!= repeats; i++)
     {
-//    change_env(ec);
+        //    change_env(ec);
     }
 }
-void test_env_changer(){
 
-    test_e_c_constructor();
-    test_ec_load_save();
-    test_legal_amplitude();
-    test_max_amplitude();
-    test_change();
-
-}
 
 //env_param object can be loaded and saved to a given file name
 void test_ec_load_save()
@@ -75,8 +95,15 @@ void test_ec_load_save()
                 var_degr_rate};
 
     double amplitude = 3.14;
+    int seed = 132;
 
-    env_changer ec{e, amplitude};
+
+    env_changer ec{e,
+                amplitude,
+                seed,
+                var_degr_rate,
+                var_diff_coeff};
+
     //Test load and save
     const std::string filename = "env_changer.csv";
     save_env_changer(ec, filename);
@@ -84,7 +111,7 @@ void test_ec_load_save()
     assert(ec == q);
     //Test >> operator overload
     std::ifstream f(filename);
-    env_param s;
+    env_changer s;
     f >> s;
     assert(s == ec);
 }

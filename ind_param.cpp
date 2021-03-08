@@ -254,6 +254,51 @@ ind_param change_range_ind_param(ind_param i, double amplitude)
     return i;
 }
 
+void to_json(nlohmann::json& j, const ind_param& t)
+{
+    j = nlohmann::json{
+    {"radius", t.get_base_radius()},
+    {"treshold_energy", t.get_treshold_energy()},
+    {"uptake_rate", t.get_uptake_rate()},
+    {"uptake_rate_mean", t.get_uptake_mean()},
+    {"uptake_rate_var", t.get_uptake_var()},
+    {"metabolic_rate", t.get_metabolic_rate()},
+    {"reproduction_prob", t.get_repr_prob()},
+    {"reproduction_prob_mean", t.get_repr_prob_mean()},
+    {"reproduction_prob_var", t.get_repr_prob_var()},
+    {"spor_metabolic_rate", t.get_spor_metabolic_rate()},
+    {"spor_metabolic_rate_mean", t.get_spor_metabolic_rate_mean()},
+    {"spor_metabolic_rate_var", t.get_spor_metabolic_rate_var()},
+    {"transformation_time", t.get_transformation_time()},
+    {"transformation_time_mean", t.get_transformation_time_mean()},
+    {"transformation_range", t.get_transformation_range()},
+    {"metab_secretion_rate", t.get_metab_secr_rate()}};
+
+}
+
+
+void from_json(const nlohmann::json& j, ind_param& t)
+{
+    t.get_base_radius() = j.at("radius").get<double>();
+    t.get_treshold_energy() = j.at("treshold_energy").get<double>();
+    t.get_uptake_rate() =  j.at("uptake_rate").get<double>();
+    t.get_uptake_mean() =  j.at("uptake_rate_mean").get<double>();
+    t.get_uptake_var() = j.at("uptake_rate_var").get<double>();
+    t.get_metabolic_rate() = j.at("metabolic_rate").get<double>();
+    t.get_repr_prob() = j.at("reproduction_prob").get<double>();
+    t.get_repr_prob_mean() =  j.at("reproduction_prob_mean").get<double>();
+    t.get_repr_prob_var() = j.at("reproduction_prob_var").get<double>();
+    t.get_spor_metabolic_rate() = j.at("spor_metabolic_rate").get<double>();
+    t.get_spor_metabolic_rate_mean() = j.at("spor_metabolic_rate_mean").get<double>();
+    t.get_spor_metabolic_rate_var() = j.at("spor_metabolic_rate_var").get<double>();
+    t.get_transformation_time() = j.at("transformation_time").get<int>();
+    t.get_transformation_time_mean() = j.at("transformation_time_mean").get<int>();
+    t.get_transformation_range() = j.at("transformation_range").get<int>();
+    t.get_metab_secr_rate() = j.at("metab_secretion_rate").get<double>();
+
+
+}
+
 void save_ind_parameters(
         const ind_param& p,
         const std::string& filename
@@ -263,6 +308,14 @@ void save_ind_parameters(
     f << p;
 }
 
+void save_ind_parameters_json(const ind_param& p,
+                              const std::string& filename)
+{
+    std::ofstream os(filename);
+    nlohmann::json json_out;
+    json_out = p;
+    os << json_out;
+}
 ind_param load_ind_parameters(
         const std::string& filename
         )
@@ -271,4 +324,16 @@ ind_param load_ind_parameters(
     ind_param p;
     f >> p;
     return p;
+}
+
+ind_param load_ind_parameters_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    ind_param p;
+    nlohmann::json json_in;
+    f >> json_in;
+
+    return p = json_in;
 }

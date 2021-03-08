@@ -54,6 +54,27 @@ void test_meta_param() noexcept //!OCLINT
         s << p;
     }
 
+    ///Meta params can be saved as json
+    {
+        int n_cycle = 34736;
+        int cycle_duration = 3267;
+        int seed = 3287;
+        int change_of_freq = 123456;
+        int pop_max = 555555;
+        int collision_chec_interval = 456789;
+
+        meta_param p{ n_cycle,
+                    cycle_duration,
+                    seed,
+                    change_of_freq,
+                    pop_max,
+                    collision_chec_interval};
+
+        const std::string filename = "meta_param.json";
+        save_meta_parameters_json(p, filename);
+        auto q = load_meta_parameters_json(filename);
+        assert(p == q);
+    }
 
 
 }

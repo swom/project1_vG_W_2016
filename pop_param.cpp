@@ -129,3 +129,26 @@ pop_param load_pop_parameters(
     return p;
 }
 
+void save_pop_parameters_json(
+        const pop_param& p,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    nlohmann::json json_out;
+    json_out = p;
+    f << json_out;
+}
+
+pop_param load_pop_parameters_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    pop_param p;
+    nlohmann::json json_in;
+    f >> json_in;
+    p = json_in;
+    return p;
+}
+

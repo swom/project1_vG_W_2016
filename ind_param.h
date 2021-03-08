@@ -4,6 +4,7 @@
 #include <fstream>
 #include <random>
 #include <sstream>
+#include "json.hpp"
 
 class ind_param
 {
@@ -28,51 +29,98 @@ public:
     ///gets the metabolic rate of an individual
     double get_metabolic_rate() const noexcept {return m_metabolic_rate;}
 
+    ///gets ref the metabolic rate of an individual
+    double& get_metabolic_rate() noexcept {return m_metabolic_rate;}
+
     ///Gets the rate of secretion of metabolite
     double get_metab_secr_rate() const noexcept{return m_metab_secr_rate;}
+
+    ///Gets the rate of secretion of metabolite
+    double& get_metab_secr_rate() noexcept{return m_metab_secr_rate;}
 
     ///gets the metabolic rate of a sporulating individual
     double get_spor_metabolic_rate() const noexcept {return m_spor_metabolic_rate;}
 
+    ///gets the metabolic rate of a sporulating individual
+    double& get_spor_metabolic_rate() noexcept {return m_spor_metabolic_rate;}
+
     ///Gets const ref to the range of all the possible sporulation metabolism values
     double get_spor_metabolic_rate_mean() const noexcept {return m_mean_spor_metabolic_rate;}
+
+    ///Gets const ref to the range of all the possible sporulation metabolism values
+    double& get_spor_metabolic_rate_mean() noexcept {return m_mean_spor_metabolic_rate;}
 
     ///Gets ref to the range of all the possible sporulation metabolism values
     double get_spor_metabolic_rate_var() const noexcept {return m_var_spor_metabolic_rate;}
 
+    ///Gets ref to the range of all the possible sporulation metabolism values
+    double& get_spor_metabolic_rate_var() noexcept {return m_var_spor_metabolic_rate;}
+
     ///gets radius of individual
     double get_base_radius() const noexcept {return m_radius;}
+
+    ///gets radius of individual
+    double& get_base_radius() noexcept {return m_radius;}
 
     ///Gets the reproduction probability of an ind once sufficient energy is gathered
     double get_repr_prob() const noexcept {return m_repr_prob;}
 
+    ///Gets the reproduction probability of an ind once sufficient energy is gathered
+    double& get_repr_prob() noexcept {return m_repr_prob;}
+
     ///Gets const ref to the range of all the possible reproduction prob values
     double get_repr_prob_mean() const noexcept {return m_mean_repr_prob;}
+
+    ///Gets  ref to the range of all the possible reproduction prob values
+    double& get_repr_prob_mean() noexcept {return m_mean_repr_prob;}
 
     ///Gets const ref to the range of all the possible reproduction prob values
     double get_repr_prob_var() const noexcept {return m_var_repr_prob;}
 
+    ///Gets ref to the range of all the possible reproduction prob values
+    double& get_repr_prob_var() noexcept {return m_var_repr_prob;}
+
     ///Gets the time it takes to transform into a spore
     int get_transformation_time() const noexcept {return m_transformation_time;}
+
+    ///Gets ref the time it takes to transform into a spore
+    int& get_transformation_time() noexcept {return m_transformation_time;}
 
     ///Gets the mean value of all possible transformation time values
     int get_transformation_time_mean() const noexcept {return m_mean_transformation_time;}
 
+    ///Gets ref the mean value of all possible transformation time values
+    int& get_transformation_time_mean() noexcept {return m_mean_transformation_time;}
+
     ///Gets range of all the possible transformation/sporulation times
-    int get_transformation_range() const noexcept
-    {return m_transformation_range;}
+    int get_transformation_range() const noexcept {return m_transformation_range;}
+
+    ///Gets range of all the possible transformation/sporulation times
+    int& get_transformation_range() noexcept {return m_transformation_range;}
 
     ///gets the food uptake_rate of an individual
     double get_uptake_rate() const noexcept {return m_uptake_rate;}
 
-    ///Gets const ref to the range of all the possible uptake values
+    ///gets Ref the food uptake_rate of an individual
+    double& get_uptake_rate() noexcept {return m_uptake_rate;}
+
+    ///Gets mean of the range of all the possible uptake values
     double get_uptake_mean() const noexcept {return  m_mean_uptake_rate;}
+
+    ///Gets  ref to the mean of the range of all the possible uptake values
+    double& get_uptake_mean() noexcept {return  m_mean_uptake_rate;}
 
     ///Gets const ref to the range of all the possible uptake values
     double get_uptake_var() const noexcept {return  m_var_uptake_rate;}
 
+    ///Gets const ref to the range of all the possible uptake values
+    double& get_uptake_var() noexcept {return  m_var_uptake_rate;}
+
     ///gets the treshold energy at which an individual reproduces
     double get_treshold_energy() const noexcept {return m_treshold_energy;}
+
+    ///gets ref the treshold energy at which an individual reproduces
+    double& get_treshold_energy() noexcept {return m_treshold_energy;}
 
     ///Sets the radius, used only in m_relax object for managing hilbert_tree collisions
     void set_radius(float r) noexcept {m_radius = static_cast<double>(r);}
@@ -192,6 +240,10 @@ ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng);
 //Initializes a instance p from a filename
 ind_param load_ind_parameters( const std::string& filename);
 
+ind_param load_ind_parameters_json(
+        const std::string& filename
+        );
+
 ///Returns a env_param whose variances are the variances
 /// of the given env_param object multiplied
 /// by a factor = amplitude
@@ -199,6 +251,9 @@ ind_param change_range_ind_param(ind_param i, double amplitude);
 
 //Saves an instance of ind_param to a file name
 void save_ind_parameters( const ind_param& p, const std::string& filename);
+
+void save_ind_parameters_json(const ind_param& p,
+                              const std::string& filename);
 
 void test_ind_param() noexcept;
 

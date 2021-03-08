@@ -2,6 +2,7 @@
 
 HEADERS += \
     $$PWD/env_changer.h \
+    $$PWD/json.hpp \
     demographic_cycle.h \
     demographic_sim.h \
     env_grid_cell.h \

@@ -56,9 +56,31 @@ void test_pop_param() noexcept  //!OCLINT
         assert(s == p);
     }
 
+    ///pop_param cna be saved to json format
     {
-        const ind_param p;
-        std::ostringstream s;
-        s << p;
+        unsigned int start_pop_size = 1;
+        unsigned int exp_new_pop_size = 1;
+        double min_dist = 0.1;
+        double mutation_prob = 0.0015;
+        double mutation_step = 0.1;
+        double base_disp_prob = 0.01;
+        double spore_advantage = 10.0;
+        double death_rate = 0.0;
+
+        pop_param p{
+            start_pop_size,
+                    exp_new_pop_size,
+                    min_dist,
+                    mutation_prob,
+                    mutation_step,
+                    base_disp_prob,
+                    spore_advantage,
+                    death_rate
+        };
+
+        std::string filename{"pop_param.json"};
+        save_pop_parameters_json(p, filename);
+        auto q = load_pop_parameters_json(filename);
+        assert(p == q);
     }
 }

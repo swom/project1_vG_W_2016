@@ -48,10 +48,49 @@ void test_ind_param() noexcept  //!OCLINT
         f >> s;
         assert(s == p);
     }
+
+    //It is possible to save in json format as well
     {
-        const ind_param p;
-        std::ostringstream s;
-        s << p;
+        double radius  = 0.8;
+        double treshold_energy = 10;
+        double uptake_rate = 0.1;
+        double uptake_rate_mean = 0.1;
+        double uptake_rate_var = 0.02;
+        double metabolic_rate = 0.01;
+        double reproduction_prob = 0.5;
+        double reproduction_prob_mean = 0.5;
+        double reproduction_prob_var = 0.07;
+        double spor_metabolic_rate = 0.5;
+        double spor_metabolic_rate_mean = 0.5;
+        double spor_metabolic_rate_var = 0.07;
+        int transformation_time = 5;
+        int transformation_time_mean = 5;
+        int transformation_range = 2;
+        double metab_secretion_rate = 1;
+        ind_param p{
+            radius,
+                    treshold_energy,
+                    uptake_rate,
+                    uptake_rate_mean,
+                    uptake_rate_var,
+                    metabolic_rate,
+                    reproduction_prob,
+                    reproduction_prob_mean,
+                    reproduction_prob_var,
+                    spor_metabolic_rate,
+                    spor_metabolic_rate_mean,
+                    spor_metabolic_rate_var,
+                    transformation_time,
+                    transformation_time_mean,
+                    transformation_range,
+                    metab_secretion_rate
+        };
+
+        std::string filename = "json_test_ind_param.json";
+        save_ind_parameters_json(p, filename);
+        auto p1 = load_ind_parameters_json(filename);
+
+        assert(p == p1);
     }
 
     //Ind parameters can be changed based one the

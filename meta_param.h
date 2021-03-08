@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include "json.hpp"
 class meta_param
 {
 public:
@@ -13,6 +13,15 @@ public:
                int change_frequency = 0,
                int pop_max = 1000000,
                int collision_check_interval = 0);
+
+    ///For creating to_json/from_json
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(meta_param,
+                                   m_n_cycles,
+                                   m_cycle_duration,
+                                   m_seed,
+                                   m_change_frequency,
+                                   m_pop_max,
+                                   m_collision_check_interval)
 
     ///Returns after how many generations
     ///  the parameters of  environment
@@ -34,7 +43,7 @@ public:
     int get_cycle_duration() const noexcept {return m_cycle_duration;}
 
     ///Returns the max number of individual in a population
-    const int& get_pop_max() const noexcept {return m_pop_max;}
+    int get_pop_max() const noexcept {return m_pop_max;}
 
     ///Returns reference to the max number of individual in a population
     int& get_pop_max() noexcept {return m_pop_max;}
@@ -78,7 +87,15 @@ bool operator==(const meta_param& lhs, const meta_param& rhs) noexcept;
 //Loads metaparameters from a given file name
 meta_param load_meta_parameters( const std::string& filename);
 
+meta_param load_meta_parameters_json(
+        const std::string& filename
+        );
+
 //Saves the parameters to a given file name
 void save_meta_parameters( const meta_param& p, const std::string& filename);
 
+void save_meta_parameters_json(
+        const meta_param& p,
+        const std::string& filename
+        );
 #endif // META_PARAM_H

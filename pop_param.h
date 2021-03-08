@@ -14,6 +14,16 @@ public:
               double spore_advantage = 10.0,
               double death_rate = 0.0);
 
+///for to_json/from_json
+NLOHMANN_DEFINE_TYPE_INTRUSIVE(pop_param,
+                               m_start_pop_size,
+                               m_exp_new_pop_size,
+                               m_min_init_dist_btw_inds,
+                               m_mutation_prob,
+                               m_mutation_step,
+                               m_base_disp_prob,
+                               m_spore_advantage,
+                               m_death_prob)
 
     ///Returns the value of the variable m_base_fitness that indicates
     /// the basal fitness/dispersal probability of an individual
@@ -76,7 +86,7 @@ private:
 
     ///The space for which individuals are allowed to overlap before it is considered
     /// an actual collision
-    double m_wiggle_room;
+    double m_wiggle_room = 0.0001;
 };
 
 //Prints parameters to ostream
@@ -90,8 +100,10 @@ bool operator==(const pop_param& lhs, const pop_param& rhs) noexcept;
 
 //Loads the population parameters from a given file name
 pop_param load_pop_parameters(const std::string& filename );
+pop_param load_pop_parameters_json(const std::string& filename );
 
 //Saves the population parameters to a given file name
 void save_pop_parameters(const pop_param& p, const std::string& filename);
+void save_pop_parameters_json(const pop_param& p, const std::string& filename);
 
 #endif // POP_PARAM_H

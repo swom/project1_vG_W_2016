@@ -4,6 +4,7 @@
 #include <random>
 #include <fstream>
 #include <sstream>
+#include "json.hpp"
 
 class env_param
 {
@@ -17,6 +18,16 @@ public:
               double var_diff_coeff = 0.02,
               double var_degr_coeff = 0.02);
 
+    ///For to_json and from_json
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(env_param,
+                                   m_grid_side,
+                                   m_diff_coeff,
+                                   m_init_food,
+                                   m_metab_degradation_rate,
+                                   m_mean_diff_coeff,
+                                   m_mean_degr_rate,
+                                   m_var_diff_coeff,
+                                   m_var_degr_rate)
 
     ///Returns the diffusion coefficient
     double get_diff_coeff() const noexcept {return  m_diff_coeff;}
@@ -101,7 +112,9 @@ env_param change_env_param_norm(env_param e, std::minstd_rand &rng) noexcept;
 env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept;
 
 
-env_param load_env_parameters( const std::string& filename);
+env_param load_env_parameters(const std::string& filename);
+
+env_param load_env_parameters_json(const std::string& filename);
 
 ///Returns a env_param whose variances are the variances
 /// of the given env_param object multiplied
@@ -110,5 +123,6 @@ env_param change_range_env_param(const env_param& e, double amplitude);
 
 void save_env_parameters( const env_param& p, const std::string& filename);
 
+void save_env_parameters_json(const env_param& p, const std::string& filename);
 
 #endif // ENV_PARAM_H
