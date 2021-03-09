@@ -68,3 +68,25 @@ sim_param load_sim_parameters(
 
 }
 
+void save_sim_parameters_json(
+        const sim_param& p,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    nlohmann::json json_out;
+    json_out = p;
+    f << p;
+}
+
+sim_param load_sim_parameters_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    nlohmann::json json_in;
+    f >> json_in;
+    sim_param s = json_in;
+    return  s;
+}
+

@@ -82,3 +82,26 @@ env_changer load_env_changer(
     return e;
 }
 
+void save_env_changer_json(
+        const env_changer& p,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    nlohmann::json json_out;
+    json_out = p;
+    f << json_out;
+}
+
+env_changer load_env_changer_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    env_changer e;
+    nlohmann::json json_in;
+    f >> json_in;
+    e = json_in;
+
+    return e;
+}

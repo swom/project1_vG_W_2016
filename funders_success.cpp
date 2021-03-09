@@ -63,10 +63,10 @@ funders_success load_funders_success(const std::string& filename)
     funders_success f_s;
     std::ifstream is(filename, std::ios::binary);
     if(!is.is_open())
-        {
-            std::cout << "Could not find specified funders_success*.csv file. \n\n";
-            abort();
-        }
+    {
+        std::cout << "Could not find specified funders_success*.csv file. \n\n";
+        abort();
+    }
     is >> f_s;
     return f_s;
 }
@@ -75,5 +75,23 @@ void save_funders_success(const funders_success& f_s,const std::string& filename
 {
     std::ofstream os(filename);
     os << f_s;
+}
+
+funders_success load_funders_success_json(const std::string& filename)
+{
+    std::ifstream is{filename};
+    funders_success f_s;
+    nlohmann::json json_in;
+    is >> json_in;
+    f_s = json_in;
+    return f_s;
+}
+
+void save_funders_success_json(const funders_success& f_s,const std::string& filename)
+{
+    std::ofstream os(filename);
+    nlohmann::json json_out;
+    json_out = f_s;
+    os << json_out;
 }
 

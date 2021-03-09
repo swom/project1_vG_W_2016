@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "json.hpp"
 
 class GRN
 {
@@ -25,6 +26,17 @@ public:
     ;
 
     GRN(std::vector<int> nodes_per_layer);
+
+    ///For json saving
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(GRN,
+                                   m_ConI2H,
+                                   m_ConH2H,
+                                   m_ConH2O,
+                                   m_THidden,
+                                   m_TOutput,
+                                   m_ExInput,
+                                   m_ExHidden,
+                                   m_ExOutput)
 
     ///Gets the constant reference to connection from input to hidden layer
     const std::vector<std::vector<double> >& get_I2H() const noexcept {return m_ConI2H;}

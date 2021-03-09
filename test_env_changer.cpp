@@ -6,6 +6,7 @@ void test_env_changer(){
 
     test_e_c_constructor();
     test_ec_load_save();
+    test_ec_load_save_json();
     test_legal_amplitude();
     test_max_amplitude();
     test_change();
@@ -116,6 +117,42 @@ void test_ec_load_save()
     assert(s == ec);
 }
 
+void test_ec_load_save_json()
+{
+    int grid_side = 666;
+    double diff_coeff = 0.12;
+    double init_food = 14.0;
+    double metab_degrad_rate = 0.066;
+    double mean_diff_coeff = 0.223;
+    double mean_degr_rate = 0.456;
+    double var_diff_coeff = 0.05;
+    double var_degr_rate = 0.012;
+
+    env_param e{grid_side,
+                diff_coeff,
+                init_food,
+                metab_degrad_rate,
+                mean_diff_coeff,
+                mean_degr_rate,
+                var_diff_coeff,
+                var_degr_rate};
+
+    double amplitude = 3.14;
+    int seed = 132;
+
+
+    env_changer ec{e,
+                amplitude,
+                seed,
+                var_degr_rate,
+                var_diff_coeff};
+
+    //Test load and save
+    const std::string filename = "env_changer.json";
+    save_env_changer_json(ec, filename);
+    const env_changer q = load_env_changer_json(filename);
+    assert(ec == q);
+}
 ///Environmental parameters can be changed
 /// according to a normal distribution
 /// or an uniform distribution
@@ -182,6 +219,7 @@ void test_change_of_env()
     assert(mean_degr_coeff - unif_mean_of_degr_rates < 0.01
            && mean_degr_coeff - unif_mean_of_degr_rates > -0.01);
 }
+
 
 /// It is possible to create env_ param object
 /// starting from initial ones,

@@ -10,6 +10,10 @@ class funders_success
 public:
     funders_success();
 
+    ///For json saving and loading
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(funders_success,
+                                   m_v_funders)
+
     ///Returns a const ref to the vector of founders
     /// of different cycles
     const std::vector<funders>& get_v_funders() const noexcept {return m_v_funders;}
@@ -43,6 +47,12 @@ GRN find_last_gen_best_ind_grn(const funders_success& funders_success);
 
 ///Saves a funders success object to a given filename
 void save_funders_success(const funders_success& f_s,const std::string& filename);
+
+///Loads a funders?success object from a given filename
+ funders_success load_funders_success_json(const std::string& filename);
+
+///Saves a funders success object to a given filename
+void save_funders_success_json(const funders_success& f_s,const std::string& filename);
 
 
 #endif // FUNDER_SUCCESS_H

@@ -8,6 +8,10 @@ class demographic_sim
 public:
     demographic_sim();
 
+    ///For json load and save
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(demographic_sim,
+                                   m_demo_cycles)
+
     ///Returns const ref to vector m_demo_cycles
     const std::vector<demographic_cycle>& get_demo_cycles() const noexcept {return m_demo_cycles;}
 
@@ -39,5 +43,11 @@ demographic_sim load_demographic_sim(const std::string& filename);
 
 ///Saves the object demographic_sim to a given filename
 void save_demographic_sim(const demographic_sim& d_s, const std::string& filename);
+
+///Loads a demographic_sim object from a a given json filename
+demographic_sim load_demographic_sim_json(const std::string& filename);
+
+///Saves the object demographic_sim to a given json filename
+void save_demographic_sim_json(const demographic_sim& d_s, const std::string& filename);
 
 #endif // DEMOGRAPHIC_SIM_H

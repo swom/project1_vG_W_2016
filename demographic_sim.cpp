@@ -13,7 +13,7 @@ bool operator==(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 
 bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 {
-  return !(lhs == rhs);
+    return !(lhs == rhs);
 }
 
 
@@ -34,10 +34,10 @@ demographic_sim load_demographic_sim(
 {
     std::ifstream f(filename);
     if(!f.is_open())
-        {
-            std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
-            abort();
-        }
+    {
+        std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
+        abort();
+    }
     demographic_sim d_s;
     demographic_cycle d_c{0,
                           0,
@@ -67,4 +67,33 @@ void save_demographic_sim(
         f << cycle_number << " , " << demo_cycle ;
         cycle_number++;
     }
+}
+
+demographic_sim load_demographic_sim_json(
+        const std::string& filename
+        )
+{
+    std::ifstream f(filename);
+    if(!f.is_open())
+    {
+        std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
+        abort();
+    }
+    demographic_sim d_s;
+    nlohmann::json json_in;
+    f >> json_in;
+    d_s = json_in;
+
+    return d_s;
+}
+
+void save_demographic_sim_json(
+        const demographic_sim& d_s,
+        const std::string& filename
+        )
+{
+    std::ofstream f(filename);
+    nlohmann::json json_out;
+    json_out = d_s;
+    f << json_out;
 }

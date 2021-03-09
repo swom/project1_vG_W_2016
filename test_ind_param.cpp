@@ -86,7 +86,7 @@ void test_ind_param() noexcept  //!OCLINT
                     metab_secretion_rate
         };
 
-        std::string filename = "json_test_ind_param.json";
+        std::string filename = "ind_param.json";
         save_ind_parameters_json(p, filename);
         auto p1 = load_ind_parameters_json(filename);
 

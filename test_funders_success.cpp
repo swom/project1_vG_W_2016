@@ -1,6 +1,46 @@
 #include "tests.h"
+
+void test_save_and_load()
+{
+    //Make a non default funders_success
+    funders_success fs;
+    funders fu;
+
+    fu.get_v_funder_data().push_back(funder_data{individual{ind_param{12345}}});
+    fs.get_v_funders().push_back(fu);
+
+    std::string filename{"funders_success.csv"};
+    save_funders_success(fs, filename);
+
+    auto fs2 = load_funders_success(filename);
+    assert(fs == fs2);
+}
+
+void test_save_and_load_json()
+{
+    //Make a non default funders_success
+    funders_success fs;
+    funders fu;
+
+    fu.get_v_funder_data().push_back(funder_data{individual{ind_param{12345}}});
+    fs.get_v_funders().push_back(fu);
+
+    std::string filename{"funders_success.json"};
+    save_funders_success_json(fs, filename);
+
+    auto f2 = load_funders_success_json(filename);
+    assert(fs == f2);
+}
+
+
 void test_funders_success() noexcept
 {
+    //test csv saving and loading
+    test_save_and_load();
+
+    //test json saving and loading
+    test_save_and_load_json();
+
     //funder_success is initialized/contains
     //a vector of funders object
     {

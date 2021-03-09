@@ -8,11 +8,19 @@
 ///Stores essential information about one of the funders of a population cycle
 class funder_data
 {
+
+
 public:
     funder_data(std::vector<int> ancestro_ID,
                 GRN grn);
 
-    funder_data(const individual& i);
+    funder_data(const individual& i = individual{});
+
+    ///For json saving
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(funder_data,
+                                   m_ancestor_ID,
+                                   m_grn,
+                                   m_success)
 
     ///Returns const ref to m_ancestor ID
     const std::vector<int>& get_ancestor_ID() const noexcept {return m_ancestor_ID;}

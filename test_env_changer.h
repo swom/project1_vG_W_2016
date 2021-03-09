@@ -11,6 +11,8 @@ void test_e_c_constructor();
 
 void test_ec_load_save();
 
+void test_ec_load_save_json();
+
 void test_legal_amplitude();
 
 void test_max_amplitude();

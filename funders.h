@@ -10,6 +10,11 @@ class funders
 public:
     funders();
 
+    ///For json saving
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(funders,
+                                   m_v_funder_data,
+                                   m_cycle)
+
     ///Returns const ref to m_v_funder_data
     const std::vector<funder_data>& get_v_funder_data() const noexcept {return m_v_funder_data;}
 

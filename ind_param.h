@@ -255,6 +255,10 @@ void save_ind_parameters( const ind_param& p, const std::string& filename);
 void save_ind_parameters_json(const ind_param& p,
                               const std::string& filename);
 
+void from_json(const nlohmann::json& j, ind_param& t);
+
+void to_json(nlohmann::json& j, const ind_param& t);
+
 void test_ind_param() noexcept;
 
 #endif // IND_PARAM_H

@@ -120,7 +120,7 @@ void test_env_param() noexcept //!OCLINT
 
     ///Saving to json is possible
     {
-       std::string name = "json_env_test.json";
+       std::string name = "env_param.json";
        env_param e;
        save_env_parameters_json(e, name);
        auto e1 = load_env_parameters_json(name);

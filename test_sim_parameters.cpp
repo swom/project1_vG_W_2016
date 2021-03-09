@@ -1,4 +1,19 @@
 #include"tests.h"
+
+void test_load_save_json_sim_par()
+{
+    env_param env = load_env_parameters_json("env_param.json");
+    meta_param meta = load_meta_parameters_json("meta_param.json");
+    pop_param pop = load_pop_parameters_json("pop_param.json");
+    ind_param ind = load_ind_parameters_json("ind_param.json");
+    sim_param s{env, ind, meta, pop};
+
+    const std::string filename = "sim_param.csv";
+    save_sim_parameters_json(s, filename);
+    const sim_param q = load_sim_parameters_json(filename);
+    assert(s == q);
+}
+
 void test_sim_param() noexcept //!OCLINT
 {
 
@@ -36,4 +51,7 @@ void test_sim_param() noexcept //!OCLINT
             s << p;
         }
     }
+
+    ///A sim parameter can be loaded or saved from a json file
+test_load_save_json_sim_par();
 }

@@ -7,12 +7,21 @@
 class demographic_cycle
 {
 public:
-    demographic_cycle(int n_actives,
-                      int n_spores,
-                      int n_sporulating,
-                      int n_ticks,
-                      env_param env_p,
-                      ind_param ind_p);
+    demographic_cycle(int n_actives = 0,
+                      int n_spores = 0,
+                      int n_sporulating = 0,
+                      int n_ticks = 0,
+                      env_param env_p = env_param{},
+                      ind_param ind_p = ind_param{});
+
+    ///For json save/load
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(demographic_cycle,
+                                   m_n_actives,
+                                   m_n_spores,
+                                   m_n_sporulating,
+                                   m_n_ticks,
+                                   m_env_param,
+                                   m_ind_param)
 
     ///Returns const ref to env_param
     const env_param& get_env_param() const noexcept {return m_env_param;}

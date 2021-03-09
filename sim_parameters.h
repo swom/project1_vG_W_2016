@@ -10,7 +10,16 @@ class sim_param
 {
 public:
 
-    sim_param(env_changer e, ind_param i, meta_param m, pop_param p);
+    sim_param(env_changer e = env_changer{},
+              ind_param i = ind_param{},
+              meta_param m = meta_param{},
+              pop_param p = pop_param{});
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(sim_param,
+                                   m_env_changer,
+                                   m_meta_param,
+                                   m_pop_param,
+                                   m_ind_param)
 
     ///Gets const reference to population parameter
     const env_changer& get_env_changer() const noexcept {return m_env_changer;}
@@ -52,5 +61,10 @@ sim_param load_sim_parameters( const std::string& filename);
 //Saves the sim parameters to a given file name
 void save_sim_parameters( const sim_param& p, const std::string& filename);
 
+//Loads sim_param from a given file name
+sim_param load_sim_parameters_json( const std::string& filename);
+
+//Saves the sim parameters to a given file name
+void save_sim_parameters_json( const sim_param& p, const std::string& filename);
 
 #endif // SIM_PARAMETERS_H

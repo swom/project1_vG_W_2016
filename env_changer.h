@@ -65,4 +65,8 @@ env_changer load_env_changer(const std::string& filename);
 
 void save_env_changer(const env_changer& p, const std::string& filename);
 
+env_changer load_env_changer_json(const std::string& filename);
+
+void save_env_changer_json(const env_changer& p, const std::string& filename);
+
 #endif // ENV_CHANGER_H
