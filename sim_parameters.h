@@ -23,6 +23,7 @@ public:
               double metab_degrad_rate = 0.1
             , int n_cycles = 1, int cycle_duration = 2);
 
+
     sim_param(env_param e, ind_param i, meta_param m, pop_param p);
 
     ///Gets const reference to population parameter

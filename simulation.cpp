@@ -1049,9 +1049,50 @@ void secretion_metabolite(simulation& s)
         {
             continue;
         }
+<<<<<<< Updated upstream
         secretes_metab(ind,s.get_env().get_cell(index));
     }
 }
+=======
+
+        ///Run against the random conditions
+        pop_param p{100};
+        env_param e{100};
+        int seed_ID = 1234567890;
+
+        meta_param m{1,
+                     1,
+                     seed_ID};
+
+        std::string filename =
+                "random_cond_sim_demographic_s" +
+                std::to_string(seed_ID) +
+                "change_" +
+                std::to_string(m.get_change_freq()) +
+                ".csv";simulation s{sim_param{e,m,p}};
+
+       auto rand_demo = run_random_conditions(s, rand_conditions_vector);
+        assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
+                          rand_demo.get_demo_cycles().begin(),
+                          [](const std::pair<env_param, ind_param>& r,
+                          const demographic_cycle& d)
+        {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
+               );
+        auto demo_sim = load_demographic_sim(filename);
+        assert(demo_sim == rand_demo);
+    }
+
+    //It is possible to change param of a simulation with other
+    //taken from a random condition vector
+    {
+
+        //Create random conditions
+        env_param env;
+        ind_param ind;
+        std::minstd_rand rng;
+        std::vector<std::pair<env_param,ind_param>> rand_conditions;
+        int repeats = 2;
+>>>>>>> Stashed changes
 
 void set_new_params(simulation& s, const env_param& e, const ind_param& i)
 {
