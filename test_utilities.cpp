@@ -37,7 +37,7 @@ void test_utilities() noexcept //!OCLINT
         int expected_change_freq = 0;
         assert(change_freq != expected_change_freq);
 
-        //create commnad line where seed of random condition is 0
+        //create commnad line where frequency of change is 0
         auto change_freq_s = "f" + std::to_string(expected_change_freq);
         const std::vector<std::string>& args{
             "executable's_folder",
@@ -53,7 +53,7 @@ void test_utilities() noexcept //!OCLINT
         assert(change_freq == expected_change_freq);
     }
 
-    ///The frequency with which the enviornment changes
+    ///The amplitude with which the enviornment changes
     /// can be taken as an argument
     /// from a commnad line
     {
@@ -62,7 +62,7 @@ void test_utilities() noexcept //!OCLINT
         double expected_amplitude = 0;
         assert(amplitude != expected_amplitude);
 
-        //create commnad line where seed of random condition is 0
+        //create commnad line where amplitude of change is 0
         auto amplitude_s = "a" + std::to_string(expected_amplitude);
         const std::vector<std::string>& args{
             "executable's_folder",
@@ -78,41 +78,42 @@ void test_utilities() noexcept //!OCLINT
         assert(amplitude == expected_amplitude);
     }
 
-    ///The frequency with which the enviornment changes
-    /// can be taken as an argument
+    ///The number of condition sequences
+    /// that need to be generated can be taken as an argument
     /// from a commnad line
     {
 
-        int n_rand_cond = 123;
+        int n_seq = 123;
         int expected_n_rand_cond = 0;
-        assert(n_rand_cond != expected_n_rand_cond);
+        assert(n_seq != expected_n_rand_cond);
 
-        //create commnad line where seed of random condition is 0
-        auto n_rand_cond_s = "n" + std::to_string(expected_n_rand_cond);
+        //create commnad line where number of sequences is 0
+        auto n_seqs = "n" + std::to_string(expected_n_rand_cond);
         const std::vector<std::string>& args{
             "executable's_folder",
             "--replay_rand_cond",
             "seed",
             "change_freq",
             "ampl",
-            n_rand_cond_s,
+            n_seqs,
                     "seed_random_conditions",
                     "rand_cond_n"};
 
-        take_n_conditions_arg(args, n_rand_cond);
-        assert(n_rand_cond == expected_n_rand_cond);
+        take_n_sequences_arg(args, n_seq);
+        assert(n_seq == expected_n_rand_cond);
     }
 
-    ///The seed of the reandom conditions can be takenas an argument
+    ///The number of the reandom conditions per sequence
+    /// can be takenas an argument
     /// from a commnad line
     {
 
-        int seed_rand_cond = 123;
-        int expected_seed_rand_cond = 0;
-        assert(seed_rand_cond != expected_seed_rand_cond);
+        int conditions_per_seq = 123;
+        int expected_conditions_per_seq = 0;
+        assert(conditions_per_seq != expected_conditions_per_seq);
 
-        //create commnad line where seed of random condition is 0
-        auto seed_rand_cond_s = "sr" + std::to_string(expected_seed_rand_cond);
+        //create commnad line where condition per seq is 0
+        auto condition_per_seq_str = "cs" + std::to_string(expected_conditions_per_seq);
         const std::vector<std::string>& args{
             "executable's_folder",
             "--replay_rand_cond",
@@ -120,11 +121,11 @@ void test_utilities() noexcept //!OCLINT
             "freq",
             "ampl",
             "n_rand_cond",
-            seed_rand_cond_s,
+            condition_per_seq_str,
                     "rand_cond_n"};
 
-        take_seed_rand_cond(args, seed_rand_cond);
-        assert(seed_rand_cond == expected_seed_rand_cond);
+        take_cond_per_seq_arg(args, conditions_per_seq);
+        assert(conditions_per_seq == expected_conditions_per_seq);
     }
 
     ///The index of the random condition that need to be selcted
@@ -137,7 +138,7 @@ void test_utilities() noexcept //!OCLINT
         assert(rand_cond_n != expected_rand_cond_n);
 
         //create commnad line where seed of random condition is 0
-        auto rand_cond_n_s = "rn" + std::to_string(expected_rand_cond_n);
+        auto rand_cond_n_s = "si" + std::to_string(expected_rand_cond_n);
         const std::vector<std::string>& args{
             "executable's_folder",
             "--replay_rand_cond",
@@ -148,10 +149,8 @@ void test_utilities() noexcept //!OCLINT
             "seed_random_conditions",
             rand_cond_n_s};
 
-        take_rand_cond_n(args, rand_cond_n);
+        take_seq_index_arg(args, rand_cond_n);
         assert(rand_cond_n == expected_rand_cond_n);
     }
-
-
 
 }

@@ -27,7 +27,7 @@ pop_param::pop_param(unsigned int start_pop_size,
         {throw std::string{"base dispersal probability * spore advantage > 1, too high!\n"};}
     }
     catch (std::string& e) {
-        std::cout << e;
+        std::cout << e << std::endl;
 #ifdef NDEBUG
         abort();
 #endif

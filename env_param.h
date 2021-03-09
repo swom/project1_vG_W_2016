@@ -14,8 +14,8 @@ public:
               double metab_degrad_rate = 0.1,
               double mean_diff_coeff = 0.1,
               double mean_degr_rate = 0.1,
-              double var_diff_coeff = 0.02,
-              double var_degr_coeff = 0.02);
+              double var_diff_coeff = 0.01,
+              double var_degr_coeff = 0.01);
 
 
     ///Returns the diffusion coefficient
