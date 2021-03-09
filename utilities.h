@@ -44,18 +44,18 @@ void take_overwrite_arg(const std::vector<std::string>& args, bool& overwrite);
 
 ///Takes number of condition against which a population is tested
 /// from command line arguments
-void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditions);
+void take_n_sequences_arg(const std::vector<std::string>& args, int& n_conditions);
 
 ///Takes change of frequency number from command line arguments
 void take_change_freq_arg(const std::vector<std::string>& args, int &change_freq);
 
 ///Takes the index of the random conditions in the random condition vector
 /// that needs to be replayed
-void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n);
+void take_seq_index_arg(const std::vector<std::string>& args, int& rand_cond_n);
 
 /// Takes the seed with which the random conditions vector was generated
 /// and assigns it to seed_rand_cond
-void take_seed_rand_cond(const std::vector<std::string>& args, int& seed_rand_cond);
+void take_cond_per_seq_arg(const std::vector<std::string>& args, int& cond_per_seq);
 
 ///Takes the number of the cycle that is gonna be visually replayed
 void take_replay_cycle_arg(const std::vector<std::string>& args, int& replay_cycle);

@@ -36,9 +36,9 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_seed_arg(args, seed);
         take_change_freq_arg(args,change_freq);
         take_amplitude_arg(args, amplitude);
-        take_n_conditions_arg(args, n_conditions);
-        take_seed_rand_cond(args,seed_rand_cond);
-        take_rand_cond_n(args, rand_cond_n);
+        take_n_sequences_arg(args, n_conditions);
+        take_cond_per_seq_arg(args,seed_rand_cond);
+        take_seq_index_arg(args, rand_cond_n);
         take_overwrite_arg(args, overwrite);
         take_replay_cycle_arg(args,replay_cycle);
     }
@@ -108,7 +108,7 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 
 }
 
-void take_n_conditions_arg(const std::vector<std::string>& args, int& n_conditions)
+void take_n_sequences_arg(const std::vector<std::string>& args, int& n_conditions)
 {
     if ((args.size() > 5
          &&  (args[1] == "--rand"
@@ -157,7 +157,7 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
 
 }
 
-void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n)
+void take_seq_index_arg(const std::vector<std::string>& args, int& rand_cond_n)
 {
     if((args[1] == "--rand_evo"
         || args[1] == "--replay_rand_cond"
@@ -165,8 +165,8 @@ void take_rand_cond_n(const std::vector<std::string>& args, int& rand_cond_n)
         || args[1] == "--replay_rand_cond_evo"
         ) &&
             args.size() > 6 &&
-            args[7][0] == 'r' &&
-            args[7][1] == 'n'
+            args[7][0] == 's' &&
+            args[7][1] == 'i'
             )
     {
         std::string s_rand_cond_n;
@@ -230,22 +230,38 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
     }
 }
 
-void take_seed_rand_cond(const std::vector<std::string>& args, int& seed_rand_cond)
+void take_cond_per_seq_arg(const std::vector<std::string>& args, int& cond_per_seq)
 {
     if((args[1] == "--rand_evo"
         ||args[1] == "--replay_rand_cond"
         || args[1] == "--replay_best_rand_cond"
         || args[1] == "--replay_rand_cond_evo") &&
             args.size() > 5 &&
-            args[6][0] == 's' &&
-            args[6][1] == 'r')
+            args[6][0] == 'c' &&
+            args[6][1] == 's')
     {
-        std::string s_seed_rand_cond;
+        std::string s_cond_per_seq;
         for(size_t i = 2; i != args[6].size(); i++)
         {
-            s_seed_rand_cond += args[6][i];
+            s_cond_per_seq += args[6][i];
         }
-        seed_rand_cond = std::stoi(s_seed_rand_cond);
+        cond_per_seq = std::stoi(s_cond_per_seq);
+        try
+        {
+            if(cond_per_seq == 0)
+            {
+                throw std::string{"Error, there cannot be 0 conditions in a sequence!"};
+
+            }
+        }
+        catch (std::string e)
+        {
+            std::cout << e << std::endl;
+#ifdef NDEBUG
+            abort();
+#endif
+        }
+
     }
 }
 

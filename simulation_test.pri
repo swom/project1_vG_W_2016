@@ -2,6 +2,7 @@
 
 HEADERS += \
     $$PWD/test_env_changer.h \
+    $$PWD/test_simulation.h \
     $$PWD/tests.h
 
 
