@@ -31,11 +31,11 @@ void test_sim_param() noexcept //!OCLINT
             const sim_param q = load_sim_parameters(filename);
             assert(s == q);
         }
+
         {
             const meta_param p;
             std::ostringstream s;
             s << p;
         }
     }
-
 }
