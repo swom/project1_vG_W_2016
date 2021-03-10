@@ -38,6 +38,4 @@ void test_sim_param() noexcept //!OCLINT
         }
     }
 
-    ///Sim params can beloaded and saved from json
-    test_save_load_json();
 }
