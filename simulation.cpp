@@ -448,6 +448,34 @@ void jordi_feeding(simulation& s)
     }
 }
 
+double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto max = std::max_element(rand_cond.begin(), rand_cond.end(),
+                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+    {return lhs.first.get_diff_coeff() < rhs.first.get_diff_coeff();});
+
+    return max->first.get_diff_coeff();
+
+}
+
+double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto min = std::max_element(rand_cond.begin(), rand_cond.end(),
+                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+    {return lhs.first.get_diff_coeff() > rhs.first.get_diff_coeff();});
+
+    return min->first.get_diff_coeff();
+}
+
+double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto sum = std::accumulate(rand_cond.begin(), rand_cond.end(), 0.0,
+                               [] (const double& s, const std::pair<env_param,ind_param>& lhs)
+    {return lhs.first.get_diff_coeff() + s;});
+
+    return sum / rand_cond.size();
+}
+
 simulation load_sim_no_pop(int seed, int change_freq)
 {
     auto sim_par_name = create_sim_par_name(seed,change_freq);

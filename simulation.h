@@ -250,6 +250,11 @@ void feeding(simulation& s);
 ///Individuals feed a proportion of total food in their cell not a fixed rate
 void jordi_feeding(simulation& s);
 
+///Find mean min and max of rand_cond vector
+double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond);
+double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond);
+double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond);
+
 ///Loads a simulation whose population is composed
 /// exclusively of the best individual
 /// in the before last generation of a

@@ -51,9 +51,65 @@ void test_rand_cond_matrix()
 
 }
 
+double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto max = std::max_element(rand_cond.begin(), rand_cond.end(),
+                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+    {return lhs.first.get_diff_coeff() < rhs.first.get_diff_coeff();});
+
+    return max->first.get_diff_coeff();
+
+}
+
+double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto min = std::max_element(rand_cond.begin(), rand_cond.end(),
+                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+    {return lhs.first.get_diff_coeff() > rhs.first.get_diff_coeff();});
+
+    return min->first.get_diff_coeff();
+}
+
+double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto sum = std::accumulate(rand_cond.begin(), rand_cond.end(), 0.0,
+                               [] (const double& s, const std::pair<env_param,ind_param>& lhs)
+    {return lhs.first.get_diff_coeff() + s;});
+
+    return sum / rand_cond.size();
+}
+
+///It is possible to create random conditions drawing from a uniform distribution
+void test_create_rand_cond_unif()
+{
+    env_param e{};
+    ind_param i{};
+    int n_cond = 100;
+    double amplitude = 3;
+    int seed = 0;
+
+    auto expected_mean_diff_coeff = e.get_mean_diff_coeff();
+    auto expected_max_diff_coeff = e.get_mean_diff_coeff() + e.get_var_diff_coeff() * amplitude * 3;
+    auto expected_min_diff_coeff = e.get_mean_diff_coeff() - (e.get_var_diff_coeff() * amplitude * 3);
+
+    auto rand_cond = create_rand_conditions_unif(e, i, n_cond, amplitude, seed);
+    auto max_diff_coeff = find_max_diff_coeff_rand_cond(rand_cond);
+    auto min_diff_coeff = find_min_diff_coeff_rand_cond(rand_cond);
+    auto mean_diff_coeff = mean_diff_coeff_rand_cond(rand_cond);
+
+    assert(max_diff_coeff - expected_max_diff_coeff > -0.01 &&
+           max_diff_coeff - expected_max_diff_coeff < 0.01);
+
+    assert(min_diff_coeff - expected_min_diff_coeff > -0.01 &&
+           min_diff_coeff - expected_min_diff_coeff < 0.01);
+
+    assert(mean_diff_coeff - expected_mean_diff_coeff > -0.01 &&
+           mean_diff_coeff - expected_mean_diff_coeff < 0.01);
+}
 void test_simulation()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
+
 
         //A simulation can be initialized by getting a sim_parmater class as an argument
         {
@@ -1577,6 +1633,10 @@ void test_simulation()//!OCLINT tests may be many
 
     ///A matrix of random conditions can be created
     test_rand_cond_matrix();
+
+    ///It is possible to create random conditions drawing from a uniform distribution
+    test_create_rand_cond_unif();
+
 #endif
 }
 
