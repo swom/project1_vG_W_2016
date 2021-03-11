@@ -11,24 +11,43 @@ rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
 hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
+sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
 
 
 #####read data####
-setwd(hd_rand_evo)
+setwd(sequence)
 demographic = data.frame()
 
 
-for (i in  list.files(path = '.',
-                      pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+if(getwd() == sequence)
 {
-  if(file.size(i) <= 0) next()
-  replicate = read.csv(i)
-  replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-  replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
-  replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
-  colnames(replicate) = colnames(demographic)
-  demographic = rbind(replicate,demographic)
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+} else {
+  
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
 }
+
 
 n_columns = ncol(demographic)
 colnames(demographic)= c("cycle",

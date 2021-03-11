@@ -1,4 +1,4 @@
-#include "tests.h"
+#include "test_demographic_cycle.h"
 
 void test_demographic_cycle() noexcept
 {

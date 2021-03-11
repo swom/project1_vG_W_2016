@@ -4,4 +4,6 @@
 
 ///A simulation is initalized with an env_changer
 void test_env_changer_init();
+
+void test_simulation();
 #endif // TEST_SIMULATION_H

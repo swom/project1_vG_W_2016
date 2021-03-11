@@ -8,7 +8,7 @@ void test_env_changer_init(){
     assert(s.get_env_changer() == ec);
 }
 
-void test_simulation()//!OCLINT tests may be many
+void test_simulation()
 {
 #ifndef NDEBUG
 

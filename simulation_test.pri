@@ -1,6 +1,7 @@
 # Entry point for user
 
 HEADERS += \
+    $$PWD/test_demographic_cycle.h \
     $$PWD/test_env_changer.h \
     $$PWD/test_simulation.h \
     $$PWD/tests.h
