@@ -19,7 +19,7 @@
 #SBATCH --job-name=rand_evo_%j
 #SBATCH --output=rand_evo_%j.log
 
-echo "seed" $1
-echo "n_condition" $2
-./simulation_logic_only --rand_evo s$1 f0 a3 n50 sr0 rn$2
+echo "original seed" $1
+echo "sequence_index" $2
+./simulation_logic_only --rand_evo s$1 f0 a3 n50 cs50 si$2
 
