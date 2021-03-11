@@ -2,7 +2,6 @@
 #include <sys/stat.h>
 #include <chrono>
 #include <cassert>
-#include <algorithm>
 
 bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<double>& rhs)
 {
@@ -67,33 +66,7 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
     return std::normal_distribution<double>{m, v};
 }
 
-double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
-{
-    auto max = std::max_element(rand_cond.begin(), rand_cond.end(),
-                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
-    {return lhs.first.get_diff_coeff() < rhs.first.get_diff_coeff();});
 
-    return max->first.get_diff_coeff();
-
-}
-
-double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
-{
-    auto min = std::max_element(rand_cond.begin(), rand_cond.end(),
-                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
-    {return lhs.first.get_diff_coeff() > rhs.first.get_diff_coeff();});
-
-    return min->first.get_diff_coeff();
-}
-
-double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
-{
-    auto sum = std::accumulate(rand_cond.begin(), rand_cond.end(), 0.0,
-                               [] (const double& s, const std::pair<env_param,ind_param>& lhs)
-    {return lhs.first.get_diff_coeff() + s;});
-
-    return sum / rand_cond.size();
-}
 bool exists (const std::string& name) {
     struct stat buffer;
     return (stat (name.c_str(), &buffer) == 0);

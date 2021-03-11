@@ -398,11 +398,11 @@ void exec_change(simulation& s,
 
     size_t condition_index = 0;
     auto condition_duration = s.get_meta_param().get_n_cycles() / rand_conditions.size();
-    auto modulus =  s.get_cycle() % condition_duration;
 
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
         auto start = std::chrono::high_resolution_clock::now();
+        auto modulus =  s.get_cycle() % condition_duration;
 
         if( modulus == 0 && condition_index < rand_conditions.size())
         {

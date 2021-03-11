@@ -11,23 +11,41 @@ rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
 hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
+sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
 
 
 #####read data####
-setwd(hd_rand_evo)
+setwd(sequence)
 demographic = data.frame()
 
 
-for (i in  list.files(path = '.',
-                      pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+if(getwd() == sequence)
 {
-  if(file.size(i) <= 0) next()
-  replicate = read.csv(i)
-  replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-  replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
-  replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
-  colnames(replicate) = colnames(demographic)
-  demographic = rbind(replicate,demographic)
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+} else {
+  
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
 }
 
 n_columns = ncol(demographic)
@@ -58,7 +76,7 @@ demographic = demographic %>%
     "ratio_value" = spore / max(spore)
   ) %>%
   ungroup() %>%
-  group_by(condition,cycle, seed) %>%
+  group_by(condition, seed) %>%
   mutate(
     "change_value" = spore / spore[min(cycle)] - 1
   ) %>%
@@ -85,7 +103,63 @@ load(file = "hd_rand_evo_demo.R")
 setwd(hd_rand_evo_no_upt)
 load(file = "hd_rand_evo_demo_no_upt_r.R")
 
-dem = hd_demographic_no_upt
+setwd(sequence)
+load("seq_rand_evo_demo.R")
+
+dem = seq_demographic
+####Check quantiles of change_value####
+#i.e. how much the population improved its score production from the beginning
+
+#looking at last generation
+
+#overall quantiles
+dem %>%
+  group_by(seed, condition) %>%
+  subset(cycle == max(cycle)) %>% 
+  ungroup() %>% 
+  summarise(qntl = quantile(change_value))
+
+#quantiles per seed
+qs = dem %>%
+  group_by(seed, condition) %>%
+  subset(cycle == max(cycle)) %>% 
+  ungroup() %>% 
+  group_by(seed) %>% 
+  summarise(qntl = quantile(change_value))
+
+#quantiles per condition
+qc = dem %>%
+  group_by(seed, condition) %>%
+  subset(cycle == max(cycle)) %>% 
+  ungroup() %>% 
+  group_by(condition) %>% 
+  summarise(qntl = quantile(change_value))
+
+#looking at average
+avg_change = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))
+
+#qunatiles per seed
+av_qs = avg_change %>% 
+  group_by(seed) %>% 
+  summarise(qntl = quantile(avg_change))
+
+#qunatiles per seed
+av_qc = avg_change %>% 
+  group_by(condition) %>% 
+  summarise(qntl = quantile(avg_change)[4])
+
+#create col that signals in which ntile the value is per condition
+avg_q_change = 
+  avg_change %>% 
+  group_by(condition) %>% 
+  mutate(qntl = ntile(avg_change, 4)) %>% 
+  ungroup()
+
+ggplot(data = avg_q_change)+
+  geom_tile(aes(condition, seed, fill = qntl)) +
+  scale_fill_gradientn("quantile",colours = rbg)
 
 ####make sure each cycle is either 125 timesteps or around 10000 inds####
 c_check = dem %>% 
@@ -124,11 +198,14 @@ ggplot(data = plot_tmstps)+
   geom_smooth(aes(x = value, y = total_n))+
   facet_grid(.  ~ variable )
 
-c = dem %>% 
-  filter(total_n > 11000) %>% 
-  select(spore, sporu, active, total_n, n_timesteps)
+#for no_uptake check that var of uptake is 0
+dem %>% 
+  subset(as.numeric(seed) > 31) %>% 
+  summarise(var_upt = sd(env_p_12))
 
-
+dem$env_p_12 = as.factor(dem$env_p_12) 
+ggplot(data = dem %>%  subset()) +
+  geom_tile(aes(condition, seed, fill = env_p_12))
 
 ####subset only those simulation where pop cap is never reached####
 ####(always 125 timesteps)
@@ -206,8 +283,26 @@ dem_d = dem %>%
 
 dem_d$env_type = as.factor(dem_d$env_type)
 
+#for normal
 ggplot(data = dem_d %>% subset(cycle == max(cycle))) +
   geom_tile(aes(condition, seed, fill = env_type))
+
+#for sequence
+ggplot(data = dem_d) +
+geom_rect(aes(xmin=cycle,
+              xmax=cycle+1,
+              ymin=min(min(change_value),min(ratio_value)),
+              ymax=max(max(change_value),max(ratio_value)), 
+              fill = env_type)) +
+  scale_fill_gradientn("Ratio",colors = cub_hel) +
+  facet_grid(seed ~ condition)
+
+
+ggsave("../../research presentation/env_seq_cub.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm",
+       limitsize = F)
 
 ####plot populations that do not reach cap####
 ggplot(data = dem %>%  subset(cycle == max(cycle))) +
@@ -251,7 +346,7 @@ top_dem = top_20 %>% left_join(demographic ) %>% drop_na()
 
 ####Create color plaettes####
 
-n_colors = 20
+n_colors = 100
 rbg<- colorRampPalette(c("red", "blue", "green"))(n_colors)
 cub_hel <- rev(cubehelix(n_colors))
 
@@ -278,6 +373,13 @@ sections_rv_value_plot = unique(
   c( seq(rv_qntl[1], rv_qntl[2], length = as.integer(n_colors/3 - 2)),
      seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 - 1)),
      seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 + 8))))
+
+####for change value
+c_qntl = quantile(dem$change_value)
+sections_c_value = unique(
+  c( seq(c_qntl[1], c_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(c_qntl[2], c_qntl[4], length = as.integer(n_colors/3 + 4)),
+     seq(c_qntl[4], c_qntl[5], length = as.integer(n_colors/3))))
 
 ####for value
 v_qntl = quantile(dem$spore)
@@ -320,16 +422,36 @@ ggplot(data = dem %>% pivot_longer(c(change_value,ratio_value))) +
                 ymax=max(max(change_value),max(ratio_value)), 
                 fill = ratio_value)) +
   geom_line(aes(cycle, value, color = name)) +
-  scale_fill_gradientn("Ratio",colors = cub_hel, breaks = rv_qntl) +
+  scale_fill_gradientn("Ratio",colors = cub_hel, breaks = sections_rv_value_plot) +
   facet_grid(seed ~ condition)
 
-ggsave("../research presentation/improvement+ratio_only_complete_cycle.pdf",
+ggsave("../../research presentation/improvement+ratio_seq_cub.pdf",
        width = 500,
        height = 300, 
        units = "cm",
        limitsize = F)
 
+####Plot final change value####
+ggplot(data = dem ) +
+  geom_tile(aes(seed, condition, fill = change_value)) +
+  scale_fill_gradientn("Final change value", colors = cubehelix(20))
+
+
+####Plot quantiles of avg change####
+avg_q_change = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))%>% 
+  group_by(condition) %>% 
+  mutate(qntl = ntile(avg_change, 5)) %>% 
+  ungroup()
+
+ggplot(data = avg_q_change)+
+  geom_tile(aes(condition, seed, fill = qntl)) +
+  scale_fill_gradientn("quantile",colours = rbg)
+
 ####Plotting diff between rvalue end vs start normalized####
+
+
 ggplot(data = dem%>% subset(cycle == max(cycle))) +
   geom_tile(aes(condition,
                 seed,
@@ -702,6 +824,39 @@ heatmap.2(as.matrix(clust_delta) ,
           col = cub_hel, 
           main = "delta_ratio_value")
 
+####heatmap cluster for avg change value#####
+clust_change = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))%>% 
+  ungroup()  %>% 
+  select(condition, seed, avg_change) %>% 
+  spread(condition, avg_change) %>% 
+  column_to_rownames(var = "seed") %>% 
+  drop_na()
+
+heatmap.2(as.matrix(clust_change) ,
+          scale = "none",
+          trace = "none",
+          col = rbg,
+          breaks = sections_c_value)
+
+####heatmap cluster for qunatiles of avg change value#####
+clust_change_qntl = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))%>% 
+  ungroup() %>% 
+  group_by(condition) %>% 
+  mutate(qntl = ntile(avg_change, 5)) %>% 
+  ungroup()  %>% 
+  select(condition, seed, qntl) %>% 
+  spread(condition, qntl) %>% 
+  column_to_rownames(var = "seed") %>% 
+  drop_na()
+
+heatmap.2(as.matrix(clust_change_qntl) ,
+          scale = "none",
+          trace = "none",
+          col = rbg)
 ####Plotting variance of production over time for conditions####
 var_demo = dem %>% 
   ungroup() %>% 
