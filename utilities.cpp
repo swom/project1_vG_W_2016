@@ -66,6 +66,40 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
     return std::normal_distribution<double>{m, v};
 }
 
+double draw_from_uniform_with_limit(double mean, double range_unit, std::minstd_rand& rng)
+{
+    auto new_value = mean;
+
+    auto lower_limit = mean - 2 * range_unit;
+    auto upper_limit = mean + 2 * range_unit;
+
+    auto lower_range = mean - 3 * range_unit;
+    auto upper_range = mean + 3 * range_unit;
+
+    while( (new_value > lower_limit) &&
+           (new_value < upper_limit)
+           )
+    {
+        new_value = std::uniform_real_distribution<double>{
+                lower_range,
+                upper_range}(rng);
+    }
+
+    return new_value;
+}
+
+int draw_from_uniform_with_limit(int mean, int range, std::minstd_rand& rng)
+{
+    auto new_value = mean;
+    while((new_value > (mean - 2/3 * range)) &&
+          (new_value < (mean + 2/3 * range)))
+    {
+        new_value = std::uniform_int_distribution<int>{
+                mean - range,
+                mean + range}(rng);
+    }
+    return new_value;
+}
 
 bool exists (const std::string& name) {
     struct stat buffer;

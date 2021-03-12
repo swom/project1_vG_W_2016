@@ -202,10 +202,29 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
                                                                          double amplitude,
                                                                          int seed);
 
+
+///Creates a vector of random conditions given
+/// parameter classes and how much wider
+/// can be the oscillation of the new random conditions
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme(const env_param& e,
+                                                                         const ind_param& i,
+                                                                         int n_rand_conditions,
+                                                                         double amplitude,
+                                                                         int seed);
+
+
 ///Creates a Matrix of random conditions given the number of columns and rows
 /// (sequences and condition per sequences) and the amplitude,
 /// each column of random condition is seeded with its index
 std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix(const env_param& ep,
+                                                                                        const ind_param& ip,
+                                                                                        int number_of_sequences,
+                                                                                        int conditions_per_sequence,
+                                                                                        double amplitude);
+
+///Works like random matrix
+/// but only samples from extremes of uniform distribution for paramter values
+std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix_extreme(const env_param& ep,
                                                                                         const ind_param& ip,
                                                                                         int number_of_sequences,
                                                                                         int conditions_per_sequence,

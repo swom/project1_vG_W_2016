@@ -294,7 +294,6 @@ geom_rect(aes(xmin=cycle,
               ymin=min(min(change_value),min(ratio_value)),
               ymax=max(max(change_value),max(ratio_value)), 
               fill = env_type)) +
-  scale_fill_gradientn("Ratio",colors = cub_hel) +
   facet_grid(seed ~ condition)
 
 

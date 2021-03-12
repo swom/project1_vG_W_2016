@@ -51,6 +51,37 @@ void test_rand_cond_matrix()
 
 }
 
+void test_rand_cond_matrix_extreme()
+{
+
+    double amplitude = 3.0;
+    int conditions_per_sequence = 3;
+    int number_of_sequences = 2;
+    env_param e{};
+    ind_param ip{};
+
+    auto expected_max_diff_coeff = e.get_mean_diff_coeff() + e.get_var_diff_coeff() * amplitude * 3;
+    auto expected_min_diff_coeff = e.get_mean_diff_coeff() - (e.get_var_diff_coeff() * amplitude * 3);
+
+
+    auto rand_cond_matrix = create_rand_conditions_matrix_extreme(e, ip,
+                                                                  number_of_sequences,
+                                                                  conditions_per_sequence,
+                                                                  amplitude);
+
+
+    for(int i = 0; i != number_of_sequences; i++)
+    {
+        assert(rand_cond_matrix[i] == create_rand_conditions_unif_extreme(env_param{},ind_param{},conditions_per_sequence,amplitude, i));
+        assert(std::all_of(rand_cond_matrix[i].begin(), rand_cond_matrix[i].end(),
+                           [&expected_max_diff_coeff, &expected_min_diff_coeff]
+                           (const std::pair<env_param, ind_param>& cond)
+        {return !(cond.first.get_diff_coeff() < expected_min_diff_coeff + cond.first.get_var_diff_coeff() &&
+                  cond.first.get_diff_coeff() > expected_max_diff_coeff - cond.first.get_var_diff_coeff());}));
+    }
+
+}
+
 
 ///It is possible to create random conditions drawing from a uniform distribution
 void test_create_rand_cond_unif()
@@ -78,6 +109,38 @@ void test_create_rand_cond_unif()
 
     assert(mean_diff_coeff - expected_mean_diff_coeff > -0.01 &&
            mean_diff_coeff - expected_mean_diff_coeff < 0.01);
+}
+
+void test_create_rand_cond_unif_extreme()
+{
+    env_param e{};
+    ind_param i{};
+    int n_cond = 200;
+    double amplitude = 3;
+    int seed = 0;
+
+    auto expected_mean_diff_coeff = e.get_mean_diff_coeff();
+    auto expected_max_diff_coeff = e.get_mean_diff_coeff() + e.get_var_diff_coeff() * amplitude * 3;
+    auto expected_min_diff_coeff = e.get_mean_diff_coeff() - (e.get_var_diff_coeff() * amplitude * 3);
+
+    auto rand_cond = create_rand_conditions_unif_extreme(e, i, n_cond, amplitude, seed);
+
+    auto max_diff_coeff = find_max_diff_coeff_rand_cond(rand_cond);
+    auto min_diff_coeff = find_min_diff_coeff_rand_cond(rand_cond);
+    auto mean_diff_coeff = mean_diff_coeff_rand_cond(rand_cond);
+
+    //Test that min max and mean are same as in create_rand_cond_unif()
+    assert(max_diff_coeff - expected_max_diff_coeff > -0.01 && max_diff_coeff - expected_max_diff_coeff < 0.01);
+    assert(min_diff_coeff - expected_min_diff_coeff > -0.01 && min_diff_coeff - expected_min_diff_coeff < 0.01);
+    assert(mean_diff_coeff - expected_mean_diff_coeff > -0.01 && mean_diff_coeff - expected_mean_diff_coeff < 0.01);
+
+    //Assert that all values are not in the inner range of the uniform distribution
+    assert(std::all_of(rand_cond.begin(), rand_cond.end(),
+                       [&expected_max_diff_coeff, &expected_min_diff_coeff]
+                       (const std::pair<env_param, ind_param>& cond)
+    {return !(cond.first.get_diff_coeff() < expected_min_diff_coeff + cond.first.get_var_diff_coeff() &&
+              cond.first.get_diff_coeff() > expected_max_diff_coeff - cond.first.get_var_diff_coeff());}));
+
 }
 
 void test_simulation()//!OCLINT tests may be many
@@ -1610,6 +1673,14 @@ void test_simulation()//!OCLINT tests may be many
 
     ///It is possible to create random conditions drawing from a uniform distribution
     test_create_rand_cond_unif();
+
+    ///It is possible to create random conditions drawing from extremes of a uniform distribution
+    /// The extremes are the intervals between 2 and 3 var * amplitude values
+    test_create_rand_cond_unif_extreme();
+
+
+    ///It is possible to create random matrix that samples from the extremes
+    test_rand_cond_matrix_extreme();
 
 #endif
 }

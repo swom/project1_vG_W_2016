@@ -29,6 +29,13 @@ std::bernoulli_distribution create_bernoulli_dist(double p) noexcept;
 ///Creates a normal distribution
 std::normal_distribution<double> create_normal_dist(double m, double v);
 
+
+///Draws from a uniform distribution with a range  == range_unit * 3
+/// and returns only when value is between the intervals(both high and low) comprised
+/// between range + mean - range_unit/ range - mean + range_unit
+double draw_from_uniform_with_limit(double mean, double range_unit, std::minstd_rand& rng);
+int draw_from_uniform_with_limit(int mean, int range, std::minstd_rand& rng);
+
 ///Checks if a file with a given name exists(not tested=
 ///Taken from:
 ///https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c

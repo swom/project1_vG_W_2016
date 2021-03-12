@@ -280,6 +280,29 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
     return random_conditions;
 }
 
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme(const env_param& e,
+                                                                          const ind_param& i,
+                                                                          int n_rand_conditions,
+                                                                          double amplitude,
+                                                                          int seed)
+ {
+     std::minstd_rand rng;
+     rng.seed(seed);
+
+     std::vector<std::pair<env_param, ind_param>> random_conditions;
+
+     auto env = change_range_env_param(e, amplitude);
+     auto ind = change_range_ind_param(i, amplitude);
+
+     for(int r = 0; r != n_rand_conditions; r++)
+     {
+         random_conditions.push_back({change_env_param_unif_extreme(env, rng),
+                                      change_ind_param_unif_extreme(ind, rng)});
+     }
+
+     return random_conditions;
+ }
+
 std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(const env_param& e,
                                                                              const ind_param& i,
                                                                              double amplitude,
@@ -308,6 +331,23 @@ std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions
 
     return condition_matrix;
 }
+
+std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix_extreme(const env_param& ep,
+                                                                                         const ind_param& ip,
+                                                                                         int number_of_sequences,
+                                                                                         int conditions_per_sequence,
+                                                                                         double amplitude)
+ {
+     std::vector<std::vector<std::pair<env_param, ind_param>>> condition_matrix;
+
+     for(int i = 0; i != number_of_sequences; i++)
+     {
+         auto condition_sequence = create_rand_conditions_unif_extreme(ep, ip, conditions_per_sequence, amplitude, i);
+         condition_matrix.push_back(condition_sequence);
+     }
+
+     return condition_matrix;
+ }
 
 demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 {
