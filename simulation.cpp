@@ -821,7 +821,7 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                                           double amplitude,
                                           std::string prefix)
 {
-    auto random_conditions = create_rand_conditions_matrix(
+    auto random_conditions = create_rand_conditions_matrix_extreme(
                 s.get_env().get_param(),
                 ind_param{},
                 number_of_sequences,
@@ -964,7 +964,7 @@ int run_sim_evo_rand(double amplitude,
 
     auto s = load_sim_last_pop(seed,change_frequency);
 
-    auto prefix = "rand_evo_a" + std::to_string(amplitude) +
+    auto prefix = "rand_evo_extreme_a" + std::to_string(amplitude) +
             "seq_" + std::to_string(seq_index) +
             "cond_per_seq" + std::to_string(conditions_per_seq);
 
