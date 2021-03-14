@@ -12,17 +12,18 @@ evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
 hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
 sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
+sequence_extr = "C:/Users/p288427/Desktop/hd_rand_evo/sequence_extr"
 
 
 #####read data####
-setwd(sequence)
+setwd(sequence_extr)
 demographic = data.frame()
 
 
-if(getwd() == sequence)
+if(getwd() == sequence || getwd() == sequence_extr)
 {
   for (i in  list.files(path = '.',
-                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+                        pattern = "rand_evo_*?a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
   {
     if(file.size(i) <= 0) next()
     replicate = read.csv(i)
@@ -72,9 +73,7 @@ demographic = demographic %>%
   mutate(total_n = sum(c_across(c(spore, sporu, active)))) %>% 
   ungroup() %>%
   group_by(condition,cycle) %>%
-  mutate(
-    "ratio_value" = spore / max(spore)
-  ) %>%
+  mutate("ratio_value" = spore / max(spore)) %>%
   ungroup() %>%
   group_by(condition, seed) %>%
   mutate(
@@ -92,8 +91,8 @@ demographic = demographic %>%
   mutate("overall_r_value" = spore / max(spore)) %>% 
   ungroup()
 
-hd_demographic  = demographic
-save(hd_demographic, file = "hd_rand_evo_demo.R")
+???demographic  = demographic
+save(???demographic, file = "???_rand_evo_demo.R")
 
 ####load hd_rand condition from 0 : 49####
 #object name : hd_demographic
@@ -106,7 +105,10 @@ load(file = "hd_rand_evo_demo_no_upt_r.R")
 setwd(sequence)
 load("seq_rand_evo_demo.R")
 
-dem = seq_demographic
+setwd(sequence_extr)
+load("seqex_rand_evo_demo.R")
+
+dem = seqex_demographic
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -297,7 +299,7 @@ geom_rect(aes(xmin=cycle,
   facet_grid(seed ~ condition)
 
 
-ggsave("../../research presentation/env_seq_cub.pdf",
+ggsave("../../research presentation/env_seqex_cub.pdf",
        width = 500,
        height = 300, 
        units = "cm",
@@ -421,10 +423,10 @@ ggplot(data = dem %>% pivot_longer(c(change_value,ratio_value))) +
                 ymax=max(max(change_value),max(ratio_value)), 
                 fill = ratio_value)) +
   geom_line(aes(cycle, value, color = name)) +
-  scale_fill_gradientn("Ratio",colors = cub_hel, breaks = sections_rv_value_plot) +
+  scale_fill_gradientn("Ratio",colors = rbg, breaks = sections_rv_value_plot) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/improvement+ratio_seq_cub.pdf",
+ggsave("../../research presentation/improvement+ratio_seq_rbg.pdf",
        width = 500,
        height = 300, 
        units = "cm",
