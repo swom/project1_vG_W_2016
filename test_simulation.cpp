@@ -55,12 +55,12 @@ void test_rand_cond_matrix_extreme()
 {
 
     double amplitude = 3.0;
-    int conditions_per_sequence = 3;
-    int number_of_sequences = 2;
+    int conditions_per_sequence = 50;
+    int number_of_sequences = 50;
     env_param e{};
     ind_param ip{};
 
-    auto expected_max_diff_coeff = e.get_mean_diff_coeff() + e.get_var_diff_coeff() * amplitude * 3;
+    auto expected_max_diff_coeff = e.get_mean_diff_coeff() + (e.get_var_diff_coeff() * amplitude * 3);
     auto expected_min_diff_coeff = e.get_mean_diff_coeff() - (e.get_var_diff_coeff() * amplitude * 3);
 
 
@@ -73,11 +73,6 @@ void test_rand_cond_matrix_extreme()
     for(int i = 0; i != number_of_sequences; i++)
     {
         assert(rand_cond_matrix[i] == create_rand_conditions_unif_extreme(env_param{},ind_param{},conditions_per_sequence,amplitude, i));
-        assert(std::all_of(rand_cond_matrix[i].begin(), rand_cond_matrix[i].end(),
-                           [&expected_max_diff_coeff, &expected_min_diff_coeff]
-                           (const std::pair<env_param, ind_param>& cond)
-        {return !(cond.first.get_diff_coeff() < expected_min_diff_coeff + cond.first.get_var_diff_coeff() &&
-                  cond.first.get_diff_coeff() > expected_max_diff_coeff - cond.first.get_var_diff_coeff());}));
     }
 
 }
@@ -138,15 +133,20 @@ void test_create_rand_cond_unif_extreme()
     assert(std::all_of(rand_cond.begin(), rand_cond.end(),
                        [&expected_max_diff_coeff, &expected_min_diff_coeff]
                        (const std::pair<env_param, ind_param>& cond)
-    {return !(cond.first.get_diff_coeff() < expected_min_diff_coeff + cond.first.get_var_diff_coeff() &&
-              cond.first.get_diff_coeff() > expected_max_diff_coeff - cond.first.get_var_diff_coeff());}));
+    {return !(cond.first.get_diff_coeff() > expected_min_diff_coeff + cond.first.get_var_diff_coeff() &&
+              cond.first.get_diff_coeff() < expected_max_diff_coeff - cond.first.get_var_diff_coeff());}));
 
 }
 
 void test_simulation()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
+    ///It is possible to create random conditions drawing from extremes of a uniform distribution
+    /// The extremes are the intervals between 2 and 3 var * amplitude values
+    test_create_rand_cond_unif_extreme();
 
+    ///It is possible to create random matrix that samples from the extremes
+    test_rand_cond_matrix_extreme();
 
     //A simulation can be initialized by getting a sim_parmater class as an argument
     {
@@ -1674,13 +1674,9 @@ void test_simulation()//!OCLINT tests may be many
     ///It is possible to create random conditions drawing from a uniform distribution
     test_create_rand_cond_unif();
 
-    ///It is possible to create random conditions drawing from extremes of a uniform distribution
-    /// The extremes are the intervals between 2 and 3 var * amplitude values
-    test_create_rand_cond_unif_extreme();
 
 
-    ///It is possible to create random matrix that samples from the extremes
-    test_rand_cond_matrix_extreme();
+
 
 #endif
 }
