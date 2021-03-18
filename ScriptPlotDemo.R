@@ -17,7 +17,6 @@ for (i in  list.files(path = '.',pattern = "sim_demographic_s\\d+change_\\d+"))
 }
 
 n_columns = ncol(demographic)
-demographic = demographic[,-c(5: (n_columns - 2) )]
 colnames(demographic)= c("cycle",
                          "active",
                          "spore",
@@ -49,13 +48,16 @@ check_u =
 
 #plot
 demographic %>% 
-  subset(variable == "active") %>%
-  subset(seed == 1) %>% 
-  subset(cycle < 401) %>%
-  ggplot(aes(cycle,value)) + 
-  geom_point(color = "blue")  +
-  facet_grid(change_freq ~ .)
+  ggplot(aes(x = cycle, y = value, color = variable)) + 
+  geom_smooth()  +
+  facet_grid(change_freq ~ seed)
 
+
+ggsave("C:/Users/p288427/Desktop/research presentation/first_evo_demo.pdf",
+       width = 100,
+       height = 20, 
+       units = "cm",
+       limitsize = F)
 
 
 

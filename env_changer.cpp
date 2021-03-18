@@ -78,33 +78,39 @@ env_param change_env_param_norm(env_changer& e) noexcept
     return new_e;
 }
 
-env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept
+env_param change_env_param_unif(env_changer& e) noexcept
 {
-    auto new_diff_coeff = std::uniform_real_distribution<double>{e.get_mean_diff_coeff() - 3 * e.get_var_diff_coeff(),
-            e.get_mean_diff_coeff() + 3 * e.get_var_diff_coeff()}(rng);
 
-    e.set_diff_coeff(new_diff_coeff);
+    const auto& e_mean = e.get_mean_params();
+    env_param new_e = e_mean;
 
-    auto new_degr_rate = std::uniform_real_distribution<double>{e.get_mean_degr_rate() - 3 * e.get_var_degr_rate(),
-            e.get_mean_degr_rate() + 3 * e.get_var_degr_rate()}(rng);
+    auto range_diff = 3 * e.get_var_diff() * e.get_amplitude();
+    auto new_diff_coeff =
+            std::uniform_real_distribution<double>{e_mean.get_diff_coeff() - range_diff, e_mean.get_diff_coeff() - range_diff}(e.get_rng());
 
-    e.set_metab_degr(new_degr_rate);
+    new_e.set_diff_coeff(new_diff_coeff);
 
-    return e;
+    auto range_degr = 3 * e.get_amplitude() * e.get_var_degr();
+    auto new_degr_rate =
+            std::uniform_real_distribution<double>{e_mean.get_degr_rate() - range_degr, e_mean.get_degr_rate() - range_degr}(e.get_rng());
+
+    new_e.set_metab_degr(new_degr_rate);
+
+    return new_e;
 }
 
-env_param change_range_env_param(const env_param& e, double amplitude)
+env_param change_env_param_unif_extreme(env_changer& e) noexcept
 {
-    env_param env{e.get_grid_side(),
-                e.get_diff_coeff(),
-                e.get_init_food(),
-                e.get_degr_rate(),
-                e.get_mean_diff_coeff(),
-                e.get_mean_degr_rate(),
-                e.get_var_diff_coeff() * amplitude,
-                e.get_var_degr_rate() * amplitude}
-    ;
-    return env;
+    const auto& e_mean = e.get_mean_params();
+    env_param new_e = e.get_mean_params();
+
+    auto range_unit_diff = e.get_var_diff() * e.get_amplitude();
+    new_e.set_diff_coeff(draw_from_uniform_with_limit(e_mean.get_diff_coeff(), range_unit_diff, e.get_rng()));
+
+    auto range_unit_degr = e.get_var_degr() * e.get_amplitude();
+    new_e.set_metab_degr(draw_from_uniform_with_limit(e_mean.get_degr_rate(), range_unit_degr, e.get_rng()));
+
+    return new_e;
 }
 
 void save_env_changer(

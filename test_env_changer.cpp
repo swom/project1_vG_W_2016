@@ -81,19 +81,13 @@ void test_ec_load_save()
     double diff_coeff = 0.12;
     double init_food = 14.0;
     double metab_degrad_rate = 0.066;
-    double mean_diff_coeff = 0.223;
-    double mean_degr_rate = 0.456;
     double var_diff_coeff = 0.05;
     double var_degr_rate = 0.012;
 
     env_param e{grid_side,
                 diff_coeff,
                 init_food,
-                metab_degrad_rate,
-                mean_diff_coeff,
-                mean_degr_rate,
-                var_diff_coeff,
-                var_degr_rate};
+                metab_degrad_rate};
 
     double amplitude = 3.14;
     int seed = 132;
@@ -123,19 +117,13 @@ void test_ec_load_save_json()
     double diff_coeff = 0.12;
     double init_food = 14.0;
     double metab_degrad_rate = 0.066;
-    double mean_diff_coeff = 0.223;
-    double mean_degr_rate = 0.456;
     double var_diff_coeff = 0.05;
     double var_degr_rate = 0.012;
 
     env_param e{grid_side,
                 diff_coeff,
                 init_food,
-                metab_degrad_rate,
-                mean_diff_coeff,
-                mean_degr_rate,
-                var_diff_coeff,
-                var_degr_rate};
+                metab_degrad_rate};
 
     double amplitude = 3.14;
     int seed = 132;
@@ -167,42 +155,43 @@ void test_ec_load_save_json()
 ///
 void test_change_of_env()
 {
-    std::random_device r;
-    std::minstd_rand rng{r()};
-
+    int seed = 0;
+    double amplitude = 1.0;
     auto mean_diff_coeff = 0.1;
     auto mean_degr_coeff = 0.1;
     auto var_degr_rate = mean_degr_coeff / 3 - 0.01;
     auto var_diff_coeff = mean_diff_coeff / 3 - 0.01;
-    env_param e{1, 0.1, 0.1, 0.1,
-                mean_diff_coeff,
-                        mean_degr_coeff,
-                        var_diff_coeff,
-                        var_degr_rate};
+    env_param ep{1, 0.1, 0.1, 0.1};
+    env_changer e{ep,
+                amplitude,
+                seed,
+                var_degr_rate,
+                var_diff_coeff};
 
     int repeats = 1000;
 
-    double norm_mean_of_diff_coefficients = e.get_diff_coeff();
-    double norm_mean_of_degr_rates = e.get_degr_rate();
+    double norm_mean_of_diff_coefficients = e.get_mean_params().get_diff_coeff();
+    double norm_mean_of_degr_rates = e.get_mean_params().get_degr_rate();
     std::vector<double> variance_vector_degr_rate{norm_mean_of_degr_rates};
     std::vector<double> variance_vector_diff_coeff{norm_mean_of_diff_coefficients};
 
-    double unif_mean_of_diff_coefficients = e.get_diff_coeff();
-    double unif_mean_of_degr_rates = e.get_degr_rate();
+    double unif_mean_of_diff_coefficients = e.get_mean_params().get_diff_coeff();
+    double unif_mean_of_degr_rates = e.get_mean_params().get_degr_rate();
 
     for( int i = 0;  i != repeats; i++)
     {
         auto e_prev = e;
-        e = change_env_param_norm(e, rng);
-        norm_mean_of_diff_coefficients += e.get_diff_coeff();
-        norm_mean_of_degr_rates += e.get_degr_rate();
-        variance_vector_diff_coeff.push_back( e.get_diff_coeff());
-        variance_vector_degr_rate.push_back(e.get_degr_rate());
-        assert(e != e_prev);
-        e = e_prev;
-        change_env_param_unif(e, rng);
-        unif_mean_of_degr_rates += e.get_degr_rate();
-        unif_mean_of_diff_coefficients += e.get_diff_coeff();
+        auto env_norm = change_env_param_norm(e);
+        norm_mean_of_diff_coefficients += env_norm.get_diff_coeff();
+        norm_mean_of_degr_rates += env_norm.get_degr_rate();
+        variance_vector_diff_coeff.push_back( env_norm.get_diff_coeff());
+        variance_vector_degr_rate.push_back(env_norm.get_degr_rate());
+        assert(e == e_prev);
+        assert(e.get_mean_params() == env_norm);
+
+        auto env_unif = change_env_param_unif(e);
+        unif_mean_of_degr_rates += env_unif.get_degr_rate();
+        unif_mean_of_diff_coefficients += env_unif.get_diff_coeff();
     }
 
     norm_mean_of_diff_coefficients /= repeats;
@@ -221,19 +210,35 @@ void test_change_of_env()
 }
 
 
-/// It is possible to create env_ param object
-/// starting from initial ones,
-/// that have a wider range of possible values
+///Env_changers with different amplitudes
+/// produce different ranges of parameters
 ///
 void test_change_of_amplitude()
 {
-    env_param e;
-    double amplitude = 1.50;
+    double amplitude_1 = 1.0;
+    double amplitude_2 = 3.0;
+    int n_repeats = 1000;
 
-    auto e2 = change_range_env_param(e, amplitude);
+    env_changer e1{env_param{}, amplitude_1};
+    env_changer e2{env_param{}, amplitude_2};
 
-    assert(e.get_var_degr_rate() - (e2.get_var_degr_rate() / amplitude) < 0.00001
-           && e.get_var_degr_rate() - (e2.get_var_degr_rate() / amplitude) > -0.00001);
-    assert(e.get_var_diff_coeff() - (e2.get_var_diff_coeff() / amplitude) < 0.00001
-           && e.get_var_diff_coeff() - (e2.get_var_diff_coeff() / amplitude) > -0.00001);
+    std::vector<double> v1;
+    std::vector<double> v2;
+
+    for(int i = 0; i != n_repeats; i++)
+    {
+        v1.push_back(change_env_param_unif(e1).get_diff_coeff());
+        v2.push_back(change_env_param_unif(e2).get_diff_coeff());
+    }
+
+    auto min_1 = std::min_element(v1.begin(), v1.end());
+    auto min_2 = std::min_element(v2.begin(), v2.end());
+    auto max_1 = std::max_element(v1.begin(), v1.end());
+    auto max_2 = std::max_element(v2.begin(), v2.end());
+
+    assert(*min_1 * amplitude_2/amplitude_1 - *min_2 < 0.001 &&
+           *min_1 * amplitude_2/amplitude_1 - *min_2 > 0.001 );
+
+    assert(*max_1 * amplitude_2/amplitude_1 - *max_2 < 0.001 &&
+           *max_1 * amplitude_2/amplitude_1 - *max_2 > 0.001 );
 }

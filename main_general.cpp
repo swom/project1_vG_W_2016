@@ -14,24 +14,24 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int cycle_duration = 125;
     int seed = 0;
     int change_freq = 0;
-    int n_random_conditions = 50;
+    int n_seq = 50;
     int pop_max = pow(10,4);
     double amplitude = 3;
     bool overwrite = false;
     int replay_cycle = 0;
-    int seed_rand_cond;
-    int rand_cond_n;
+    int conditions_per_seq;
+    int seq_index;
     int collision_check_interval = 0;
 
     check_for_cmd_param(args,
                         seed,
                         change_freq,
-                        n_random_conditions,
+                        n_seq,
                         replay_cycle,
                         amplitude,
                         overwrite,
-                        seed_rand_cond,
-                        rand_cond_n);
+                        conditions_per_seq,
+                        seq_index);
 
     meta_param m{n_cycles,
                 cycle_duration,
@@ -42,7 +42,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
 
     ind_param i{0.8,
                10,
-               0.15};
+               0.1};
 
     pop_param p{1,
                 100,
@@ -84,7 +84,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         run_sim_rand(amplitude,
                      change_freq,
-                     n_random_conditions,
+                     n_seq,
                      pop_max,
                      seed,
                      overwrite);
@@ -93,7 +93,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         run_sim_best_rand(amplitude,
                           change_freq,
-                          n_random_conditions,
+                          n_seq,
                           pop_max,
                           seed,
                           overwrite);
@@ -102,10 +102,11 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         run_sim_evo_rand(amplitude,
                          change_freq,
-                         n_random_conditions,
+                         n_seq,
+                         conditions_per_seq,
                          pop_max,
                          seed,
-                         rand_cond_n,
+                         seq_index,
                          overwrite);
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
@@ -128,30 +129,30 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     {
         replay_rand_cond_test(change_freq,
                               seed,
-                              n_random_conditions,
+                              n_seq,
                               amplitude,
-                              seed_rand_cond,
-                              rand_cond_n,
+                              conditions_per_seq,
+                              seq_index,
                               pop_max);
     }
     else if(args.size() > 1 && args[1] == "--replay_rand_cond_best")
     {
         replay_best_rand_cond(change_freq,
                               seed,
-                              n_random_conditions,
+                              n_seq,
                               amplitude,
-                              seed_rand_cond,
-                              rand_cond_n,
+                              conditions_per_seq,
+                              seq_index,
                               pop_max);
     }
     else if(args.size() > 1 && args[1] == "--replay_rand_cond_evo")
     {
         replay_rand_cond_evo(change_freq,
                              seed,
-                             n_random_conditions,
+                             n_seq,
                              amplitude,
-                             seed_rand_cond,
-                             rand_cond_n,
+                             conditions_per_seq,
+                             seq_index,
                              pop_max);
     }
     else if(args.size() > 1 && args[1] == "--create_rand_cond_vec")
@@ -159,7 +160,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         create_vector_random_conditions(e,
                                         i,
                                         amplitude,
-                                        n_random_conditions);
+                                        n_seq);
 
     }
     else
@@ -167,7 +168,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
         run_standard(e, i, m,p,
                      amplitude,
                      change_freq,
-                     n_random_conditions,
+                     n_seq,
                      pop_max,
                      seed);
     }

@@ -1,5 +1,6 @@
 #include "env_param.h"
 #include "json.hpp"
+#include "utilities.h"
 #include <cassert>
 
 env_param::env_param(int grid_side,
@@ -81,47 +82,6 @@ bool operator==(const env_param& lhs, const env_param& rhs) noexcept
 bool operator!=( const env_param& lhs, const env_param& rhs) noexcept
 {
     return !(lhs == rhs);
-}
-
-env_param change_env_param_norm(env_param e, std::minstd_rand& rng) noexcept
-{
-
-    auto new_diff_coeff = std::normal_distribution<double>{e.get_mean_diff_coeff(),
-            e.get_var_diff_coeff()}(rng);
-
-    e.set_diff_coeff(new_diff_coeff);
-
-    auto new_degr_rate = std::normal_distribution<double>{e.get_mean_degr_rate(),
-            e.get_var_degr_rate()}(rng);
-
-    e.set_metab_degr(new_degr_rate);
-
-    return e;
-}
-
-env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept
-{
-    auto new_diff_coeff = std::uniform_real_distribution<double>{e.get_mean_diff_coeff() - 3 * e.get_var_diff_coeff(),
-            e.get_mean_diff_coeff() + 3 * e.get_var_diff_coeff()}(rng);
-
-    e.set_diff_coeff(new_diff_coeff);
-
-    auto new_degr_rate = std::uniform_real_distribution<double>{e.get_mean_degr_rate() - 3 * e.get_var_degr_rate(),
-            e.get_mean_degr_rate() + 3 * e.get_var_degr_rate()}(rng);
-
-    e.set_metab_degr(new_degr_rate);
-
-    return e;
-}
-
-env_param change_range_env_param(const env_param& e, double amplitude)
-{
-    env_param env{e.get_grid_side(),
-                e.get_diff_coeff(),
-                e.get_init_food(),
-                e.get_degr_rate()}
-    ;
-    return env;
 }
 
 void save_env_parameters(

@@ -81,7 +81,7 @@ void change_conditions(simulation& s) noexcept
 
 void change_env(simulation& s) noexcept
 {
-    auto new_env_param = change_env_param_norm(s.get_env().get_param(),s.get_rng());
+    auto new_env_param = change_env_param_norm(s.get_env_changer());
     s.get_env().set_new_env_param(new_env_param);
 }
 
@@ -141,8 +141,8 @@ std::string create_funders_success_name(const simulation& s,
 {
     return  std::string{
         prefix +
-        "funders_success_s" +
-        std::to_string(s.get_meta_param().get_seed()) +
+                "funders_success_s" +
+                std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
                 suffix +
@@ -226,8 +226,8 @@ std::string create_sim_demo_name(const simulation& s, std::string prefix, std::s
 {
     return  std::string{
         prefix +
-        "sim_demographic_s" +
-        std::to_string(s.get_meta_param().get_seed()) +
+                "sim_demographic_s" +
+                std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
                 suffix +
@@ -258,7 +258,7 @@ std::string create_sim_par_name(int seed, int change_freq)
 }
 
 
-std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const env_param& e,
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(env_changer e,
                                                                          const ind_param& i,
                                                                          int n_rand_conditions,
                                                                          double amplitude,
@@ -269,19 +269,40 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
 
     std::vector<std::pair<env_param, ind_param>> random_conditions;
 
-    auto env = change_range_env_param(e, amplitude);
     auto ind = change_range_ind_param(i, amplitude);
 
     for(int r = 0; r != n_rand_conditions; r++)
     {
-        random_conditions.push_back({change_env_param_unif(env, rng),
+        random_conditions.push_back({change_env_param_unif(e),
                                      change_ind_param_unif(ind, rng)});
     }
 
     return random_conditions;
 }
 
-std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(const env_param& e,
+std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme(env_changer& e,
+                                                                          const ind_param& i,
+                                                                          int n_rand_conditions,
+                                                                          double amplitude,
+                                                                          int seed)
+ {
+     std::minstd_rand rng;
+     rng.seed(seed);
+
+     std::vector<std::pair<env_param, ind_param>> random_conditions;
+
+     auto ind = change_range_ind_param(i, amplitude);
+
+     for(int r = 0; r != n_rand_conditions; r++)
+     {
+         random_conditions.push_back({change_env_param_unif_extreme(e),
+                                      change_ind_param_unif_extreme(ind, rng)});
+     }
+
+     return random_conditions;
+ }
+
+std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(env_changer& e,
                                                                              const ind_param& i,
                                                                              double amplitude,
                                                                              int n_conditions,
@@ -293,6 +314,39 @@ std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(con
     return rand_cond_vector;
 }
 
+std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix(env_changer ep,
+                                                                                        const ind_param& ip,
+                                                                                        int number_of_sequences,
+                                                                                        int conditions_per_sequence,
+                                                                                        double amplitude)
+{
+    std::vector<std::vector<std::pair<env_param, ind_param>>> condition_matrix;
+
+    for(int i = 0; i != number_of_sequences; i++)
+    {
+        auto condition_sequence = create_rand_conditions_unif(ep, ip, conditions_per_sequence, amplitude, i);
+        condition_matrix.push_back(condition_sequence);
+    }
+
+    return condition_matrix;
+}
+
+std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix_extreme(env_changer& ep,
+                                                                                         const ind_param& ip,
+                                                                                         int number_of_sequences,
+                                                                                         int conditions_per_sequence,
+                                                                                         double amplitude)
+ {
+     std::vector<std::vector<std::pair<env_param, ind_param>>> condition_matrix;
+
+     for(int i = 0; i != number_of_sequences; i++)
+     {
+         auto condition_sequence = create_rand_conditions_unif_extreme(ep, ip, conditions_per_sequence, amplitude, i);
+         condition_matrix.push_back(condition_sequence);
+     }
+
+     return condition_matrix;
+ }
 
 demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 {
@@ -354,6 +408,53 @@ void exec(simulation& s) noexcept
     }
 }
 
+void exec_change(simulation& s,
+                 const std::vector<std::pair<env_param, ind_param>>& rand_conditions)
+{
+    try {
+        if(rand_conditions.size() > s.get_meta_param().get_n_cycles())
+        {
+            throw std::string{"More random conditions than cycles!"};
+        }
+        else if(s.get_meta_param().get_n_cycles() % rand_conditions.size())
+        {
+            throw std::string{"conditions are not a dividend of the number of cycles!"};
+        }
+    }
+    catch (std::string& e) {
+        std::cout << e << std::endl;
+#ifdef NDEBUG
+        abort();
+#endif
+    }
+
+    size_t condition_index = 0;
+    auto condition_duration = s.get_meta_param().get_n_cycles() / rand_conditions.size();
+
+    while(s.get_cycle() != s.get_meta_param().get_n_cycles())
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        auto modulus =  s.get_cycle() % condition_duration;
+
+        if( modulus == 0 && condition_index < rand_conditions.size())
+        {
+            reproduce_rand_cond(s, rand_conditions, condition_index);
+            condition_index++;
+        }
+
+        exec_cycle(s);
+
+        s.reset_timesteps();
+        s.tick_cycles();
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - start);
+        std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
+                    "time: " << duration.count() << "s" << std::endl <<
+                    "n_individuals: " << s.get_pop().get_pop_size() << std::endl << std::endl;
+    }
+}
+
 void feeding(simulation& s)
 {
     for(auto& ind : s.get_pop().get_v_ind())
@@ -377,6 +478,34 @@ void jordi_feeding(simulation& s)
         {continue;}
         jordi_feed(ind,s.get_env().get_cell(index_grid));
     }
+}
+
+double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto max = std::max_element(rand_cond.begin(), rand_cond.end(),
+                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+    {return lhs.first.get_diff_coeff() < rhs.first.get_diff_coeff();});
+
+    return max->first.get_diff_coeff();
+
+}
+
+double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto min = std::max_element(rand_cond.begin(), rand_cond.end(),
+                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+    {return lhs.first.get_diff_coeff() > rhs.first.get_diff_coeff();});
+
+    return min->first.get_diff_coeff();
+}
+
+double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
+{
+    auto sum = std::accumulate(rand_cond.begin(), rand_cond.end(), 0.0,
+                               [] (const double& s, const std::pair<env_param,ind_param>& lhs)
+    {return lhs.first.get_diff_coeff() + s;});
+
+    return sum / rand_cond.size();
 }
 
 simulation load_sim_no_pop(int seed, int change_freq)
@@ -634,8 +763,9 @@ demographic_sim run_test_random_conditions(const simulation& s,
                                            double amplitude,
                                            std::string name)
 {
+    auto s_env_changer =  s.get_env_changer();
     auto random_conditions = create_rand_conditions_unif(
-                s.get_env().get_param(),
+                s_env_changer,
                 s.get_pop().get_v_ind().begin()->get_param(),
                 n_number_rand_cond,
                 amplitude,
@@ -677,18 +807,21 @@ demographic_sim run_test_random_conditions(const simulation& s,
 }
 
 demographic_sim run_evo_random_conditions(const simulation& s,
-                                          int number_rand_cond,
+                                          int number_of_sequences,
+                                          int cond_per_seq,
+                                          int seq_index,
                                           int pop_max,
                                           double amplitude,
-                                          int n_rand_cond,
                                           std::string prefix)
 {
-    auto random_conditions = create_rand_conditions_unif(
-                s.get_env().get_param(),
+    auto s_env_changer = s.get_env_changer();
+
+    auto random_conditions = create_rand_conditions_matrix_extreme(
+                s_env_changer,
                 ind_param{},
-                number_rand_cond,
-                amplitude,
-                0);
+                number_of_sequences,
+                cond_per_seq,
+                amplitude);
 
     simulation rand_s = no_dem_and_fund_copy(s);
 
@@ -698,10 +831,9 @@ demographic_sim run_evo_random_conditions(const simulation& s,
 
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
-    reproduce_rand_cond(rand_s, random_conditions, n_rand_cond);
     auto start = std::chrono::high_resolution_clock::now();
 
-    exec(rand_s);
+    exec_change(rand_s, random_conditions[seq_index]);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
@@ -710,10 +842,9 @@ demographic_sim run_evo_random_conditions(const simulation& s,
                 std::endl;
 
     std::cout << "saving demographics" << std::endl;
-    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, prefix, "_no_upt_rate"));
+    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, prefix));
     std::cout << "saving funders" << std::endl;
-    save_funders_success(rand_s.get_funders_success(),
-                         create_funders_success_name(rand_s, prefix, "_no_upt_rate"));
+    save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, prefix));
 
     return rand_s.get_demo_sim();
 }
@@ -818,16 +949,19 @@ int run_sim_rand(double amplitude,
 
 int run_sim_evo_rand(double amplitude,
                      int change_frequency,
-                     int number_random_conditions,
+                     int num_of_sequences,
+                     int conditions_per_seq,
                      int pop_max,
                      int seed,
-                     int rand_cond_n,
+                     int seq_index,
                      bool overwrite)
 {
 
     auto s = load_sim_last_pop(seed,change_frequency);
 
-    auto prefix = "rand_evo_a" + std::to_string(amplitude) + "cond_" + std::to_string(rand_cond_n);
+    auto prefix = "rand_evo_extreme_a" + std::to_string(amplitude) +
+            "seq_" + std::to_string(seq_index) +
+            "cond_per_seq" + std::to_string(conditions_per_seq);
 
     if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
     {
@@ -838,10 +972,11 @@ int run_sim_evo_rand(double amplitude,
 
     auto start = std::chrono::high_resolution_clock::now();
     run_evo_random_conditions(s,
-                              number_random_conditions,
+                              num_of_sequences,
+                              conditions_per_seq,
+                              seq_index,
                               pop_max,
                               amplitude,
-                              rand_cond_n,
                               prefix);
 
     auto stop = std::chrono::high_resolution_clock::now();
@@ -1001,7 +1136,7 @@ int tick(simulation& s, int n_ticks)
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
     //death(s.get_pop());
-    jordi_death(s.get_pop());
+    //jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());
     if( n_ticks > 0 && s.get_timestep() % n_ticks == 0)

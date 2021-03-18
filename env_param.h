@@ -14,6 +14,7 @@ public:
               double init_food = 10.0,
               double metab_degrad_rate = 0.1);
 
+
     ///For to_json and from_json
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(env_param,
                                    m_grid_side,

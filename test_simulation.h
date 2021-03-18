@@ -6,4 +6,5 @@
 void test_env_changer_init();
 
 void test_simulation();
+
 #endif // TEST_SIMULATION_H

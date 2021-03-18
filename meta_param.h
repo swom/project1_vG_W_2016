@@ -8,7 +8,7 @@ class meta_param
 {
 public:
     meta_param(int n_cycles = 1,
-               int cycle_duration = 200,
+               int cycle_duration = 2,
                int seed = 1,
                int change_frequency = 0,
                int pop_max = 1000000,

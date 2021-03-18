@@ -1,5 +1,144 @@
 #include"test_simulation.h"
 
+void test_exec_change()
+{
+    simulation s;
+    ///let' put more than one cycle in meta_param
+    int n_cycles = 500;
+
+    s.get_meta_param() =  meta_param{n_cycles};
+
+    int n_rand_cond = 50;
+    double amplitude = 3.0;
+    int seed = 0;
+
+    auto rand_cond = create_rand_conditions_unif(s.get_env_changer(),
+                                                 s.get_pop().get_ind(0).get_param(),
+                                                 n_rand_cond,
+                                                 amplitude,
+                                                 seed);
+
+    exec_change(s, rand_cond);
+
+    auto demo_cycles = s.get_demo_sim().get_demo_cycles();
+
+    for(size_t i = 0; i != demo_cycles.size() - 1 ; i++)
+    {
+        auto condition_index = i / (n_cycles / n_rand_cond);
+        assert(demo_cycles[i].get_env_param() == rand_cond[condition_index].first);
+        assert(demo_cycles[i].get_ind_param() == rand_cond[condition_index].second);
+    }
+}
+
+void test_rand_cond_matrix()
+{
+
+    double amplitude = 3.0;
+    int conditions_per_sequence = 3;
+    int number_of_sequences = 2;
+
+
+    auto rand_cond_matrix = create_rand_conditions_matrix(env_changer{}, ind_param{},
+                                                          number_of_sequences,
+                                                          conditions_per_sequence,
+                                                          amplitude);
+
+
+    for(int i = 0; i != number_of_sequences; i++)
+    {
+        assert(rand_cond_matrix[i] == create_rand_conditions_unif(env_changer{},ind_param{},conditions_per_sequence,amplitude, i));
+    }
+
+}
+
+void test_rand_cond_matrix_extreme()
+{
+
+    double amplitude = 3.0;
+    int conditions_per_sequence = 50;
+    int number_of_sequences = 50;
+    env_changer e{env_param{}, amplitude};
+    ind_param ip{};
+
+    auto expected_max_diff_coeff = e.get_mean_params().get_diff_coeff() + (e.get_var_diff() * amplitude * 3);
+    auto expected_min_diff_coeff = e.get_mean_params().get_diff_coeff() - (e.get_var_diff() * amplitude * 3);
+
+
+    auto rand_cond_matrix = create_rand_conditions_matrix_extreme(e, ip,
+                                                                  number_of_sequences,
+                                                                  conditions_per_sequence,
+                                                                  amplitude);
+
+
+    for(int i = 0; i != number_of_sequences; i++)
+    {
+        assert(rand_cond_matrix[i] == create_rand_conditions_unif_extreme(e,ind_param{},conditions_per_sequence,amplitude, i));
+    }
+
+}
+
+
+///It is possible to create random conditions drawing from a uniform distribution
+void test_create_rand_cond_unif()
+{
+    int n_cond = 100;
+    double amplitude = 3;
+    int seed = 0;
+    env_changer e{env_param{}, amplitude};
+    ind_param i{};
+
+    auto expected_mean_diff_coeff = e.get_mean_params().get_diff_coeff();
+    auto expected_max_diff_coeff = e.get_mean_params().get_diff_coeff() + e.get_var_diff() * e.get_amplitude() * 3;
+    auto expected_min_diff_coeff = e.get_mean_params().get_diff_coeff() - (e.get_var_diff() * e.get_amplitude() * 3);
+
+    auto rand_cond = create_rand_conditions_unif(e, i, n_cond, amplitude, seed);
+    auto max_diff_coeff = find_max_diff_coeff_rand_cond(rand_cond);
+    auto min_diff_coeff = find_min_diff_coeff_rand_cond(rand_cond);
+    auto mean_diff_coeff = mean_diff_coeff_rand_cond(rand_cond);
+
+    assert(max_diff_coeff - expected_max_diff_coeff > -0.01 &&
+           max_diff_coeff - expected_max_diff_coeff < 0.01);
+
+    assert(min_diff_coeff - expected_min_diff_coeff > -0.01 &&
+           min_diff_coeff - expected_min_diff_coeff < 0.01);
+
+    assert(mean_diff_coeff - expected_mean_diff_coeff > -0.01 &&
+           mean_diff_coeff - expected_mean_diff_coeff < 0.01);
+}
+
+void test_create_rand_cond_unif_extreme()
+{
+    int n_cond = 100;
+    double amplitude = 3;
+    int seed = 0;
+    env_changer e{env_param{}, amplitude};
+    ind_param i{};
+
+    auto range_unit_diff = e.get_var_diff() * e.get_amplitude();
+    auto expected_mean_diff_coeff = e.get_mean_params().get_diff_coeff();
+    auto expected_max_diff_coeff = e.get_mean_params().get_diff_coeff() + range_unit_diff * 3;
+    auto expected_min_diff_coeff = e.get_mean_params().get_diff_coeff() - (range_unit_diff * 3);
+
+    auto rand_cond = create_rand_conditions_unif_extreme(e, i, n_cond, amplitude, seed);
+
+    auto max_diff_coeff = find_max_diff_coeff_rand_cond(rand_cond);
+    auto min_diff_coeff = find_min_diff_coeff_rand_cond(rand_cond);
+    auto mean_diff_coeff = mean_diff_coeff_rand_cond(rand_cond);
+
+    //Test that min max and mean are same as in create_rand_cond_unif()
+    assert(max_diff_coeff - expected_max_diff_coeff > -0.01 && max_diff_coeff - expected_max_diff_coeff < 0.01);
+    assert(min_diff_coeff - expected_min_diff_coeff > -0.01 && min_diff_coeff - expected_min_diff_coeff < 0.01);
+    assert(mean_diff_coeff - expected_mean_diff_coeff > -0.01 && mean_diff_coeff - expected_mean_diff_coeff < 0.01);
+
+    //Assert that all values are not in the inner range of the uniform distribution
+    assert(std::all_of(rand_cond.begin(), rand_cond.end(),
+                       [&expected_max_diff_coeff, &expected_min_diff_coeff, &range_unit_diff]
+                       (const std::pair<env_param, ind_param>& cond)
+    {return !(cond.first.get_diff_coeff() > expected_min_diff_coeff + range_unit_diff &&
+              cond.first.get_diff_coeff() < expected_max_diff_coeff - range_unit_diff);}));
+
+}
+
 void test_env_changer_init(){
 
     env_changer ec{};
@@ -11,6 +150,12 @@ void test_env_changer_init(){
 void test_simulation()
 {
 #ifndef NDEBUG
+    ///It is possible to create random conditions drawing from extremes of a uniform distribution
+    /// The extremes are the intervals between 2 and 3 var * amplitude values
+    test_create_rand_cond_unif_extreme();
+
+    ///It is possible to create random matrix that samples from the extremes
+    test_rand_cond_matrix_extreme();
 
     //A simulation can be initialized by getting a sim_parmater class as an argument
     {
@@ -1041,11 +1186,11 @@ void test_simulation()
         auto mean_degr_coeff = 0.1;
         auto var_degr_rate = mean_degr_coeff / 3 - 0.01;
         auto var_diff_coeff = mean_diff_coeff / 3 - 0.01;
-        env_param e_p{1, 0.1, 0.1, 0.1,
-                      mean_diff_coeff,
-                              mean_degr_coeff,
-                              var_diff_coeff,
-                              var_degr_rate};
+        env_changer e_p{env_param{1,mean_diff_coeff,10,mean_degr_coeff},
+                       1,
+                       0,
+                       var_degr_rate,
+                       var_diff_coeff};
         pop_param p;
         meta_param m;
         ind_param ind;
@@ -1084,12 +1229,11 @@ void test_simulation()
         auto mean_degr_coeff = 0.1;
         auto var_degr_rate = mean_degr_coeff / 3 - 0.01;
         auto var_diff_coeff = mean_diff_coeff / 3 - 0.01;
-        env_param e{1, 0.1, 0.1, 0.1,
-                    mean_diff_coeff,
-                            mean_degr_coeff,
-                            var_diff_coeff,
-                            var_degr_rate};
-
+        env_changer e{env_param{1,mean_diff_coeff,10,mean_degr_coeff},
+                       1,
+                       0,
+                       var_degr_rate,
+                       var_diff_coeff};
         pop_param p;
         ind_param i;
         sim_param s_p{e, i, m, p};
@@ -1118,7 +1262,7 @@ void test_simulation()
     //It is possible to save and load a random conditions in a vector
     {
         //Make a random conditions .csv file
-        env_param env;
+        env_changer env;
         ind_param ind;
         std::minstd_rand rng;
         int n_conditions = 2;
@@ -1153,7 +1297,7 @@ void test_simulation()
         int pop_max = pow(10,4);
 
         auto rand_conditions_vector = create_rand_conditions_unif(
-                    s.get_env().get_param(),
+                    s.get_env_changer(),
                     s.get_pop().get_v_ind().begin()->get_param(),
                     repeats,
                     amplitude,
@@ -1178,7 +1322,7 @@ void test_simulation()
     {
 
         //Create random conditions
-        env_param env;
+        env_changer env;
         ind_param ind;
         std::minstd_rand rng;
         std::vector<std::pair<env_param,ind_param>> rand_conditions;
@@ -1186,7 +1330,7 @@ void test_simulation()
 
         for(int i = 0; i != repeats; i++)
         {
-            rand_conditions.push_back({change_env_param_norm(env, rng),
+            rand_conditions.push_back({change_env_param_norm(env),
                                        change_ind_param_norm(ind, rng)});
         }
 
@@ -1229,7 +1373,7 @@ void test_simulation()
     {
         int n_random_conditions = 2;
         int seed = 55;
-        env_param e;
+        env_changer e;
         ind_param i;
         auto amplitude = 1.0; //the range will stay the same
         auto rand_cond = create_rand_conditions_unif(e,
@@ -1543,6 +1687,20 @@ void test_simulation()
     }
 
     test_env_changer_init();
+    ///The function exec_change() takes random a random condition vector and
+    /// changes the environment accordingly throughout the simulation
+    test_exec_change();
+
+    ///A matrix of random conditions can be created
+    test_rand_cond_matrix();
+
+    ///It is possible to create random conditions drawing from a uniform distribution
+    test_create_rand_cond_unif();
+
+
+
+
+
 #endif
 }
 

@@ -12,23 +12,24 @@ evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
 hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
 sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
+sequence_extr = "C:/Users/p288427/Desktop/hd_rand_evo/sequence_extr"
 
 
 #####read data####
-setwd(sequence)
+setwd(sequence_extr)
 demographic = data.frame()
 
 
-if(getwd() == sequence)
+if(getwd() == sequence || getwd() == sequence_extr)
 {
   for (i in  list.files(path = '.',
-                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+                        pattern = "rand_evo_extreme_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
   {
     if(file.size(i) <= 0) next()
     replicate = read.csv(i)
     replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
     replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
-    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
     replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
@@ -73,9 +74,7 @@ demographic = demographic %>%
   mutate(total_n = sum(c_across(c(spore, sporu, active)))) %>% 
   ungroup() %>%
   group_by(condition,cycle) %>%
-  mutate(
-    "ratio_value" = spore / max(spore)
-  ) %>%
+  mutate("ratio_value" = spore / max(spore)) %>%
   ungroup() %>%
   group_by(condition, seed) %>%
   mutate(
@@ -93,8 +92,8 @@ demographic = demographic %>%
   mutate("overall_r_value" = spore / max(spore)) %>% 
   ungroup()
 
-hd_demographic  = demographic
-save(hd_demographic, file = "hd_rand_evo_demo.R")
+seqex_demographic  = demographic
+save(seq_demographic, file = "seqex_rand_evo_demo.R")
 
 ####load hd_rand condition from 0 : 49####
 #object name : hd_demographic
@@ -105,9 +104,13 @@ setwd(hd_rand_evo_no_upt)
 
 load(file = "hd_rand_evo_demo_no_upt_r.R")
 
-dem = hd_demographic_no_upt %>%
-  subset(env_p_12 == 0)
+setwd(sequence)
+load("seq_rand_evo_demo.R")
 
+setwd(sequence_extr)
+load("seqex_rand_evo_demo.R")
+
+dem = seq_demographic
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -284,8 +287,25 @@ dem_d = dem %>%
 
 dem_d$env_type = as.factor(dem_d$env_type)
 
+#for normal
 ggplot(data = dem_d %>% subset(cycle == max(cycle))) +
   geom_tile(aes(condition, seed, fill = env_type))
+
+#for sequence
+ggplot(data = dem_d) +
+geom_rect(aes(xmin=cycle,
+              xmax=cycle+1,
+              ymin=min(min(change_value),min(ratio_value)),
+              ymax=max(max(change_value),max(ratio_value)), 
+              fill = env_type)) +
+  facet_grid(seed ~ condition)
+
+
+ggsave("../../research presentation/env_seqex_cub.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm",
+       limitsize = F)
 
 ####plot populations that do not reach cap####
 ggplot(data = dem %>%  subset(cycle == max(cycle))) +
@@ -357,6 +377,17 @@ sections_rv_value_plot = unique(
      seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 - 1)),
      seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 + 8))))
 
+
+####for ratio_value cluster
+avg_ratio = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value))
+rv_avg_qntl = quantile(avg_ratio$avg_ratio)
+sections_avg_rv_value = unique(
+  c( seq(rv_avg_qntl[1], rv_avg_qntl[2], length = as.integer(n_colors/3 + 2)),
+     seq(rv_avg_qntl[2], rv_avg_qntl[4], length = as.integer(n_colors/3 + 3)),
+     seq(rv_avg_qntl[4], rv_avg_qntl[5], length = as.integer(n_colors/3 ))))
+
 ####for change value
 c_qntl = quantile(dem$change_value)
 sections_c_value = unique(
@@ -374,23 +405,12 @@ sections_v_value = unique(
 
 ###Plotting ratio-value beginning and end plus points of value####
 
-ggplot(data = dem_all_tmstps %>% pivot_longer(c(spore, sporu, active, total_n))) +
-  # geom_rect(aes(ymin=min(spore),
-  #               ymax= max(spore)  + 1,
-  #               xmin=min(cycle),
-  #               xmax= max(cycle) / 2,
-  #               fill = ratio_start_production), alpha =0.5) + 
-  # geom_rect(aes(ymin=min(spore),
-  #               ymax= max(spore)  + 1,
-  #               xmin= max(cycle) / 2,
-  #               xmax= max(cycle),
-  #               fill = ratio_end_production), alpha =0.5) +
-  # geom_point(aes(cycle,spore)) +
-# scale_fill_gradientn("Ratio",colors = cubehelix(10)) +
-geom_line(aes(cycle,value, color = name)) +
+ggplot(data = dem %>% pivot_longer(c(ratio_value)), 
+       aes(cycle,value, color = name)) +
+  geom_smooth() +
   facet_grid(seed ~ condition)
 
-ggsave("../research presentation/rv_s_e_p_only_complete_cycle.pdf",
+ggsave("../../research presentation/smooth_ratio_values.pdf",
        width = 500,
        height = 300, 
        units = "cm",
@@ -408,8 +428,9 @@ ggplot(data = dem %>% pivot_longer(c(change_value,ratio_value))) +
   scale_fill_gradientn("Ratio",colors = rbg, breaks = sections_rv_value_plot) +
   facet_grid(seed ~ condition)
 
-ggsave("../research presentation/improvement+ratio_no_upt_rbg.pdf",
-       width = 500,
+
+ggsave("../../research presentation/improvement+ratio_seqex_rbg.pdf",
+9       width = 500,
        height = 300, 
        units = "cm",
        limitsize = F)
@@ -495,7 +516,6 @@ start_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_start)))))
 
 #end
 clust_dem_end = dem %>% 
-  # subset(as.numeric(seed) > 30) %>% 
   subset(cycle == max(cycle)) %>% 
   select(seed, ratio_value, condition) %>% 
   spread(condition, ratio_value) %>% 
@@ -506,6 +526,27 @@ clust_dem_end = dem %>%
 end_clust_col = as.dendrogram(hclust(dist(t(as.matrix(clust_dem_end)))))
 end_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_end)))))
 
+#avg
+clust_dem_avg = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value))%>% 
+  spread(condition, avg_ratio) %>% 
+  column_to_rownames(var = "seed") %>% 
+  drop_na()
+
+#col and row clustering for avg ratio_value
+avg_clust_col = as.dendrogram(hclust(dist(t(as.matrix(clust_dem_avg)))))
+avg_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_avg)))))
+
+#clust avg
+heatmap.2(as.matrix(clust_dem_avg),
+          Rowv = avg_clust_row,
+          Colv = avg_clust_col,
+          scale = "none",
+          trace = "none",
+          col = rbg, 
+          breaks = sections_avg_rv_value,
+          main = "avg_c")
 
 #clust_Start
 #plot start with clust_start
@@ -823,7 +864,8 @@ heatmap.2(as.matrix(clust_change) ,
           col = rbg,
           breaks = sections_c_value)
 
-####heatmap cluster for qunatiles of avg change value#####
+
+####heatmap cluster for quantiles of avg change value#####
 clust_change_qntl = dem %>% 
   group_by(seed, condition) %>% 
   summarise(avg_change = mean(change_value))%>% 
