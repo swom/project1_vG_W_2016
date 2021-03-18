@@ -1519,6 +1519,7 @@ void test_simulation()
         assert(exists(expexcted_name_6_cycles_last_pop));
         assert(exists(expexcted_name_6_cycles_b_l_p));
     }
+
     ///The two last population of funders can be saved
     {
         env_param e;

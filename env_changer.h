@@ -61,6 +61,24 @@ bool operator==(const env_changer& lhs, const env_changer& rhs) noexcept;
 
 bool operator!=(const env_changer& lhs, const env_changer& rhs) noexcept;
 
+///Returns a new env_param that is a changed version of the
+/// given env_param
+/// whith new values drawn from a normal distribution
+/// with mean and variance as indicated by the m_mean* and m_var* members
+env_param change_env_param_norm(env_param e, std::minstd_rand &rng) noexcept;
+
+///Returns a new env_param that is a changed version of the
+/// given env_param
+/// whith new values drawn from a uniform distribution
+/// with mean as indicated by the m_mean* members
+/// and range = m_mean* -/+ 3 * m_var* members
+env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept;
+
+///Returns a env_param whose variances are the variances
+/// of the given env_param object multiplied
+/// by a factor = amplitude
+env_param change_range_env_param(const env_param& e, double amplitude);
+
 env_changer load_env_changer(const std::string& filename);
 
 void save_env_changer(const env_changer& p, const std::string& filename);

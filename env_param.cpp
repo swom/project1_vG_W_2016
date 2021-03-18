@@ -5,19 +5,11 @@
 env_param::env_param(int grid_side,
                      double diff_coeff,
                      double init_food,
-                     double metab_degrad_rate,
-                     double mean_diff_coeff,
-                     double mean_degr_rate,
-                     double var_diff_coeff,
-                     double var_degr_coeff):
+                     double metab_degrad_rate):
     m_diff_coeff{diff_coeff},
     m_grid_side{grid_side},
     m_init_food{init_food},
-    m_metab_degradation_rate{metab_degrad_rate},
-    m_mean_diff_coeff{mean_diff_coeff},
-    m_mean_degr_rate{mean_degr_rate},
-    m_var_diff_coeff{var_diff_coeff},
-    m_var_degr_rate{var_degr_coeff}
+    m_metab_degradation_rate{metab_degrad_rate}
 {
     assert(m_diff_coeff > -0.000000000001 &&
            m_diff_coeff < 1.000000000001);
@@ -25,12 +17,6 @@ env_param::env_param(int grid_side,
     assert(m_init_food > -0.000000000001);
     assert(m_metab_degradation_rate > -0.000000001 &&
            m_metab_degradation_rate < 1.000000001);
-    assert(m_var_degr_rate > -0.00000001);
-    assert(m_var_diff_coeff > -0.00000001);
-    assert(m_mean_degr_rate > -0.00000001);
-    assert(m_mean_diff_coeff > -0.00000001);
-    assert(m_mean_diff_coeff - m_var_diff_coeff * 3 > -0.0000000000001);
-    assert(m_mean_degr_rate - m_var_degr_rate * 3 > -0.0000000001);
 }
 
 
@@ -41,12 +27,7 @@ std::ostream& operator<<(std::ostream& os, const env_param& e)
     os << e.get_grid_side() << " , "
        << e.get_init_food() << " , "
        << e.get_diff_coeff()  << " , "
-       << e.get_degr_rate() << " , "
-       << e.get_mean_diff_coeff() << " , "
-       << e.get_mean_degr_rate() << " , "
-       << e.get_var_diff_coeff() << " , "
-       << e.get_var_degr_rate();
-
+       << e.get_degr_rate();
     return os;
 }
 
@@ -77,11 +58,7 @@ std::ifstream& operator >>(std::ifstream& is, env_param& e)
             grid_side,
             diff_coeff,
             init_food,
-            metab_degrad_rate,
-            mean_diff_coeff,
-            mean_degr_rate,
-            var_diff_coeff,
-            var_degr_coeff}
+            metab_degrad_rate}
             ;
 
     return is;
@@ -142,11 +119,7 @@ env_param change_range_env_param(const env_param& e, double amplitude)
     env_param env{e.get_grid_side(),
                 e.get_diff_coeff(),
                 e.get_init_food(),
-                e.get_degr_rate(),
-                e.get_mean_diff_coeff(),
-                e.get_mean_degr_rate(),
-                e.get_var_diff_coeff() * amplitude,
-                e.get_var_degr_rate() * amplitude}
+                e.get_degr_rate()}
     ;
     return env;
 }
