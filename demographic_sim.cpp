@@ -24,7 +24,7 @@ std::string create_sim_demo_name(int seed, int change_freq)
         std::to_string(seed) +
                 "change_" +
                 std::to_string(change_freq) +
-                ".csv"
+                ".json"
     };
 }
 
@@ -35,48 +35,7 @@ demographic_sim load_demographic_sim(
     std::ifstream f(filename);
     if(!f.is_open())
     {
-        std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
-        abort();
-    }
-    demographic_sim d_s;
-    demographic_cycle d_c{0,
-                          0,
-                          0,
-                          0,
-                          env_param{}, ind_param{}};
-    std::string dummy;
-    while(f >> dummy)//Skips the cycle number
-    {
-        f >> dummy; //skips the comma
-        f >> d_c;
-        d_s.get_demo_cycles().push_back(d_c);
-    }
-
-    return d_s;
-}
-
-void save_demographic_sim(
-        const demographic_sim& d_s,
-        const std::string& filename
-        )
-{
-    std::ofstream f(filename);
-    int cycle_number = 0;
-    for(const auto& demo_cycle : d_s.get_demo_cycles())
-    {
-        f << cycle_number << " , " << demo_cycle ;
-        cycle_number++;
-    }
-}
-
-demographic_sim load_demographic_sim_json(
-        const std::string& filename
-        )
-{
-    std::ifstream f(filename);
-    if(!f.is_open())
-    {
-        std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
+        std::cout << "Could not find specified demographic_sim*.json file. \n\n";
         abort();
     }
     demographic_sim d_s;
@@ -87,7 +46,7 @@ demographic_sim load_demographic_sim_json(
     return d_s;
 }
 
-void save_demographic_sim_json(
+void save_demographic_sim(
         const demographic_sim& d_s,
         const std::string& filename
         )

@@ -26,8 +26,8 @@ void test_load_save_json()
 
     //Test load and save
     const std::string filename = "demographic_sim.json";
-    save_demographic_sim_json(p, filename);
-    const demographic_sim q = load_demographic_sim_json(filename);
+    save_demographic_sim(p, filename);
+    const demographic_sim q = load_demographic_sim(filename);
     assert(p == q);
 }
 void test_demographic_sim()//!OCLINT
@@ -69,5 +69,5 @@ void test_demographic_sim()//!OCLINT
         const demographic_sim q = load_demographic_sim(filename);
         assert(p == q);
     }
-
+ test_load_save_json();
 }

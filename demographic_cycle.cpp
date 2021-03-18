@@ -79,9 +79,10 @@ demographic_cycle load_demographic_cycle(
         )
 {
     std::ifstream f(filename);
-    demographic_cycle d_c{0,0,0,0,env_param{},ind_param{}};
-    f >> d_c;
-    return d_c;
+    nlohmann::json json_in;
+    demographic_cycle d_c;
+    f >> json_in;
+    return d_c = json_in;
 }
 
 void save_demographic_cycle(
@@ -90,6 +91,8 @@ void save_demographic_cycle(
         )
 {
     std::ofstream f(filename);
-    f << d_c;
+    nlohmann::json json_out;
+    json_out = d_c;
+    f << json_out;
 }
 

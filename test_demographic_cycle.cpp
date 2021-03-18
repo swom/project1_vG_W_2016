@@ -47,59 +47,5 @@ void test_demographic_cycle() noexcept
         save_demographic_cycle(p, filename);
         const demographic_cycle q = load_demographic_cycle(filename);
         assert(p == q);
-        //Test >> operator overload
-        std::ifstream f(filename);
-
-        demographic_cycle s{45,
-                            46,
-                            58,
-                            68,
-                            env_param{42,
-                                      0.424,
-                                      42,
-                                      0.42},
-                                            ind_param{42,
-                                                      42,
-                                                      42,
-                                                      42}};
-        assert(s != p);
-        f >> s;
-        assert(s == p);
-    }
-
-    {
-        const std::string filename = "demographic_cycle2.csv";
-        env_param e;
-        ind_param i;
-        int n_spores = 2;
-        int n_sporulating = 3;
-        int n_actives = 4;
-        int n_ticks = 5;
-        demographic_cycle p{n_actives,
-                    n_spores,
-                    n_sporulating,
-                    n_ticks,
-                    e,
-                    i};
-        //Make two to check that it writes them in
-        // 2 different lines
-        demographic_cycle p1{n_actives + 1,
-                    n_spores + 1,
-                    n_sporulating + 1,
-                    n_ticks + 1,
-                    env_param{42,
-                              0.424,
-                              42,
-                              0.42},
-                             ind_param{42,
-                                       42,
-                                       42,
-                                       42}};
-        std::ofstream s(filename);
-        s << p << p1;
-        const demographic_cycle q = load_demographic_cycle(filename);
-        assert(p == q);
-        assert(p1 != q);
-
     }
 }
