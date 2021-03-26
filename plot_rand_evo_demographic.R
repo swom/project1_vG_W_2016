@@ -25,7 +25,7 @@ n_env = 1
 if(getwd() == sequence || getwd() == sequence_extr)
 {
   for (i in  list.files(path = '.',
-                        pattern = "rand_evo_extreme_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+                        pattern = "rand_evo_*?a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
   {
     if(file.size(i) <= 0) next()
     replicate = read.csv(i)
@@ -92,7 +92,6 @@ demographic = demographic %>%
   ungroup()
 
 
-
 coeffs = demographic %>% 
   group_by(condition, seed, env_type) %>%
   do(coeffs = coefficients(lm(spore ~ cycle, data = .))) %>% 
@@ -121,8 +120,8 @@ load("seq_rand_evo_demo.R")
 setwd(sequence_extr)
 load("seqex_rand_evo_demo.R")
 
-dem = seq_demographic 
-dem = dem %>% left_join(coeffs)
+
+dem = seqex_demographic
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -363,7 +362,7 @@ top_dem = top_20 %>% left_join(demographic ) %>% drop_na()
 
 ####Create color plaettes####
 
-n_colors = 20
+n_colors = 100
 rbg<- colorRampPalette(c("red", "blue", "green"))(n_colors)
 cub_hel <- rev(cubehelix(n_colors))
 
@@ -390,7 +389,6 @@ sections_rv_value_plot = unique(
   c( seq(rv_qntl[1], rv_qntl[2], length = as.integer(n_colors/3 - 2)),
      seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 - 1)),
      seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 + 8))))
-
 
 ####for ratio_value cluster
 avg_ratio = dem %>% 
@@ -419,12 +417,23 @@ sections_v_value = unique(
 
 ###Plotting ratio-value beginning and end plus points of value####
 
-ggplot(data = dem %>% pivot_longer(c(ratio_value)), 
-       aes(cycle,value, color = name)) +
-  geom_smooth() +
+ggplot(data = dem_all_tmstps %>% pivot_longer(c(spore, sporu, active, total_n))) +
+  # geom_rect(aes(ymin=min(spore),
+  #               ymax= max(spore)  + 1,
+  #               xmin=min(cycle),
+  #               xmax= max(cycle) / 2,
+  #               fill = ratio_start_production), alpha =0.5) + 
+  # geom_rect(aes(ymin=min(spore),
+  #               ymax= max(spore)  + 1,
+  #               xmin= max(cycle) / 2,
+  #               xmax= max(cycle),
+  #               fill = ratio_end_production), alpha =0.5) +
+  # geom_point(aes(cycle,spore)) +
+# scale_fill_gradientn("Ratio",colors = cubehelix(10)) +
+geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/smooth_ratio_values.pdf",
+ggsave("../research presentation/rv_s_e_p_only_complete_cycle.pdf",
        width = 500,
        height = 300, 
        units = "cm",
@@ -462,7 +471,6 @@ ggplot(data = dem %>% pivot_longer(c(change_value,ratio_value))) +
   geom_line(aes(cycle, value, color = name)) +
   scale_fill_gradientn("Ratio",colors = rbg, breaks = sections_rv_value_plot) +
   facet_grid(seed ~ condition)
-
 
 ggsave("../../research presentation/improvement+ratio_seqex_rbg.pdf",
        width = 500,
@@ -611,6 +619,7 @@ start_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_start)))))
 
 #end
 clust_dem_end = dem %>% 
+  # subset(as.numeric(seed) > 30) %>% 
   subset(cycle == max(cycle)) %>% 
   select(seed, ratio_value, condition) %>% 
   spread(condition, ratio_value) %>% 
@@ -972,6 +981,7 @@ heatmap.2(as.matrix(clust_change) ,
 
 
 ####heatmap cluster for quantiles of avg change value#####
+
 clust_change_qntl = dem %>% 
   group_by(seed, condition) %>% 
   summarise(avg_change = mean(change_value))%>% 
