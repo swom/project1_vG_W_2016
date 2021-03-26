@@ -135,12 +135,18 @@ env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept
     return e;
 }
 
-env_param change_env_param_unif_extreme(env_param e, std::minstd_rand& rng) noexcept
+env_param change_env_param_unif_extreme(env_param e,
+                                        double amplitude,
+                                        std::minstd_rand& rng) noexcept
 {
 
-    e.set_diff_coeff(draw_from_uniform_with_limit(e.get_mean_diff_coeff(), e.get_var_diff_coeff(),rng));
+    e.set_diff_coeff(draw_from_uniform_with_limit(e.get_mean_diff_coeff(),
+                                                  e.get_var_diff_coeff() * amplitude,
+                                                  rng));
 
-    e.set_metab_degr(draw_from_uniform_with_limit(e.get_mean_degr_rate(), e.get_var_degr_rate(), rng));
+    e.set_metab_degr(draw_from_uniform_with_limit(e.get_mean_degr_rate(),
+                                                  e.get_var_degr_rate() * amplitude,
+                                                  rng));
 
     return e;
 }

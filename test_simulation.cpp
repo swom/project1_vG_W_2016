@@ -150,17 +150,26 @@ void test_rand_cond_test_after_rand_evo()
     int seq_index = n_seq - 1;
     int cond_per_seq = 2;
     double amplitude = 3;
+    int pop_max = 100;
     auto prefix = create_rand_extreme_prefix(n_seq, cond_per_seq, seq_index);
 
-    auto s_f = run_evo_random_conditions(s, n_seq, cond_per_seq, seq_index, 100, amplitude, prefix);
+    auto s_f = run_evo_random_conditions(s, n_seq, cond_per_seq, seq_index,
+                                         pop_max, amplitude, prefix);
 
     auto original_seed = s.get_meta_param().get_seed();
     auto original_change = s.get_meta_param().get_change_freq();
     auto new_s = load_sim_no_pop(original_seed, original_change, prefix);
     assert( s_f == new_s.get_funders_success());
-    assert(s.get_sim_param() == new_s.get_sim_param());
 
-    test_against_random_conditions(new_s,2,100,amplitude,"test_");
+    int n_rand_cond = 2;
+
+    recreate_generation(new_s, 1);
+    auto first_test = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_1");
+
+    recreate_generation(new_s, 2);
+    auto second_test = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_2");
+
+    assert(first_test != second_test);
 }
 
 void test_simulation()//!OCLINT tests may be many

@@ -332,6 +332,10 @@ void reproduce_cycle_env(simulation&s, int cycle);
 /// And the enviromental conditions to be the conditions in that generation
 void reproduce_cycle(simulation&s, int cycle);
 
+///Resets the population of a simulation to the one at the start
+/// of a specified generation
+void recreate_generation(simulation& s, int cycle);
+
 ///Sets the environmental and individual conditions of a population
 /// to the condition o the n_rand_cond element of the rand_cond vector
 void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond);

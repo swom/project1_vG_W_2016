@@ -302,13 +302,10 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme
 
      std::vector<std::pair<env_param, ind_param>> random_conditions;
 
-     auto env = change_range_env_param(e, amplitude);
-     auto ind = change_range_ind_param(i, amplitude);
-
      for(int r = 0; r != n_rand_conditions; r++)
      {
-         random_conditions.push_back({change_env_param_unif_extreme(env, rng),
-                                      change_ind_param_unif_extreme(ind, rng)});
+         random_conditions.push_back({change_env_param_unif_extreme(e, amplitude, rng),
+                                      change_ind_param_unif_extreme(i, amplitude, rng)});
      }
 
      return random_conditions;
@@ -736,6 +733,13 @@ void reproduce_cycle(simulation&s, int cycle)
 
 }
 
+void recreate_generation(simulation& s, int cycle)
+{
+    s.get_pop().set_pop_inds(pop_from_funders(s.get_funders_success(), s.get_demo_sim(), cycle));
+    update_radius_pop(s.get_pop());
+    place_start_cells(s.get_pop());
+}
+
 void reproduce_rand_cond(simulation&s, const std::vector<std::pair<env_param, ind_param>>& rand_cond, int n_rand_cond)
 {
     if(n_rand_cond < static_cast<int>(rand_cond.size()))
@@ -782,7 +786,7 @@ demographic_sim test_against_random_conditions(const simulation& s,
                                            double amplitude,
                                            std::string name)
 {
-    auto random_conditions = create_rand_conditions_unif(
+    auto random_conditions = create_rand_conditions_unif_extreme(
                 s.get_env().get_param(),
                 ind_param{},
                 n_number_rand_cond,

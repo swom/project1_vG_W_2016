@@ -191,7 +191,9 @@ ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng);
 
 ///Changes_ind_param as in change_ind_param_unif,
 /// but only keeps values that are on the extreme ends of the range
-ind_param change_ind_param_unif_extreme(ind_param i,  std::minstd_rand& rng);
+ind_param change_ind_param_unif_extreme(ind_param i,
+                                        double amplitude,
+                                        std::minstd_rand& rng);
 
 //Initializes a instance p from a filename
 ind_param load_ind_parameters( const std::string& filename);
