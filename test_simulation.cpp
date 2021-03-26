@@ -138,9 +138,39 @@ void test_create_rand_cond_unif_extreme()
 
 }
 
+void test_rand_cond_test_after_rand_evo()
+{
+    //Run a rand_evo sim
+    simulation s;
+    //give the sim 2 cycles to run
+    s.get_meta_param().set_n_cycles(5);
+    s.get_meta_param().set_seed(1472);
+
+    int n_seq = 1;
+    int seq_index = n_seq - 1;
+    int cond_per_seq = 2;
+    double amplitude = 3;
+    auto prefix = create_rand_extreme_prefix(n_seq, cond_per_seq, seq_index);
+
+    auto s_f = run_evo_random_conditions(s, n_seq, cond_per_seq, seq_index, 100, amplitude, prefix);
+
+    auto original_seed = s.get_meta_param().get_seed();
+    auto original_change = s.get_meta_param().get_change_freq();
+    auto new_s = load_sim_no_pop(original_seed, original_change, prefix);
+    assert( s_f == new_s.get_funders_success());
+    assert(s.get_sim_param() == new_s.get_sim_param());
+
+    test_against_random_conditions(new_s,2,100,amplitude,"test_");
+}
+
 void test_simulation()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
+
+
+    ///It is possible to test any generation of rand_evo against a set of random environment
+    test_rand_cond_test_after_rand_evo();
+
     ///It is possible to create random conditions drawing from extremes of a uniform distribution
     /// The extremes are the intervals between 2 and 3 var * amplitude values
     test_create_rand_cond_unif_extreme();
@@ -1284,7 +1314,7 @@ void test_simulation()//!OCLINT tests may be many
 
         std::string filename = create_test_random_condition_name(s,amplitude);
 
-        auto demo_sim = run_test_random_conditions(s, repeats, pop_max, amplitude, filename);
+        auto demo_sim = test_against_random_conditions(s, repeats, pop_max, amplitude, filename);
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           demo_sim.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,

@@ -42,6 +42,12 @@ public:
     ///Returns the seed
     int get_seed() const noexcept {return  m_seed;}
 
+    ///Sets the seed
+    void set_seed(int s) noexcept {m_seed = s;}
+
+    ///Sets the number of cycles
+    void set_n_cycles(int n) noexcept {m_n_cycles = n;}
+
 private:
 
     ///Indicates how often the environment and population parameters will change

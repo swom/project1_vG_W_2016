@@ -28,7 +28,7 @@ bool operator==(const funders_success& lhs, const funders_success& rhs) noexcept
 
 ///Creates the name for the file of funders_success of an evolutionary run
 /// given the seed and the frequency of environmentla change
-std::string create_funders_success_name(int seed, int change_freq);
+std::string create_funders_success_name(int seed, int change_freq, std::string prefix);
 
 ///Retruns the GRN of the individual with the highest success
 /// of the funder_success  LAST GENERATION

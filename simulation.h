@@ -46,6 +46,12 @@ public:
     ///Gets the reference to meta parameters
     meta_param& get_meta_param() noexcept {return m_meta_param;}
 
+    ///Returns the sim_param
+    sim_param get_sim_param() const noexcept {return  sim_param{m_e.get_param(),
+                    m_pop.get_ind(0).get_param(),
+                    m_meta_param,
+                    m_pop.get_param()};}
+
     ///Gets the vector containing all the individuals of the population
     const population& get_pop() const noexcept {return m_pop;}
 
@@ -157,7 +163,7 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
 ///Creates the name of a funders_success .csv file given
 /// a simulation, or the simulation's seed and change_frequency
 std::string create_funders_success_name(const simulation& s, std::string prefix = "", std::string suffix = "");
-std::string create_funders_success_name(int seed, int change_freq);
+std::string create_funders_success_name(int seed, int change_freq, std::string prefix = "");
 
 ///Creates the name for the last population of an
 /// evolutionary run so that it can be uploaded
@@ -178,20 +184,24 @@ std::string create_last_pop_name(const simulation& s, const std::string& prefix 
 /// and the seed of the rng.
 std::string create_name_vec_rand_cond(int n_of_conditions, double amplitude, int seed);
 
+///Create prefix for simulation derived from using create_unif_extreme random conditions
+std::string create_rand_extreme_prefix(int seq_index, int cond_per_seq, double amplitude);
+
 ///Creates a name for the file where
 /// the deomgraphic of the evolving population
 /// in random environment is saved
 std::string create_sim_demo_name(const simulation& s, std::string prefix = "", std::string suffix = "");
+std::string create_sim_demo_name(int seed, int change_freq, std::string prefix = "", std::string suffix = "");
 
 ///Creates a name for the file where the parameters
 /// of the evolving population in random environment is saved
 /// given a simulation
-std::string create_sim_par_name(const simulation& s);
+std::string create_sim_par_name(const simulation& s, std::string prefix = "", std::string suffix = "");
 
 ///Creates a name for the file where the parameters
 /// of the evolving population in random environment is saved
 /// given a seed and a frequency of change
-std::string create_sim_par_name(int seed, int change_freq);
+std::string create_sim_par_name(int seed, int change_freq, std::string prefix = "");
 
 ///Creates a vector of random conditions given
 /// parameter classes and how much wider
@@ -207,10 +217,10 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
 /// parameter classes and how much wider
 /// can be the oscillation of the new random conditions
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme(const env_param& e,
-                                                                         const ind_param& i,
-                                                                         int n_rand_conditions,
-                                                                         double amplitude,
-                                                                         int seed);
+                                                                                 const ind_param& i,
+                                                                                 int n_rand_conditions,
+                                                                                 double amplitude,
+                                                                                 int seed);
 
 
 ///Creates a Matrix of random conditions given the number of columns and rows
@@ -225,10 +235,10 @@ std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions
 ///Works like random matrix
 /// but only samples from extremes of uniform distribution for paramter values
 std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix_extreme(const env_param& ep,
-                                                                                        const ind_param& ip,
-                                                                                        int number_of_sequences,
-                                                                                        int conditions_per_sequence,
-                                                                                        double amplitude);
+                                                                                                const ind_param& ip,
+                                                                                                int number_of_sequences,
+                                                                                                int conditions_per_sequence,
+                                                                                                double amplitude);
 
 ///Creates a vector of random env param and ind param generated by changing
 /// params of given env and ind param object by a given amplitude
@@ -304,7 +314,7 @@ simulation load_sim_last_pop(int seed, int change_freq);
 ///Loads a simulation from the files produced from
 /// an evolutionary run of the simulation
 /// The population is not set
-simulation load_sim_no_pop(int seed, int change_freq);
+simulation load_sim_no_pop(int seed, int change_freq, std::string prefix = "");
 
 /// Makes a copy of a simulation but erases
 /// the funder_success and demographic sim vectors
@@ -339,12 +349,12 @@ int run_sim_evo_rand(double amplitude,
                      bool overwrite);
 
 ///Runs an evolution simulation in a given random condition
-demographic_sim run_evo_random_conditions(const simulation& rand_s,
+funders_success run_evo_random_conditions(const simulation& rand_s,
                                           int number_of_sequences, int cond_per_seq,
                                           int seq_index,
                                           int pop_max,
                                           double amplitude,
-                                          std::string name);
+                                          std::string prefix);
 
 ///Creates the reaction norm of the best individuall of a certain simulation (seed, change_freq)
 /// over a range of food, energy and metabolite values (from 0 to max_*)
@@ -395,11 +405,11 @@ int run_standard(const env_param& e,
                  int seed);
 
 ///Runs a poplation from a simulation against a series of random conditions
-demographic_sim run_test_random_conditions(const simulation &s,
-                                           int n_number_rand_cond,
-                                           int pop_max,
-                                           double amplitude,
-                                           std::string name);
+demographic_sim test_against_random_conditions(const simulation &s,
+                                               int n_number_rand_cond,
+                                               int pop_max,
+                                               double amplitude,
+                                               std::string name);
 
 ///Resets a simulation to its initial conditions
 void reset_sim(simulation& s) noexcept;

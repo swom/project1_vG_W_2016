@@ -17,17 +17,18 @@ bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 }
 
 
-std::string create_sim_demo_name(int seed, int change_freq)
+std::string create_sim_demo_name(int seed, int change_freq, std::string prefix, std::string suffix)
 {
     return  std::string{
-        "sim_demographic_s" +
-        std::to_string(seed) +
+        prefix +
+                "sim_demographic_s" +
+                std::to_string(seed) +
                 "change_" +
                 std::to_string(change_freq) +
+                suffix +
                 ".csv"
     };
 }
-
 demographic_sim load_demographic_sim(
         const std::string& filename
         )

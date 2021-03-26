@@ -221,6 +221,13 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
     };
 }
 
+std::string create_rand_extreme_prefix(int seq_index, int cond_per_seq, double amplitude)
+{
+    return "rand_evo_extreme_a" + std::to_string(amplitude) +
+                   "seq_" + std::to_string(seq_index) +
+                   "cond_per_seq" + std::to_string(cond_per_seq);
+}
+
 std::string create_sim_demo_name(const simulation& s, std::string prefix, std::string suffix)
 {
     return  std::string{
@@ -234,20 +241,24 @@ std::string create_sim_demo_name(const simulation& s, std::string prefix, std::s
     };
 }
 
-std::string create_sim_par_name(const simulation& s)
+
+std::string create_sim_par_name(const simulation& s, std::string prefix, std::string suffix)
 {
     return  std::string{
+        prefix +
         "sim_par_s" +
         std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
+                suffix +
                 ".csv"
     };
 }
 
-std::string create_sim_par_name(int seed, int change_freq)
+std::string create_sim_par_name(int seed, int change_freq, std::string prefix)
 {
     return  std::string{
+        prefix +
         "sim_par_s" +
         std::to_string(seed) +
                 "change_" +
@@ -516,18 +527,18 @@ double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param
     return sum / rand_cond.size();
 }
 
-simulation load_sim_no_pop(int seed, int change_freq)
+simulation load_sim_no_pop(int seed, int change_freq, std::string prefix)
 {
-    auto sim_par_name = create_sim_par_name(seed,change_freq);
+    auto sim_par_name = create_sim_par_name(seed,change_freq, prefix);
     assert(exists(sim_par_name));
 
     simulation s{load_sim_parameters(sim_par_name)};
 
-    auto funders_name = create_funders_success_name(seed,change_freq);
+    auto funders_name = create_funders_success_name(seed,change_freq, prefix);
     assert(exists(funders_name));
     auto funders_success = load_funders_success(funders_name);
 
-    auto demo_name = create_sim_demo_name(seed,change_freq);
+    auto demo_name = create_sim_demo_name(seed,change_freq, prefix);
     assert(exists(demo_name));
     auto demo_sim = load_demographic_sim(demo_name);
 
@@ -765,7 +776,7 @@ void response(simulation& s)
     }
 }
 
-demographic_sim run_test_random_conditions(const simulation& s,
+demographic_sim test_against_random_conditions(const simulation& s,
                                            int n_number_rand_cond,
                                            int pop_max,
                                            double amplitude,
@@ -773,7 +784,7 @@ demographic_sim run_test_random_conditions(const simulation& s,
 {
     auto random_conditions = create_rand_conditions_unif(
                 s.get_env().get_param(),
-                s.get_pop().get_v_ind().begin()->get_param(),
+                ind_param{},
                 n_number_rand_cond,
                 amplitude,
                 0);
@@ -813,7 +824,7 @@ demographic_sim run_test_random_conditions(const simulation& s,
     return rand_s.get_demo_sim();
 }
 
-demographic_sim run_evo_random_conditions(const simulation& s,
+funders_success run_evo_random_conditions(const simulation& s,
                                           int number_of_sequences,
                                           int cond_per_seq,
                                           int seq_index,
@@ -833,7 +844,6 @@ demographic_sim run_evo_random_conditions(const simulation& s,
     ///For now do not allow the env and ind param
     /// to change, no matter the freq of change.
     rand_s.get_meta_param().get_change_freq() = 0;
-
     rand_s.get_meta_param().get_pop_max() = pop_max;
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -850,8 +860,9 @@ demographic_sim run_evo_random_conditions(const simulation& s,
     save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, prefix));
     std::cout << "saving funders" << std::endl;
     save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, prefix));
+    save_sim_parameters(rand_s.get_sim_param(), create_sim_par_name(rand_s,prefix));
 
-    return rand_s.get_demo_sim();
+    return rand_s.get_funders_success();
 }
 
 int run_reac_norm_best(int change_freq,
@@ -910,7 +921,7 @@ int run_sim_best_rand(double amplitude,
 
     auto rand_start = std::chrono::high_resolution_clock::now();
     place_start_cells(rand_s.get_pop());
-    run_test_random_conditions(rand_s,
+    test_against_random_conditions(rand_s,
                                n_random_conditions,
                                pop_max,
                                amplitude,
@@ -940,7 +951,7 @@ int run_sim_rand(double amplitude,
     }
 
     auto rand_start = std::chrono::high_resolution_clock::now();
-    run_test_random_conditions(rand_s,
+    test_against_random_conditions(rand_s,
                                n_random_conditions,
                                pop_max,
                                amplitude,
@@ -1040,7 +1051,7 @@ int run_standard(const env_param& e,
     auto rand_start = std::chrono::high_resolution_clock::now();
 
     auto rand_s = load_sim_last_pop(seed,change_frequency);
-    run_test_random_conditions(rand_s, n_random_conditions, pop_max, amplitude, "standard_rand_run.csv");
+    test_against_random_conditions(rand_s, n_random_conditions, pop_max, amplitude, "standard_rand_run.csv");
 
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration<float>(stop - rand_start);
