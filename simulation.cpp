@@ -1082,7 +1082,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
 
     auto new_s = load_sim_no_pop(original_seed, original_change, prefix);
 
-    int n_rand_cond = 100;
+    int n_rand_cond = 10;
     int pop_max = 10000;
 
     auto save_name = prefix + create_test_random_condition_name(amplitude, original_change, original_seed);
