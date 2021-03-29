@@ -1084,27 +1084,24 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
 #ifdef ON_LINUX
     data_folder = "../../../data/p288427/";
 #endif
-    auto prefix = data_folder + create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);
-    std::cout << prefix << std::endl;
+    auto prefix = create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);
 
     //little trick added for now since sim_par are not saved with prefix
     //we load and save sim_param from original simulation with name with prefix
     save_sim_parameters(load_sim_parameters(create_sim_par_name(original_seed, original_change)),
-                        create_sim_par_name(original_seed, original_change, prefix));
+                        create_sim_par_name(original_seed, original_change, data_folder + prefix));
 
-    auto new_s = load_sim_no_pop(original_seed, original_change, prefix);
+    auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + prefix);
 
-    int n_rand_cond = 10;
+    int n_rand_cond = 1;
     int pop_max = 10000;
 
     auto save_name = prefix + create_test_random_condition_name(amplitude, original_change, original_seed);
     recreate_generation(new_s, 0);
     auto test_one = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "first_gen" + save_name);
-    std::cout << "test_one" << std::endl;
 
     recreate_generation(new_s, new_s.get_funders_success().get_v_funders().size() - 1);
     auto test_two = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "last_gen" + save_name);
-    std::cout << "test_two" << std::endl;
 
     return test_two;
 }
