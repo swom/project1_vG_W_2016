@@ -140,35 +140,45 @@ void test_create_rand_cond_unif_extreme()
 
 void test_rand_cond_test_after_rand_evo()
 {
+    int grid_side = 10;
+    int n_cycles = 10;
+    int cycle_duration = 30;
+    int seed = 1478;
     //Run a rand_evo sim
-    simulation s;
-    //give the sim 2 cycles to run
-    s.get_meta_param().set_n_cycles(5);
-    s.get_meta_param().set_seed(1472);
+    sim_param s_p{env_param{grid_side},
+              ind_param{},
+                    meta_param{n_cycles,
+                                cycle_duration,
+                                seed},
+                          pop_param{1,10}};
+    simulation s{s_p};
 
     int n_seq = 1;
     int seq_index = n_seq - 1;
     int cond_per_seq = 2;
     double amplitude = 3;
     int pop_max = 100;
-    auto prefix = create_rand_extreme_prefix(n_seq, cond_per_seq, seq_index);
+    auto prefix = create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
 
     auto s_f = run_evo_random_conditions(s, n_seq, cond_per_seq, seq_index,
                                          pop_max, amplitude, prefix);
 
     auto original_seed = s.get_meta_param().get_seed();
     auto original_change = s.get_meta_param().get_change_freq();
+
+
     auto new_s = load_sim_no_pop(original_seed, original_change, prefix);
     assert( s_f == new_s.get_funders_success());
 
     int n_rand_cond = 2;
 
     recreate_generation(new_s, 1);
-    auto first_test = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_1");
+    auto test_one = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_1");
 
-    recreate_generation(new_s, 5);
-    auto second_test = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_2");
+    recreate_generation(new_s, n_cycles - 1);
+    auto test_two = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_2");
 
+    assert(test_one != test_two);
 }
 
 void test_simulation()//!OCLINT tests may be many

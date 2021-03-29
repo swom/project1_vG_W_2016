@@ -1066,6 +1066,35 @@ int run_standard(const env_param& e,
     return 0;
 }
 
+demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
+                                    int original_change,
+                                    int cond_per_seq,
+                                    int seq_index,
+                                    double amplitude)
+{
+    auto prefix = create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
+
+
+    //little trick added for now since sim_par are not saved with prefix
+    //we load and save sim_param from original simulation with name with prefix
+    save_sim_parameters(load_sim_parameters(create_sim_par_name(original_seed, original_change)),
+                        create_sim_par_name(original_seed, original_change, prefix));
+
+    auto new_s = load_sim_no_pop(original_seed, original_change, prefix);
+
+    int n_rand_cond = 100;
+    int pop_max = 10000;
+
+    auto save_name = prefix + create_test_random_condition_name(amplitude, original_change, original_seed);
+    recreate_generation(new_s, 0);
+    auto test_one = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "first_gen" + save_name);
+
+    recreate_generation(new_s, new_s.get_funders_success().get_v_funders().size() - 1);
+    auto test_two = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "last_gen" + save_name);
+
+    return test_two;
+}
+
 void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>& rand_cond_v,
                               const std::string& filename)
 {

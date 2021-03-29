@@ -7,7 +7,7 @@
 int main(int argc, char ** argv) //!OCLINT tests may be long
 {
 
-      const std::vector<std::string> args(argv, argv + argc);
+    const std::vector<std::string> args(argv, argv + argc);
 
     int n_cycles = 500;
     int cycle_duration = 125;
@@ -101,6 +101,15 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          seed,
                          seq_index,
                          overwrite);
+    }
+    else if(args.size() > 3
+            && args[1] == "--test_extr_rand_evo_beginning_end")
+    {
+        run_test_extreme_rand_evo_beginning_end(seed,
+                                            change_freq,
+                                            cond_per_seq,
+                                            seq_index,
+                                            amplitude);
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
     {
