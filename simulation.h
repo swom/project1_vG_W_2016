@@ -145,6 +145,10 @@ void set_new_params(simulation& s, const env_param& e, const ind_param& i);
 ///Continues evolution of an already run evolution simulation with a given seed and change of freq
 int continue_evo(int seed, int change_freq);
 
+///Checks that the individuals in a population
+/// have exactly the same grns of the funders of a particular generation
+bool check_funder_equal_pop(const population &p, const funders_success &f, const int &generation);
+
 ///Creates the name for the before to last population file
 /// where the before last funder object will be saved
 /// This is then used to find the most succesful individuals in a sim

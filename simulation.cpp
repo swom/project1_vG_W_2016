@@ -160,6 +160,14 @@ std::string create_last_pop_name(const simulation& s, const std::string &prefix)
     };
 }
 
+bool check_funder_equal_pop(const population& p,const funders_success& f,const int& generation)
+{
+    for( int i = 0; i != p.get_pop_size(); i++)
+    {
+        assert(p.get_ind(i).get_grn() == f.get_v_funders()[generation].get_v_funder_data()[i].get_grn());
+    }
+}
+
 std::string create_before_last_pop_name(const simulation& s, const std::string &prefix)
 {
     return prefix + std::string{
@@ -1077,7 +1085,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     data_folder = "../../../data/p288427/";
 #endif
     auto prefix = data_folder + create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
-
+    std::cout << prefix;
 
     //little trick added for now since sim_par are not saved with prefix
     //we load and save sim_param from original simulation with name with prefix

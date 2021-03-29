@@ -131,10 +131,10 @@ void test_create_rand_cond_unif_extreme()
 
     //Assert that all values are not in the inner range of the uniform distribution
     assert(std::all_of(rand_cond.begin(), rand_cond.end(),
-                       [&expected_max_diff_coeff, &expected_min_diff_coeff]
+                       [&expected_max_diff_coeff, &expected_min_diff_coeff, &amplitude]
                        (const std::pair<env_param, ind_param>& cond)
-    {return !(cond.first.get_diff_coeff() > expected_min_diff_coeff + cond.first.get_var_diff_coeff() &&
-              cond.first.get_diff_coeff() < expected_max_diff_coeff - cond.first.get_var_diff_coeff());}));
+    {return !(cond.first.get_diff_coeff() > expected_min_diff_coeff + cond.first.get_var_diff_coeff() * amplitude &&
+              cond.first.get_diff_coeff() < expected_max_diff_coeff - cond.first.get_var_diff_coeff() * amplitude);}));
 
 }
 
@@ -158,7 +158,7 @@ void test_rand_cond_test_after_rand_evo()
     int cond_per_seq = 2;
     double amplitude = 3;
     int pop_max = 100;
-    auto prefix = create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
+    auto prefix = "../"+create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
 
     auto s_f = run_evo_random_conditions(s, n_seq, cond_per_seq, seq_index,
                                          pop_max, amplitude, prefix);
@@ -172,10 +172,14 @@ void test_rand_cond_test_after_rand_evo()
 
     int n_rand_cond = 2;
 
-    recreate_generation(new_s, 1);
+    int first_gen = 1;
+    recreate_generation(new_s, first_gen);
+    check_funder_equal_pop(new_s.get_pop(), s_f, first_gen);
     auto test_one = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_1");
 
-    recreate_generation(new_s, n_cycles - 1);
+    int last_gen = n_cycles - 1;
+    recreate_generation(new_s, last_gen);
+    check_funder_equal_pop(new_s.get_pop(), s_f, last_gen);
     auto test_two = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "test_2");
 
     assert(test_one != test_two);
@@ -1323,7 +1327,7 @@ void test_simulation()//!OCLINT tests may be many
         int repeats = 2;
         int pop_max = pow(10,4);
 
-        auto rand_conditions_vector = create_rand_conditions_unif(
+        auto rand_conditions_vector = create_rand_conditions_unif_extreme(
                     s.get_env().get_param(),
                     s.get_pop().get_v_ind().begin()->get_param(),
                     repeats,
