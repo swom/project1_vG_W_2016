@@ -1072,7 +1072,11 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
                                     int seq_index,
                                     double amplitude)
 {
-    auto prefix = create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
+    auto data_folder = "";
+#ifdef ON_LINUX
+    data_folder = "../../../data/p288427/"
+#endif
+    auto prefix = data_folder + create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
 
 
     //little trick added for now since sim_par are not saved with prefix
