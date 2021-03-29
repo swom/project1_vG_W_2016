@@ -20,5 +20,5 @@
 #SBATCH --output=rand_evo_test_%j.log
 
 echo "original seed" $1
-./simulation_logic_only --rand_evo s$1 f0 a3 n50 cs50 si1
+./simulation_logic_only --test_extr_rand_evo_beginning_end s$1 f0 a3 n50 cs50 si1
 
