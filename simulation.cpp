@@ -1074,7 +1074,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
 {
     std::string data_folder = "";
 #ifdef ON_LINUX
-    data_folder = "../../../data/p288427/"
+    data_folder = "../../../data/p288427/";
 #endif
     auto prefix = data_folder + create_rand_extreme_prefix(amplitude, cond_per_seq, seq_index);
 
