@@ -1072,7 +1072,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
                                     int seq_index,
                                     double amplitude)
 {
-    auto data_folder = "";
+    std::string data_folder = "";
 #ifdef ON_LINUX
     data_folder = "../../../data/p288427/"
 #endif
