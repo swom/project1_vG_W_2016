@@ -31,7 +31,7 @@ make
   for i in $(seq 1 30)
 do
   echo "seed : "$i
-  sbatch run_rand_evo.sh $i
+  sbatch run_test_rand_evo_extr.sh $i
 done
 
 

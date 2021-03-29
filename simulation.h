@@ -411,9 +411,8 @@ int run_standard(const env_param& e,
 ///Tests the first and the last population of rand_Evo_extreme runs
 /// against
 /// !!!ATTENTION!!! The number of random condition is hardcoded for now
-demographic_sim run_test_extreme_rand_evo_beginning_end(int seed,
-                                    int change_freq,
-                                    int n_seq,
+demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
+                                    int original_change,
                                     int cond_per_seq,
                                     int seq_index,
                                     double amplitude);
