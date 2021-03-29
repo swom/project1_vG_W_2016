@@ -32,8 +32,8 @@ make
 do
   for k in $(seq 0 49)
 do
-  echo $i
-  echo $k
+  echo "seed : "$i
+  echo "condition : "$k
   sbatch run_rand_evo.sh $i $k
 done
 done
