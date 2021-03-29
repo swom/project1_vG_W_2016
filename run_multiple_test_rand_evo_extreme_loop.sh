@@ -16,7 +16,7 @@
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
 #SBATCH --job-name=test_run_multiple_rand_evo
-#SBATCH --output= rand_evo_multiple_test.log
+#SBATCH --output=rand_evo_multiple_test.log
 
 module load Qt5
 export CC=g++
