@@ -28,7 +28,7 @@ qmake simulation_logic_only.pro
 make 
 
 
-  for i in $(seq 1 30)
+  for i in $(seq 1 3)
 do
   echo "seed : "$i
   sbatch run_test_rand_evo_extr.sh $i
