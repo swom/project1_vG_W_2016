@@ -58,7 +58,7 @@ colnames(demographic)= c("cycle",
                          "spore",
                          "sporu" ,
                          "n_timesteps",
-                         sprintf("env_p_%s",seq(1:(n_columns - 5 - 3))),
+                         sprintf("env_p_%s",seq(1:(n_columns - 5 - 4))),
                          "seed",
                          "change_freq",
                          "condition")

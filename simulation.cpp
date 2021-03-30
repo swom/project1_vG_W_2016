@@ -869,10 +869,10 @@ funders_success run_evo_random_conditions(const simulation& s,
                 std::endl;
 
     std::cout << "saving demographics" << std::endl;
-    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, prefix));
+    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, "death" + prefix));
     std::cout << "saving funders" << std::endl;
-    save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, prefix));
-    save_sim_parameters(rand_s.get_sim_param(), create_sim_par_name(rand_s,prefix));
+    save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, "death" + prefix));
+    save_sim_parameters(rand_s.get_sim_param(), create_sim_par_name(rand_s, "death" + prefix));
 
     return rand_s.get_funders_success();
 }
@@ -1195,7 +1195,7 @@ int tick(simulation& s, int n_ticks)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    //death(s.get_pop());
+    death(s.get_pop());
     //jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());
