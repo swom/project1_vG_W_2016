@@ -860,7 +860,7 @@ funders_success run_evo_random_conditions(const simulation& s,
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    exec_change(rand_s, random_conditions[seq_index]);
+   exec_change(rand_s, random_conditions[seq_index]);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
@@ -987,9 +987,7 @@ int run_sim_evo_rand(double amplitude,
 
     auto s = load_sim_last_pop(seed,change_frequency);
 
-    auto prefix = "rand_evo_extreme_a" + std::to_string(amplitude) +
-            "seq_" + std::to_string(seq_index) +
-            "cond_per_seq" + std::to_string(conditions_per_seq);
+    auto prefix = "death" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
 
     if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
     {
