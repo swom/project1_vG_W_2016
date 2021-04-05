@@ -84,6 +84,53 @@ void sim_view::exec(simulation& s) noexcept
     return;
 }
 
+void sim_view::exec_change(simulation& s,
+                 const std::vector<std::pair<env_param, ind_param>>& rand_conditions)
+{
+    try {
+        if(rand_conditions.size() > s.get_meta_param().get_n_cycles())
+        {
+            throw std::string{"More random conditions than cycles!"};
+        }
+        else if(s.get_meta_param().get_n_cycles() % rand_conditions.size())
+        {
+            throw std::string{"conditions are not a dividend of the number of cycles!"};
+        }
+    }
+    catch (std::string& e) {
+        std::cout << e << std::endl;
+#ifdef NDEBUG
+        abort();
+#endif
+    }
+
+    size_t condition_index = 0;
+    auto condition_duration = s.get_meta_param().get_n_cycles() / rand_conditions.size();
+
+    while(s.get_cycle() != s.get_meta_param().get_n_cycles())
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        auto modulus =  s.get_cycle() % condition_duration;
+
+        if( modulus == 0 && condition_index < rand_conditions.size())
+        {
+            reproduce_rand_cond(s, rand_conditions, condition_index);
+            condition_index++;
+        }
+
+        exec_cycle_visual(s);
+
+        s.reset_timesteps();
+        s.tick_cycles();
+
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<float>(stop - start);
+        std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
+                    "time: " << duration.count() << "s" << std::endl <<
+                    "n_individuals: " << s.get_pop().get_pop_size() << std::endl << std::endl;
+    }
+}
+
 bool sim_view::exec_cycle_visual(simulation& s) noexcept
 {
     auto rand_start = std::chrono::high_resolution_clock::now();
@@ -529,6 +576,88 @@ int  replay_best_rand_cond (double change_freq,
     return 0;
 }
 #endif
+
+funders_success run_evo_random_conditions_visual(const simulation& s,
+                                          int number_of_sequences,
+                                          int cond_per_seq,
+                                          int seq_index,
+                                          int pop_max,
+                                          double amplitude,
+                                          std::string prefix)
+{
+    auto random_conditions = create_rand_conditions_matrix_extreme(
+                s.get_env().get_param(),
+                ind_param{},
+                number_of_sequences,
+                cond_per_seq,
+                amplitude);
+
+    simulation rand_s = no_dem_and_fund_copy(s);
+
+    ///For now do not allow the env and ind param
+    /// to change, no matter the freq of change.
+    rand_s.get_meta_param().get_change_freq() = 0;
+    rand_s.get_meta_param().get_pop_max() = pop_max;
+
+    sim_view v;
+    v.prepare(rand_s);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+   v.exec_change(rand_s, random_conditions[seq_index]);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout<< "duration : " << duration.count() << "s" << std::endl <<
+                "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
+                std::endl;
+
+    std::cout << "saving demographics" << std::endl;
+    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, "death" + prefix));
+    std::cout << "saving funders" << std::endl;
+    save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, "death" + prefix));
+    save_sim_parameters(rand_s.get_sim_param(), create_sim_par_name(rand_s, "death" + prefix));
+
+    return rand_s.get_funders_success();
+}
+
+int run_sim_evo_rand_visual(double amplitude,
+                     int change_frequency,
+                     int num_of_sequences,
+                     int conditions_per_seq,
+                     int pop_max,
+                     int seed,
+                     int seq_index,
+                     bool overwrite)
+{
+
+    auto s = load_sim_last_pop(seed,change_frequency);
+
+    auto prefix = "rand_evo_extreme_a" + std::to_string(amplitude) +
+            "seq_" + std::to_string(seq_index) +
+            "cond_per_seq" + std::to_string(conditions_per_seq);
+
+    if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
+    {
+        std::cout << "The evolution in random conditions for this simulation"
+                     " have already been tested!" << std::endl;
+        return 0;
+    }
+
+    auto start = std::chrono::high_resolution_clock::now();
+    run_evo_random_conditions_visual(s,
+                              num_of_sequences,
+                              conditions_per_seq,
+                              seq_index,
+                              pop_max,
+                              amplitude,
+                              prefix);
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout<< "random condition evo :" << duration.count() << "s" << std::endl;
+    return 0;
+}
 
 void test_sim_view()//!OCLINT tests may be many
 {

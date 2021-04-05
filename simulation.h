@@ -16,6 +16,9 @@ public:
 
     simulation(sim_param param = sim_param());
 
+    ///Makes death active
+    void activate_death() noexcept {m_death_is_active = true;}
+
     ///Returns const ref to the data structure containing the
     /// demographics of the population at different points in time
     /// of the simulation
@@ -64,6 +67,9 @@ public:
     ///Gets the number of ticks in the simulation
     int get_timestep() const noexcept {return m_sim_timesteps;}
 
+    ///returns the value of m_death_is_active
+    bool is_death_active() const noexcept{return m_death_is_active;}
+
     ///Resets the timesteps to 0
     void reset_timesteps() noexcept {m_sim_timesteps = 0;}
 
@@ -83,6 +89,9 @@ public:
     void tick_timesteps() noexcept {++m_sim_timesteps;}
 
 private:
+
+    ///Is death happening?
+    bool m_death_is_active =  false;
 
     ///Data structure that contains data regarding the demographics
     /// of a population at different points in time of the simulation
@@ -254,6 +263,9 @@ std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(con
 ///Selects a new population and places it in a new environment
 void dispersal(simulation& s);
 
+///Checks if death is active in simulation
+bool death_is_active(const simulation& s);
+
 ///Returns a demographic cycle object storing data about a population
 demographic_cycle demographics(const simulation &s, const env_param&e) noexcept;
 
@@ -354,7 +366,7 @@ int run_sim_evo_rand(double amplitude,
                      int pop_max,
                      int seed,
                      int seq_index,
-                     bool overwrite);
+                     bool overwrite, bool death);
 
 ///Runs an evolution simulation in a given random condition
 funders_success run_evo_random_conditions(const simulation& rand_s,

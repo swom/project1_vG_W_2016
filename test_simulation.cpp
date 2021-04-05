@@ -1,5 +1,44 @@
 #include"test_simulation.h"
 
+void test_activate_death()
+{
+    simulation s;
+
+    //let's give a cycle some time
+    s.get_meta_param().set_n_timesteps(50);
+    //let's give individuals no energy, so they should die
+    for(auto& ind : s.get_pop().get_v_ind())
+    {
+        set_ind_en(ind, 0);
+    }
+    assert(all_en_pop_equals(s.get_pop(),0));
+
+    auto n_ind_start = s.get_pop().get_pop_size();
+
+    exec_cycle(s);
+    s.reset_timesteps();
+    s.tick_cycles();
+
+    auto n_ind_end = s.get_pop().get_pop_size();
+
+    assert(n_ind_end != 0);
+    assert(n_ind_end == n_ind_start);
+    assert(all_en_pop_NOT_equals(s.get_pop(),0));
+
+    s.activate_death();
+
+    //all inds should starve
+    exec_cycle(s);
+    s.reset_timesteps();
+    s.tick_cycles();
+
+    save_funders_success(s.get_funders_success(), "test_bug_suc");
+    n_ind_end = s.get_pop().get_pop_size();
+
+    assert(n_ind_end < n_ind_start);
+    assert(n_ind_end == 0);
+}
+
 void test_exec_change()
 {
     simulation s;
@@ -199,6 +238,19 @@ void test_simulation()//!OCLINT tests may be many
 
     ///It is possible to create random matrix that samples from the extremes
     test_rand_cond_matrix_extreme();
+
+    ///The function exec_change() takes random a random condition vector and
+    /// changes the environment accordingly throughout the simulation
+    test_exec_change();
+
+    ///A matrix of random conditions can be created
+    test_rand_cond_matrix();
+
+    ///It is possible to create random conditions drawing from a uniform distribution
+    test_create_rand_cond_unif();
+
+    ///It is possible to activate the death mechanic in a simulation(in tick(simulatio&))
+    test_activate_death();
 
     //A simulation can be initialized by getting a sim_parmater class as an argument
     {
@@ -1715,20 +1767,6 @@ void test_simulation()//!OCLINT tests may be many
         assert(last_2_pops == load_last_2_pops);
 
     }
-
-    ///The function exec_change() takes random a random condition vector and
-    /// changes the environment accordingly throughout the simulation
-    test_exec_change();
-
-    ///A matrix of random conditions can be created
-    test_rand_cond_matrix();
-
-    ///It is possible to create random conditions drawing from a uniform distribution
-    test_create_rand_cond_unif();
-
-
-
-
 
 #endif
 }

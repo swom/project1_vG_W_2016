@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include <algorithm>
 #include <sys/stat.h>
 #include <chrono>
 #include <cassert>
@@ -25,6 +26,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
                 || args[1] == "--rand_evo"
+                || args[1] == "--rand_evo_visual"
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay"
                 || args[1] == "--continue_evo"
@@ -115,6 +117,7 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
                  || args[1] == "--replay_rand_cond"
                  || args[1] == "--replay_best_rand_cond"
                  || args[1] == "--rand_evo"
+                 || args[1] == "--rand_evo_visual"
                  || args[1] == "--replay_rand_cond_evo"
                  || args[1] ==  "--test_extr_rand_evo_beginning_end"
                  )
@@ -145,12 +148,19 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 
 }
 
+void take_death_arg(const std::vector<std::string>& args, bool& death)
+{
+    if(std::any_of(args.begin(), args.end(), "--death"))
+            death = true;
+}
+
 void take_n_sequences_arg(const std::vector<std::string>& args, int& n_conditions)
 {
     if ((args.size() > 5
          &&  (args[1] == "--rand"
               || args[1] == "--rand_best"
               || args[1] == "--rand_evo"
+              || args[1] == "--rand_evo_visual"
               || args[1] ==  "--replay_rand_cond"
               || args[1] == "--replay_best_rand_cond"
               || args[1] == "--replay_rand_cond_evo"
@@ -199,6 +209,7 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
 void take_seq_index_arg(const std::vector<std::string>& args, int& rand_cond_n)
 {
     if((args[1] == "--rand_evo"
+        || args[1] == "--rand_evo_visual"
         || args[1] == "--replay_rand_cond"
         || args[1] == "--replay_best_rand_cond"
         || args[1] == "--replay_rand_cond_evo"
@@ -274,7 +285,8 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
 void take_cond_per_seq_arg(const std::vector<std::string>& args, int& cond_per_seq)
 {
     if((args[1] == "--rand_evo"
-        ||args[1] == "--replay_rand_cond"
+        || args[1] == "--rand_evo_visual"
+        || args[1] == "--replay_rand_cond"
         || args[1] == "--replay_best_rand_cond"
         || args[1] == "--replay_rand_cond_evo"
         || args[1] ==  "--test_extr_rand_evo_beginning_end"

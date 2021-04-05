@@ -43,5 +43,5 @@ done
 #copy sim_demographic files to data partition but keep also in home
 #thus the program will check if it has run the same simulation twice
 
-watch -n 1200 "mv ?*funders_success* ../../../data/p288427/ || true && cp *sim_dem* ../../../data/p288427/"
+watch -n 1200 "mv ?*funders_success* ../../../data/p288427/ || true && cp *sim_demo* ../../../data/p288427/"
 

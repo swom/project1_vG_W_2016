@@ -19,6 +19,7 @@ simulation::simulation(sim_param param):
     place_start_cells(m_pop);
 }
 
+
 void add_new_funders(simulation& s) noexcept
 {
     s.get_funders_success().get_v_funders().push_back(prepare_funders(s));
@@ -65,8 +66,15 @@ funders calc_funders_success(const simulation& s)
         auto fitness = n_non_spore_descendants +
                 n_spore_descendants * s.get_pop().get_param().get_spo_adv();
 
-        auto success = fitness / tot_fitness;
-
+        double success;
+        if(tot_fitness != 0)
+        {
+            success = fitness / tot_fitness;
+        }
+        else
+        {
+            success = 0;
+        }
         funder.set_success(success);
     }
     return funders;
@@ -232,8 +240,8 @@ std::string create_test_random_condition_name(double amplitude, int change_freq,
 std::string create_rand_extreme_prefix(int seq_index, int cond_per_seq, double amplitude)
 {
     return "rand_evo_extreme_a" + std::to_string(amplitude) +
-                   "seq_" + std::to_string(seq_index) +
-                   "cond_per_seq" + std::to_string(cond_per_seq);
+            "seq_" + std::to_string(seq_index) +
+            "cond_per_seq" + std::to_string(cond_per_seq);
 }
 
 std::string create_sim_demo_name(const simulation& s, std::string prefix, std::string suffix)
@@ -254,8 +262,8 @@ std::string create_sim_par_name(const simulation& s, std::string prefix, std::st
 {
     return  std::string{
         prefix +
-        "sim_par_s" +
-        std::to_string(s.get_meta_param().get_seed()) +
+                "sim_par_s" +
+                std::to_string(s.get_meta_param().get_seed()) +
                 "change_" +
                 std::to_string(s.get_meta_param().get_change_freq()) +
                 suffix +
@@ -267,8 +275,8 @@ std::string create_sim_par_name(int seed, int change_freq, std::string prefix)
 {
     return  std::string{
         prefix +
-        "sim_par_s" +
-        std::to_string(seed) +
+                "sim_par_s" +
+                std::to_string(seed) +
                 "change_" +
                 std::to_string(change_freq) +
                 ".csv"
@@ -300,24 +308,24 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif(const e
 }
 
 std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme(const env_param& e,
-                                                                          const ind_param& i,
-                                                                          int n_rand_conditions,
-                                                                          double amplitude,
-                                                                          int seed)
- {
-     std::minstd_rand rng;
-     rng.seed(seed);
+                                                                                 const ind_param& i,
+                                                                                 int n_rand_conditions,
+                                                                                 double amplitude,
+                                                                                 int seed)
+{
+    std::minstd_rand rng;
+    rng.seed(seed);
 
-     std::vector<std::pair<env_param, ind_param>> random_conditions;
+    std::vector<std::pair<env_param, ind_param>> random_conditions;
 
-     for(int r = 0; r != n_rand_conditions; r++)
-     {
-         random_conditions.push_back({change_env_param_unif_extreme(e, amplitude, rng),
-                                      change_ind_param_unif_extreme(i, amplitude, rng)});
-     }
+    for(int r = 0; r != n_rand_conditions; r++)
+    {
+        random_conditions.push_back({change_env_param_unif_extreme(e, amplitude, rng),
+                                     change_ind_param_unif_extreme(i, amplitude, rng)});
+    }
 
-     return random_conditions;
- }
+    return random_conditions;
+}
 
 std::vector<std::pair<env_param, ind_param>> create_vector_random_conditions(const env_param& e,
                                                                              const ind_param& i,
@@ -349,21 +357,26 @@ std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions
 }
 
 std::vector<std::vector<std::pair<env_param, ind_param>>> create_rand_conditions_matrix_extreme(const env_param& ep,
-                                                                                         const ind_param& ip,
-                                                                                         int number_of_sequences,
-                                                                                         int conditions_per_sequence,
-                                                                                         double amplitude)
- {
-     std::vector<std::vector<std::pair<env_param, ind_param>>> condition_matrix;
+                                                                                                const ind_param& ip,
+                                                                                                int number_of_sequences,
+                                                                                                int conditions_per_sequence,
+                                                                                                double amplitude)
+{
+    std::vector<std::vector<std::pair<env_param, ind_param>>> condition_matrix;
 
-     for(int i = 0; i != number_of_sequences; i++)
-     {
-         auto condition_sequence = create_rand_conditions_unif_extreme(ep, ip, conditions_per_sequence, amplitude, i);
-         condition_matrix.push_back(condition_sequence);
-     }
+    for(int i = 0; i != number_of_sequences; i++)
+    {
+        auto condition_sequence = create_rand_conditions_unif_extreme(ep, ip, conditions_per_sequence, amplitude, i);
+        condition_matrix.push_back(condition_sequence);
+    }
 
-     return condition_matrix;
- }
+    return condition_matrix;
+}
+
+bool death_is_active(const simulation& s)
+{
+    return s.is_death_active();
+}
 
 demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 {
@@ -507,7 +520,7 @@ void jordi_feeding(simulation& s)
 double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
 {
     auto max = std::max_element(rand_cond.begin(), rand_cond.end(),
-                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+                                [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
     {return lhs.first.get_diff_coeff() < rhs.first.get_diff_coeff();});
 
     return max->first.get_diff_coeff();
@@ -517,7 +530,7 @@ double find_max_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_p
 double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
 {
     auto min = std::max_element(rand_cond.begin(), rand_cond.end(),
-                     [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
+                                [](const std::pair<env_param,ind_param>& lhs, const std::pair<env_param, ind_param>& rhs)
     {return lhs.first.get_diff_coeff() > rhs.first.get_diff_coeff();});
 
     return min->first.get_diff_coeff();
@@ -789,10 +802,10 @@ void response(simulation& s)
 }
 
 demographic_sim test_against_random_conditions(const simulation& s,
-                                           int n_number_rand_cond,
-                                           int pop_max,
-                                           double amplitude,
-                                           std::string name)
+                                               int n_number_rand_cond,
+                                               int pop_max,
+                                               double amplitude,
+                                               std::string name)
 {
     auto random_conditions = create_rand_conditions_unif_extreme(
                 s.get_env().get_param(),
@@ -860,7 +873,7 @@ funders_success run_evo_random_conditions(const simulation& s,
 
     auto start = std::chrono::high_resolution_clock::now();
 
-   exec_change(rand_s, random_conditions[seq_index]);
+    exec_change(rand_s, random_conditions[seq_index]);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
@@ -869,10 +882,10 @@ funders_success run_evo_random_conditions(const simulation& s,
                 std::endl;
 
     std::cout << "saving demographics" << std::endl;
-    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, "death" + prefix));
+    save_demographic_sim(rand_s.get_demo_sim(), create_sim_demo_name(s, prefix));
     std::cout << "saving funders" << std::endl;
-    save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, "death" + prefix));
-    save_sim_parameters(rand_s.get_sim_param(), create_sim_par_name(rand_s, "death" + prefix));
+    save_funders_success(rand_s.get_funders_success(), create_funders_success_name(rand_s, prefix));
+    save_sim_parameters(rand_s.get_sim_param(), create_sim_par_name(rand_s, prefix));
 
     return rand_s.get_funders_success();
 }
@@ -934,10 +947,10 @@ int run_sim_best_rand(double amplitude,
     auto rand_start = std::chrono::high_resolution_clock::now();
     place_start_cells(rand_s.get_pop());
     test_against_random_conditions(rand_s,
-                               n_random_conditions,
-                               pop_max,
-                               amplitude,
-                               name);
+                                   n_random_conditions,
+                                   pop_max,
+                                   amplitude,
+                                   name);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
@@ -964,10 +977,10 @@ int run_sim_rand(double amplitude,
 
     auto rand_start = std::chrono::high_resolution_clock::now();
     test_against_random_conditions(rand_s,
-                               n_random_conditions,
-                               pop_max,
-                               amplitude,
-                               name);
+                                   n_random_conditions,
+                                   pop_max,
+                                   amplitude,
+                                   name);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
@@ -982,12 +995,23 @@ int run_sim_evo_rand(double amplitude,
                      int pop_max,
                      int seed,
                      int seq_index,
-                     bool overwrite)
+                     bool overwrite,
+                     bool death)
 {
 
     auto s = load_sim_last_pop(seed,change_frequency);
 
-    auto prefix = "death" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+    std::string prefix;
+    if(death)
+    {
+        prefix = "death" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+        s.activate_death();
+
+    }
+    else
+    {
+        prefix = create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+    }
 
     if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
     {
@@ -1073,10 +1097,10 @@ int run_standard(const env_param& e,
 }
 
 demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
-                                    int original_change,
-                                    int cond_per_seq,
-                                    int seq_index,
-                                    double amplitude)
+                                                        int original_change,
+                                                        int cond_per_seq,
+                                                        int seq_index,
+                                                        double amplitude)
 {
     std::string data_folder = "";
 #ifdef ON_LINUX
@@ -1193,7 +1217,10 @@ int tick(simulation& s, int n_ticks)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    death(s.get_pop());
+    if(death_is_active(s))
+    {
+        death(s.get_pop());
+    }
     //jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
     auto division_happens = division(s.get_pop());
