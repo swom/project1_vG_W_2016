@@ -22,6 +22,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int conditions_per_seq;
     int seq_index;
     int collision_check_interval = 0;
+    bool death = false;
 
     check_for_cmd_param(args,
                         seed,
@@ -31,7 +32,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         amplitude,
                         overwrite,
                         conditions_per_seq,
-                        seq_index);
+                        seq_index,
+                        death);
 
     meta_param m{n_cycles,
                 cycle_duration,
@@ -101,6 +103,18 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else if(args.size() > 1 && args[1] == "--rand_evo")
     {
         run_sim_evo_rand(amplitude,
+                         change_freq,
+                         n_seq,
+                         conditions_per_seq,
+                         pop_max,
+                         seed,
+                         seq_index,
+                         overwrite,
+                         death);
+    }
+    else if(args.size() > 1 && args[1] == "--rand_evo_visual")
+    {
+        run_sim_evo_rand_visual(amplitude,
                          change_freq,
                          n_seq,
                          conditions_per_seq,

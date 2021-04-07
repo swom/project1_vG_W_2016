@@ -19,6 +19,14 @@ public:
     /// or simulation is finished
     void exec(simulation& s) noexcept;
 
+    ///Runs a simulation and changes the conditions
+    /// given in a random_conditions vector
+    /// The time of change of conditions is adjusted
+    /// so that all conditions in the vector
+    /// are experienced in the simulation
+    /// The number of condition has to be a dividend of the number of cycles
+    void exec_change(simulation& s, const std::vector<std::pair<env_param,ind_param>>& rand_conditions);
+
     ///Same as exec_cycle for simulation but
     /// processes event and shows() every tick
     bool exec_cycle_visual(simulation &s) noexcept;
@@ -214,6 +222,26 @@ int  replay_rand_cond_test (double change_freq,
                        int seed_rand_cond,
                        int rand_cond_n,
                        int pop_max);
+
+///Runs an evolution simulation in a given random condition and shows
+funders_success run_evo_random_conditions_visual(const simulation& rand_s,
+                                          int number_of_sequences, int cond_per_seq,
+                                          int seq_index,
+                                          int pop_max,
+                                          double amplitude,
+                                          std::string prefix);
+
+///Runs an evolution simulation
+/// starting from the last population of a previous simulation
+/// in a given random condition
+int run_sim_evo_rand_visual(double amplitude,
+                     int change_frequency,
+                     int num_of_sequences,
+                     int conditions_per_seq,
+                     int pop_max,
+                     int seed,
+                     int seq_index,
+                     bool overwrite);
 
 void test_sim_view();
 
