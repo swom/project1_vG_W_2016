@@ -1065,6 +1065,10 @@ int run_sim_evo(const env_param& e,
                                   prefix))
             && !overwrite)
     {
+        std::cout << create_sim_par_name(m.get_seed(),
+                                         m.get_change_freq(),
+                                         prefix) << std::endl;
+
         std::cout << "this simulation has already been run" << std::endl;
         return 0;
     }
