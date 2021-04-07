@@ -19,7 +19,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          double& amplitude,
                          bool& overwrite,
                          int& seed_rand_cond,
-                         int& seq_index)
+                         int& seq_index,
+                         bool& death)
 {
     if (args.size() > 3
             && (args[1] == "--sim"
@@ -51,6 +52,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
     {
         take_amplitude_arg(args, amplitude);
     }
+    take_death_arg(args, death);
 }
 
 
@@ -150,7 +152,8 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 
 void take_death_arg(const std::vector<std::string>& args, bool& death)
 {
-    if(std::any_of(args.begin(), args.end(), "--death"))
+    if(std::any_of(args.begin(), args.end(),
+                   [](const std::string& s){return s == "--death";}))
             death = true;
 }
 

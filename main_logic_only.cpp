@@ -73,7 +73,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e, i, m, p,
-                    overwrite);
+                    overwrite, death);
     }
     else  if(args.size() > 1 && args[1] == "--rand")
     {

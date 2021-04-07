@@ -626,6 +626,8 @@ simulation load_sim_last_pop(int seed, int change_freq)
     simulation s{load_sim_parameters(sim_par_filename)};
 
     auto last_pop_name = create_last_pop_name(seed, change_freq);
+    assert(exists(last_pop_name));
+
     auto last_pop = load_funders(last_pop_name);
     s.get_pop().get_v_ind().resize(last_pop.get_v_funder_data().size());
 
@@ -721,6 +723,10 @@ simulation no_dem_and_fund_copy(const simulation& s)
                               }
                     };
     new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
+    if(death_is_active(s))
+    {
+    new_s.activate_death();
+    }
     return new_s;
 }
 
@@ -1039,7 +1045,8 @@ int run_sim_evo(const env_param& e,
                 const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
-                bool overwrite)
+                bool overwrite,
+                bool death)
 {
     if(exists(create_sim_par_name(m.get_seed(),
                                   m.get_change_freq()))
@@ -1050,6 +1057,8 @@ int run_sim_evo(const env_param& e,
     }
 
     simulation s{sim_param{e, i, m, p}};
+    if(death)
+    {s.activate_death();}
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -1139,9 +1148,9 @@ void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>
     }
 }
 
-void save_data(const simulation& s)
+void save_data(const simulation& s, std::string prefix)
 {
-    std::string sim_param_name = create_sim_par_name(s);
+    std::string sim_param_name = create_sim_par_name(s, prefix);
 
     sim_param s_p{s.get_env().get_param(),
                 s.get_pop().get_ind(0).get_param(),
@@ -1150,13 +1159,13 @@ void save_data(const simulation& s)
 
     save_sim_parameters(s_p, sim_param_name);
 
-    save_two_last_pops(s);
+    save_two_last_pops(s, prefix);
 
-    std::string sim_demo_name = create_sim_demo_name(s);
+    std::string sim_demo_name = create_sim_demo_name(s, prefix);
 
     save_demographic_sim(s.get_demo_sim(), sim_demo_name);
 
-    std::string funders_success_name = create_funders_success_name(s);
+    std::string funders_success_name = create_funders_success_name(s, prefix);
 
     save_funders_success(s.get_funders_success(), funders_success_name);
 }

@@ -410,7 +410,7 @@ int run_sim_evo(const env_param& e,
                 const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
-                bool overwrite);
+                bool overwrite, bool death);
 
 ///A standard simulation is created, with given parameters,
 /// and run for boht evo and against random conditions
@@ -453,7 +453,7 @@ void save_vector_of_rand_cond(const std::vector<std::pair<env_param, ind_param>>
                               const std::string& filename);
 
 ///Save all necessary data at the end of the simulation
-void save_data(const simulation& s);
+void save_data(const simulation& s, std::string prefix = "");
 
 ///Saves the funder that fund the before last cycle
 funders save_before_last_pop(const simulation& s, std::string prefix);

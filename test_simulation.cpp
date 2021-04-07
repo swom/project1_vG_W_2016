@@ -32,7 +32,6 @@ void test_activate_death()
     s.reset_timesteps();
     s.tick_cycles();
 
-    save_funders_success(s.get_funders_success(), "test_bug_suc");
     n_ind_end = s.get_pop().get_pop_size();
 
     assert(n_ind_end < n_ind_start);
