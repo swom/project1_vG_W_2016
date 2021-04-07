@@ -31,7 +31,7 @@ make clean
 qmake simulation_logic_only.pro
 make 
 
-change_freqs=(0, 1, 10)
+change_freqs=(0)
 for i in $(seq 1 100)
 do
   for j in "${change_freqs[@]}"
