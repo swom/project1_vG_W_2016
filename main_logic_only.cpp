@@ -103,7 +103,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          seed,
                          seq_index,
                          overwrite,
-                         death);
+                         death,
+                         eden);
     }
     else if(args.size() > 3
             && args[1] == "--test_extr_rand_evo_beginning_end")

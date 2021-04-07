@@ -187,9 +187,10 @@ std::string create_before_last_pop_name(const simulation& s, const std::string &
     };
 }
 
-std::string create_last_pop_name(int seed, int change_freq)
+std::string create_last_pop_name(int seed, int change_freq, const std::string& prefix)
 {
     return  std::string{
+        prefix +
         "last_pop_s" +
         std::to_string(seed) +
                 "change_" +
@@ -619,13 +620,13 @@ simulation load_sim(int seed, int change_freq)
     return s;
 }
 
-simulation load_sim_last_pop(int seed, int change_freq)
+simulation load_sim_last_pop(int seed, int change_freq, std::string prefix)
 {
-    auto sim_par_filename = create_sim_par_name(seed,change_freq);
+    auto sim_par_filename = create_sim_par_name(seed,change_freq, prefix);
     assert(exists(sim_par_filename));
     simulation s{load_sim_parameters(sim_par_filename)};
 
-    auto last_pop_name = create_last_pop_name(seed, change_freq);
+    auto last_pop_name = create_last_pop_name(seed, change_freq, prefix);
     assert(exists(last_pop_name));
 
     auto last_pop = load_funders(last_pop_name);
@@ -1002,10 +1003,16 @@ int run_sim_evo_rand(double amplitude,
                      int seed,
                      int seq_index,
                      bool overwrite,
-                     bool death)
+                     bool death,
+                     bool eden)
 {
 
-    auto s = load_sim_last_pop(seed,change_frequency);
+    std::string death_prefix = "";
+    if(!eden)
+    {
+        death_prefix = "death";
+    }
+    auto s = load_sim_last_pop(seed,change_frequency, death_prefix);
 
     std::string prefix;
     if(death)
@@ -1048,6 +1055,11 @@ int run_sim_evo(const env_param& e,
                 bool overwrite,
                 bool death)
 {
+    auto prefix = "";
+    if(death)
+    {
+        prefix ="death_";
+    }
     if(exists(create_sim_par_name(m.get_seed(),
                                   m.get_change_freq()))
             && !overwrite)

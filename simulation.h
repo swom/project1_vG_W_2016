@@ -182,7 +182,7 @@ std::string create_funders_success_name(int seed, int change_freq, std::string p
 /// evolutionary run so that it can be uploaded
 /// for testing against random conditions
 /// given a seed number and a change frequency
-std::string create_last_pop_name(int seed, int change_freq);
+std::string create_last_pop_name(int seed, int change_freq, const std::string &prefix  = "");
 
 ///Creates the name for the last population of an
 /// evolutionary run so that it can be uploaded
@@ -325,7 +325,7 @@ simulation load_sim_before_last_pop(int seed, int change_freq);
 /// no funders_success or sim_demographic,
 /// with same sim_param and with
 /// pop initialized to last fuinders in given sim
-simulation load_sim_last_pop(int seed, int change_freq);
+simulation load_sim_last_pop(int seed, int change_freq, std::string prefix = "");
 
 ///Loads a simulation from the files produced from
 /// an evolutionary run of the simulation
@@ -366,7 +366,7 @@ int run_sim_evo_rand(double amplitude,
                      int pop_max,
                      int seed,
                      int seq_index,
-                     bool overwrite, bool death);
+                     bool overwrite, bool death, bool eden);
 
 ///Runs an evolution simulation in a given random condition
 funders_success run_evo_random_conditions(const simulation& rand_s,
