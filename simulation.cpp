@@ -1061,7 +1061,8 @@ int run_sim_evo(const env_param& e,
         prefix ="death_";
     }
     if(exists(create_sim_par_name(m.get_seed(),
-                                  m.get_change_freq()))
+                                  m.get_change_freq(),
+                                  prefix))
             && !overwrite)
     {
         std::cout << "this simulation has already been run" << std::endl;
