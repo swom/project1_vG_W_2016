@@ -400,7 +400,7 @@ void dispersal(simulation &s)
 
 void exec_cycle(simulation& s) noexcept
 {
-    auto rand_start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
 
     add_new_funders(s);
     while(s.get_timestep() != s.get_meta_param().get_cycle_duration() &&
@@ -413,25 +413,18 @@ void exec_cycle(simulation& s) noexcept
     dispersal(s);
 
     auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration<float>(stop - rand_start);
-    std::cout<< "random_cond_evo cycle n " << s.get_cycle() <<
-                ":" << duration.count() << "s" << std::endl;
+    auto duration = std::chrono::duration<float>(stop - start);
+    std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
+                "time: " << duration.count() << "s" << std::endl <<
+                "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
+                std::endl;
 }
 
 void exec(simulation& s) noexcept
 {
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
-        auto start = std::chrono::high_resolution_clock::now();
-
         exec_cycle(s);
-
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration<float>(stop - start);
-        std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
-                    "time: " << duration.count() << "s" << std::endl <<
-                    "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
-                    std::endl;
 
         if(s.get_cycle() != 0
                 && s.get_meta_param().get_change_freq() != 0
@@ -471,7 +464,6 @@ void exec_change(simulation& s,
 
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
-        auto start = std::chrono::high_resolution_clock::now();
         auto modulus =  s.get_cycle() % condition_duration;
 
         if( modulus == 0 && condition_index < rand_conditions.size())
@@ -484,12 +476,6 @@ void exec_change(simulation& s,
 
         s.reset_timesteps();
         s.tick_cycles();
-
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration<float>(stop - start);
-        std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
-                    "time: " << duration.count() << "s" << std::endl <<
-                    "n_individuals: " << s.get_pop().get_pop_size() << std::endl << std::endl;
     }
 }
 
@@ -1082,7 +1068,7 @@ int run_sim_evo(const env_param& e,
     auto start = std::chrono::high_resolution_clock::now();
 
     exec(s);
-    save_data(s);
+    save_data(s, prefix);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);

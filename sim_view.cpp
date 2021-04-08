@@ -151,7 +151,7 @@ bool sim_view::exec_cycle_visual(simulation& s) noexcept
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - rand_start);
-    std::cout<< "random_cond_evo cycle n " << s.get_cycle() << ":" << std::endl <<
+    std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
                 "time: " << duration.count() << "s" << std::endl <<
                 "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
                 "n_timesteps: " << s.get_timestep() << std::endl <<
