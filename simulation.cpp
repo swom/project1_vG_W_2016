@@ -996,14 +996,14 @@ int run_sim_evo_rand(double amplitude,
     std::string death_prefix = "";
     if(!eden)
     {
-        death_prefix = "death";
+        death_prefix = "death_";
     }
     auto s = load_sim_last_pop(seed,change_frequency, death_prefix);
 
     std::string prefix;
     if(death)
     {
-        prefix = "death" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+        prefix = "death_" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
         s.activate_death();
 
     }
