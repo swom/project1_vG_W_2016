@@ -258,6 +258,9 @@ std::vector<individual> pop_from_funders(const funders_success &f_s,
 ///Normal death due to death rate
 void senescence(population &p) noexcept;
 
+///Check if at least one individual has starved
+ bool someone_starved(const population& p);
+
 ///Kills individuals with energy = 0
 void starvation(population &p) noexcept;
 

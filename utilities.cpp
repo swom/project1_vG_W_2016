@@ -20,7 +20,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          bool& overwrite,
                          int& seed_rand_cond,
                          int& seq_index,
-                         bool& death)
+                         bool& death,
+                         bool& eden)
 {
     if (args.size() > 3
             && (args[1] == "--sim"
@@ -53,6 +54,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_amplitude_arg(args, amplitude);
     }
     take_death_arg(args, death);
+    take_eden_arg(args, eden);
 }
 
 
@@ -155,6 +157,13 @@ void take_death_arg(const std::vector<std::string>& args, bool& death)
     if(std::any_of(args.begin(), args.end(),
                    [](const std::string& s){return s == "--death";}))
             death = true;
+}
+
+void take_eden_arg(const std::vector<std::string>& args, bool& eden)
+{
+    if(std::any_of(args.begin(), args.end(),
+                   [](const std::string& s){return s == "--eden";}))
+            eden = true;
 }
 
 void take_n_sequences_arg(const std::vector<std::string>& args, int& n_conditions)

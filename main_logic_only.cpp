@@ -33,7 +33,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         overwrite,
                         cond_per_seq,
                         seq_index,
-                        death);
+                        death,
+                        eden);
 
     meta_param m{n_cycles,
                 cycle_duration,

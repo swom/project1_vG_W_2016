@@ -599,6 +599,13 @@ void spor_metabolism_pop(population &p)
     }
 }
 
+bool someone_starved(const population& p)
+{
+    return std::any_of(p.get_v_ind().begin(), p.get_v_ind().end(), [](const individual& i)
+    {return is_dead(i);});
+}
+
+
 void starvation( population& p) noexcept
 {
 

@@ -183,7 +183,7 @@ private:
 int run_visual_evo (const env_param& e,
                     const ind_param &i,
                     const meta_param& m,
-                    const pop_param& p);
+                    const pop_param& p, const bool &death);
 
 ///Reloads a simulation of a given seed and frequency change
 /// and replays visually one given cycle

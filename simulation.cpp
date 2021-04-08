@@ -1245,7 +1245,7 @@ int tick(simulation& s, int n_ticks)
     jordi_feeding(s);
     metabolism_pop(s.get_pop());
     secretion_metabolite(s);
-    if(death_is_active(s))
+    if(death_is_active(s) && someone_starved(s.get_pop()))
     {
         death(s.get_pop());
     }

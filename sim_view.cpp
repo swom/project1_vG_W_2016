@@ -415,10 +415,15 @@ void sim_view::zoom_k_input_starts(const sf::Event &event) noexcept
 int run_visual_evo (const env_param& e,
                     const ind_param& i,
                     const meta_param& m,
-                    const pop_param& p)
+                    const pop_param& p,
+                    const bool& death)
 {
 
     simulation s{sim_param{e, i, m, p}};
+    if(death)
+    {
+        s.activate_death();
+    }
     sim_view v;
     v.exec(s);
     save_data(s);

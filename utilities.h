@@ -18,7 +18,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          double& amplitude,
                          bool &overwrite,
                          int &seed_rand_cond,
-                         int &rand_cond_n, bool &death);
+                         int &rand_cond_n, bool &death, bool &eden);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;
@@ -46,6 +46,10 @@ void take_amplitude_arg(const std::vector<std::string>& args, double &amplitude)
 
 ///Takes death argument
 void take_death_arg(const std::vector<std::string>& args, bool& death);
+
+///Takes a cmd line argument that specifies if to run the rand_evo from simulation where
+/// death was present (eden == false) or where detah was not happening (eden == true)
+void take_eden_arg(const std::vector<std::string>& args, bool& eden);
 
 ///Checks if the last argumetn of the command line is "--overwrite"
 /// if it is then the simulations will be run even if they had already run and
