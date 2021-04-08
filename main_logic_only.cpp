@@ -22,6 +22,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int seq_index;
     int collision_check_interval = 0;
     bool death = false;
+    bool eden = false;
 
     check_for_cmd_param(args,
                         seed,

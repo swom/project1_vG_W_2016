@@ -1060,10 +1060,12 @@ int run_sim_evo(const env_param& e,
     {
         prefix ="death_";
     }
-    if(exists(create_sim_par_name(m.get_seed(),
-                                  m.get_change_freq(),
-                                  prefix))
-            && !overwrite)
+
+    auto filename = create_sim_par_name(m.get_seed(),
+                                        m.get_change_freq(),
+                                        prefix);
+
+    if(exists(filename) && !overwrite)
     {
         std::cout << create_sim_par_name(m.get_seed(),
                                          m.get_change_freq(),
