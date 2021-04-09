@@ -18,7 +18,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& replay_cycle,
                          double& amplitude,
                          bool& overwrite,
-                         int& seed_rand_cond,
+                         int& cond_per_seq,
                          int& seq_index,
                          bool& death,
                          bool& eden)
@@ -42,7 +42,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
         take_change_freq_arg(args,change_freq);
         take_amplitude_arg(args, amplitude);
         take_n_sequences_arg(args, n_sequences);
-        take_cond_per_seq_arg(args,seed_rand_cond);
+        take_cond_per_seq_arg(args,cond_per_seq);
         take_seq_index_arg(args, seq_index);
         take_overwrite_arg(args, overwrite);
         take_replay_cycle_arg(args,replay_cycle);

@@ -17,7 +17,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int &replay_cycle,
                          double& amplitude,
                          bool &overwrite,
-                         int &seed_rand_cond,
+                         int &cond_per_seq,
                          int &rand_cond_n, bool &death, bool &eden);
 
 ///Creates a uniform distribution

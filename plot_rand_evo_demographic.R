@@ -15,18 +15,19 @@ hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
 hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
 sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
 sequence_extr = "C:/Users/p288427/Desktop/hd_rand_evo/sequence_extr"
-death = "C:/Users/p288427/Desktop/hd_rand_evo/death"
+death_eden = "C:/Users/p288427/Desktop/hd_rand_evo/death_eden"
+death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
 
 
 #####read data####
-setwd(death)
+setwd(death_death)
 demographic = data.frame()
 
 n_env = 1
-if(getwd() == death)
+if(getwd() == death_eden)
 {
   pattern = "deathrand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
-    for (i in  list.files(path = '.',
+  for (i in  list.files(path = '.',
                         pattern = pattern ))
   {
     if(file.size(i) <= 0) next()
@@ -38,8 +39,22 @@ if(getwd() == death)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-} 
-if(getwd() == sequence || getwd() == sequence_extr)
+}  else if(getwd() == death_death)
+{
+  pattern = "death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+  for (i in  list.files(path = '.',
+                        pattern = pattern ))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+} else if(getwd() == sequence || getwd() == sequence_extr)
 {
   for (i in  list.files(path = '.',
                         pattern = "rand_evo_*?a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
@@ -53,8 +68,7 @@ if(getwd() == sequence || getwd() == sequence_extr)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-} 
-if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
+}  else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
    || getwd() == rand_evo_dir || getwd() == evo_dir)
   {
   
@@ -123,10 +137,15 @@ coeffs = demographic %>%
 
 demographic = demographic %>% left_join(coeffs)
 
-if(getwd() == death)
+if(getwd() == death_eden)
 {
-  death_demographic  = demographic
-save(death_demographic, file = "death_rand_evo_demo.R")
+  death_eden_demographic  = demographic
+  save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
+}
+if(getwd() == death_death)
+{
+  death_death_demographic  = demographic
+  save(death_death_demographic, file = "death_death_rand_evo_demo.R")
 }
 if(getwd()  == sequence)
 {
@@ -154,8 +173,11 @@ load("seq_rand_evo_demo.R")
 setwd(sequence_extr)
 load("seqex_rand_evo_demo.R")
 
-setwd(death)
-load("death_rand_evo_demo.R")
+setwd(death_eden)
+load("death_eden_rand_evo_demo.R")
+
+setwd(death_death)
+load("death_death_rand_evo_demo.R")
 
 dem = seq_demographic
 

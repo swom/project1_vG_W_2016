@@ -370,7 +370,8 @@ int run_sim_evo_rand(double amplitude,
 
 ///Runs an evolution simulation in a given random condition
 funders_success run_evo_random_conditions(const simulation& rand_s,
-                                          int number_of_sequences, int cond_per_seq,
+                                          int number_of_sequences,
+                                          int cond_per_seq,
                                           int seq_index,
                                           int pop_max,
                                           double amplitude,
