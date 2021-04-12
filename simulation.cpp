@@ -1004,6 +1004,10 @@ int run_sim_evo_rand(double amplitude,
     if(death)
     {
         prefix = "death_" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+        if(eden)
+        {
+            prefix = "eden_" + prefix;
+        }
         s.activate_death();
 
     }

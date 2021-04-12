@@ -20,7 +20,7 @@ death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
 
 
 #####read data####
-setwd(death_death)
+setwd(death_eden)
 demographic = data.frame()
 
 n_env = 1
@@ -39,7 +39,7 @@ if(getwd() == death_eden)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-}  else if(getwd() == death_death)
+}else if(getwd() == death_death)
 {
   pattern = "death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
   for (i in  list.files(path = '.',
@@ -54,7 +54,7 @@ if(getwd() == death_eden)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-} else if(getwd() == sequence || getwd() == sequence_extr)
+}else if(getwd() == sequence || getwd() == sequence_extr)
 {
   for (i in  list.files(path = '.',
                         pattern = "rand_evo_*?a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
@@ -68,7 +68,7 @@ if(getwd() == death_eden)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-}  else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
+}else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
    || getwd() == rand_evo_dir || getwd() == evo_dir)
   {
   
@@ -141,19 +141,16 @@ if(getwd() == death_eden)
 {
   death_eden_demographic  = demographic
   save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
-}
-if(getwd() == death_death)
+} else if(getwd() == death_death)
 {
   death_death_demographic  = demographic
   save(death_death_demographic, file = "death_death_rand_evo_demo.R")
-}
-if(getwd()  == sequence)
+} else if(getwd()  == sequence)
 {
   seq_demographic  = demographic
   save(seq_demographic, file = "seq_rand_evo_demo.R")
   
-}
-if(getwd()  == sequence_extr)
+} else if(getwd()  == sequence_extr)
 {
   seqex_demographic  = demographic
   save(seqex_demographic, file = "seqex_rand_evo_demo.R")
@@ -179,7 +176,7 @@ load("death_eden_rand_evo_demo.R")
 setwd(death_death)
 load("death_death_rand_evo_demo.R")
 
-dem = seq_demographic
+dem = death_eden_demographic
 
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
@@ -475,9 +472,11 @@ sections_v_value = unique(
      seq(v_qntl[4], v_qntl[5], length = as.integer(n_colors/3))))
 
 
-###Plotting ratio-value beginning and end plus points of value####
+###Plotting spore/active/sporu lines + success on backgr####
 
-ggplot(data = dem %>% pivot_longer(c(spore, sporu, active, total_n))) +
+ggplot(data = dem %>% 
+         subset(as.numeric(seed)) < 30 %>% 
+         pivot_longer(c(spore, sporu, active, total_n))) +
   geom_rect(aes(xmin= cycle,
                 xmax= cycle + 1,
                 ymin= 0,
@@ -487,7 +486,7 @@ ggplot(data = dem %>% pivot_longer(c(spore, sporu, active, total_n))) +
   geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/rv_s_e_p_only_complete_cycle_death_rgb.pdf",
+ggsave("../../research presentation/rv_s_e_p_only_complete_cycle_death_eden_rgb.pdf",
        width = 500,
        height = 300, 
        units = "cm",
