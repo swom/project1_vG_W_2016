@@ -432,7 +432,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
                                     int original_change,
                                     int cond_per_seq,
                                     int seq_index,
-                                    double amplitude);
+                                    double amplitude, bool death, bool eden);
 
 ///Runs a poplation from a simulation against a series of random conditions
 demographic_sim test_against_random_conditions(const simulation &s,

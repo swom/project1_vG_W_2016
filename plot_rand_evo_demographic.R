@@ -24,9 +24,8 @@ setwd(death_eden)
 demographic = data.frame()
 
 n_env = 1
-if(getwd() == death_eden)
-{
-  pattern = "deathrand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+if(getwd() == death_eden){
+  pattern = "eden_death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
   for (i in  list.files(path = '.',
                         pattern = pattern ))
   {
@@ -39,8 +38,7 @@ if(getwd() == death_eden)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-}else if(getwd() == death_death)
-{
+}else if(getwd() == death_death){
   pattern = "death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
   for (i in  list.files(path = '.',
                         pattern = pattern ))
@@ -54,8 +52,7 @@ if(getwd() == death_eden)
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-}else if(getwd() == sequence || getwd() == sequence_extr)
-{
+}else if(getwd() == sequence || getwd() == sequence_extr){
   for (i in  list.files(path = '.',
                         pattern = "rand_evo_*?a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
   {
@@ -69,8 +66,7 @@ if(getwd() == death_eden)
     demographic = rbind(replicate,demographic)
   }
 }else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
-   || getwd() == rand_evo_dir || getwd() == evo_dir)
-  {
+   || getwd() == rand_evo_dir || getwd() == evo_dir){
   
   for (i in  list.files(path = '.',
                         pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
@@ -137,21 +133,23 @@ coeffs = demographic %>%
 
 demographic = demographic %>% left_join(coeffs)
 
-if(getwd() == death_eden)
-{
+if(getwd() == death_eden) {
+  
   death_eden_demographic  = demographic
   save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
-} else if(getwd() == death_death)
-{
+  
+} else if(getwd() == death_death) {
+  
   death_death_demographic  = demographic
   save(death_death_demographic, file = "death_death_rand_evo_demo.R")
-} else if(getwd()  == sequence)
-{
+  
+} else if(getwd()  == sequence) {
+  
   seq_demographic  = demographic
   save(seq_demographic, file = "seq_rand_evo_demo.R")
   
-} else if(getwd()  == sequence_extr)
-{
+} else if(getwd()  == sequence_extr) {
+ 
   seqex_demographic  = demographic
   save(seqex_demographic, file = "seqex_rand_evo_demo.R")
   
@@ -475,7 +473,6 @@ sections_v_value = unique(
 ###Plotting spore/active/sporu lines + success on backgr####
 
 ggplot(data = dem %>% 
-         subset(as.numeric(seed)) < 30 %>% 
          pivot_longer(c(spore, sporu, active, total_n))) +
   geom_rect(aes(xmin= cycle,
                 xmax= cycle + 1,
@@ -486,7 +483,7 @@ ggplot(data = dem %>%
   geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/rv_s_e_p_only_complete_cycle_death_eden_rgb.pdf",
+ggsave("../../research presentation/suc_+_inds_death_eden_rgb.pdf",
        width = 500,
        height = 300, 
        units = "cm",
@@ -780,8 +777,8 @@ sections_avg_rv_value = unique(
 
 #clust avg
 heatmap.2(as.matrix(clust_dem_rv_avg),        
-          # Colv = start_clust_col,
-          # Rowv = avg_sl_clust_row,
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
           scale = "none",
           trace = "none",
           col = rbg, 
@@ -802,12 +799,33 @@ avg_spore_col = as.dendrogram(hclust(dist(t(as.matrix(clust_avg_spore)))))
 avg_spore_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_spore)))))
 
 heatmap.2(as.matrix(clust_avg_spore),
-          # Colv = start_clust_col,
-          # Rowv = avg_sl_clust_row,
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
           col = rbg,
           scale = "none",
           trace = "none",
           main = "avg_spore_value")
+
+####heatmap cluster for avg success value####
+avg_success_v = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_success = mean(success))
+
+clust_avg_success = avg_success_v %>% 
+  spread(condition, avg_success) %>% 
+  column_to_rownames("seed")
+
+#col and row clustering at the start
+avg_success_col = as.dendrogram(hclust(dist(t(as.matrix(clust_avg_success)))))
+avg_success_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_success)))))
+
+heatmap.2(as.matrix(clust_avg_success),
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          scale = "none",
+          trace = "none",
+          main = "avg_success_value")
 
 ####heatmap cluster for overall_r_value(ratio_value rescaled to [0-1] over all cycle) of spores####
 #start
@@ -1120,14 +1138,14 @@ avg_sl_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_slope)))))
 avg_sl_qntl = quantile(avg_slope$avg_slope)
 sections_avg_sl_value_plot = unique(
   c( seq(avg_sl_qntl[1], avg_sl_qntl[2], length = as.integer(n_colors/3 + 1)),
-     seq(avg_sl_qntl[2], avg_sl_qntl[4], length = as.integer(n_colors/3 + 2)),
+     seq(avg_sl_qntl[2], avg_sl_qntl[4], length = as.integer(n_colors/3 + 1)),
      seq(avg_sl_qntl[4], avg_sl_qntl[5], length = as.integer(n_colors/3 + 2))))
 
 heatmap.2(as.matrix(clust_avg_slope),
           scale = "none",
           trace = "none",
-          # Colv = start_clust_col,
-          # Rowv = avg_sl_clust_row,
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
           col = rbg,
           breaks = sections_avg_sl_value_plot,
           main = "avg_slope")
@@ -1149,14 +1167,14 @@ clust_avg_intercept = avg_intercept%>%
 avg_int_qntl = quantile(avg_intercept$avg_intercept)
 sections_avg_int_value_plot = unique(
   c( seq(avg_int_qntl[1], avg_int_qntl[2], length = as.integer(n_colors/3 + 1)),
-     seq(avg_int_qntl[2], avg_int_qntl[4], length = as.integer(n_colors/3 + 2)),
+     seq(avg_int_qntl[2], avg_int_qntl[4], length = as.integer(n_colors/3 + 1)),
      seq(avg_int_qntl[4], avg_int_qntl[5], length = as.integer(n_colors/3 + 2))))
 
 heatmap.2(as.matrix(clust_avg_intercept),
           scale = "none",
           trace = "none",
-          # Colv = start_clust_col,
-          # Rowv = avg_sl_clust_row,
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
           col = rbg,
           breaks = sections_avg_int_value_plot,
           main = "avg_intercept")
@@ -1185,14 +1203,14 @@ sl_sl_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_slope_slope)))))
 sl_sl_qntl = quantile(slope_of_slopes$slope_of_slope)
 sections_sl_sl_value_plot = unique(
   c( seq(sl_sl_qntl[1], sl_sl_qntl[2], length = as.integer(n_colors/3 + 1)),
-     seq(sl_sl_qntl[2], sl_sl_qntl[4], length = as.integer(n_colors/3 + 2)),
+     seq(sl_sl_qntl[2], sl_sl_qntl[4], length = as.integer(n_colors/3 + 1)),
      seq(sl_sl_qntl[4], sl_sl_qntl[5], length = as.integer(n_colors/3 + 2))))
 
 heatmap.2(as.matrix(clust_slope_slope),
           scale = "none",
           trace = "none",
           # Colv = start_clust_col,
-          # Rowv = sl_sl_clust_row,
+          # Rowv = avg_sl_clust_row,
           col = rbg,
           breaks = sections_sl_sl_value_plot,
           main = "slope_of_slopes")
@@ -1229,14 +1247,14 @@ clust_slope_intercept = slope_of_intercept %>%
 sl_int_qntl = quantile(slope_of_intercept$slope_of_intercept)
 sections_sl_int_value_plot = unique(
   c( seq(sl_int_qntl[1], sl_int_qntl[2], length = as.integer(n_colors/3 + 1)),
-     seq(sl_int_qntl[2], sl_int_qntl[4], length = as.integer(n_colors/3 + 2)),
+     seq(sl_int_qntl[2], sl_int_qntl[4], length = as.integer(n_colors/3 + 1)),
      seq(sl_int_qntl[4], sl_int_qntl[5], length = as.integer(n_colors/3 + 2))))
 
 heatmap.2(as.matrix(clust_slope_intercept),
           scale = "none",
           trace = "none",
-          Colv = start_clust_col,
-          Rowv = sl_sl_clust_row,
+          # Colv = start_clust_col,
+          # Rowv = avg_sl_clust_row,
           col = rbg,
           breaks = sections_sl_int_value_plot,
           main = "slope_of_intercepts")

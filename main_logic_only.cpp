@@ -112,10 +112,12 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
             && args[1] == "--test_extr_rand_evo_beginning_end")
     {
         run_test_extreme_rand_evo_beginning_end(seed,
-                                            change_freq,
-                                            cond_per_seq,
-                                            seq_index,
-                                            amplitude);
+                                                change_freq,
+                                                cond_per_seq,
+                                                seq_index,
+                                                amplitude,
+                                                death,
+                                                eden);
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
     {

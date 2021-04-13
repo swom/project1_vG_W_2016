@@ -1125,6 +1125,14 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     data_folder = "../../../data/p288427/";
 #endif
     auto prefix = create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);
+    if(death)
+    {
+        prefix = "death_" + prefix;
+        if(eden)
+        {
+            prefix = "eden_" + prefix;
+        }
+    }
 
     //little trick added for now since sim_par are not saved with prefix
     //we load and save sim_param from original simulation with name with prefix
