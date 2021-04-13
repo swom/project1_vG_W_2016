@@ -131,7 +131,15 @@ coeffs = demographic %>%
   ungroup()
 
 
+coeffs_success = demographic %>% 
+  group_by(condition, seed, env_type) %>%
+  do(coeffs = coefficients(lm(success ~ cycle, data = .))) %>% 
+  mutate(slope_success = as.numeric(coeffs[2][[1]])) %>% 
+  mutate(intercept_success = as.numeric(coeffs[1][[1]]))%>%
+  ungroup()
+
 demographic = demographic %>% left_join(coeffs)
+demographic = demographic %>% left_join(coeffs_success)
 
 if(getwd() == death_eden) {
   
@@ -1209,8 +1217,8 @@ sections_sl_sl_value_plot = unique(
 heatmap.2(as.matrix(clust_slope_slope),
           scale = "none",
           trace = "none",
-          # Colv = start_clust_col,
-          # Rowv = avg_sl_clust_row,
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
           col = rbg,
           breaks = sections_sl_sl_value_plot,
           main = "slope_of_slopes")
@@ -1253,8 +1261,8 @@ sections_sl_int_value_plot = unique(
 heatmap.2(as.matrix(clust_slope_intercept),
           scale = "none",
           trace = "none",
-          # Colv = start_clust_col,
-          # Rowv = avg_sl_clust_row,
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
           col = rbg,
           breaks = sections_sl_int_value_plot,
           main = "slope_of_intercepts")

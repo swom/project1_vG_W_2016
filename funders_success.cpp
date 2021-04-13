@@ -65,7 +65,8 @@ funders_success load_funders_success(const std::string& filename)
     std::ifstream is(filename, std::ios::binary);
     if(!is.is_open())
         {
-            std::cout << "Could not find specified funders_success*.csv file. \n\n";
+            std::cout << "Could not find specified funders_success*.csv file." <<
+                         filename << std::endl << std::endl;
             abort();
         }
     is >> f_s;
