@@ -1118,7 +1118,9 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
                                                         int original_change,
                                                         int cond_per_seq,
                                                         int seq_index,
-                                                        double amplitude)
+                                                        double amplitude,
+                                                        bool death,
+                                                        bool eden)
 {
     std::string data_folder = "";
 #ifdef ON_LINUX
