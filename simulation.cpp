@@ -1143,6 +1143,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
 
     auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + prefix);
 
+    if(death){new_s.activate_death();}
     int n_rand_cond = 100;
     int pop_max = 10000;
 
