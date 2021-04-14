@@ -244,6 +244,9 @@ void set_ind_pos(individual& i, double x, double y);
 ///Places an individual of index i at position x,y
 void set_ind_pos(individual& i, std::pair<double, double> pos);
 
+///Sets energy of all individuals in a population to a given value
+void set_all_inds_en(population& p, double e);
+
 ///Sets and individual's energy
 void set_ind_en(individual& i, double en);
 

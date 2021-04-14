@@ -7,12 +7,13 @@ void test_activate_death()
     //let's give a cycle some time
     s.get_meta_param().set_n_timesteps(50);
     //let's give individuals no energy, so they should die
-    for(auto& ind : s.get_pop().get_v_ind())
-    {
-        set_ind_en(ind, 0);
-    }
+    set_all_inds_en(s.get_pop(), 0);
+    //let's give env no food
+    set_all_cell_food(s.get_env(),0);
     assert(all_en_pop_equals(s.get_pop(),0));
 
+    //With death not active no ind should starve
+    assert(!death_is_active(s));
     auto n_ind_start = s.get_pop().get_pop_size();
 
     exec_cycle(s);
@@ -25,9 +26,15 @@ void test_activate_death()
     assert(n_ind_end == n_ind_start);
     assert(all_en_pop_NOT_equals(s.get_pop(),0));
 
+    //With death active all inds should starve
+
     s.activate_death();
 
-    //all inds should starve
+    //let's give individuals no energy, so they should die
+    set_all_inds_en(s.get_pop(), 0);
+    //let's give env no food
+    set_all_cell_food(s.get_env(),0);
+
     exec_cycle(s);
     s.reset_timesteps();
     s.tick_cycles();

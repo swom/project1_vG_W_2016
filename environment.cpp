@@ -249,6 +249,13 @@ void reset_env(environment& e)
                 env_grid_cell{0,e.get_param().get_init_food()});
 }
 
+void set_all_cell_food(environment& e, double f)
+{
+    std::for_each(e.get_grid().begin(),
+                  e.get_grid().end(),
+                  [=](env_grid_cell& g)
+    {g.set_food(f);});
+};
 void reset_env(environment& e, int grid_side, double diff_coeff, double food)
 {
     e = environment(env_param{grid_side,diff_coeff,food});

@@ -550,6 +550,13 @@ void select_new_pop(population &p)
     }
 }
 
+void set_all_inds_en(population& p, double e)
+{
+    for(auto& ind : p.get_v_ind())
+    {
+        set_ind_en(ind, e);
+    }
+}
 void set_ind_en(individual& i, double en)
 {
     i.set_energy(en);

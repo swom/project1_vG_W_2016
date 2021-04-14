@@ -100,6 +100,9 @@ bool is_past_limit(int index, int grid_side, int grid_size, int row) noexcept;
 ///Checks cells do not look for neighbors at their own coordinates
 bool is_same_cell(int column, int row) noexcept;
 
+///Sets food value in all cells to a given value
+void set_all_cell_food(environment& e, double f);
+
 ///Resets the environment to new parameters
 void reset_env(environment& e, int grid_side, double diff_coeff, double food);
 
