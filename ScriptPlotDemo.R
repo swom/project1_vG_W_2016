@@ -4,10 +4,17 @@ library(stringr)
 library(ggplot2)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
+death_data = "C:/Users/p288427/Desktop/hd_rand_evo/death_data"
+
 setwd(evo_dir)
+if(getwd() == evo_dir){
+  pattern = "sim_demographic_s\\d+change_\\d+"
+} else if(getwd() == death_data){
+  pattern = "death_sim_demographic_s\\d+change_\\d+"
+}
 
 demographic = data.frame()
-for (i in  list.files(path = '.',pattern = "sim_demographic_s\\d+change_\\d+"))
+for (i in  list.files(path = '.', pattern = pattern))
 {
   replicate = read.csv(i)
   replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
@@ -47,15 +54,14 @@ check_u =
   unique()
 
 #plot
-demographic %>% 
+demographic %>% subset( change_freq == "0") %>% 
+  subset(as.numeric(seed) < 60)%>% 
   ggplot(aes(x = cycle, y = value, color = variable)) + 
-  geom_smooth()  +
-  facet_grid(change_freq ~ seed)
+  geom_point()  
 
-
-ggsave("C:/Users/p288427/Desktop/research presentation/first_evo_demo.pdf",
+ggsave("C:/Users/p288427/Desktop/research presentation/first_evo_demo_.jpg",
        width = 100,
-       height = 20, 
+       height = 200, 
        units = "cm",
        limitsize = F)
 

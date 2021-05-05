@@ -20,7 +20,7 @@ death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
 
 
 #####read data####
-setwd(death_death)
+setwd(sequence_extr)
 demographic = data.frame()
 
 n_env = 1
@@ -52,9 +52,22 @@ if(getwd() == death_eden){
     colnames(replicate) = colnames(demographic)
     demographic = rbind(replicate,demographic)
   }
-}else if(getwd() == sequence || getwd() == sequence_extr){
+}else if(getwd() == sequence){
   for (i in  list.files(path = '.',
-                        pattern = "rand_evo_*?a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+}else if(getwd() == sequence_extr){
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_extreme_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
   {
     if(file.size(i) <= 0) next()
     replicate = read.csv(i)
@@ -159,8 +172,7 @@ if(getwd() == death_eden) {
   save(seqex_demographic, file = "seqex_rand_evo_demo.R")
   
 }
-####load hd_rand condition from 0 : 49####
-#object name : hd_demographic
+####load hd_rand ####
 setwd(hd_rand_evo)
 load(file = "hd_rand_evo_demo.R")
 
@@ -179,7 +191,7 @@ load("death_eden_rand_evo_demo.R")
 setwd(death_death)
 load("death_death_rand_evo_demo.R")
 
-
+dem = death_death_demographic
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -487,7 +499,7 @@ ggplot(data = dem %>%
   geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/suc_+_ind_death_death.pdf",
+ggsave("../../research presentation/suc_+_ind_seqex.pdf",
        width = 500,
        height = 300, 
        units = "cm",
@@ -1183,6 +1195,35 @@ heatmap.2(as.matrix(clust_avg_intercept),
           breaks = sections_avg_int_value_plot,
           main = "avg_intercept")
 
+####Heatmap cluster for avg of STARTING SPORE production in each env_type#####
+
+#summarise average intercept over all env_types in a condition
+avg_intercept = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_intercept = mean(intercept))
+
+#create dataframe for intercept
+clust_avg_intercept = avg_intercept%>% 
+  select(condition, seed, avg_intercept) %>% 
+  spread(condition, avg_intercept) %>% 
+  column_to_rownames(var = "seed") 
+
+#create breaks for avg_intercept
+avg_int_qntl = quantile(avg_intercept$avg_intercept)
+sections_avg_int_value_plot = unique(
+  c( seq(avg_int_qntl[1], avg_int_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_int_qntl[2], avg_int_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_int_qntl[4], avg_int_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_intercept),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_int_value_plot,
+          main = "avg_intercept")
+
 ####Heatmap cluster for the SLOPE OF SLOPE for SPORE PROD for each env type in each seq####
 
 env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
@@ -1216,21 +1257,9 @@ heatmap.2(as.matrix(clust_slope_slope),
           Colv = start_clust_col,
           Rowv = avg_sl_clust_row,
           col = rbg,
-          breaks = sections_sl_sl_value_plot,
+          #breaks = sections_sl_sl_value_plot,
           main = "slope_of_slopes")
 
-#plot slopes of spore production slope in each env_type over the entire seq 
-ggplot(data = dem %>%
-         left_join(seq_slopes) %>%
-         subset(cycle %% env_duration == env_duration - 1)) +
-  geom_point(aes(x = cycle, y = slope)) +
-  facet_grid(seed ~ condition)
-
-ggsave("../../research presentation/slope_values.pdf",
-       width = 500,
-       height = 300, 
-       units = "cm",
-       limitsize = F)
 ####heatmap cluster for slope of intercept  for SPORE PROD ####
 
 env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
@@ -1276,7 +1305,7 @@ clust_avg_slope_success = avg_slope_success%>%
   column_to_rownames(var = "seed") 
 
 #pre-cluster rows so to use it in clustering of intercept
-avg_sl_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_slope_success)))))
+avg_sl_clust_row_scs = as.dendrogram(hclust(dist((as.matrix(clust_avg_slope_success)))))
 
 #create breaks for avg_slope
 avg_sl_scs_qntl = quantile(avg_slope_success$avg_slope_success)

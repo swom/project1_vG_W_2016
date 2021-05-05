@@ -88,8 +88,7 @@ for (i in levels(all_reac_norms$seed)) {
   }
 }
 
-
-   ###Calculating distances and making phenograms
+###Calculating distances and making phenograms####
 
 for( j in levels(all_reac_norms$change))
 {

@@ -191,8 +191,8 @@ std::string create_last_pop_name(int seed, int change_freq, const std::string& p
 {
     return  std::string{
         prefix +
-        "last_pop_s" +
-        std::to_string(seed) +
+                "last_pop_s" +
+                std::to_string(seed) +
                 "change_" +
                 std::to_string(change_freq) +
                 ".csv"
@@ -712,7 +712,7 @@ simulation no_dem_and_fund_copy(const simulation& s)
     new_s.get_pop().get_v_ind() = s.get_pop().get_v_ind();
     if(death_is_active(s))
     {
-    new_s.activate_death();
+        new_s.activate_death();
     }
     return new_s;
 }
@@ -1123,8 +1123,21 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
                                                         bool eden)
 {
     std::string data_folder = "";
+
 #ifdef ON_LINUX
     data_folder = "../../../data/p288427/";
+    if(death)
+    {
+        if(eden)
+        {
+            data_folder += "death_eden/";
+        }
+        else
+        {
+            data_folder += "death_death/";
+        }
+    }
+
 #endif
     auto prefix = create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);
     if(death)
