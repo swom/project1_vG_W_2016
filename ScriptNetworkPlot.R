@@ -14,7 +14,7 @@ rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 
 setwd(evo_dir)
-
+setwd(dir = "C:/Users/p288427/Desktop/research presentation/gif_s9_dd")
 funders = data.frame()
 
 # for (i in  list.files(path = '.',pattern = "funders_success_s\\d+change_\\d+"))
@@ -26,7 +26,9 @@ funders = data.frame()
 #   funders = rbind(replicate, funders)
 # }
 
-funders = read.csv("funders_success_s9change_0.csv")
+name = "X:/build-simulation_logic_only-Desktop_Qt_6_0_0_MinGW_64_bit-Release/death_rand_evo_extreme_a3.000000seq_1cond_per_seq50funders_success_s9change_0.csv"
+# funders = read.csv("funders_success_s9change_0.csv")
+funders = read.csv(name)
 #put some useful names to column
 names(funders)[1]<-"cycle" 
 names(funders)[2]<-"ID" 
@@ -40,7 +42,8 @@ best = funders %>%
 
 funders$ID = str_sub(funders$ID, end = - 3)
 #find line of descent of best individual
-best_descent =  filter(funders, stri_startswith_fixed(best$ID, funders$ID))
+best_descent =  filter(funders, stri_startswith_fixed(best$ID, funders$ID)) %>% subset(cycle > 1
+                                                                                       )
 
 ###plot network####
 #assuming we know network architecture:

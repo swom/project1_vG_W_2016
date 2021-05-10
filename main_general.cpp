@@ -22,6 +22,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int conditions_per_seq;
     int seq_index;
     int collision_check_interval = 0;
+    bool death = false;
+    bool eden = false;
 
     check_for_cmd_param(args,
                         seed,
@@ -31,7 +33,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         amplitude,
                         overwrite,
                         conditions_per_seq,
+<<<<<<< HEAD
                         seq_index);
+=======
+                        seq_index,
+                        death,
+                        eden);
+>>>>>>> matrix_r_cond
 
     meta_param m{n_cycles,
                 cycle_duration,
@@ -74,11 +82,11 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e, i, m, p,
-                    overwrite);
+                    overwrite, death);
     }
     else  if(args.size() > 1 && args[1] == "--visual")
     {
-        run_visual_evo(e,i,m,p);
+        run_visual_evo(e,i,m,p, death);
     }
     else  if(args.size() > 1 && args[1] == "--rand")
     {
@@ -107,6 +115,22 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          pop_max,
                          seed,
                          seq_index,
+<<<<<<< HEAD
+=======
+                         overwrite,
+                         death,
+                         eden);
+    }
+    else if(args.size() > 1 && args[1] == "--rand_evo_visual")
+    {
+        run_sim_evo_rand_visual(amplitude,
+                         change_freq,
+                         n_seq,
+                         conditions_per_seq,
+                         pop_max,
+                         seed,
+                         seq_index,
+>>>>>>> matrix_r_cond
                          overwrite);
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")

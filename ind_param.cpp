@@ -1,4 +1,5 @@
 #include "ind_param.h"
+#include "utilities.h"
 #include <cassert>
 
 ind_param::ind_param(double radius,
@@ -236,6 +237,34 @@ ind_param change_ind_param_unif( ind_param i,  std::minstd_rand& rng)
                                   i.get_transformation_time_mean() + i.get_transformation_range()}
                               (rng)
                               );
+
+    return i;
+}
+
+
+ind_param change_ind_param_unif_extreme(ind_param i,
+                                        double amplitude,
+                                        std::minstd_rand& rng)
+{
+
+    i.set_uptake_rate(draw_from_uniform_with_limit(i.get_uptake_mean(),
+                                                   i.get_uptake_var() * amplitude,
+                                                   rng));
+
+    i.set_spor_metabolic_rate(
+                draw_from_uniform_with_limit(i.get_spor_metabolic_rate_mean(),
+                                             i.get_spor_metabolic_rate_var() * amplitude,
+                                             rng));
+
+    i.set_repr_prob(draw_from_uniform_with_limit(i.get_repr_prob_mean(),
+                                                 i.get_repr_prob_var() * amplitude,
+                                                 rng));
+
+    i.set_transformation_time(
+                draw_from_uniform_with_limit(i.get_transformation_time_mean(),
+                                             i.get_transformation_range() *
+                                             static_cast<int>(amplitude),
+                                             rng));
 
     return i;
 }

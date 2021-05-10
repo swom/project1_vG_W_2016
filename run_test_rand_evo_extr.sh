@@ -16,10 +16,9 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=rand_evo_%j
-#SBATCH --output=rand_evo_%j.log
+#SBATCH --job-name=test_rand_evo_%j
+#SBATCH --output=rand_evo_test_%j.log
 
 echo "original seed" $1
-echo "sequence_index" $2
-./simulation_logic_only --rand_evo s$1 f0 a3 n50 cs50 si$2
+./simulation_logic_only --test_extr_rand_evo_beginning_end s$1 f0 a3 n50 cs50 si1
 

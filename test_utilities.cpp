@@ -153,4 +153,30 @@ void test_utilities() noexcept //!OCLINT
         assert(rand_cond_n == expected_rand_cond_n);
     }
 
+
+    ///The boolean signaling if death happens in the simualtion
+    /// can be taken as an argument
+    /// from a commnad line
+    {
+
+        bool death = false;
+
+        const std::vector<std::string>& args{
+            "random",
+            "gibber",
+            "death"
+        };
+
+        take_death_arg(args, death);
+        assert(!death);
+
+        const std::vector<std::string>& args2{
+            "random",
+            "gibber",
+            "--death"
+        };
+
+        take_death_arg(args2, death);
+        assert(death);}
+
 }

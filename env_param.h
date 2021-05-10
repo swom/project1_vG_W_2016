@@ -100,6 +100,9 @@ env_param change_env_param_norm(env_param e, std::minstd_rand &rng) noexcept;
 /// and range = m_mean* -/+ 3 * m_var* members
 env_param change_env_param_unif(env_param e, std::minstd_rand& rng) noexcept;
 
+///Changes param as in change_env_param_unif but only keeps extremes of the distribution
+env_param change_env_param_unif_extreme(env_param e, double amplitude, std::minstd_rand& rng) noexcept;
+
 
 env_param load_env_parameters( const std::string& filename);
 

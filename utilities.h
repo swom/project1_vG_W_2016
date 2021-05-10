@@ -17,8 +17,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int &replay_cycle,
                          double& amplitude,
                          bool &overwrite,
-                         int &seed_rand_cond,
-                         int &rand_cond_n);
+                         int &cond_per_seq,
+                         int &rand_cond_n, bool &death, bool &eden);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;
@@ -29,6 +29,13 @@ std::bernoulli_distribution create_bernoulli_dist(double p) noexcept;
 ///Creates a normal distribution
 std::normal_distribution<double> create_normal_dist(double m, double v);
 
+
+///Draws from a uniform distribution with a range  == range_unit * 3
+/// and returns only when value is between the intervals(both high and low) comprised
+/// between range + mean - range_unit/ range - mean + range_unit
+double draw_from_uniform_with_limit(double mean, double range_unit, std::minstd_rand& rng);
+int draw_from_uniform_with_limit(int mean, int range, std::minstd_rand& rng);
+
 ///Checks if a file with a given name exists(not tested=
 ///Taken from:
 ///https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exist-using-standard-c-c11-c
@@ -36,6 +43,13 @@ bool exists (const std::string& name);
 
 ///Takes amplitude of oscillation of params from command line arguments
 void take_amplitude_arg(const std::vector<std::string>& args, double &amplitude);
+
+///Takes death argument
+void take_death_arg(const std::vector<std::string>& args, bool& death);
+
+///Takes a cmd line argument that specifies if to run the rand_evo from simulation where
+/// death was present (eden == false) or where detah was not happening (eden == true)
+void take_eden_arg(const std::vector<std::string>& args, bool& eden);
 
 ///Checks if the last argumetn of the command line is "--overwrite"
 /// if it is then the simulations will be run even if they had already run and

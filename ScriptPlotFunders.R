@@ -16,7 +16,6 @@ setwd(evo_dir)
 funders_success = data.frame()
 for (i in list.files(path = '.',pattern = "funders_success_s42change_0.csv"))
 {
-  message(i)
   sim_run = read.csv(i, header = FALSE, sep = ',')
   funders_success = rbind(sim_run,funders_success)
 }
@@ -28,7 +27,7 @@ ggplot(simple_frame, aes(x = V1, y = V54))+
   geom_point()+
   geom_smooth()
 
-#we take only last generation
+####we take only last generation ID to see which lines survived
 last_gen = as_tibble(funders_success[funders_success$V1 == max(funders_success$V1) - 1,2])
 last_gen$value = as.character(last_gen$value)
 

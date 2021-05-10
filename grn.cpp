@@ -1,5 +1,5 @@
 #include "grn.h"
-#include "../project1_vG_W_2016/utilities.h"
+#include "utilities.h"
 #include "algorithm"
 #include <cassert>
 #include <numeric>

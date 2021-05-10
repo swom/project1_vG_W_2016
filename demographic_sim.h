@@ -32,7 +32,7 @@ bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 ///Creates a name for the file where
 /// the deomgraphic of the evolving population
 /// in random environment is saved
-std::string create_sim_demo_name(int seed, int change_freq);
+std::string create_sim_demo_name(int seed, int change_freq, std::string prefix, std::string suffix);
 
 ///Loads a demographic_sim object froma a given filename
 demographic_sim load_demographic_sim(const std::string& filename);

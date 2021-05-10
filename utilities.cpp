@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include <algorithm>
 #include <sys/stat.h>
 #include <chrono>
 #include <cassert>
@@ -13,32 +14,36 @@ bool compare_with_tolerance(const std::vector<double>& lhs,const std::vector<dou
 void check_for_cmd_param(const std::vector<std::string>& args,
                          int& seed,
                          int& change_freq,
-                         int& n_conditions,
+                         int& n_sequences,
                          int& replay_cycle,
                          double& amplitude,
                          bool& overwrite,
-                         int& seed_rand_cond,
-                         int& rand_cond_n)
+                         int& cond_per_seq,
+                         int& seq_index,
+                         bool& death,
+                         bool& eden)
 {
     if (args.size() > 3
             && (args[1] == "--sim"
                 || args[1] == "--rand"
                 || args[1] == "--rand_best"
                 || args[1] == "--rand_evo"
+                || args[1] == "--rand_evo_visual"
                 || args[1] == "--reac_norm"
                 || args[1] == "--replay"
                 || args[1] == "--continue_evo"
                 || args[1] ==  "--replay_rand_cond"
                 || args[1] == "--replay_best_rand_cond"
-                || args[1] == "--replay_rand_cond_evo")
+                || args[1] == "--replay_rand_cond_evo"
+                || args[1] == "--test_extr_rand_evo_beginning_end")
             )
     {
         take_seed_arg(args, seed);
         take_change_freq_arg(args,change_freq);
         take_amplitude_arg(args, amplitude);
-        take_n_sequences_arg(args, n_conditions);
-        take_cond_per_seq_arg(args,seed_rand_cond);
-        take_seq_index_arg(args, rand_cond_n);
+        take_n_sequences_arg(args, n_sequences);
+        take_cond_per_seq_arg(args,cond_per_seq);
+        take_seq_index_arg(args, seq_index);
         take_overwrite_arg(args, overwrite);
         take_replay_cycle_arg(args,replay_cycle);
     }
@@ -48,6 +53,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
     {
         take_amplitude_arg(args, amplitude);
     }
+    take_death_arg(args, death);
+    take_eden_arg(args, eden);
 }
 
 
@@ -66,6 +73,41 @@ std::normal_distribution<double> create_normal_dist(double m, double v)
     return std::normal_distribution<double>{m, v};
 }
 
+double draw_from_uniform_with_limit(double mean, double range_unit, std::minstd_rand& rng)
+{
+    auto new_value = mean;
+
+    auto lower_limit = mean - 2 * range_unit;
+    auto upper_limit = mean + 2 * range_unit;
+
+    auto lower_range = mean - 3 * range_unit;
+    auto upper_range = mean + 3 * range_unit;
+
+    while( (new_value > lower_limit) &&
+           (new_value < upper_limit)
+           )
+    {
+        new_value = std::uniform_real_distribution<double>{
+                lower_range,
+                upper_range}(rng);
+    }
+
+    return new_value;
+}
+
+int draw_from_uniform_with_limit(int mean, int range, std::minstd_rand& rng)
+{
+    auto new_value = mean;
+    while((new_value > (mean - 2/3 * range)) &&
+          (new_value < (mean + 2/3 * range)))
+    {
+        new_value = std::uniform_int_distribution<int>{
+                mean - range,
+                mean + range}(rng);
+    }
+    return new_value;
+}
+
 bool exists (const std::string& name) {
     struct stat buffer;
     return (stat (name.c_str(), &buffer) == 0);
@@ -79,7 +121,9 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
                  || args[1] == "--replay_rand_cond"
                  || args[1] == "--replay_best_rand_cond"
                  || args[1] == "--rand_evo"
+                 || args[1] == "--rand_evo_visual"
                  || args[1] == "--replay_rand_cond_evo"
+                 || args[1] ==  "--test_extr_rand_evo_beginning_end"
                  )
             &&  args[4][0] == 'a'
             )
@@ -108,15 +152,33 @@ void take_amplitude_arg(const std::vector<std::string>& args, double& amplitude)
 
 }
 
+
+void take_death_arg(const std::vector<std::string>& args, bool& death)
+{
+    if(std::any_of(args.begin(), args.end(),
+                   [](const std::string& s){return s == "--death";}))
+            death = true;
+}
+
+void take_eden_arg(const std::vector<std::string>& args, bool& eden)
+{
+    if(std::any_of(args.begin(), args.end(),
+                   [](const std::string& s){return s == "--eden";}))
+            eden = true;
+}
+
 void take_n_sequences_arg(const std::vector<std::string>& args, int& n_conditions)
 {
     if ((args.size() > 5
          &&  (args[1] == "--rand"
               || args[1] == "--rand_best"
               || args[1] == "--rand_evo"
+              || args[1] == "--rand_evo_visual"
               || args[1] ==  "--replay_rand_cond"
               || args[1] == "--replay_best_rand_cond"
-              || args[1] == "--replay_rand_cond_evo")
+              || args[1] == "--replay_rand_cond_evo"
+              || args[1] ==  "--test_extr_rand_evo_beginning_end"
+              )
          &&  args[5][0] == 'n')
             ||
             (args.size() > 2
@@ -160,9 +222,12 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
 void take_seq_index_arg(const std::vector<std::string>& args, int& rand_cond_n)
 {
     if((args[1] == "--rand_evo"
+        || args[1] == "--rand_evo_visual"
         || args[1] == "--replay_rand_cond"
         || args[1] == "--replay_best_rand_cond"
         || args[1] == "--replay_rand_cond_evo"
+        || args[1] ==  "--test_extr_rand_evo_beginning_end"
+
         ) &&
             args.size() > 6 &&
             args[7][0] == 's' &&
@@ -233,9 +298,12 @@ void take_seed_arg(const std::vector<std::string>& args, int& seed)
 void take_cond_per_seq_arg(const std::vector<std::string>& args, int& cond_per_seq)
 {
     if((args[1] == "--rand_evo"
-        ||args[1] == "--replay_rand_cond"
+        || args[1] == "--rand_evo_visual"
+        || args[1] == "--replay_rand_cond"
         || args[1] == "--replay_best_rand_cond"
-        || args[1] == "--replay_rand_cond_evo") &&
+        || args[1] == "--replay_rand_cond_evo"
+        || args[1] ==  "--test_extr_rand_evo_beginning_end"
+        ) &&
             args.size() > 5 &&
             args[6][0] == 'c' &&
             args[6][1] == 's')
@@ -244,6 +312,7 @@ void take_cond_per_seq_arg(const std::vector<std::string>& args, int& cond_per_s
         for(size_t i = 2; i != args[6].size(); i++)
         {
             s_cond_per_seq += args[6][i];
+
         }
         cond_per_seq = std::stoi(s_cond_per_seq);
         try
@@ -261,7 +330,6 @@ void take_cond_per_seq_arg(const std::vector<std::string>& args, int& cond_per_s
             abort();
 #endif
         }
-
     }
 }
 

@@ -1,34 +1,100 @@
+library(broom)
 library(dplyr)
-library(tidyr)
-library(tibble)
-library(stringr)
+library(gplots)
 library(ggplot2)
 library(pals)
-library(gplots)
+library(purrr)
+library(stringr)
+library(tibble)
+library(tidyr)
+library(tidyselect)
 
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 hd_rand_evo = "C:/Users/p288427/Desktop/hd_rand_evo"
 hd_rand_evo_no_upt = "C:/Users/p288427/Desktop/hd_rand_evo/nouptake"
+sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
+sequence_extr = "C:/Users/p288427/Desktop/hd_rand_evo/sequence_extr"
+death_eden = "C:/Users/p288427/Desktop/hd_rand_evo/death_eden"
+death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
 
 
 #####read data####
-setwd(hd_rand_evo)
+setwd(sequence_extr)
 demographic = data.frame()
 
-
-for (i in  list.files(path = '.',
-                      pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
-{
-  if(file.size(i) <= 0) next()
-  replicate = read.csv(i)
-  replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-  replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
-  replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
-  colnames(replicate) = colnames(demographic)
-  demographic = rbind(replicate,demographic)
+n_env = 1
+if(getwd() == death_eden){
+  pattern = "eden_death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+  for (i in  list.files(path = '.',
+                        pattern = pattern ))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+}else if(getwd() == death_death){
+  pattern = "death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+  for (i in  list.files(path = '.',
+                        pattern = pattern ))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+}else if(getwd() == sequence){
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+}else if(getwd() == sequence_extr){
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_extreme_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+}else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
+   || getwd() == rand_evo_dir || getwd() == evo_dir){
+  
+  for (i in  list.files(path = '.',
+                        pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
 }
+
 
 n_columns = ncol(demographic)
 colnames(demographic)= c("cycle",
@@ -36,11 +102,11 @@ colnames(demographic)= c("cycle",
                          "spore",
                          "sporu" ,
                          "n_timesteps",
-                         sprintf("env_p_%s",seq(1:(n_columns - 5 - 3))),
+                         sprintf("env_p_%s",seq(1:(n_columns - 5 - 4))),
                          "seed",
                          "change_freq",
+                         "n_env",
                          "condition")
-
 
 
 demographic$seed = as.factor(demographic$seed)
@@ -54,38 +120,132 @@ demographic = demographic %>%
   mutate(total_n = sum(c_across(c(spore, sporu, active)))) %>% 
   ungroup() %>%
   group_by(condition,cycle) %>%
-  mutate(
-    "ratio_value" = spore / max(spore)
-  ) %>%
-  ungroup() %>%
-  group_by(condition,cycle, seed) %>%
-  mutate(
-    "change_value" = spore / spore[min(cycle)] - 1
-  ) %>%
+  mutate("ratio_value" = spore / max(spore)) %>%
   ungroup() %>%
   group_by(condition, seed) %>%
+  mutate("change_value" = spore / spore[min(cycle)] - 1) %>%
   mutate("ratio_start_production" = ratio_value[min(cycle)]) %>%
   mutate("ratio_end_production" = ratio_value[max(cycle)]) %>%
   mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production) %>%
   mutate("start_production" = spore[min(cycle)])  %>%
+  mutate(success = spore * 10 + (sporu * 0 + active)) %>% 
   ungroup() %>%
   group_by(condition) %>%
   mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
   mutate("overall_r_value" = spore / max(spore)) %>% 
+  mutate(env_type = as.factor(as.numeric(as.factor(env_p_3)))) %>%  
   ungroup()
 
-hd_demographic  = demographic
-save(hd_demographic, file = "hd_rand_evo_demo.R")
+coeffs = demographic %>% 
+  group_by(condition, seed, env_type) %>%
+  do(coeffs = coefficients(lm(spore ~ cycle, data = .))) %>% 
+  mutate(slope = as.numeric(coeffs[2][[1]])) %>% 
+  mutate(intercept = as.numeric(coeffs[1][[1]]))%>%
+  ungroup()
 
-####load hd_rand condition from 0 : 49####
-#object name : hd_demographic
+coeffs_success = demographic %>% 
+  group_by(condition, seed, env_type) %>%
+  do(coeffs_success = coefficients(lm(success ~ cycle, data = .))) %>% 
+  mutate("slope_success" = as.numeric(coeffs_success[2][[1]])) %>% 
+  mutate("intercept_success" = as.numeric(coeffs_success[1][[1]]))
+
+demographic = demographic %>% left_join(coeffs)
+demographic = demographic %>% left_join(coeffs_success)
+
+if(getwd() == death_eden) {
+
+  death_eden_demographic  = demographic
+  save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
+  
+} else if(getwd() == death_death) {
+  
+  death_death_demographic  = demographic
+  save(death_death_demographic, file = "death_death_rand_evo_demo.R")
+  
+} else if(getwd()  == sequence) {
+  
+  seq_demographic  = demographic
+  save(seq_demographic, file = "seq_rand_evo_demo.R")
+  
+} else if(getwd()  == sequence_extr) {
+ 
+  seqex_demographic  = demographic
+  save(seqex_demographic, file = "seqex_rand_evo_demo.R")
+  
+}
+####load hd_rand ####
 setwd(hd_rand_evo)
 load(file = "hd_rand_evo_demo.R")
 
 setwd(hd_rand_evo_no_upt)
 load(file = "hd_rand_evo_demo_no_upt_r.R")
 
-dem = hd_demographic_no_upt
+setwd(sequence)
+load("seq_rand_evo_demo.R")
+
+setwd(sequence_extr)
+load("seqex_rand_evo_demo.R")
+
+setwd(death_eden)
+load("death_eden_rand_evo_demo.R")
+
+setwd(death_death)
+load("death_death_rand_evo_demo.R")
+
+dem = death_death_demographic
+####Check quantiles of change_value####
+#i.e. how much the population improved its score production from the beginning
+
+#looking at last generation
+
+#overall quantiles
+dem %>%
+  group_by(seed, condition) %>%
+  subset(cycle == max(cycle)) %>% 
+  ungroup() %>% 
+  summarise(qntl = quantile(change_value))
+
+#quantiles per seed
+qs = dem %>%
+  group_by(seed, condition) %>%
+  subset(cycle == max(cycle)) %>% 
+  ungroup() %>% 
+  group_by(seed) %>% 
+  summarise(qntl = quantile(change_value))
+
+#quantiles per condition
+qc = dem %>%
+  group_by(seed, condition) %>%
+  subset(cycle == max(cycle)) %>% 
+  ungroup() %>% 
+  group_by(condition) %>% 
+  summarise(qntl = quantile(change_value))
+
+#looking at average
+avg_change = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))
+
+#qunatiles per seed
+av_qs = avg_change %>% 
+  group_by(seed) %>% 
+  summarise(qntl = quantile(avg_change))
+
+#qunatiles per seed
+av_qc = avg_change %>% 
+  group_by(condition) %>% 
+  summarise(qntl = quantile(avg_change)[4])
+
+#create col that signals in which ntile the value is per condition
+avg_q_change = 
+  avg_change %>% 
+  group_by(condition) %>% 
+  mutate(qntl = ntile(avg_change, 4)) %>% 
+  ungroup()
+
+ggplot(data = avg_q_change)+
+  geom_tile(aes(condition, seed, fill = qntl)) +
+  scale_fill_gradientn("quantile",colours = rbg)
 
 ####make sure each cycle is either 125 timesteps or around 10000 inds####
 c_check = dem %>% 
@@ -124,11 +284,14 @@ ggplot(data = plot_tmstps)+
   geom_smooth(aes(x = value, y = total_n))+
   facet_grid(.  ~ variable )
 
-c = dem %>% 
-  filter(total_n > 11000) %>% 
-  select(spore, sporu, active, total_n, n_timesteps)
+#for no_uptake check that var of uptake is 0
+dem %>% 
+  subset(as.numeric(seed) > 31) %>% 
+  summarise(var_upt = sd(env_p_12))
 
-
+dem$env_p_12 = as.factor(dem$env_p_12) 
+ggplot(data = dem %>%  subset()) +
+  geom_tile(aes(condition, seed, fill = env_p_12))
 
 ####subset only those simulation where pop cap is never reached####
 ####(always 125 timesteps)
@@ -201,13 +364,33 @@ dem_c = demographic_conditions_cycle %>%
   ungroup() %>% 
   select(-c(cycle,condition,seed))
 
+dem_c$env_type = as.factor(dem_c$env_type)
+
 dem_d = dem %>% 
   left_join(dem_c)
 
 dem_d$env_type = as.factor(dem_d$env_type)
 
+#for normal
 ggplot(data = dem_d %>% subset(cycle == max(cycle))) +
   geom_tile(aes(condition, seed, fill = env_type))
+
+#for sequence
+ggplot(data = dem_d) +
+  geom_rect(aes(xmin=cycle,
+                xmax=cycle+1,
+                ymin=min(ratio_value),
+                ymax=max(ratio_value), 
+                fill = env_type)) +
+  facet_grid(seed ~ condition) +
+  theme(legend.position = "none")
+
+
+ggsave("../../research presentation/env_seqex_cub.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm",
+       limitsize = F)
 
 ####plot populations that do not reach cap####
 ggplot(data = dem %>%  subset(cycle == max(cycle))) +
@@ -251,7 +434,7 @@ top_dem = top_20 %>% left_join(demographic ) %>% drop_na()
 
 ####Create color plaettes####
 
-n_colors = 20
+n_colors = 100
 rbg<- colorRampPalette(c("red", "blue", "green"))(n_colors)
 cub_hel <- rev(cubehelix(n_colors))
 
@@ -279,6 +462,24 @@ sections_rv_value_plot = unique(
      seq(rv_qntl[2], rv_qntl[4], length = as.integer(n_colors/3 - 1)),
      seq(rv_qntl[4], rv_qntl[5], length = as.integer(n_colors/3 + 8))))
 
+####for change value
+c_qntl = quantile(dem$change_value)
+sections_c_value = unique(
+  c( seq(c_qntl[1], c_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(c_qntl[2], c_qntl[4], length = as.integer(n_colors/3 + 4)),
+     seq(c_qntl[4], c_qntl[5], length = as.integer(n_colors/3))))
+
+
+####for ratio_value cluster
+avg_ratio = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value))
+rv_avg_qntl = quantile(avg_ratio$avg_ratio)
+sections_avg_rv_value = unique(
+  c( seq(rv_avg_qntl[1], rv_avg_qntl[2], length = as.integer(n_colors/3 + 2)),
+     seq(rv_avg_qntl[2], rv_avg_qntl[4], length = as.integer(n_colors/3 + 3)),
+     seq(rv_avg_qntl[4], rv_avg_qntl[5], length = as.integer(n_colors/3 ))))
+
 ####for value
 v_qntl = quantile(dem$spore)
 sections_v_value = unique(
@@ -287,28 +488,44 @@ sections_v_value = unique(
      seq(v_qntl[4], v_qntl[5], length = as.integer(n_colors/3))))
 
 
-###Plotting ratio-value beginning and end plus points of value####
+###Plotting spore/active/sporu lines + success on backgr####
 
-ggplot(data = dem_all_tmstps %>% pivot_longer(c(spore, sporu, active, total_n))) +
-  # geom_rect(aes(ymin=min(spore),
-  #               ymax= max(spore)  + 1,
-  #               xmin=min(cycle),
-  #               xmax= max(cycle) / 2,
-  #               fill = ratio_start_production), alpha =0.5) + 
-  # geom_rect(aes(ymin=min(spore),
-  #               ymax= max(spore)  + 1,
-  #               xmin= max(cycle) / 2,
-  #               xmax= max(cycle),
-  #               fill = ratio_end_production), alpha =0.5) +
-  # geom_point(aes(cycle,spore)) +
-# scale_fill_gradientn("Ratio",colors = cubehelix(10)) +
-geom_line(aes(cycle,value, color = name)) +
+ggplot(data = dem %>% 
+         pivot_longer(c(spore, sporu, active, total_n))) +
+  geom_rect(aes(xmin= cycle,
+                xmax= cycle + 1,
+                ymin= 0,
+                ymax= max(value)  + 1,
+                fill =  success), alpha =0.5) +
+  scale_fill_gradientn("success",colors = rbg) +
+  geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../research presentation/rv_s_e_p_only_complete_cycle.pdf",
+ggsave("../../research presentation/suc_+_ind_seqex.pdf",
        width = 500,
        height = 300, 
        units = "cm",
+       limitsize = F)
+
+###Plotting spore value every last cycle before condition change####
+#(useful only when change of cond)
+
+env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
+
+ggplot(data = dem  %>% subset(cycle %% env_duration == env_duration - 1)) +
+  geom_rect(aes(xmin=cycle - env_duration,
+                xmax=cycle,
+                ymin=min(min(spore)),
+                ymax=max(max(spore)), 
+                fill = env_type,
+  ), alpha = 0.5) +
+  geom_line(aes(x = cycle, y = spore), col = "black") +
+  facet_grid(seed ~ condition)
+
+ggsave("../../research presentation/before_change_values.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm", 
        limitsize = F)
 ####Plotting improvement value and ratio value####
 
@@ -320,16 +537,96 @@ ggplot(data = dem %>% pivot_longer(c(change_value,ratio_value))) +
                 ymax=max(max(change_value),max(ratio_value)), 
                 fill = ratio_value)) +
   geom_line(aes(cycle, value, color = name)) +
-  scale_fill_gradientn("Ratio",colors = cub_hel, breaks = rv_qntl) +
+  scale_fill_gradientn("Ratio",colors = rbg, breaks = sections_rv_value_plot) +
   facet_grid(seed ~ condition)
 
-ggsave("../research presentation/improvement+ratio_only_complete_cycle.pdf",
+ggsave("../../research presentation/improvement+ratio_seqex_rbg.pdf",
        width = 500,
        height = 300, 
        units = "cm",
        limitsize = F)
 
+####Plotting same as above or 3 best/worst in 3-6 most interesting envs####
+
+#find best 3 and worst seeds
+avg_ratio_pop = 
+  dem %>%
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value)) %>% 
+  ungroup() %>% 
+  group_by(seed) %>% 
+  summarise(avg_avg_ratio = mean(avg_ratio)) 
+
+best = avg_avg_ratio_pop %>% 
+  slice_max(avg_avg_ratio , n = 3)
+worst = avg_avg_ratio_pop %>% 
+  slice_min(avg_avg_ratio, n = 3)
+
+best_worst_avg = rbind(best, worst) %>%
+  mutate(seed = factor(seed)) %>%
+  left_join(dem)
+
+ggplot(data = best_worst_avg) +
+  geom_rect(aes(xmin=cycle,
+                xmax=cycle + 1,
+                ymin=min(min(spore)),
+                ymax=max(max(spore)), 
+                fill = ratio_value,
+  ), alpha = 0.5) +
+  scale_fill_gradientn("Ratio",colors = rbg, breaks = sections_rv_value_plot) +
+  geom_line(aes(x = cycle, y = spore), col = "pink", size = 0.2) +
+  geom_rect(data = best_worst_avg %>%
+              subset(cycle %% env_duration == env_duration - 1),
+            aes(xmin=cycle - env_duration,
+                xmax=cycle,
+                ymin=min(min(spore)),
+                ymax=max(max(spore))),
+            size = 0.1,
+            fill = NA,
+            colour = "black") +
+  facet_grid(seed ~ condition)
+
+ggsave("../../research presentation/best_worst_seqex_rbg.pdf",
+       width = 750,
+       height = 75, 
+       units = "cm",
+       limitsize = F)
+
+#find most mutable environments
+sd_avg_ratio_cond = 
+  dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value)) %>% 
+  ungroup() %>% 
+  group_by(condition) %>% 
+  summarise(sd_avg_ratio = sd(avg_ratio))
+
+best_sd = sd_avg_ratio_cond %>% 
+  slice_max(sd_avg_ratio, n = 3)
+worst_sd = sd_avg_ratio_cond %>% 
+  slice_min(sd_avg_ratio, n = 3)
+
+####Plot final change value####
+ggplot(data = dem ) +
+  geom_tile(aes(seed, condition, fill = change_value)) +
+  scale_fill_gradientn("Final change value", colors = cubehelix(20))
+
+
+####Plot quantiles of avg change####
+avg_q_change = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))%>% 
+  group_by(condition) %>% 
+  mutate(qntl = ntile(avg_change, 5)) %>% 
+  ungroup()
+
+ggplot(data = avg_q_change)+
+  geom_tile(aes(condition, seed, fill = qntl)) +
+  scale_fill_gradientn("quantile",colours = rbg)
+
 ####Plotting diff between rvalue end vs start normalized####
+
+
 ggplot(data = dem%>% subset(cycle == max(cycle))) +
   geom_tile(aes(condition,
                 seed,
@@ -400,7 +697,6 @@ clust_dem_end = dem %>%
 #col and row clustering at the end
 end_clust_col = as.dendrogram(hclust(dist(t(as.matrix(clust_dem_end)))))
 end_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_end)))))
-
 
 #clust_Start
 #plot start with clust_start
@@ -473,7 +769,81 @@ for(cycle_n in min(dem$cycle) : max(dem$cycle))
 }
 
 
+####heatmap cluster for avg ratio value####
+#avg rv
+clust_dem_rv_avg = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value))%>% 
+  spread(condition, avg_ratio) %>% 
+  column_to_rownames(var = "seed") %>% 
+  drop_na()
 
+#col clustering for avg value
+avg_rv_col = as.dendrogram(hclust(dist(t(as.matrix(clust_dem_rv_avg)))))
+#row clustering for avg ratio_value
+avg_rv_row = as.dendrogram(hclust(dist((as.matrix(clust_dem_rv_avg)))))
+
+####for ratio_value cluster
+avg_ratio = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_ratio = mean(ratio_value))
+rv_avg_qntl = quantile(avg_ratio$avg_ratio)
+sections_avg_rv_value = unique(
+  c( seq(rv_avg_qntl[1], rv_avg_qntl[2], length = as.integer(n_colors/3 + 2)),
+     seq(rv_avg_qntl[2], rv_avg_qntl[4], length = as.integer(n_colors/3 + 2)),
+     seq(rv_avg_qntl[4], rv_avg_qntl[5], length = as.integer(n_colors/3 ))))
+
+#clust avg
+heatmap.2(as.matrix(clust_dem_rv_avg),        
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          scale = "none",
+          trace = "none",
+          col = rbg, 
+          breaks = sections_avg_rv_value,
+          main = "avg_ratio_value")
+
+####heatmap cluster for avg spore value####
+avg_spore_v = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_spore = mean(spore))
+
+clust_avg_spore = avg_spore_v %>% 
+  spread(condition, avg_spore) %>% 
+  column_to_rownames("seed")
+
+#col and row clustering at the start
+avg_spore_col = as.dendrogram(hclust(dist(t(as.matrix(clust_avg_spore)))))
+avg_spore_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_spore)))))
+
+heatmap.2(as.matrix(clust_avg_spore),
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          scale = "none",
+          trace = "none",
+          main = "avg_spore_value")
+
+####heatmap cluster for avg success value####
+avg_success_v = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_success = mean(success))
+
+clust_avg_success = avg_success_v %>% 
+  spread(condition, avg_success) %>% 
+  column_to_rownames("seed")
+
+#col and row clustering at the start
+avg_success_col = as.dendrogram(hclust(dist(t(as.matrix(clust_avg_success)))))
+avg_success_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_success)))))
+
+heatmap.2(as.matrix(clust_avg_success),
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          scale = "none",
+          trace = "none",
+          main = "avg_success_value")
 
 ####heatmap cluster for overall_r_value(ratio_value rescaled to [0-1] over all cycle) of spores####
 #start
@@ -701,6 +1071,411 @@ heatmap.2(as.matrix(clust_delta) ,
           scale = "none",
           col = cub_hel, 
           main = "delta_ratio_value")
+
+####heatmap cluster for avg change value#####
+clust_change = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))%>% 
+  ungroup()  %>% 
+  select(condition, seed, avg_change) %>% 
+  spread(condition, avg_change) %>% 
+  column_to_rownames(var = "seed") %>% 
+  drop_na()
+
+heatmap.2(as.matrix(clust_change) ,
+          scale = "none",
+          trace = "none",
+          col = rbg,
+          breaks = sections_c_value)
+
+
+####heatmap cluster for quantiles of avg change value#####
+
+clust_change_qntl = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_change = mean(change_value))%>% 
+  ungroup() %>% 
+  group_by(condition) %>% 
+  mutate(qntl = ntile(avg_change, 5)) %>% 
+  ungroup()  %>% 
+  select(condition, seed, qntl) %>% 
+  spread(condition, qntl) %>% 
+  column_to_rownames(var = "seed") %>% 
+  drop_na()
+
+heatmap.2(as.matrix(clust_change_qntl) ,
+          scale = "none",
+          trace = "none",
+          col = rbg)
+
+####Heatmap cluster for slope of spore production taking last cycle before change for each env_type#####
+env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
+
+clust_slope = dem %>% 
+  subset(cycle %% env_duration == env_duration - 1) %>% 
+  group_by(condition, seed) %>%
+  do(coeff = coefficients(lm(spore ~ cycle, data = .))[2][[1]]) %>% 
+  mutate(coeff = as.numeric(coeff)) %>% 
+  ungroup() %>% 
+  spread(condition, coeff) %>% 
+  column_to_rownames(var = "seed") 
+
+
+#create breaks for bef_ch_slope
+bef_ch_sl_qntl = quantile(unlist(clust_slope))
+sections_bf_ch_sl_value_plot = unique(
+  c( seq(bef_ch_sl_qntl[1], bef_ch_sl_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(bef_ch_sl_qntl[2], bef_ch_sl_qntl[4], length = as.integer(n_colors/3 + 2)),
+     seq(bef_ch_sl_qntl[4], bef_ch_sl_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_slope),
+          scale = "none",
+          trace = "none",
+          col = rbg,
+          breaks = sections_bf_ch_sl_value_plot,
+          main = "v_before_change_slope")
+
+####Heatmap cluster for avg of SLOPE of SPORE production in each env_type#####
+
+
+#summarise average slope over all env_types in a condition
+avg_slope = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_slope = mean(slope))
+
+#create dataframe for slope
+clust_avg_slope = avg_slope%>% 
+  select(condition, seed, avg_slope) %>% 
+  spread(condition, avg_slope) %>% 
+  column_to_rownames(var = "seed") 
+
+#pre-cluster rows so to use it in clustering of intercept
+avg_sl_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_avg_slope)))))
+
+#create breaks for avg_slope
+avg_sl_qntl = quantile(avg_slope$avg_slope)
+sections_avg_sl_value_plot = unique(
+  c( seq(avg_sl_qntl[1], avg_sl_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_sl_qntl[2], avg_sl_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_sl_qntl[4], avg_sl_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_slope),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_sl_value_plot,
+          main = "avg_slope")
+
+####Heatmap cluster for avg of INTERCEPT of SPORE production in each env_type#####
+
+#summarise average intercept over all env_types in a condition
+avg_intercept = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_intercept = mean(intercept))
+
+#create dataframe for intercept
+clust_avg_intercept = avg_intercept%>% 
+  select(condition, seed, avg_intercept) %>% 
+  spread(condition, avg_intercept) %>% 
+  column_to_rownames(var = "seed") 
+
+#create breaks for avg_intercept
+avg_int_qntl = quantile(avg_intercept$avg_intercept)
+sections_avg_int_value_plot = unique(
+  c( seq(avg_int_qntl[1], avg_int_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_int_qntl[2], avg_int_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_int_qntl[4], avg_int_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_intercept),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_int_value_plot,
+          main = "avg_intercept")
+
+####Heatmap cluster for avg of STARTING SPORE production in each env_type#####
+
+#summarise average initial spore quantity over all env_types in a condition
+avg_start_sp = dem %>% 
+  select(spore, cycle, condition, seed, env_type ) %>% 
+  group_by(condition, seed, env_type) %>%
+  slice(which.min(cycle)) %>% 
+  ungroup() %>% 
+  group_by(condition, seed) %>% 
+  summarise(avg_start_sp = mean(spore))
+
+#create dataframe for intercept
+clust_avg_start_sp = avg_start_sp%>% 
+  select(condition, seed, avg_start_sp) %>% 
+  spread(condition, avg_start_sp) %>% 
+  column_to_rownames(var = "seed") 
+
+#create breaks for avg_intercept
+avg_start_sp_qntl = quantile(avg_start_sp$avg_start_sp)
+sections_avg_start_sp_value_plot = unique(
+  c( seq(avg_start_sp_qntl[1], avg_start_sp_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_start_sp_qntl[2], avg_start_sp_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_start_sp_qntl[4], avg_start_sp_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_start_sp),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_start_sp_value_plot,
+          main = "avg_start_sp")
+
+####Heatmap cluster for the SLOPE OF SLOPE for SPORE PROD for each env type in each seq####
+
+env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
+
+###slope of slopes
+slope_of_slopes = dem %>%
+  subset(cycle %% env_duration == env_duration - 1) %>% 
+  group_by(condition, seed) %>%
+  do(coeffs = coefficients(lm(slope ~ cycle, data = .))) %>% 
+  mutate(slope_of_slope = as.numeric(coeffs[2][[1]])) %>% 
+  ungroup()
+
+clust_slope_slope = slope_of_slopes %>% 
+  select(condition, seed, slope_of_slope) %>% 
+  spread(condition, slope_of_slope) %>% 
+  column_to_rownames(var = "seed")
+
+#pre-cluster rows so to use it in clustering of intercept
+sl_sl_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_slope_slope)))))
+
+#create breaks for slope_of_slopes
+sl_sl_qntl = quantile(slope_of_slopes$slope_of_slope)
+sections_sl_sl_value_plot = unique(
+  c( seq(sl_sl_qntl[1], sl_sl_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(sl_sl_qntl[2], sl_sl_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(sl_sl_qntl[4], sl_sl_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_slope_slope),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          #breaks = sections_sl_sl_value_plot,
+          main = "slope_of_slopes")
+
+####heatmap cluster for SLOPEOF INTERCEPT  for SPORE PROD ####
+
+env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
+
+slope_of_intercept = dem %>%
+  subset(cycle %% env_duration == env_duration - 1) %>% 
+  group_by(condition, seed) %>%
+  do(coeffs = coefficients(lm(intercept ~ cycle, data = .))) %>% 
+  mutate(slope_of_intercept = as.numeric(coeffs[2][[1]])) %>% 
+  ungroup()
+
+clust_slope_intercept = slope_of_intercept %>% 
+  select(condition, seed, slope_of_intercept) %>% 
+  spread(condition, slope_of_intercept) %>% 
+  column_to_rownames(var = "seed")
+
+#create breaks for slope_of_intercept
+sl_int_qntl = quantile(slope_of_intercept$slope_of_intercept)
+sections_sl_int_value_plot = unique(
+  c( seq(sl_int_qntl[1], sl_int_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(sl_int_qntl[2], sl_int_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(sl_int_qntl[4], sl_int_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_slope_intercept),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_sl_int_value_plot,
+          main = "slope_of_intercepts")
+####Heatmap cluster for avg of SLOPE of SUCCESS in each env_type#####
+
+#summarise average slope over all env_types in a condition
+avg_slope_success = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_slope_success = mean(slope_success))
+
+#create dataframe for slope
+clust_avg_slope_success = avg_slope_success%>% 
+  select(condition, seed, avg_slope_success) %>% 
+  spread(condition, avg_slope_success) %>% 
+  column_to_rownames(var = "seed") 
+
+#pre-cluster rows so to use it in clustering of intercept
+avg_sl_clust_row_scs = as.dendrogram(hclust(dist((as.matrix(clust_avg_slope_success)))))
+
+#create breaks for avg_slope
+avg_sl_scs_qntl = quantile(avg_slope_success$avg_slope_success)
+sections_avg_sl_scs_value_plot = unique(
+  c( seq(avg_sl_scs_qntl[1], avg_sl_scs_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_sl_scs_qntl[2], avg_sl_scs_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_sl_scs_qntl[4], avg_sl_scs_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_slope_success),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_sl_scs_value_plot,
+          main = "avg_slope_scs")
+
+####Heatmap cluster for avg of INTERCEPT of SUCCESS in each env_type#####
+
+#summarise average intercept over all env_types in a condition
+avg_intercept_success = dem %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_intercept_success = mean(intercept_success))
+
+#create dataframe for intercept
+clust_avg_intercept_success = avg_intercept_success%>% 
+  select(condition, seed, avg_intercept_success) %>% 
+  spread(condition, avg_intercept_success) %>% 
+  column_to_rownames(var = "seed") 
+
+#create breaks for avg_intercept
+avg_int_scs_qntl = quantile(avg_intercept_success$avg_intercept_success)
+sections_avg_int_scs_value_plot = unique(
+  c( seq(avg_int_scs_qntl[1], avg_int_scs_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_int_scs_qntl[2], avg_int_scs_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_int_scs_qntl[4], avg_int_scs_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_intercept_success),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_int_scs_value_plot,
+          main = "avg_intercept_success")
+
+####Heatmap cluster for the SLOPE OF SLOPE for SUCCESS for each env type in each seq####
+
+env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
+
+###slope of slopes
+slope_of_slopes_success = dem %>%
+  subset(cycle %% env_duration == env_duration - 1) %>% 
+  group_by(condition, seed) %>%
+  do(coeffs = coefficients(lm(slope_success ~ cycle, data = .))) %>% 
+  mutate(slope_of_slope_success = as.numeric(coeffs[2][[1]])) %>% 
+  ungroup()
+
+clust_slope_slope_success = slope_of_slopes_success %>% 
+  select(condition, seed, slope_of_slope_success) %>% 
+  spread(condition, slope_of_slope_success) %>% 
+  column_to_rownames(var = "seed")
+
+#pre-cluster rows so to use it in clustering of intercept
+sl_sl_clust_row = as.dendrogram(hclust(dist((as.matrix(clust_slope_slope_success)))))
+
+#create breaks for slope_of_slopes
+sl_sl_qntl_scs = quantile(slope_of_slopes_success$slope_of_slope_success)
+sections_sl_sl_scs_value_plot = unique(
+  c( seq(sl_sl_qntl_scs[1], sl_sl_qntl_scs[2], length = as.integer(n_colors/3 + 1)),
+     seq(sl_sl_qntl_scs[2], sl_sl_qntl_scs[4], length = as.integer(n_colors/3 + 1)),
+     seq(sl_sl_qntl_scs[4], sl_sl_qntl_scs[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_slope_slope_success),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_sl_sl_scs_value_plot,
+          main = "slope_of_slopes_success")
+
+#plot slopes of spore production slope in each env_type over the entire seq 
+ggplot(data = dem %>%
+         left_join(seq_slopes) %>%
+         subset(cycle %% env_duration == env_duration - 1)) +
+  geom_point(aes(x = cycle, y = slope)) +
+  facet_grid(seed ~ condition)
+
+ggsave("../../research presentation/slope_values.pdf",
+       width = 500,
+       height = 300, 
+       units = "cm",
+       limitsize = F)
+####Heatmap cluster for SLOPE OF INTERCEPT  for SUCCESS ####
+
+env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
+
+slope_of_intercept_scs = dem %>%
+  subset(cycle %% env_duration == env_duration - 1) %>% 
+  group_by(condition, seed) %>%
+  do(coeffs = coefficients(lm(intercept_success ~ cycle, data = .))) %>% 
+  mutate(slope_of_intercept_scs = as.numeric(coeffs[2][[1]])) %>% 
+  ungroup()
+
+clust_slope_intercept_scs = slope_of_intercept_scs %>% 
+  select(condition, seed, slope_of_intercept_scs) %>% 
+  spread(condition, slope_of_intercept_scs) %>% 
+  column_to_rownames(var = "seed")
+
+#create breaks for slope_of_intercept
+sl_int_qntl_scs = quantile(slope_of_intercept_scs$slope_of_intercept_scs)
+sections_sl_int_scs_value_plot = unique(
+  c( seq(sl_int_qntl_scs[1], sl_int_qntl_scs[2], length = as.integer(n_colors/3 + 1)),
+     seq(sl_int_qntl_scs[2], sl_int_qntl_scs[4], length = as.integer(n_colors/3 + 1)),
+     seq(sl_int_qntl_scs[4], sl_int_qntl_scs[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_slope_intercept_scs),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_sl_int_scs_value_plot,
+          main = "slope_of_intercepts_success")
+
+####heatmap cluster for total sum of spore deltas from first to lst cycle in one env_type####  
+total_improvement = dem %>%
+  group_by(condition, seed, env_type) %>% 
+  summarise(improvement = spore[length(spore)] - spore[1]) %>% 
+  summarise(total_impr = sum(improvement))
+
+ggplot(data =  total_improvement) +
+  geom_tile(aes(x = seed, y = condition, fill = total_impr)) +
+  scale_fill_gradientn("tot_impr",colors = rbg)
+
+clust_tot_impr = total_improvement %>%
+  group_by(condition, seed, env_type) %>% 
+  summarise(improvement = spore[length(spore)] - spore[1]) %>% 
+  summarise(total_impr = sum(improvement)) %>% 
+  spread(condition, total_impr) %>% 
+  column_to_rownames(var = "seed")
+
+#create breaks for tot_impr
+tot_impr_qntl = quantile(total_improvement$total_impr)
+sections_tot_impr_value_plot = unique(
+  c( seq(tot_impr_qntl[1], tot_impr_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(tot_impr_qntl[2], tot_impr_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(tot_impr_qntl[4], tot_impr_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_tot_impr),
+          scale = "none",
+          trace = "none",
+          col = rbg,
+          breaks = sections_tot_impr_value_plot,
+          main = "total_impr")
+
+####Plot the avg slope of spore production over diff env_types in a seq####
+seq_slopes %>% 
+  group_by(seed, condition) %>% 
+  summarise(avg_slope = mean(slope)) %>% 
+  ggplot() +
+  geom_tile(aes(seed, condition, fill = as.numeric(avg_slope))) +
+  scale_fill_gradientn("Ratio",colors = rbg) 
 
 ####Plotting variance of production over time for conditions####
 var_demo = dem %>% 

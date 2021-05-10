@@ -36,6 +36,19 @@ void active_metabolism_pop(population &p)
     }
 }
 
+bool all_en_pop_equals(const population& p, double en)
+{
+    return std::all_of(p.get_v_ind().begin(), p.get_v_ind().end(),
+                       [&en](const individual& i)
+    {return i.get_energy() - en > -0.0001 && i.get_energy() - en < 0.00001;});
+}
+
+
+bool all_en_pop_NOT_equals(const population& p, double en)
+{
+    return !all_en_pop_equals(p,en);
+}
+
 bool all_ind_are_drawn(const population& s) noexcept
 {
     return std::all_of(s.get_v_ind().begin(), s.get_v_ind().end(),
@@ -506,7 +519,10 @@ void reset_pop(population& p) noexcept
 
 void select_new_pop(population &p)
 {
-    assert(!p.get_v_ind().empty());
+    if(p.get_v_ind().empty())
+    {
+        return;
+    }
     assert(p.get_new_v_ind().empty());
     std::shuffle(p.get_v_ind().begin(),p.get_v_ind().end(),p.get_rng());
     //The energy level at which an individual will be initialized
@@ -534,6 +550,13 @@ void select_new_pop(population &p)
     }
 }
 
+void set_all_inds_en(population& p, double e)
+{
+    for(auto& ind : p.get_v_ind())
+    {
+        set_ind_en(ind, e);
+    }
+}
 void set_ind_en(individual& i, double en)
 {
     i.set_energy(en);
@@ -582,6 +605,13 @@ void spor_metabolism_pop(population &p)
         sporulating_metabolism(ind);
     }
 }
+
+bool someone_starved(const population& p)
+{
+    return std::any_of(p.get_v_ind().begin(), p.get_v_ind().end(), [](const individual& i)
+    {return is_dead(i);});
+}
+
 
 void starvation( population& p) noexcept
 {

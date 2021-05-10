@@ -7,7 +7,7 @@
 int main(int argc, char ** argv) //!OCLINT tests may be long
 {
 
-      const std::vector<std::string> args(argv, argv + argc);
+    const std::vector<std::string> args(argv, argv + argc);
 
     int n_cycles = 500;
     int cycle_duration = 125;
@@ -21,6 +21,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int cond_per_seq;
     int seq_index;
     int collision_check_interval = 0;
+    bool death = false;
+    bool eden = false;
 
     check_for_cmd_param(args,
                         seed,
@@ -30,7 +32,13 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         amplitude,
                         overwrite,
                         cond_per_seq,
+<<<<<<< HEAD
                         seq_index);
+=======
+                        seq_index,
+                        death,
+                        eden);
+>>>>>>> matrix_r_cond
 
     meta_param m{n_cycles,
                 cycle_duration,
@@ -71,7 +79,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     else if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e, i, m, p,
-                    overwrite);
+                    overwrite, death);
     }
     else  if(args.size() > 1 && args[1] == "--rand")
     {
@@ -100,7 +108,24 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          pop_max,
                          seed,
                          seq_index,
+<<<<<<< HEAD
                          overwrite);
+=======
+                         overwrite,
+                         death,
+                         eden);
+    }
+    else if(args.size() > 3
+            && args[1] == "--test_extr_rand_evo_beginning_end")
+    {
+        run_test_extreme_rand_evo_beginning_end(seed,
+                                                change_freq,
+                                                cond_per_seq,
+                                                seq_index,
+                                                amplitude,
+                                                death,
+                                                eden);
+>>>>>>> matrix_r_cond
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
     {

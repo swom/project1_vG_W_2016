@@ -48,6 +48,7 @@ QT += core gui
 # GNU/Linux
 unix:!macx {
   #LIBS += -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+  DEFINES += ON_LINUX
 
   CONFIG(debug, debug|release) {
     # gcov

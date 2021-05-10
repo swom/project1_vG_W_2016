@@ -90,6 +90,12 @@ bool operator!= (const population& lhs, const population& rhs);
 ///Active individuals lose energy due to their metabolism
 void active_metabolism_pop(population &p);
 
+///Checks if all individuals in a population p
+/// have a level of energy n
+bool all_en_pop_equals(const population& p, double en);
+bool all_en_pop_NOT_equals(const population& p, double en);
+
+
 ///Checks if the entire population has been already drawn for funding the new population
 bool all_ind_are_drawn(const population& s) noexcept;
 
@@ -238,6 +244,9 @@ void set_ind_pos(individual& i, double x, double y);
 ///Places an individual of index i at position x,y
 void set_ind_pos(individual& i, std::pair<double, double> pos);
 
+///Sets energy of all individuals in a population to a given value
+void set_all_inds_en(population& p, double e);
+
 ///Sets and individual's energy
 void set_ind_en(individual& i, double en);
 
@@ -251,6 +260,9 @@ std::vector<individual> pop_from_funders(const funders_success &f_s,
 
 ///Normal death due to death rate
 void senescence(population &p) noexcept;
+
+///Check if at least one individual has starved
+ bool someone_starved(const population& p);
 
 ///Kills individuals with energy = 0
 void starvation(population &p) noexcept;
