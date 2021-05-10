@@ -408,16 +408,17 @@ void exec_cycle(simulation& s) noexcept
     {
         tick(s, s.get_meta_param().get_collision_check_interval());
     }
-    add_success_funders(s);
-    store_demographics(s);
-    dispersal(s);
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<float>(stop - start);
     std::cout<< "cycle n " << s.get_cycle() << ":" << std::endl <<
                 "time: " << duration.count() << "s" << std::endl <<
                 "n_individuals: " << s.get_pop().get_pop_size() << std::endl <<
-                std::endl;
+                std::endl;    add_success_funders(s);
+
+    store_demographics(s);
+    dispersal(s);
+
 }
 
 void exec(simulation& s) noexcept

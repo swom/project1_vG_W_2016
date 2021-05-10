@@ -214,7 +214,7 @@ for( i in types)
   ####Plot dem####
   sp = ggplot(data =  test_demog) +
     geom_tile(aes(x = condition, y = seed, fill = spore))+
-    scale_fill_gradientn("spore", colors = rbg, breaks = color_scale_spore)+
+    # scale_fill_gradientn("spore", colors = rbg, breaks = color_scale_spore)+
     ggtitle(paste(i,"_spore",sep = ""))+
     facet_grid(.  ~ gen)
   
@@ -334,7 +334,6 @@ save_local = local_run_first_gen
 local_run_first_gen = s9
 local_run_first_gen$seed = 123456789;
 local_run_first_gen$change = 0
-local_run_first_gen$n_env = 50
 local_run_first_gen$seq = 1
 local_run_first_gen$gen = "first"
 
@@ -348,7 +347,7 @@ colnames(local_run_first_gen)= c("condition",
                                  "seed",
                                  "change_freq",
                                  "seq",
-                                 "cycle")
+                                 "gen")
 
 local_run_first_gen =  local_run_first_gen %>% 
   group_by(seed, condition) %>% 
@@ -361,14 +360,19 @@ s = rbind(death_test_demog,
    mutate(seed = as.factor(seed)) %>% 
    mutate(change_freq =as.factor(change_freq)) %>% 
    mutate(seq = as.character(seq)) %>% 
-   mutate(cycle = as.character(cycle))
+   mutate(gen = as.character(gen))
 )
 
-ggplot(s %>% subset(gen = "first") %>%  subset(seed != "123456789")) +
-  geom_tile(aes(x = condition, y = seed, fill = success)) +
-  scale_fill_gradientn("success", colors = rbg)
+ggplot(death_test_demog) +
+  geom_tile(aes(x = condition, y = seed, fill = spore)) +
+  scale_fill_gradientn("success", colors = rbg) +
+  facet_grid(. ~ gen )
 
-pattern = "first_gen_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+random_cond_sim_demographic_s9_change_\\d+_amplitude_\\d+"
+ggplot(s %>% subset(gen = "first")) +
+  geom_tile(aes(x = condition, y = seed, fill = spore)) +
+  scale_fill_gradientn("success", colors = rbg)  +
+  facet_grid(. ~ gen )
+
 getwd()
-list.files()
-s9 = read.csv("first_gen_death_rand_evo_extreme_a3.000000seq_1cond_per_seq50random_cond_sim_demographic_s9_change_0_amplitude_3.000000.csv")
+s9 = read.csv("X:/build-simulation_logic_only-Desktop_Qt_6_0_0_MinGW_64_bit-Release/first_gen_death_rand_evo_extreme_a3.000000seq_1cond_per_seq50random_cond_sim_demographic_s9_change_0_amplitude_3.000000.csv")
+s9or = read.csv("first_gen_death_rand_evo_extreme_a3.000000seq_1cond_per_seq50random_cond_sim_demographic_s9_change_0_amplitude_3.000000.csv")

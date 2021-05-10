@@ -7,6 +7,7 @@ library(purrr)
 library(stringr)
 library(tibble)
 library(tidyr)
+library(tidyselect)
 
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
@@ -378,10 +379,11 @@ ggplot(data = dem_d %>% subset(cycle == max(cycle))) +
 ggplot(data = dem_d) +
   geom_rect(aes(xmin=cycle,
                 xmax=cycle+1,
-                ymin=min(min(change_value),min(ratio_value)),
-                ymax=max(max(change_value),max(ratio_value)), 
+                ymin=min(ratio_value),
+                ymax=max(ratio_value), 
                 fill = env_type)) +
-  facet_grid(seed ~ condition)
+  facet_grid(seed ~ condition) +
+  theme(legend.position = "none")
 
 
 ggsave("../../research presentation/env_seqex_cub.pdf",
@@ -1197,32 +1199,36 @@ heatmap.2(as.matrix(clust_avg_intercept),
 
 ####Heatmap cluster for avg of STARTING SPORE production in each env_type#####
 
-#summarise average intercept over all env_types in a condition
-avg_intercept = dem %>% 
-  group_by(seed, condition) %>% 
-  summarise(avg_intercept = mean(intercept))
+#summarise average initial spore quantity over all env_types in a condition
+avg_start_sp = dem %>% 
+  select(spore, cycle, condition, seed, env_type ) %>% 
+  group_by(condition, seed, env_type) %>%
+  slice(which.min(cycle)) %>% 
+  ungroup() %>% 
+  group_by(condition, seed) %>% 
+  summarise(avg_start_sp = mean(spore))
 
 #create dataframe for intercept
-clust_avg_intercept = avg_intercept%>% 
-  select(condition, seed, avg_intercept) %>% 
-  spread(condition, avg_intercept) %>% 
+clust_avg_start_sp = avg_start_sp%>% 
+  select(condition, seed, avg_start_sp) %>% 
+  spread(condition, avg_start_sp) %>% 
   column_to_rownames(var = "seed") 
 
 #create breaks for avg_intercept
-avg_int_qntl = quantile(avg_intercept$avg_intercept)
-sections_avg_int_value_plot = unique(
-  c( seq(avg_int_qntl[1], avg_int_qntl[2], length = as.integer(n_colors/3 + 1)),
-     seq(avg_int_qntl[2], avg_int_qntl[4], length = as.integer(n_colors/3 + 1)),
-     seq(avg_int_qntl[4], avg_int_qntl[5], length = as.integer(n_colors/3 + 2))))
+avg_start_sp_qntl = quantile(avg_start_sp$avg_start_sp)
+sections_avg_start_sp_value_plot = unique(
+  c( seq(avg_start_sp_qntl[1], avg_start_sp_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_start_sp_qntl[2], avg_start_sp_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_start_sp_qntl[4], avg_start_sp_qntl[5], length = as.integer(n_colors/3 + 2))))
 
-heatmap.2(as.matrix(clust_avg_intercept),
+heatmap.2(as.matrix(clust_avg_start_sp),
           scale = "none",
           trace = "none",
           Colv = start_clust_col,
           Rowv = avg_sl_clust_row,
           col = rbg,
-          breaks = sections_avg_int_value_plot,
-          main = "avg_intercept")
+          breaks = sections_avg_start_sp_value_plot,
+          main = "avg_start_sp")
 
 ####Heatmap cluster for the SLOPE OF SLOPE for SPORE PROD for each env type in each seq####
 
@@ -1260,7 +1266,7 @@ heatmap.2(as.matrix(clust_slope_slope),
           #breaks = sections_sl_sl_value_plot,
           main = "slope_of_slopes")
 
-####heatmap cluster for slope of intercept  for SPORE PROD ####
+####heatmap cluster for SLOPEOF INTERCEPT  for SPORE PROD ####
 
 env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
 
