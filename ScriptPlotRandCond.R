@@ -241,6 +241,63 @@ for( i in types)
   print(scaled)
 }
 
+####Plotting Heatmape clusters####
+for(i in types)
+{ 
+  if(i == "normal")
+  {
+    test_demog = seqex_test_demog
+  } else if ( i == "eden")
+  {
+    test_demog = eden_test_demog
+  } else if ( i == "death")
+  {
+    test_demog = death_test_demog
+  }
+  #create breaks
+  qntl = quantile(test_demog$success)
+  sections = unique(
+    c( seq(qntl[1], qntl[2], length = as.integer(n_colors/3 + 1)),
+       seq(qntl[2], qntl[4], length = as.integer(n_colors/3 + 1)),
+       seq(qntl[4], qntl[5], length = as.integer(n_colors/3 + 2))))
+  
+  clust_test_demog_first = 
+    test_demog %>% 
+    subset(gen == "first") %>% 
+    subset(seed != 9) %>% 
+    select(seed, condition, success) %>% 
+    spread(condition, success) %>% 
+    column_to_rownames(var = "seed") 
+  
+  start_col_test = as.dendrogram(hclust(dist(t(as.matrix(clust_test_demog_first)))))
+  start_row_test = as.dendrogram(hclust(dist((as.matrix(clust_test_demog_first)))))
+  
+  heatmap.2(as.matrix(clust_test_demog_first),
+            trace = "none",
+            Colv = start_col_test,
+            Rowv = start_row_test,
+            col = rbg,
+            breaks = sections,
+            main = paste("first_",i))
+  
+  clust_test_demog_last = 
+    test_demog %>% 
+    subset(gen == "last") %>% 
+    subset(seed != 9) %>% 
+    select(seed, condition, success) %>% 
+    spread(condition, success) %>% 
+    column_to_rownames(var = "seed") 
+  
+  heatmap.2(as.matrix(clust_test_demog_last),
+            trace = "none",
+            Colv = start_col_test,
+            Rowv = start_row_test,
+            col = rbg,
+            breaks = sections,
+            main = paste("last_",i))
+}
+
+
 ####Old plotting####
 new_rand_demo = rand_demographic %>%
   group_by(condition,change_freq) %>%
@@ -278,31 +335,32 @@ for( i in types)
     
   } else if ( i == "death")
   {
-  
+    
     setwd(first_death)
     load("death_test_demog.R")
     test_demog = death_test_demog
-  
+    
   }
- 
+  
   cor_df = test_demog %>% 
+    subset(seed != "9") %>% 
     select(gen,seed,success, condition) %>% 
     group_by(seed, gen) %>% 
     summarise(avg_suc = mean(success)) %>% 
     pivot_wider(names_from = gen, values_from = avg_suc)
   
   print(paste("#############",i,"########################################"))
-
+  
   #scatter_plot
   sp = ggscatter(cor_df, x = "first", y = "last", 
-            add = "reg.line", conf.int = TRUE, 
-            cor.coef = TRUE, cor.method = "pearson",
-            main = i)
+                 add = "reg.line", conf.int = TRUE, 
+                 cor.coef = TRUE, cor.method = "pearson",
+                 main = i)
   print(sp)
-  # Shapiro-Wilk normality test for mpg
+  # Shapiro-Wilk normality test for "first"
   sf = shapiro.test(cor_df$first) 
   print(sf)
-  # Shapiro-Wilk normality test for wt
+  # Shapiro-Wilk normality test for "last"
   sl = shapiro.test(cor_df$last) 
   print(sl)
   # first
@@ -313,66 +371,42 @@ for( i in types)
   print(pl)
   #Pearson
   p = cor.test(cor_df$first, cor_df$last, 
-           method = "pearson")
+               method = "pearson")
   print(p)
   #Spearman rho (rank test)
   s = cor.test(cor_df$first, cor_df$last, 
-           method = "spearman")
+               method = "spearman")
   print(s)
   print(paste("#####################################################"))
   print(paste("#####################################################"))
   print("")
 }
-####Free style####
-death_test_demog %>%
-  select(seed, condition, env_p_3) %>% 
-  ggplot()+
-  geom_tile(aes(x = condition, y = seed, fill = as.factor(env_p_3)))+
-  theme(legend.position = "none") 
 
-save_local = local_run_first_gen
-local_run_first_gen = s9
-local_run_first_gen$seed = 123456789;
-local_run_first_gen$change = 0
-local_run_first_gen$seq = 1
-local_run_first_gen$gen = "first"
+eden_test_demog$type = "eden"
+a = eden_test_demog %>% 
+  select(gen,seed,success, condition, type) %>% 
+  pivot_wider(names_from = gen, values_from = success)
 
-n_columns = ncol(local_run_first_gen)
-colnames(local_run_first_gen)= c("condition",
-                                 "active",
-                                 "spore",
-                                 "sporu" ,
-                                 "n_timesteps",
-                                 sprintf("env_p_%s",seq(1:(n_columns - 5 - 4))),
-                                 "seed",
-                                 "change_freq",
-                                 "seq",
-                                 "gen")
+death_test_demog$type = "death"
 
-local_run_first_gen =  local_run_first_gen %>% 
-  group_by(seed, condition) %>% 
-  mutate("success" = spore * 10 + (sporu * 0 + active)) 
+b = death_test_demog %>% 
+  select(gen,seed,success, condition, type) %>% 
+  pivot_wider(names_from = gen, values_from = success)
 
-s = rbind(death_test_demog,
- local_run_first_gen %>% 
-  subset(condition > 1) %>% 
-  mutate(condition = as.factor(condition)) %>% 
-   mutate(seed = as.factor(seed)) %>% 
-   mutate(change_freq =as.factor(change_freq)) %>% 
-   mutate(seq = as.character(seq)) %>% 
-   mutate(gen = as.character(gen))
-)
+seqex_test_demog$type = "seqex"
+c = seqex_test_demog %>% 
+  select(gen,seed,success, condition, type) %>% 
+  pivot_wider(names_from = gen, values_from = success)
 
-ggplot(death_test_demog) +
-  geom_tile(aes(x = condition, y = seed, fill = spore)) +
-  scale_fill_gradientn("success", colors = rbg) +
-  facet_grid(. ~ gen )
+total = rbind(a, b, c) %>% 
+  subset(seed != "9") %>% 
+  group_by(seed, type) %>% 
+  summarise(avg_first = mean(first), avg_last = mean(last))
 
-ggplot(s %>% subset(gen = "first")) +
-  geom_tile(aes(x = condition, y = seed, fill = spore)) +
-  scale_fill_gradientn("success", colors = rbg)  +
-  facet_grid(. ~ gen )
+#scatter_plot for seed average
+ggscatter(data = ex, x = "avg_first", y = "avg_last", color = "type", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          main = i) +
+  facet_grid(. ~ type)
 
-getwd()
-s9 = read.csv("X:/build-simulation_logic_only-Desktop_Qt_6_0_0_MinGW_64_bit-Release/first_gen_death_rand_evo_extreme_a3.000000seq_1cond_per_seq50random_cond_sim_demographic_s9_change_0_amplitude_3.000000.csv")
-s9or = read.csv("first_gen_death_rand_evo_extreme_a3.000000seq_1cond_per_seq50random_cond_sim_demographic_s9_change_0_amplitude_3.000000.csv")

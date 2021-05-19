@@ -2,6 +2,7 @@ library(broom)
 library(dplyr)
 library(gplots)
 library(ggplot2)
+library("ggpubr")
 library(pals)
 library(purrr)
 library(stringr)
@@ -18,7 +19,6 @@ sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
 sequence_extr = "C:/Users/p288427/Desktop/hd_rand_evo/sequence_extr"
 death_eden = "C:/Users/p288427/Desktop/hd_rand_evo/death_eden"
 death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
-
 
 #####read data####
 setwd(sequence_extr)
@@ -193,6 +193,15 @@ setwd(death_death)
 load("death_death_rand_evo_demo.R")
 
 dem = death_death_demographic
+####saving all dfs binded toghther####
+tot_dem = rbind(seqex_demographic %>% mutate(type = "seqex"),
+                death_eden_demographic %>% mutate(type = "eden"),
+                death_death_demographic %>% mutate(type = "death"))
+setwd(death_death)
+save(tot_dem, file ="tot_dem.R")
+####loading totatl dataframe####
+setwd(death_death)
+load("tot_dem.R")
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -843,7 +852,8 @@ heatmap.2(as.matrix(clust_avg_success),
           col = rbg,
           scale = "none",
           trace = "none",
-          main = "avg_success_value")
+          main = "avg_success_value",
+          breaks = sections_avg_start_sc_value_plot)
 
 ####heatmap cluster for overall_r_value(ratio_value rescaled to [0-1] over all cycle) of spores####
 #start
@@ -1135,6 +1145,7 @@ heatmap.2(as.matrix(clust_slope),
           breaks = sections_bf_ch_sl_value_plot,
           main = "v_before_change_slope")
 
+
 ####Heatmap cluster for avg of SLOPE of SPORE production in each env_type#####
 
 
@@ -1167,7 +1178,6 @@ heatmap.2(as.matrix(clust_avg_slope),
           col = rbg,
           breaks = sections_avg_sl_value_plot,
           main = "avg_slope")
-
 ####Heatmap cluster for avg of INTERCEPT of SPORE production in each env_type#####
 
 #summarise average intercept over all env_types in a condition
@@ -1196,6 +1206,7 @@ heatmap.2(as.matrix(clust_avg_intercept),
           col = rbg,
           breaks = sections_avg_int_value_plot,
           main = "avg_intercept")
+
 
 ####Heatmap cluster for avg of STARTING SPORE production in each env_type#####
 
@@ -1229,6 +1240,7 @@ heatmap.2(as.matrix(clust_avg_start_sp),
           col = rbg,
           breaks = sections_avg_start_sp_value_plot,
           main = "avg_start_sp")
+
 
 ####Heatmap cluster for the SLOPE OF SLOPE for SPORE PROD for each env type in each seq####
 
@@ -1266,7 +1278,8 @@ heatmap.2(as.matrix(clust_slope_slope),
           #breaks = sections_sl_sl_value_plot,
           main = "slope_of_slopes")
 
-####heatmap cluster for SLOPEOF INTERCEPT  for SPORE PROD ####
+
+####heatmap cluster for SLOPE OF INTERCEPT  for SPORE PROD ####
 
 env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))
 
@@ -1357,6 +1370,40 @@ heatmap.2(as.matrix(clust_avg_intercept_success),
           col = rbg,
           breaks = sections_avg_int_scs_value_plot,
           main = "avg_intercept_success")
+
+####Heatmap cluster for avg of STARTING SUCCESS production in each env_type#####
+
+#summarise average initial spore quantity over all env_types in a condition
+avg_start_sc = dem %>% 
+  select(success, cycle, condition, seed, env_type ) %>% 
+  group_by(condition, seed, env_type) %>%
+  slice(which.min(cycle)) %>% 
+  ungroup() %>% 
+  group_by(condition, seed) %>% 
+  summarise(avg_start_sc = mean(success))
+
+#create dataframe for intercept
+clust_avg_start_sc = avg_start_sc%>% 
+  select(condition, seed, avg_start_sc) %>% 
+  spread(condition, avg_start_sc) %>% 
+  column_to_rownames(var = "seed") 
+
+#create breaks for avg_intercept
+avg_start_sc_qntl = quantile(avg_start_sc$avg_start_sc)
+sections_avg_start_sc_value_plot = unique(
+  c( seq(avg_start_sc_qntl[1], avg_start_sc_qntl[2], length = as.integer(n_colors/3 + 1)),
+     seq(avg_start_sc_qntl[2], avg_start_sc_qntl[4], length = as.integer(n_colors/3 + 1)),
+     seq(avg_start_sc_qntl[4], avg_start_sc_qntl[5], length = as.integer(n_colors/3 + 2))))
+
+heatmap.2(as.matrix(clust_avg_start_sc),
+          scale = "none",
+          trace = "none",
+          Colv = start_clust_col,
+          Rowv = avg_sl_clust_row,
+          col = rbg,
+          breaks = sections_avg_start_sc_value_plot,
+          main = "avg_start_sc")
+
 
 ####Heatmap cluster for the SLOPE OF SLOPE for SUCCESS for each env type in each seq####
 
@@ -1490,6 +1537,49 @@ ggplot(data = var_demo) +
 ggplot(data = var_demo) +
   geom_smooth(aes(cycle,rat)) +
   facet_grid( . ~ condition)
+
+####Plotting correlation of avg_slope over success#####
+avg_vals = tot_dem %>% 
+  group_by(seed, condition, type) %>% 
+  summarise(avg_slope = mean(slope_success),
+            avg_intercept = mean(intercept_success),
+            avg_success = mean(success))
+
+avg_start_suc = tot_dem %>% 
+  group_by(type, condition, seed, env_type) %>%
+  slice(which.min(cycle)) %>% 
+  ungroup() %>% 
+  group_by(type, condition, seed) %>% 
+  summarise(avg_start_suc = mean(success))
+
+cor_dem =  avg_vals %>%  
+  left_join(avg_start_suc) %>% 
+  pivot_longer(c(avg_slope, avg_intercept, avg_start_suc))
+
+ggplot(cor_dem %>% 
+         subset(type != "eden") %>% 
+         pivot_wider(names_from = name,values_from = value) %>%
+         group_by(type) %>% 
+         mutate(across(c(avg_slope, avg_intercept, avg_success, avg_start_suc), scale)) %>% 
+       pivot_longer(c(avg_success, avg_slope, avg_intercept, avg_start_suc)))+
+  geom_tile(aes(x = condition, y = seed,  fill = value ))+
+  scale_fill_gradientn(colors = rbg) +
+  facet_grid(type ~ name)
+
+cdd = cor_dem %>% 
+  pivot_wider(names_from = name,values_from = value) %>%
+  mutate(across(c(avg_slope, avg_intercept, avg_success), scale))
+
+ggscatter(cdd %>%  
+          pivot_longer(c(avg_slope, avg_intercept)),
+          x = "value", 
+          y = "avg_success", 
+          add = "reg.line",
+          conf.int = TRUE, 
+          cor.coef = TRUE,
+          cor.method = "spearman",
+          main = "spearman") +
+  facet_grid(name ~ type)
 
 ####### Fitting logistic regression model to data and adding it to dataframe####
 
