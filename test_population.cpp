@@ -640,6 +640,7 @@ void test_population() noexcept  //!OCLINT
     //be the same as the mutation_step distribution
     {
         population p;
+        std::minstd_rand rng;
         //   double init_mean = weights_mean(s.get_ind(0).get_grn());
         double init_variance = weights_var(p.get_ind(0).get_grn());
         assert(init_variance < 0.0001 && init_variance > -0.000001);
@@ -650,7 +651,7 @@ void test_population() noexcept  //!OCLINT
         for (int i = 0; i != sampling_size; i++)
         {
             mutates(p.get_ind(0),
-                    p.get_rng(),
+                    rng,
                     mut_prob_dist,
                     mut_step_dist
                     );
@@ -664,6 +665,7 @@ void test_population() noexcept  //!OCLINT
 
     //After dividing the two daughter individuals mutate
     {
+        std::minstd_rand rng;
         double mutation_probability = 1; //all weights will be mutated in this pop
         population p(pop_param{1, 1, 0, mutation_probability});
         auto init_var = weights_var(p.get_ind(0).get_grn());
@@ -671,7 +673,7 @@ void test_population() noexcept  //!OCLINT
         divides(p.get_ind(0),
                 p.get_v_ind(),
                 repr_angle(p),
-                p.get_rng(),
+                rng,
                 create_bernoulli_dist(p.get_param().get_mu_p()),
                 create_normal_dist(0, p.get_param().get_mu_st())
                 );
@@ -802,12 +804,13 @@ void test_population() noexcept  //!OCLINT
 
     //It is possible to assign a unique ID to each ind in a population
     {
+        std::minstd_rand rng;
         population p;
         assert(p.get_pop_size() == 1);
         divides(p.get_ind(0),
                 p.get_v_ind(),
                 0,
-                p.get_rng(),
+                rng,
                 create_bernoulli_dist(0),
                 create_normal_dist(0,0));
         assert(p.get_pop_size() == 2);

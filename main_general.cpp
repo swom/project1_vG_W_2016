@@ -33,13 +33,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         amplitude,
                         overwrite,
                         conditions_per_seq,
-<<<<<<< HEAD
-                        seq_index);
-=======
                         seq_index,
                         death,
                         eden);
->>>>>>> matrix_r_cond
 
     meta_param m{n_cycles,
                 cycle_duration,
@@ -115,8 +111,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          pop_max,
                          seed,
                          seq_index,
-<<<<<<< HEAD
-=======
                          overwrite,
                          death,
                          eden);
@@ -130,7 +124,6 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          pop_max,
                          seed,
                          seq_index,
->>>>>>> matrix_r_cond
                          overwrite);
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")

@@ -135,7 +135,7 @@ std::vector<individual> set_new_ind_par(std::vector<individual> new_p_v, const i
 void death(population& p) noexcept;
 
 ///The individuals in the vector are copied at the end of the pop vector
-bool division(population& p) noexcept;
+bool division(population& p, std::minstd_rand &rng) noexcept;
 
 ///Displaces the individuals after their total displacement
 ///has been calculated with calc_tot_disp_pop()

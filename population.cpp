@@ -158,7 +158,7 @@ void death(population &p) noexcept
     senescence(p);
 }
 
-bool division(population &p) noexcept
+bool division(population &p, std::minstd_rand& rng) noexcept
 {
     auto  div_inds  = get_dividing_individuals(p);
     std::uniform_real_distribution<double> repr_prob(0,1);
@@ -167,12 +167,12 @@ bool division(population &p) noexcept
         for(size_t i = 0; i != div_inds.size(); i++)
         {
             int div_ind = div_inds[i];
-            if(repr_prob(p.get_rng()) < p.get_ind(div_ind).get_param().get_repr_prob())
+            if(repr_prob(rng) < p.get_ind(div_ind).get_param().get_repr_prob())
             {
                 divides(p.get_ind(div_ind),
                         p.get_v_ind(),
                         repr_angle(p),
-                        p.get_rng(),
+                        rng,
                         create_bernoulli_dist(p.get_param().get_mu_p()),
                         create_normal_dist(0,p.get_param().get_mu_st())
                         );

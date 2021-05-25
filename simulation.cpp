@@ -95,7 +95,7 @@ void change_env(simulation& s) noexcept
 void change_pop( simulation& s)
 {
     auto& p = s.get_pop();
-    const auto new_ind_param = change_ind_param_norm(p.get_v_ind().begin()->get_param(), p.get_rng());
+    const auto new_ind_param = change_ind_param_norm(p.get_v_ind().begin()->get_param(), s.get_rng());
 
     ///Change ind_params of all inds in pop
     p.get_v_ind() = set_new_ind_par(p.get_v_ind(),new_ind_param);
@@ -522,6 +522,13 @@ double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_p
     return min->first.get_diff_coeff();
 }
 
+int get_tot_inds(const simulation& s)
+{
+    return s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
+                    s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
+                    s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();
+}
+
 double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
 {
     auto sum = std::accumulate(rand_cond.begin(), rand_cond.end(), 0.0,
@@ -804,7 +811,7 @@ demographic_sim test_against_random_conditions(const simulation& s,
                 ind_param{},
                 n_number_rand_cond,
                 amplitude,
-                0);
+                123456);
 
     auto test_pop = s.get_pop().get_v_ind();
 
@@ -828,16 +835,13 @@ demographic_sim test_against_random_conditions(const simulation& s,
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout<< "condition n"<< counter <<": " << duration.count() << std::endl;
-        auto tot_inds = rand_s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
-                rand_s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
-                rand_s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();
+        auto tot_inds = get_tot_inds(rand_s);
         std::cout<< "n individuals:" << tot_inds << std::endl << std::endl;
 
         rand_s.get_pop().get_v_ind() = test_pop;
         counter++;
-        //resave every time all currently obtained results from test over all currently tested conditions
-        save_demographic_sim(rand_s.get_demo_sim(), name);
     }
+    save_demographic_sim(rand_s.get_demo_sim(), name);
     return rand_s.get_demo_sim();
 }
 
@@ -1265,7 +1269,7 @@ int tick(simulation& s, int n_ticks)
     }
     //jordi_death(s.get_pop());
     update_radius_pop(s.get_pop());
-    auto division_happens = division(s.get_pop());
+    auto division_happens = division(s.get_pop(), s.get_rng());
     if( n_ticks > 0 && s.get_timestep() % n_ticks == 0)
     {
         manage_static_collisions(s.get_pop());

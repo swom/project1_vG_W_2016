@@ -1538,7 +1538,7 @@ ggplot(data = var_demo) +
   geom_smooth(aes(cycle,rat)) +
   facet_grid( . ~ condition)
 
-####Plotting correlation of avg_slope over success#####
+####Plotting CORRELATION of avg_slope over success#####
 avg_vals = tot_dem %>% 
   group_by(seed, condition, type) %>% 
   summarise(avg_slope = mean(slope_success),
@@ -1568,19 +1568,31 @@ ggplot(cor_dem %>%
 
 cdd = cor_dem %>% 
   pivot_wider(names_from = name,values_from = value) %>%
-  mutate(across(c(avg_slope, avg_intercept, avg_success), scale))
+  mutate(across(c(avg_slope, avg_intercept, avg_success, avg_start_suc), scale))
 
-ggscatter(cdd %>%  
-          pivot_longer(c(avg_slope, avg_intercept)),
+ggscatter(cdd %>%
+            # subset(seed != "9") %>% #taking out the outlier
+            pivot_longer(c(avg_slope, avg_start_suc, avg_intercept))
+          # %>% 
+          # subset(name != "avg_intercept") %>% 
+          # subset(name != "avg_start_suc")
+          ,
           x = "value", 
           y = "avg_success", 
           add = "reg.line",
           conf.int = TRUE, 
           cor.coef = TRUE,
-          cor.method = "spearman",
-          main = "spearman") +
+          cor.method = "pearson",
+          main = "pearson") +
   facet_grid(name ~ type)
-
+####Testing if SUCCESS_SLOPE changes over time(evolves)
+slope_of_slopes = dem %>%
+  group_by(condition, seed, env_type) %>% 
+  slice_min(cycle) %>%
+  group_by(condition, seed) %>%
+  do(model = lm(slope_success ~ cycle, data = .))
+unserialize(slope_of_slopes$model)
+unlist(slope_of_slopes$model)
 ####### Fitting logistic regression model to data and adding it to dataframe####
 
 fit_logistic <-

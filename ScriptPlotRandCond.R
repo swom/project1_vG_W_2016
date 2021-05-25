@@ -401,12 +401,20 @@ c = seqex_test_demog %>%
 total = rbind(a, b, c) %>% 
   subset(seed != "9") %>% 
   group_by(seed, type) %>% 
-  summarise(avg_first = mean(first), avg_last = mean(last))
-
+  summarise(avg_first = mean(first), avg_last = mean(last)) 
+levels(total$type) = c("seqex","eden","death")
+  
 #scatter_plot for seed average
-ggscatter(data = ex, x = "avg_first", y = "avg_last", color = "type", 
+ggscatter(data = total %>%
+            subset( type != "eden"),
+          x = "avg_first", y = "avg_last", color = "type", 
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "spearman",
-          main = i) +
+          main = "first-last test success correlations") +
+  #add line for 1 to 1 cor
+  geom_line(aes(x= seq(min(avg_first), max(avg_first), length.out = length(avg_first)),
+                y = seq(min(avg_first), max(avg_first), length.out = length(avg_first))
+                )
+            ) +
   facet_grid(. ~ type)
 
