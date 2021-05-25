@@ -27,11 +27,13 @@ make clean
 qmake simulation_logic_only.pro
 make 
 
-
+for j in $(seq 3 5)
+do
+echo "seq : " $j 
   for i in $(seq 1 3)
 do
   echo "seed : "$i
-  sbatch run_test_rand_evo_extr.sh $i
+  sbatch run_test_rand_evo_extr.sh $i $j
 done
-
+done
 
