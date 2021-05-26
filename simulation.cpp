@@ -1141,6 +1141,9 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
             data_folder += "death_death/";
         }
     }
+    else {
+        data_folder += "seqex/";
+    }
 
 #endif
     auto prefix = create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);

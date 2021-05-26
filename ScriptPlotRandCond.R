@@ -75,17 +75,17 @@ for(j in folders){
                                 sprintf("env_p_%s",seq(1:(n_columns - 5 - 4))),
                                 "seed",
                                 "change_freq",
-                                "seq",
-                                "cycle")
+                                "cond_per_seq",
+                                "seq")
   
-  rand_demographic$seed = as.factor(rand_demographic$seed)
+  rand_demographic$seed = as.numeric(rand_demographic$seed)
   rand_demographic$change_freq = as.factor(rand_demographic$change_freq)
   rand_demographic$condition = as.factor(rand_demographic$condition)
   rand_demographic$n_timesteps = as.numeric(rand_demographic$n_timesteps)
   
   
   rand_demographic =  rand_demographic %>% 
-    group_by(seed, condition) %>% 
+    group_by(seed, condition, seq) %>% 
     mutate("success" = spore * 10 + (sporu * 0 + active))
   
   if(getwd() == first_s){
@@ -151,15 +151,8 @@ for(j in folders){
     
   }
 }
-####Create color plaettes####
 
-n_colors = 100
-rbg<- colorRampPalette(c("red", "blue", "green"))(n_colors)
-cub_hel <- rev(cubehelix(n_colors))
-
-######Plot first and last####
-# types = c("death")
-
+#### Unite dataframes ####
 for( i in types)
 {
   if(i == "normal")
@@ -175,17 +168,11 @@ for( i in types)
     first = first_death_rand_demographic
     last = last_death_rand_demographic
   }
-  
-  ###Create breaks
-  color_scale_spore = seq(min(first$spore),max(last$spore),
-                          length.out = n_colors/10)
-  
-  color_scale_success = seq(min(first$success),max(last$success),
-                            length.out = n_colors/10)
   ###uniting in a single data_frame
   first$gen = as.factor("first")
   last$gen = as.factor("last")
   test_demog = rbind(first, last)
+
   ###saving united dataframes
   if(i == "normal"){
     
@@ -204,6 +191,33 @@ for( i in types)
     eden_test_demog = test_demog
     save(eden_test_demog, file = "eden_test_demog.R") 
   }
+}
+ 
+####Create color plaettes####
+n_colors = 100
+rbg<- colorRampPalette(c("red", "blue", "green"))(n_colors)
+cub_hel <- rev(cubehelix(n_colors))
+
+####Plot first and last####
+for( i in types)
+{
+  if(i == "normal")
+  {
+    test_demog = seqex_test_demog
+  } else if ( i == "eden")
+  {
+    test_demog = eden_test_demog
+  } else if ( i == "death")
+  {
+    test_demog = death_test_demog
+  }
+  ###Create breaks
+  color_scale_spore = seq(min(first$spore),max(last$spore),
+                          length.out = n_colors/10)
+  
+  color_scale_success = seq(min(first$success),max(last$success),
+                            length.out = n_colors/10)
+
   ####Check envs are the same####
   
   ggplot(data = test_demog) +
@@ -316,7 +330,6 @@ new_rand_demo %>%
 
 
 ####Correlation tests####
-####1-Loading####
 for( i in types)
 {
   if(i == "normal")
@@ -381,40 +394,45 @@ for( i in types)
   print(paste("#####################################################"))
   print("")
 }
-
+##### Overall Plot######
 eden_test_demog$type = "eden"
 a = eden_test_demog %>% 
-  select(gen,seed,success, condition, type) %>% 
+  select(gen,seed,success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 death_test_demog$type = "death"
 
 b = death_test_demog %>% 
-  select(gen,seed,success, condition, type) %>% 
+  select(gen,seed,success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 seqex_test_demog$type = "seqex"
 c = seqex_test_demog %>% 
-  select(gen,seed,success, condition, type) %>% 
+  select(gen,seed,success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 total = rbind(a, b, c) %>% 
-  subset(seed != "9") %>% 
-  group_by(seed, type) %>% 
+  subset(seed != "9") %>%
+  group_by(seed, type,seq) %>% 
   summarise(avg_first = mean(first), avg_last = mean(last)) 
 levels(total$type) = c("seqex","eden","death")
   
 #scatter_plot for seed average
 ggscatter(data = total %>%
-            subset( type != "eden"),
-          x = "avg_first", y = "avg_last", color = "type", 
-          add = "reg.line", conf.int = TRUE, 
-          cor.coef = TRUE, cor.method = "spearman",
+          subset( type != "eden") %>% subset(seed > 30),
+          x = "avg_first",
+          y = "avg_last",
+          color = "type",
+          label = "seed",
+          add = "reg.line", 
+          conf.int = TRUE, 
+          cor.coef = TRUE,
+          cor.method = "spearman",
           main = "first-last test success correlations") +
   #add line for 1 to 1 cor
-  geom_line(aes(x= seq(min(avg_first), max(avg_first), length.out = length(avg_first)),
-                y = seq(min(avg_first), max(avg_first), length.out = length(avg_first))
-                )
-            ) +
-  facet_grid(. ~ type)
+  # geom_line(aes(x= seq(min(avg_first), max(avg_first), length.out = length(avg_first)),
+  #               y = seq(min(avg_first), max(avg_first), length.out = length(avg_first))
+  #               )
+  #           ) +
+  facet_grid(seq ~ type)
 
