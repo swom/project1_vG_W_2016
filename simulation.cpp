@@ -1084,7 +1084,7 @@ int run_sim_evo(const env_param& e,
     if(death)
     {s.activate_death();}
     if(select_for_spores)
-    {s.select_for_spores();}
+    {s.evolve_and_select_for_spores();}
 
     auto start = std::chrono::high_resolution_clock::now();
 

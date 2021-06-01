@@ -229,11 +229,26 @@ void test_rand_cond_test_after_rand_evo()
 
     assert(test_one != test_two);
 }
-
+void test_evolution_and_selection_for_spores()
+{
+    int n_cycles = 50;
+    meta_param m{n_cycles};
+    simulation s{sim_param{env_param{},
+                           ind_param{},
+                           m,
+                           pop_param{}}
+                };
+    s.evolve_and_select_for_spores();
+    assert(!s.is_selecting_only_spores());
+    exec(s);
+    assert(s.is_selecting_only_spores());
+}
 void test_simulation()//!OCLINT tests may be many
 {
 #ifndef NDEBUG
 
+    ///It is possible in the exec function to activate the selection for spores after 50 cycles
+    test_evolution_and_selection_for_spores();
 
     ///It is possible to test any generation of rand_evo against a set of random environment
     test_rand_cond_test_after_rand_evo();

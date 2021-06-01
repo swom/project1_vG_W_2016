@@ -24,6 +24,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     int collision_check_interval = 0;
     bool death = false;
     bool eden = false;
+    bool select_for_spores = false;
 
     check_for_cmd_param(args,
                         seed,
@@ -35,7 +36,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                         conditions_per_seq,
                         seq_index,
                         death,
-                        eden);
+                        eden,
+                        select_for_spores);
 
     meta_param m{n_cycles,
                 cycle_duration,
@@ -78,7 +80,9 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     if(args.size() > 1 && args[1] == "--sim")
     {
         run_sim_evo(e, i, m, p,
-                    overwrite, death);
+                    overwrite,
+                    death,
+                    select_for_spores);
     }
     else  if(args.size() > 1 && args[1] == "--visual")
     {

@@ -18,7 +18,10 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          double& amplitude,
                          bool &overwrite,
                          int &cond_per_seq,
-                         int &rand_cond_n, bool &death, bool &eden);
+                         int &rand_cond_n,
+                         bool &death,
+                         bool &eden,
+                         bool& select_for_spores);
 
 ///Creates a uniform distribution
 std::uniform_real_distribution<double> create_unif_dist(double a, double b) noexcept;

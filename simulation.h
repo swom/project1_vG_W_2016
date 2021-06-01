@@ -20,7 +20,7 @@ public:
     void activate_death() noexcept {m_death_is_active = true;}
 
     ///Checks that the selection for spores flag is active and enough time has passed (50 cycles)
-    bool can_activate_selection_for_spores() noexcept {return m_select_for_spores && (m_executed_cycles > 50);}
+    bool can_activate_selection_for_spores() noexcept {return m_evolve_and_select_for_spores && (m_executed_cycles >= 49);}
 
     ///Returns const ref to the data structure containing the
     /// demographics of the population at different points in time
@@ -73,12 +73,15 @@ public:
     ///returns the value of m_death_is_active
     bool is_death_active() const noexcept{return m_death_is_active;}
 
+    ///Checks if only spores are selected
+    bool is_selecting_only_spores() noexcept {return m_pop.selects_only_for_spores();}
+
     ///Resets the timesteps to 0
     void reset_timesteps() noexcept {m_sim_timesteps = 0;}
 
     ///Allows the first 50 cycles to select all types of inds, and then
     /// activates the select_only_spores_flag
-    void select_for_spores() noexcept {m_select_for_spores = true;}
+    void evolve_and_select_for_spores() noexcept {m_evolve_and_select_for_spores = true;}
 
     ///Turns on the flag that signals that only spores are to be selected
     void select_only_spores() noexcept {m_pop.select_only_spores();}
@@ -134,7 +137,7 @@ private:
 
     ///Flag that signals that after 50 cycles of selection fo all inds to fund next generation
     /// switches to a regimen where only spores are selected
-    bool m_select_for_spores = false;
+    bool m_evolve_and_select_for_spores = false;
 
 };
 
