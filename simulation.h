@@ -233,7 +233,7 @@ std::vector<std::pair<env_param, ind_param>> create_rand_conditions_unif_extreme
                                                                                  const ind_param& i,
                                                                                  int n_rand_conditions,
                                                                                  double amplitude,
-                                                                                 int seed);
+                                                                                 int seed = 123456);
 
 
 ///Creates a Matrix of random conditions given the number of columns and rows

@@ -393,7 +393,14 @@ demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 
 void dispersal(simulation &s)
 {
+//    if(s.get_cycle() < 50)
+//    {
     fund_new_pop(s.get_pop());
+//    }
+//    else
+//    {
+//        fund_new_pop_spore_only(s.get_pop());
+//    }
     reset_env(s.get_env());
 }
 
@@ -464,7 +471,7 @@ void exec_change(simulation& s,
     auto condition_duration = s.get_meta_param().get_n_cycles() / rand_conditions.size();
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
-        auto modulus =  s.get_cycle() % condition_duration;
+            auto modulus =  s.get_cycle() % condition_duration;
         if( modulus == 0 && condition_index < rand_conditions.size())
         {
             reproduce_rand_cond(s, rand_conditions, condition_index);
@@ -810,8 +817,7 @@ demographic_sim test_against_random_conditions(const simulation& s,
                 s.get_env().get_param(),
                 ind_param{},
                 n_number_rand_cond,
-                amplitude,
-                123456);
+                amplitude);
 
     auto test_pop = s.get_pop().get_v_ind();
 
@@ -1158,8 +1164,15 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
 
     //little trick added for now since sim_par are not saved with prefix
     //we load and save sim_param from original simulation with name with prefix
-    save_sim_parameters(load_sim_parameters(create_sim_par_name(original_seed, original_change)),
-                        create_sim_par_name(original_seed, original_change, data_folder + prefix));
+    auto name_of_sim_par = create_sim_par_name(original_seed, original_change);
+    if(death && !eden)
+    {
+        name_of_sim_par = "death" + name_of_sim_par;
+    }
+    save_sim_parameters(load_sim_parameters(name_of_sim_par),
+                        create_sim_par_name(original_seed,
+                                            original_change,
+                                            data_folder + prefix));
 
     auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + prefix);
 

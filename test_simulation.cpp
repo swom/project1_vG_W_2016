@@ -49,7 +49,7 @@ void test_exec_change()
 {
     simulation s;
     ///let' put more than one cycle in meta_param
-    int n_cycles = 500;
+    int n_cycles = 50;
 
     s.get_meta_param() =  meta_param{n_cycles};
 
@@ -473,7 +473,7 @@ void test_simulation()//!OCLINT tests may be many
         double food_after_feeding = s.get_env().get_cell(grid_index_ind).get_food();
 
         metabolism_pop(s.get_pop());
-        if(division(s.get_pop()))
+        if(division(s.get_pop(), s.get_rng()))
         {
             manage_static_collisions(s.get_pop());
         }
@@ -551,7 +551,7 @@ void test_simulation()//!OCLINT tests may be many
             assert(balance_uptake < 0.0001 && balance_uptake > -0.0001);
 
             metabolism_pop(s.get_pop());
-            division(s.get_pop());
+            division(s.get_pop(), s.get_rng());
             manage_static_collisions(s.get_pop());
 
             auto food_before_diff =
@@ -651,7 +651,7 @@ void test_simulation()//!OCLINT tests may be many
                                           - s.get_pop().get_ind(1).get_param().get_uptake_rate());
         feeding(s);
         metabolism_pop(s.get_pop());
-        division(s.get_pop());
+        division(s.get_pop(), s.get_rng());
         manage_static_collisions(s.get_pop());
 
         assert(s.get_pop().get_v_ind().size() == init_pop_size + 1);
@@ -694,7 +694,7 @@ void test_simulation()//!OCLINT tests may be many
             metabolism_pop(s.get_pop());
             secretion_metabolite(s);
             jordi_death(s.get_pop());
-            division(s.get_pop());
+            division(s.get_pop(), s.get_rng());
         }
 
         //check that collisions are resolved only every n_ticks
@@ -715,7 +715,7 @@ void test_simulation()//!OCLINT tests may be many
                     metabolism_pop(s.get_pop());
                     secretion_metabolite(s);
                     jordi_death(s.get_pop());
-                    division(s.get_pop());
+                    division(s.get_pop(), s.get_rng());
                 }
             }
             else
@@ -1389,12 +1389,12 @@ void test_simulation()//!OCLINT tests may be many
                     s.get_env().get_param(),
                     s.get_pop().get_v_ind().begin()->get_param(),
                     repeats,
-                    amplitude,
-                    0);
+                    amplitude);
 
         std::string filename = create_test_random_condition_name(s,amplitude);
 
         auto demo_sim = test_against_random_conditions(s, repeats, pop_max, amplitude, filename);
+
         assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
                           demo_sim.get_demo_cycles().begin(),
                           [](const std::pair<env_param, ind_param>& r,

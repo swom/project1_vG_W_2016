@@ -1,8 +1,10 @@
+####Setting up####
 library(broom)
 library(dplyr)
 library(gplots)
 library(ggplot2)
 library("ggpubr")
+library(ggh4x)
 library(pals)
 library(purrr)
 library(stringr)
@@ -185,6 +187,7 @@ for( i in types)
     setwd(first_death)
     death_test_demog = test_demog
     save(death_test_demog, file = "death_test_demog.R") 
+    
   } else if (i == "eden"){
     
     setwd(first_eden)
@@ -211,12 +214,6 @@ for( i in types)
   {
     test_demog = death_test_demog
   }
-  ###Create breaks
-  color_scale_spore = seq(min(first$spore),max(last$spore),
-                          length.out = n_colors/10)
-  
-  color_scale_success = seq(min(first$success),max(last$success),
-                            length.out = n_colors/10)
 
   ####Check envs are the same####
   
@@ -250,7 +247,7 @@ for( i in types)
     geom_tile(aes(x = condition, y = seed, fill = value))+
     scale_fill_gradientn("value", colors = rbg)+
     ggtitle(paste("scaled_all_",i, sep = ""))+
-    facet_grid(name  ~ gen)
+    facet_nested(seq + name  ~ gen)
   
   print(scaled)
 }
@@ -397,29 +394,29 @@ for( i in types)
 ##### Overall Plot######
 eden_test_demog$type = "eden"
 a = eden_test_demog %>% 
-  select(gen,seed,success, condition, type, seq) %>% 
+  select(gen, seed, success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 death_test_demog$type = "death"
-
 b = death_test_demog %>% 
-  select(gen,seed,success, condition, type, seq) %>% 
+  select(gen, seed, success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 seqex_test_demog$type = "seqex"
 c = seqex_test_demog %>% 
-  select(gen,seed,success, condition, type, seq) %>% 
+  select(gen, seed, success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 total = rbind(a, b, c) %>% 
   subset(seed != "9") %>%
-  group_by(seed, type,seq) %>% 
+  group_by(seed, type, seq) %>% 
   summarise(avg_first = mean(first), avg_last = mean(last)) 
 levels(total$type) = c("seqex","eden","death")
   
 #scatter_plot for seed average
 ggscatter(data = total %>%
-          subset( type != "eden") %>% subset(seed > 30),
+            subset( type != "eden") %>% 
+            subset(seed < 30),
           x = "avg_first",
           y = "avg_last",
           color = "type",

@@ -99,6 +99,9 @@ bool all_en_pop_NOT_equals(const population& p, double en);
 ///Checks if the entire population has been already drawn for funding the new population
 bool all_ind_are_drawn(const population& s) noexcept;
 
+///Checks that all inds in a pop are spores
+bool all_ind_are_spores(const std::vector<individual> &inds) noexcept;
+
 ///Appends a unique ID to the m_ancestor of each individual in the population
 std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noexcept;
 
@@ -143,6 +146,10 @@ void displace_inds(std::vector<individual>& population) noexcept;
 
 ///Selects a new population of founders, swaps it with the old and positions them in hexagon patter
 void fund_new_pop(population& p) noexcept;
+
+///Selects a new population of founders only from spores,
+/// swaps it with the old and positions them in hexagon patter
+void fund_new_pop_spore_only(population& p) noexcept;
 
 ///The new population becomes the actual population,
 ///  the old population is cancelled
@@ -238,6 +245,9 @@ void reset_pop(population& p) noexcept;
 ///Draws a 100 individual to fund the new population and puts them in m_new_pop
 void select_new_pop(population& p);
 
+///Draws 100 spores from pop or as many as there are
+void select_new_pop_spore_only(population &p);
+
 ///Places an individual of index i at position x,y
 void set_ind_pos(individual& i, double x, double y);
 
@@ -266,6 +276,9 @@ void senescence(population &p) noexcept;
 
 ///Kills individuals with energy = 0
 void starvation(population &p) noexcept;
+
+///Turns half the pop (int division) into spore phenotype
+void turn_half_pop_to_spore(population& p);
 
 void update_radius_pop(population& p);
 

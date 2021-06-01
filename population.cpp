@@ -55,6 +55,18 @@ bool all_ind_are_drawn(const population& s) noexcept
                        [](const individual& i) {return is_drawn(i);});
 }
 
+bool all_ind_are_spores(const std::vector<individual>& inds) noexcept
+{
+    return std::all_of(inds.begin(),inds.end(),
+                       [](const individual& i) {return is_spore(i);});
+}
+
+bool all_spores_are_drawn(const population& s) noexcept
+{
+    return std::all_of(s.get_v_ind().begin(), s.get_v_ind().end(),
+                       [](const individual& i) {return is_drawn(i) || !is_spore(i);});
+}
+
 std::vector<individual> assign_ancestor_ID(const std::vector<individual>& p) noexcept
 {
     auto new_p = p;
@@ -199,6 +211,16 @@ void displace_inds(std::vector<individual>& pop) noexcept
 void fund_new_pop(population& p) noexcept
 {
     select_new_pop(p);
+    place_new_pop(p);
+    reset_output_nodes_pop(p);
+    update_radius_pop(p);
+    assign_ancestor_ID(p.get_v_ind()).swap(p.get_v_ind());
+    place_start_cells(p);
+}
+
+void fund_new_pop_spore_only(population& p) noexcept
+{
+    select_new_pop_spore_only(p);
     place_new_pop(p);
     reset_output_nodes_pop(p);
     update_radius_pop(p);
@@ -550,6 +572,39 @@ void select_new_pop(population &p)
     }
 }
 
+void select_new_pop_spore_only(population &p)
+{
+    if(p.get_v_ind().empty())
+    {
+        return;
+    }
+    assert(p.get_new_v_ind().empty());
+    std::shuffle(p.get_v_ind().begin(),p.get_v_ind().end(),p.get_rng());
+    //The energy level at which an individual will be initialized
+    auto default_energy = individual{}.get_energy();
+
+    while(true)
+    {
+        for(auto& ind : p.get_v_ind())
+        {
+            if(create_unif_dist(0,1)(p.get_rng()) <
+                    get_fitness(ind, p.get_param().get_base_disp_prob(), p.get_param().get_spo_adv())
+                    && !is_drawn(ind)
+                    && is_spore(ind))
+            {
+                draw(ind);
+                p.get_new_v_ind().push_back(ind);
+                p.get_new_v_ind().back().set_energy(default_energy);
+            }
+            if(p.get_new_v_ind().size() == p.get_param().get_exp_new_pop_size() ||
+                    all_spores_are_drawn(p))
+            {
+                reset_drawn_fl_new_pop(p);
+                return;
+            }
+        }
+    }
+}
 void set_all_inds_en(population& p, double e)
 {
     for(auto& ind : p.get_v_ind())
@@ -621,6 +676,14 @@ void starvation( population& p) noexcept
                 p.get_v_ind().begin(), p.get_v_ind().end(), [](const individual &i){return is_dead(i);}
             )
             ,p.get_v_ind().end());
+}
+
+void turn_half_pop_to_spore(population& p)
+{
+    for(int i = 0; i != p.get_pop_size()/2; i++)
+    {
+        p.get_ind(i).set_phen(phenotype::spore);
+    }
 }
 
 void update_radius_pop(population& p)

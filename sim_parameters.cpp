@@ -79,7 +79,7 @@ sim_param load_sim_parameters(
     std::ifstream f(filename);
     if(!f.is_open())
     {
-        std::cout << "Could not find specified sim_par.csv file. \n";
+        std::cout << "Could not find specified sim_par.csv file:" << filename << "\n";
         abort();
     }
 

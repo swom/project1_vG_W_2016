@@ -113,17 +113,18 @@ void test_population() noexcept  //!OCLINT
     //When an individual divides it adds a copy of itself
     //to the population/individual vector(i.e divides)
     {
-        population s;
-        double lhs = s.get_pop_size();
+        population p;
+        std::minstd_rand rng;
+        double lhs = p.get_pop_size();
         //let's allow all individuals in the population to reproduce,
         //to facilitate the testing conditions
-        for(auto& ind : s.get_v_ind())
+        for(auto& ind : p.get_v_ind())
         {
             ind.set_energy(ind.get_param().get_treshold_energy());
         }
-        division(s);
+        division(p, rng);
 
-        double rhs = s.get_pop_size();
+        double rhs = p.get_pop_size();
         assert(lhs * 2 - rhs < 0.0000001);
 
     }
@@ -184,19 +185,20 @@ void test_population() noexcept  //!OCLINT
     //After a reproduction round individuals with enough energy will divide
     //and redistribute their remaining energy to their daughter cells
     {
-        population s;
-        auto repr_excess_en = s.get_ind(0).get_param().get_treshold_energy();
+        population p;
+        std::minstd_rand rng;
+        auto repr_excess_en = p.get_ind(0).get_param().get_treshold_energy();
         //This ind will reproduce with extra energy
-        set_ind_en(s.get_ind(0), repr_excess_en);
+        set_ind_en(p.get_ind(0), repr_excess_en);
 
-        auto mother_excess_energy = get_excess_energies(s);
-        division(s);
-        assert(get_ind_en(s, 0) - mother_excess_energy[0]/2 < 0.00001 &&
-                get_ind_en(s, 0) - mother_excess_energy[0]/2 > -0.00001);
-        assert(get_ind_en(s, 1) - mother_excess_energy[0]/2 < 0.00001 &&
-                get_ind_en(s, 1) - mother_excess_energy[0]/2 > -0.00001);
-        assert(get_ind_en(s, 0) - get_ind_en(s, 1) < 0.00001 &&
-               get_ind_en(s, 0) - get_ind_en(s, 1) > -0.00001);
+        auto mother_excess_energy = get_excess_energies(p);
+        division(p, rng);
+        assert(get_ind_en(p, 0) - mother_excess_energy[0]/2 < 0.00001 &&
+                get_ind_en(p, 0) - mother_excess_energy[0]/2 > -0.00001);
+        assert(get_ind_en(p, 1) - mother_excess_energy[0]/2 < 0.00001 &&
+                get_ind_en(p, 1) - mother_excess_energy[0]/2 > -0.00001);
+        assert(get_ind_en(p, 0) - get_ind_en(p, 1) < 0.00001 &&
+               get_ind_en(p, 0) - get_ind_en(p, 1) > -0.00001);
     }
 
     //Individuals can be sorted based on their x coordinate in increasing order
@@ -438,6 +440,7 @@ void test_population() noexcept  //!OCLINT
     //Spores do not reproduce
     {
         population p;
+        std::minstd_rand rng;
         p.get_ind(0).set_phen(phenotype::spore);
         set_ind_en(p.get_ind(0),get_ind_tr_en(p, 0));
         auto init_pop_size = p.get_pop_size();
@@ -447,7 +450,7 @@ void test_population() noexcept  //!OCLINT
             ind.set_energy(2);
         }
         metabolism_pop(p);
-        assert(!division(p));
+        assert(!division(p, rng));
         assert(init_pop_size == p.get_pop_size());
     }
 
@@ -474,6 +477,7 @@ void test_population() noexcept  //!OCLINT
     //Sporulating individuals cannot reproduce
     {
         population p;
+        std::minstd_rand rng;
         p.get_ind(0).set_phen(phenotype::sporulating);
         set_ind_en(p.get_ind(0),get_ind_tr_en(p, 0));
         auto init_pop_size = p.get_pop_size();
@@ -483,7 +487,7 @@ void test_population() noexcept  //!OCLINT
             ind.set_energy(2);
         }
         metabolism_pop(p);
-        assert(!division(p));
+        assert(!division(p, rng));
         assert(init_pop_size == p.get_pop_size());
     }
     //A sporulating individual updates its timer every time metab_pop is called
@@ -787,6 +791,19 @@ void test_population() noexcept  //!OCLINT
         place_new_pop(p);
         assert(p.get_new_v_ind().size() == 0);
         assert(p.get_v_ind().size() == new_pop_size);
+    }
+
+    ///Only spores can be selected to fund new population
+    {
+        pop_param{100,50};
+        population p{};
+        assert(!all_ind_are_spores(p.get_v_ind()));
+        select_new_pop_spore_only(p);
+        assert(p.get_new_v_ind().empty());
+
+        turn_half_pop_to_spore(p);
+        select_new_pop_spore_only(p);
+        assert(all_ind_are_spores(p.get_new_v_ind()));
     }
 
     //Individuals after funding the new population are set in an hexagonal pattern
