@@ -393,7 +393,7 @@ demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 
 void dispersal(simulation &s)
 {
-//    if(s.get_cycle() < 50)
+//    if(s.get_cycle() < 50 || !s.select_only_spores())
 //    {
     fund_new_pop(s.get_pop());
 //    }
@@ -1167,7 +1167,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     auto name_of_sim_par = create_sim_par_name(original_seed, original_change);
     if(death && !eden)
     {
-        name_of_sim_par = "death" + name_of_sim_par;
+        name_of_sim_par = "death_" + name_of_sim_par;
     }
     save_sim_parameters(load_sim_parameters(name_of_sim_par),
                         create_sim_par_name(original_seed,

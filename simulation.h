@@ -73,6 +73,9 @@ public:
     ///Resets the timesteps to 0
     void reset_timesteps() noexcept {m_sim_timesteps = 0;}
 
+    ///Turns on the flag that signals that only spores are to be selected
+    void select_only_spores() noexcept {only_spores_are_selected = true;}
+
     ///Sets the m_demo_sim to a new demographic_sim object
     void set_demo_sim( const demographic_sim& d_s) noexcept {m_demo_sim = d_s;}
 
@@ -121,6 +124,9 @@ private:
 
     ///Random number generator
     std::minstd_rand m_rng;
+
+    ///Signal if only spores are to be selected
+    bool only_spores_are_selected = false;
 
 };
 
