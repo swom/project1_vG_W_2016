@@ -13,7 +13,7 @@ bool operator==(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 
 bool operator!=(const demographic_sim& lhs, const demographic_sim& rhs) noexcept
 {
-  return !(lhs == rhs);
+    return !(lhs == rhs);
 }
 
 
@@ -35,10 +35,12 @@ demographic_sim load_demographic_sim(
 {
     std::ifstream f(filename);
     if(!f.is_open())
-        {
-            std::cout << "Could not find specified demographic_sim*.csv file. \n\n";
-            abort();
-        }
+    {
+        std::cout << "Could not find specified demographic_sim*.csv file: "
+        << filename
+        << "n\n";
+        abort();
+    }
     demographic_sim d_s;
     demographic_cycle d_c{0,
                           0,
