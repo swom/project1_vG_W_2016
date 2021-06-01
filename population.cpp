@@ -210,7 +210,14 @@ void displace_inds(std::vector<individual>& pop) noexcept
 
 void fund_new_pop(population& p) noexcept
 {
+    if(p.selects_only_for_spores())
+    {
+    select_new_pop_spore_only(p);
+    }
+    else
+    {
     select_new_pop(p);
+    }
     place_new_pop(p);
     reset_output_nodes_pop(p);
     update_radius_pop(p);

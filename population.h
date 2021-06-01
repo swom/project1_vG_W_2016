@@ -58,6 +58,12 @@ public:
     ///Gets the reference to m_rng
     auto& get_rng() noexcept {return  m_rng;}
 
+    ///Turns on the flag that signals that only spores are to be selected
+    void select_only_spores() noexcept {only_spores_are_selected = true;}
+
+    ///Checks if the select_only_spores flag is active
+    bool selects_only_for_spores() const noexcept {return only_spores_are_selected;}
+
     ///Sets the population individuals
     void set_pop_inds(const std::vector<individual>& v_inds) noexcept {m_pop = v_inds;}
 
@@ -78,6 +84,9 @@ private:
 
     ///Hilbert tree collision manager
     relaxation::Relaxation m_relax;
+
+    ///Signal if only spores are to be selected
+    bool only_spores_are_selected = false;
 };
 ///Checks if two populations are the same.
 ///  If they have the same parameters and the same individuals.

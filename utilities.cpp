@@ -21,7 +21,8 @@ void check_for_cmd_param(const std::vector<std::string>& args,
                          int& cond_per_seq,
                          int& seq_index,
                          bool& death,
-                         bool& eden)
+                         bool& eden,
+                         bool& select_for_spores)
 {
     if (args.size() > 3
             && (args[1] == "--sim"
@@ -55,6 +56,7 @@ void check_for_cmd_param(const std::vector<std::string>& args,
     }
     take_death_arg(args, death);
     take_eden_arg(args, eden);
+    take_select_for_spore_arg(args, select_for_spores);
 }
 
 
@@ -217,6 +219,13 @@ void take_change_freq_arg(const std::vector<std::string>& args, int& change_freq
         abort();
     }
 
+}
+
+void take_select_for_spore_arg(const std::vector<std::string>& args, bool& select_for_spores)
+{
+    if(std::any_of(args.begin(), args.end(),
+                   [](const std::string& s){return s == "--sel_spores";}))
+            select_for_spores = true;
 }
 
 void take_seq_index_arg(const std::vector<std::string>& args, int& rand_cond_n)

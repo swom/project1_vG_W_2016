@@ -432,6 +432,10 @@ void exec(simulation& s) noexcept
 {
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
+        if(s.can_activate_selection_for_spores())
+        {
+            s.select_only_spores();
+        }
         exec_cycle(s);
 
         if(s.get_cycle() != 0
@@ -1053,7 +1057,8 @@ int run_sim_evo(const env_param& e,
                 const meta_param& m,
                 const pop_param& p,
                 bool overwrite,
-                bool death)
+                bool death,
+                bool select_for_spores)
 {
     auto prefix = "";
     if(death)
@@ -1078,6 +1083,8 @@ int run_sim_evo(const env_param& e,
     simulation s{sim_param{e, i, m, p}};
     if(death)
     {s.activate_death();}
+    if(select_for_spores)
+    {s.select_for_spores();}
 
     auto start = std::chrono::high_resolution_clock::now();
 

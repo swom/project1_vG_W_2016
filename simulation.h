@@ -19,6 +19,9 @@ public:
     ///Makes death active
     void activate_death() noexcept {m_death_is_active = true;}
 
+    ///Checks that the selection for spores flag is active and enough time has passed (50 cycles)
+    bool can_activate_selection_for_spores() noexcept {return m_select_for_spores && (m_executed_cycles > 50);}
+
     ///Returns const ref to the data structure containing the
     /// demographics of the population at different points in time
     /// of the simulation
@@ -73,8 +76,12 @@ public:
     ///Resets the timesteps to 0
     void reset_timesteps() noexcept {m_sim_timesteps = 0;}
 
+    ///Allows the first 50 cycles to select all types of inds, and then
+    /// activates the select_only_spores_flag
+    void select_for_spores() noexcept {m_select_for_spores = true;}
+
     ///Turns on the flag that signals that only spores are to be selected
-    void select_only_spores() noexcept {only_spores_are_selected = true;}
+    void select_only_spores() noexcept {m_pop.select_only_spores();}
 
     ///Sets the m_demo_sim to a new demographic_sim object
     void set_demo_sim( const demographic_sim& d_s) noexcept {m_demo_sim = d_s;}
@@ -125,8 +132,9 @@ private:
     ///Random number generator
     std::minstd_rand m_rng;
 
-    ///Signal if only spores are to be selected
-    bool only_spores_are_selected = false;
+    ///Flag that signals that after 50 cycles of selection fo all inds to fund next generation
+    /// switches to a regimen where only spores are selected
+    bool m_select_for_spores = false;
 
 };
 
@@ -418,7 +426,9 @@ int run_sim_evo(const env_param& e,
                 const ind_param& i,
                 const meta_param& m,
                 const pop_param& p,
-                bool overwrite, bool death);
+                bool overwrite,
+                bool death,
+                bool select_for_spores);
 
 ///A standard simulation is created, with given parameters,
 /// and run for boht evo and against random conditions

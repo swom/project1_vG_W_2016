@@ -63,6 +63,11 @@ void take_n_sequences_arg(const std::vector<std::string>& args, int& n_condition
 ///Takes change of frequency number from command line arguments
 void take_change_freq_arg(const std::vector<std::string>& args, int &change_freq);
 
+///Takes the argument that signals that only spores will be selected
+/// in case this argument is given to a --sim type simulation the
+/// selection for only spores will be activated only after 50 cycles
+void take_select_for_spore_arg(const std::vector<std::string>& args, bool& select_for_spores);
+
 ///Takes the index of the random conditions in the random condition vector
 /// that needs to be replayed
 void take_seq_index_arg(const std::vector<std::string>& args, int& rand_cond_n);
