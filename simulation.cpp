@@ -1313,18 +1313,3 @@ demographic_sim update_demographics(const simulation& s) noexcept
     d_s.get_demo_cycles().push_back(demographics(s, s.get_env().get_param()));
     return d_s;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
