@@ -19,6 +19,17 @@ simulation::simulation(sim_param param):
     place_start_cells(m_pop);
 }
 
+void activate_mechanisms(simulation& s, bool death, bool sel_spores)
+{
+    if(death)
+    {
+        s.activate_death();
+    }
+    if(sel_spores)
+    {
+        s.select_only_for_spores();
+    }
+}
 
 void add_new_funders(simulation& s) noexcept
 {
@@ -140,6 +151,29 @@ std::string create_best_random_condition_name(double amplitude, int change_freq,
                 std::to_string(amplitude)+
                 ".csv"
     };
+}
+
+const std::string create_correct_prefix_2nd_round(const int& seq_index,
+                                                  const int& conditions_per_seq,
+                                                  const double& amplitude,
+                                                  const bool& death,
+                                                  const bool& eden,
+                                                  const bool& sel_spore)
+{
+    std::string prefix = create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+    if(death)
+    {
+        prefix = "death_" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+        if(eden)
+        {
+            prefix = "eden_" + prefix;
+        }
+    }
+    if(sel_spore)
+    {
+        prefix = "sel_sp_" + prefix;
+    }
+    return prefix;
 }
 
 std::string create_funders_success_name(const simulation& s,
@@ -393,14 +427,14 @@ demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
 
 void dispersal(simulation &s)
 {
-//    if(s.get_cycle() < 50 || !s.select_only_spores())
-//    {
+    //    if(s.get_cycle() < 50 || !s.select_only_spores())
+    //    {
     fund_new_pop(s.get_pop());
-//    }
-//    else
-//    {
-//        fund_new_pop_spore_only(s.get_pop());
-//    }
+    //    }
+    //    else
+    //    {
+    //        fund_new_pop_spore_only(s.get_pop());
+    //    }
     reset_env(s.get_env());
 }
 
@@ -475,7 +509,7 @@ void exec_change(simulation& s,
     auto condition_duration = s.get_meta_param().get_n_cycles() / rand_conditions.size();
     while(s.get_cycle() != s.get_meta_param().get_n_cycles())
     {
-            auto modulus =  s.get_cycle() % condition_duration;
+        auto modulus =  s.get_cycle() % condition_duration;
         if( modulus == 0 && condition_index < rand_conditions.size())
         {
             reproduce_rand_cond(s, rand_conditions, condition_index);
@@ -533,11 +567,21 @@ double find_min_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_p
     return min->first.get_diff_coeff();
 }
 
+const std::string first_round_prefix(const bool& eden)
+{
+    std::string first_round_prefix = "";
+    if(!eden)
+    {
+        first_round_prefix = "death_";
+    }
+    return first_round_prefix;
+}
+
 int get_tot_inds(const simulation& s)
 {
     return s.get_demo_sim().get_demo_cycles().back().get_n_actives() +
-                    s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
-                    s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();
+            s.get_demo_sim().get_demo_cycles().back().get_n_spores() +
+            s.get_demo_sim().get_demo_cycles().back().get_n_sporulating();
 }
 
 double mean_diff_coeff_rand_cond(const std::vector<std::pair<env_param,ind_param>>& rand_cond)
@@ -1008,30 +1052,14 @@ int run_sim_evo_rand(double amplitude,
                      bool sel_spore)
 {
 
-    std::string death_prefix = "";
-    if(!eden)
-    {
-        death_prefix = "death_";
-    }
-    auto s = load_sim_last_pop(seed,change_frequency, death_prefix);
-
-    std::string prefix = create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
-    if(death)
-    {
-        prefix = "death_" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
-        if(eden)
-        {
-            prefix = "eden_" + prefix;
-        }
-        s.activate_death();
-
-    }
-    if(sel_spore)
-    {
-        prefix = "sel_sp_" + prefix;
-        s.select_only_for_spores();
-    }
-
+    auto s = load_sim_last_pop(seed,change_frequency, first_round_prefix(eden));
+    std::string prefix = create_correct_prefix_2nd_round(seq_index,
+                                                         conditions_per_seq,
+                                                         amplitude,
+                                                         death,
+                                                         eden,
+                                                         sel_spore);
+    activate_mechanisms(s, death, sel_spore);
     if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
     {
         std::cout << "The evolution in random conditions for this simulation"
