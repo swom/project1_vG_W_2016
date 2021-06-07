@@ -434,7 +434,7 @@ void exec(simulation& s) noexcept
     {
         if(s.can_activate_selection_for_spores())
         {
-            s.select_only_spores();
+            s.select_only_for_spores();
         }
         exec_cycle(s);
 
@@ -1004,7 +1004,8 @@ int run_sim_evo_rand(double amplitude,
                      int seq_index,
                      bool overwrite,
                      bool death,
-                     bool eden)
+                     bool eden,
+                     bool sel_spore)
 {
 
     std::string death_prefix = "";
@@ -1014,7 +1015,7 @@ int run_sim_evo_rand(double amplitude,
     }
     auto s = load_sim_last_pop(seed,change_frequency, death_prefix);
 
-    std::string prefix;
+    std::string prefix = create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
     if(death)
     {
         prefix = "death_" + create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
@@ -1025,9 +1026,10 @@ int run_sim_evo_rand(double amplitude,
         s.activate_death();
 
     }
-    else
+    if(sel_spore)
     {
-        prefix = create_rand_extreme_prefix(seq_index,conditions_per_seq,amplitude);
+        prefix = "sel_sp_" + prefix;
+        s.select_only_for_spores();
     }
 
     if(exists(prefix + create_sim_demo_name(s)) && !overwrite)
