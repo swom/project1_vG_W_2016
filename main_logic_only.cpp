@@ -110,7 +110,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                          seq_index,
                          overwrite,
                          death,
-                         eden);
+                         eden,
+                         select_for_spores);
     }
     else if(args.size() > 3
             && args[1] == "--test_extr_rand_evo_beginning_end")

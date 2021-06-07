@@ -84,7 +84,7 @@ public:
     void evolve_and_select_for_spores() noexcept {m_evolve_and_select_for_spores = true;}
 
     ///Turns on the flag that signals that only spores are to be selected
-    void select_only_spores() noexcept {m_pop.select_only_spores();}
+    void select_only_for_spores() noexcept {m_pop.select_only_spores();}
 
     ///Sets the m_demo_sim to a new demographic_sim object
     void set_demo_sim( const demographic_sim& d_s) noexcept {m_demo_sim = d_s;}
@@ -384,7 +384,10 @@ int run_sim_evo_rand(double amplitude,
                      int pop_max,
                      int seed,
                      int seq_index,
-                     bool overwrite, bool death, bool eden);
+                     bool overwrite,
+                     bool death,
+                     bool eden,
+                     bool sel_spore);
 
 ///Runs an evolution simulation in a given random condition
 funders_success run_evo_random_conditions(const simulation& rand_s,

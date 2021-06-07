@@ -497,7 +497,7 @@ sections_v_value = unique(
      seq(v_qntl[4], v_qntl[5], length = as.integer(n_colors/3))))
 
 
-###Plotting spore/active/sporu lines + success on backgr####
+####Plotting spore/active/sporu lines + success on backgr####
 
 ggplot(data = dem %>% 
          pivot_longer(c(spore, sporu, active, total_n))) +
@@ -516,7 +516,7 @@ ggsave("../../research presentation/suc_+_ind_seqex.pdf",
        units = "cm",
        limitsize = F)
 
-###Plotting spore value every last cycle before condition change####
+####Plotting spore value every last cycle before condition change####
 #(useful only when change of cond)
 
 env_duration = (max(dem$cycle) + 1) / length(levels(dem$env_type))

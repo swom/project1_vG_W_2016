@@ -19,7 +19,8 @@ last_death = "C:/Users/p288427/Desktop/hd_rand_evo/test_last_death"
 first_eden = "C:/Users/p288427/Desktop/hd_rand_evo/test_first_eden"
 last_eden = "C:/Users/p288427/Desktop/hd_rand_evo/test_last_eden"
 folders = c(first_s, last_s, first_death, last_death, first_eden, last_eden)
-types = c("normal","eden", "death")
+# types = c("normal","eden", "death")
+types = c("death","normal")
 
 ####reading####
 for(j in folders){
@@ -229,7 +230,7 @@ for( i in types)
     ggtitle(paste(i,"_spore",sep = ""))+
     facet_grid(.  ~ gen)
   
-  print(sp)
+  # print(sp)
   
   su = ggplot(data =  test_demog) +
     geom_tile(aes(x = condition, y = seed, fill = success))+
@@ -237,7 +238,7 @@ for( i in types)
     ggtitle(paste(i,"_success",sep = ""))+
     facet_grid(.  ~ gen)
   
-  print(su)
+  # print(su)
   
   scaled = ggplot(data =  test_demog %>%  
                     pivot_longer(c(spore, success)) %>%
