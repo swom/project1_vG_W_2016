@@ -1167,10 +1167,10 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
                                                         int seq_index,
                                                         double amplitude,
                                                         bool death,
-                                                        bool eden)
+                                                        bool eden,
+                                                        bool sel_spores)
 {
     std::string data_folder = "";
-
 #ifdef ON_LINUX
     data_folder = "../../../data/p288427/";
     if(death)
@@ -1179,13 +1179,24 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
         {
             data_folder += "death_eden/";
         }
+        else if(sel_spores)
+        {
+            data_folder += "death_sel_spore/";
+        }
         else
         {
             data_folder += "death_death/";
         }
     }
     else {
-        data_folder += "seqex/";
+        if(sel_spores)
+        {
+            data_folder += "sel_spores/";
+        }
+        else
+        {
+            data_folder += "seqex/";
+        }
     }
 
 #endif

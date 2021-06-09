@@ -408,29 +408,35 @@ c = seqex_test_demog %>%
   select(gen, seed, success, condition, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
-total = rbind(a, b, c) %>% 
-  subset(seed != "9") %>%
+# total = rbind(a, b, c) %>% 
+#   subset(seed != "9") %>%
+#   group_by(seed, type, seq) %>% 
+#   summarise(avg_first = mean(first), avg_last = mean(last)) 
+# levels(total$type) = c("seqex","eden","death")
+#   
+total = rbind( b, c) %>% 
+  # subset(seed != "9") %>%
   group_by(seed, type, seq) %>% 
   summarise(avg_first = mean(first), avg_last = mean(last)) 
-levels(total$type) = c("seqex","eden","death")
-  
+levels(total$type) = c("seqex","death")
+
 #scatter_plot for seed average
 ggscatter(data = total %>%
-            subset( type != "eden") %>% 
-            subset(seed < 30),
+            # subset( type != "eden") %>% 
+            subset(seed > 0),
           x = "avg_first",
           y = "avg_last",
           color = "type",
-          label = "seed",
+          #label = "seed",
           add = "reg.line", 
           conf.int = TRUE, 
           cor.coef = TRUE,
           cor.method = "spearman",
           main = "first-last test success correlations") +
   #add line for 1 to 1 cor
-  # geom_line(aes(x= seq(min(avg_first), max(avg_first), length.out = length(avg_first)),
-  #               y = seq(min(avg_first), max(avg_first), length.out = length(avg_first))
-  #               )
-  #           ) +
+  geom_line(aes(x= seq(min(avg_first), max(avg_first), length.out = length(avg_first)),
+                y = seq(min(avg_first), max(avg_first), length.out = length(avg_first))
+                )
+            ) +
   facet_grid(seq ~ type)
 

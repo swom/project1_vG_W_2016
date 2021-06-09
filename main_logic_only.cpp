@@ -122,7 +122,8 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
                                                 seq_index,
                                                 amplitude,
                                                 death,
-                                                eden);
+                                                eden,
+                                                select_for_spores);
     }
     else if(args.size() > 1 && args[1] == "--reac_norm")
     {
