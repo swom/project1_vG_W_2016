@@ -597,7 +597,6 @@ simulation load_sim_no_pop(int seed, int change_freq, std::string prefix)
 {
     auto sim_par_name = create_sim_par_name(seed,change_freq, prefix);
     assert(exists(sim_par_name));
-
     simulation s{load_sim_parameters(sim_par_name)};
 
     auto funders_name = create_funders_success_name(seed,change_freq, prefix);
@@ -1213,7 +1212,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     {
         if(sel_spores)
         {
-            prefix = "sel_sp" + prefix;
+            prefix = "sel_sp_" + prefix;
         }
     }
 
@@ -1224,12 +1223,18 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     {
         name_of_sim_par = "death_" + name_of_sim_par;
     }
+
+
     save_sim_parameters(load_sim_parameters(name_of_sim_par),
                         create_sim_par_name(original_seed,
                                             original_change,
                                             data_folder + prefix));
 
+    std::cout<< "Created name: " << create_sim_par_name(original_seed,
+                                     original_change,
+                                     data_folder + prefix) << std::endl;
     std::cout << "/" << std::endl;
+
     auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + prefix);
 
     if(death){new_s.activate_death();}
