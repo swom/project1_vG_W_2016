@@ -1213,7 +1213,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     {
         if(sel_spores)
         {
-            prefix += "sel_";
+            prefix = "sel_" + prefix;
         }
     }
 

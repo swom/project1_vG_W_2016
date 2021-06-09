@@ -19,13 +19,28 @@ sequence = "C:/Users/p288427/Desktop/hd_rand_evo/sequence"
 sequence_extr = "C:/Users/p288427/Desktop/hd_rand_evo/sequence_extr"
 death_eden = "C:/Users/p288427/Desktop/hd_rand_evo/death_eden"
 death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
+sel_spores = "C:/Users/p288427/Desktop/hd_rand_evo/sel_spores"
 
 #####read data####
 setwd(sequence_extr)
 demographic = data.frame()
 
 n_env = 1
-if(getwd() == death_eden){
+if(getwd() == sel_spores){
+  pattern = "sel_spores_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+  for (i in  list.files(path = '.',
+                        pattern = pattern ))
+  {
+    if(file.size(i) <= 0) next()
+    replicate = read.csv(i)
+    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+    colnames(replicate) = colnames(demographic)
+    demographic = rbind(replicate,demographic)
+  }
+} else if(getwd() == death_eden){
   pattern = "eden_death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
   for (i in  list.files(path = '.',
                         pattern = pattern ))
@@ -80,7 +95,7 @@ if(getwd() == death_eden){
     demographic = rbind(replicate,demographic)
   }
 }else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
-   || getwd() == rand_evo_dir || getwd() == evo_dir){
+         || getwd() == rand_evo_dir || getwd() == evo_dir){
   
   for (i in  list.files(path = '.',
                         pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
@@ -153,7 +168,7 @@ demographic = demographic %>% left_join(coeffs)
 demographic = demographic %>% left_join(coeffs_success)
 
 if(getwd() == death_eden) {
-
+  
   death_eden_demographic  = demographic
   save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
   
@@ -168,7 +183,7 @@ if(getwd() == death_eden) {
   save(seq_demographic, file = "seq_rand_evo_demo.R")
   
 } else if(getwd()  == sequence_extr) {
- 
+  
   seqex_demographic  = demographic
   save(seqex_demographic, file = "seqex_rand_evo_demo.R")
   
@@ -1561,7 +1576,7 @@ ggplot(cor_dem %>%
          pivot_wider(names_from = name,values_from = value) %>%
          group_by(type) %>% 
          mutate(across(c(avg_slope, avg_intercept, avg_success, avg_start_suc), scale)) %>% 
-       pivot_longer(c(avg_success, avg_slope, avg_intercept, avg_start_suc)))+
+         pivot_longer(c(avg_success, avg_slope, avg_intercept, avg_start_suc)))+
   geom_tile(aes(x = condition, y = seed,  fill = value ))+
   scale_fill_gradientn(colors = rbg) +
   facet_grid(type ~ name)
