@@ -1190,7 +1190,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     else {
         if(sel_spores)
         {
-            data_folder += "sel_spores/";
+            data_folder += "sel_spore/";
         }
         else
         {
