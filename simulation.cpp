@@ -1209,6 +1209,13 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
             prefix = "eden_" + prefix;
         }
     }
+    else
+    {
+        if(sel_spores)
+        {
+            prefix += "sel_";
+        }
+    }
 
     //little trick added for now since sim_par are not saved with prefix
     //we load and save sim_param from original simulation with name with prefix
