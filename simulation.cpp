@@ -202,7 +202,7 @@ std::string create_last_pop_name(const simulation& s, const std::string &prefix)
     };
 }
 
-bool check_funder_equal_pop(const population& p,const funders_success& f,const int& generation)
+void check_funder_equal_pop(const population& p,const funders_success& f,const int& generation)
 {
     for( int i = 0; i != p.get_pop_size(); i++)
     {
@@ -489,7 +489,7 @@ void exec_change(simulation& s,
                  const std::vector<std::pair<env_param, ind_param>>& rand_conditions)
 {
     try {
-        if(rand_conditions.size() > s.get_meta_param().get_n_cycles())
+        if(static_cast<int>(rand_conditions.size()) > s.get_meta_param().get_n_cycles())
         {
             throw std::string{"More random conditions than cycles!"};
         }
@@ -881,9 +881,12 @@ demographic_sim test_against_random_conditions(const simulation& s,
 
         auto start = std::chrono::high_resolution_clock::now();
 
+        for(int i = 0; i != 10; i++)
+        {
         exec_cycle(rand_s);
         rand_s.tick_cycles();
         rand_s.reset_timesteps();
+        }
 
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
@@ -977,7 +980,7 @@ int run_reac_norm_best(int change_freq,
     return 0;
 }
 
-int run_sim_best_rand(double amplitude,
+int run_sim_best_vs_rand_cond(double amplitude,
                       int change_frequency,
                       int n_random_conditions,
                       int pop_max,
@@ -1008,7 +1011,7 @@ int run_sim_best_rand(double amplitude,
     return 0;
 }
 
-int run_sim_rand(double amplitude,
+int run_sim_vs_rand_cond(double amplitude,
                  int change_frequency,
                  int n_random_conditions,
                  int pop_max,
@@ -1093,6 +1096,10 @@ int run_sim_evo(const env_param& e,
     if(death)
     {
         prefix ="death_";
+    }
+    if(select_for_spores)
+    {
+        prefix = "sel_";
     }
 
     auto filename = create_sim_par_name(m.get_seed(),
@@ -1215,7 +1222,6 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
             prefix = "sel_sp_" + prefix;
         }
     }
-
     //little trick added for now since sim_par are not saved with prefix
     //we load and save sim_param from original simulation with name with prefix
     auto name_of_sim_par = create_sim_par_name(original_seed, original_change);
@@ -1238,6 +1244,7 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + prefix);
 
     if(death){new_s.activate_death();}
+    if(sel_spores){new_s.select_only_for_spores();}
     int n_rand_cond = 100;
     int pop_max = 10000;
 

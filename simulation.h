@@ -173,7 +173,7 @@ int continue_evo(int seed, int change_freq);
 
 ///Checks that the individuals in a population
 /// have exactly the same grns of the funders of a particular generation
-bool check_funder_equal_pop(const population &p, const funders_success &f, const int &generation);
+void check_funder_equal_pop(const population &p, const funders_success &f, const int &generation);
 
 ///Creates the name for the before to last population file
 /// where the before last funder object will be saved
@@ -411,7 +411,7 @@ int run_reac_norm_best(int change_freq,
 
 ///Runs the a population made of 100 clones of the best individual
 /// of a given simulation(change_freq, seed) against n random condtions
-int run_sim_best_rand(double amplitude,
+int run_sim_best_vs_rand_cond(double amplitude,
                       int change_frequency,
                       int n_random_conditions,
                       int pop_max,
@@ -420,7 +420,7 @@ int run_sim_best_rand(double amplitude,
 
 ///Runs the last population of funders of a given simulation(change_freq, seed)
 /// against n random conditions
-int run_sim_rand(double amplitude,
+int run_sim_vs_rand_cond(double amplitude,
                  int change_frequency,
                  int n_random_conditions, int pop_max,
                  int seed,

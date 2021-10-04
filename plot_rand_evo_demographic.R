@@ -1,3 +1,4 @@
+####Setting up#####
 library(broom)
 library(dplyr)
 library(gplots)
@@ -22,171 +23,180 @@ death_death = "C:/Users/p288427/Desktop/hd_rand_evo/death_death"
 sel_spores = "C:/Users/p288427/Desktop/hd_rand_evo/sel_spores"
 
 #####read data####
-setwd(sequence_extr)
-demographic = data.frame()
-
-n_env = 1
-if(getwd() == sel_spores){
-  pattern = "sel_spores_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
-  for (i in  list.files(path = '.',
-                        pattern = pattern ))
-  {
-    if(file.size(i) <= 0) next()
-    replicate = read.csv(i)
-    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
-    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
-    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
-    colnames(replicate) = colnames(demographic)
-    demographic = rbind(replicate,demographic)
+for( j in c(sel_spores))
+{
+  print(j)
+  setwd(j)
+  demographic = data.frame()
+  
+  n_env = 1
+  if(getwd() == sel_spores){
+    pattern = "sel_sp_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+    for (i in  list.files(path = '.',
+                          pattern = pattern ))
+    {
+      if(file.size(i) <= 0) next()
+      replicate = read.csv(i)
+      replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+      replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+      replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+      replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+      colnames(replicate) = colnames(demographic)
+      demographic = rbind(replicate,demographic)
+    }
+  } else if(getwd() == death_eden){
+    pattern = "eden_death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+    for (i in  list.files(path = '.',
+                          pattern = pattern ))
+    {
+      if(file.size(i) <= 0) next()
+      replicate = read.csv(i)
+      replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+      replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+      replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+      replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+      colnames(replicate) = colnames(demographic)
+      demographic = rbind(replicate,demographic)
+    }
+  }else if(getwd() == death_death){
+    pattern = "death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
+    for (i in  list.files(path = '.',
+                          pattern = pattern ))
+    {
+      if(file.size(i) <= 0) next()
+      replicate = read.csv(i)
+      replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+      replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+      replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+      replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+      colnames(replicate) = colnames(demographic)
+      demographic = rbind(replicate,demographic)
+    }
+  }else if(getwd() == sequence){
+    for (i in  list.files(path = '.',
+                          pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+    {
+      if(file.size(i) <= 0) next()
+      replicate = read.csv(i)
+      replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+      replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+      replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+      replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+      colnames(replicate) = colnames(demographic)
+      demographic = rbind(replicate,demographic)
+    }
+  }else if(getwd() == sequence_extr){
+    for (i in  list.files(path = '.',
+                          pattern = "rand_evo_extreme_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
+    {
+      if(file.size(i) <= 0) next()
+      replicate = read.csv(i)
+      replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+      replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
+      replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
+      replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
+      colnames(replicate) = colnames(demographic)
+      demographic = rbind(replicate,demographic)
+    }
+  }else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
+           || getwd() == rand_evo_dir || getwd() == evo_dir){
+    
+    for (i in  list.files(path = '.',
+                          pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
+    {
+      if(file.size(i) <= 0) next()
+      replicate = read.csv(i)
+      replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
+      replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
+      replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
+      colnames(replicate) = colnames(demographic)
+      demographic = rbind(replicate,demographic)
+    }
   }
-} else if(getwd() == death_eden){
-  pattern = "eden_death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
-  for (i in  list.files(path = '.',
-                        pattern = pattern ))
-  {
-    if(file.size(i) <= 0) next()
-    replicate = read.csv(i)
-    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
-    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
-    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
-    colnames(replicate) = colnames(demographic)
-    demographic = rbind(replicate,demographic)
+  
+  
+  n_columns = ncol(demographic)
+  colnames(demographic)= c("cycle",
+                           "active",
+                           "spore",
+                           "sporu" ,
+                           "n_timesteps",
+                           sprintf("env_p_%s",seq(1:(n_columns - 5 - 4))),
+                           "seed",
+                           "change_freq",
+                           "n_env",
+                           "condition")
+  
+  
+  demographic$seed = as.factor(demographic$seed)
+  demographic$change_freq = as.factor(demographic$change_freq)
+  demographic$condition = as.factor(demographic$condition)
+  demographic$n_timesteps = as.numeric(demographic$n_timesteps)
+  
+  # create new columns for ratio of spore produced and starting production
+  demographic = demographic %>%
+    group_by(seed,condition,cycle, change_freq) %>%
+    mutate(total_n = sum(c_across(c(spore, sporu, active)))) %>% 
+    ungroup() %>%
+    group_by(condition,cycle) %>%
+    mutate("ratio_value" = spore / max(spore)) %>%
+    ungroup() %>%
+    group_by(condition, seed) %>%
+    mutate("change_value" = spore / spore[min(cycle)] - 1) %>%
+    mutate("ratio_start_production" = ratio_value[min(cycle)]) %>%
+    mutate("ratio_end_production" = ratio_value[max(cycle)]) %>%
+    mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production) %>%
+    mutate("start_production" = spore[min(cycle)])  %>%
+    mutate(success = spore * 10 + (sporu * 0 + active)) %>% 
+    ungroup() %>%
+    group_by(condition) %>%
+    mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
+    mutate("overall_r_value" = spore / max(spore)) %>% 
+    mutate(env_type = as.factor(as.numeric(as.factor(env_p_3)))) %>%  
+    ungroup()
+  
+  coeffs = demographic %>% 
+    group_by(condition, seed, env_type) %>%
+    do(coeffs = coefficients(lm(spore ~ cycle, data = .))) %>% 
+    mutate(slope = as.numeric(coeffs[2][[1]])) %>% 
+    mutate(intercept = as.numeric(coeffs[1][[1]]))%>%
+    ungroup()
+  
+  coeffs_success = demographic %>% 
+    group_by(condition, seed, env_type) %>%
+    do(coeffs_success = coefficients(lm(success ~ cycle, data = .))) %>% 
+    mutate("slope_success" = as.numeric(coeffs_success[2][[1]])) %>% 
+    mutate("intercept_success" = as.numeric(coeffs_success[1][[1]]))
+  
+  demographic = demographic %>% left_join(coeffs)
+  demographic = demographic %>% left_join(coeffs_success)
+  
+  if(getwd() == death_eden) {
+    
+    death_eden_demographic  = demographic
+    save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
+    
+  } else if(getwd() == sel_spores) {
+    
+    sel_spore_demographic  = demographic
+    save(sel_spore_demographic, file = "sel_spores_rand_evo_demo.R")
+    
+  }  else if(getwd() == death_death) {
+    
+    death_death_demographic  = demographic
+    save(death_death_demographic, file = "death_death_rand_evo_demo.R")
+    
+  } else if(getwd()  == sequence) {
+    
+    seq_demographic  = demographic
+    save(seq_demographic, file = "seq_rand_evo_demo.R")
+    
+  } else if(getwd()  == sequence_extr) {
+    
+    seqex_demographic  = demographic
+    save(seqex_demographic, file = "seqex_rand_evo_demo.R")
+    
   }
-}else if(getwd() == death_death){
-  pattern = "death_rand_evo_extreme_a\\d+.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_0"
-  for (i in  list.files(path = '.',
-                        pattern = pattern ))
-  {
-    if(file.size(i) <= 0) next()
-    replicate = read.csv(i)
-    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
-    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
-    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
-    colnames(replicate) = colnames(demographic)
-    demographic = rbind(replicate,demographic)
-  }
-}else if(getwd() == sequence){
-  for (i in  list.files(path = '.',
-                        pattern = "rand_evo_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
-  {
-    if(file.size(i) <= 0) next()
-    replicate = read.csv(i)
-    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
-    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
-    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
-    colnames(replicate) = colnames(demographic)
-    demographic = rbind(replicate,demographic)
-  }
-}else if(getwd() == sequence_extr){
-  for (i in  list.files(path = '.',
-                        pattern = "rand_evo_extreme_a3.000000seq_\\d+cond_per_seq\\d+sim_demographic_s\\d+change_\\d+"))
-  {
-    if(file.size(i) <= 0) next()
-    replicate = read.csv(i)
-    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-    replicate$change = sub( "^.*change_(\\d+).*",'\\1', i)
-    replicate$n_env = sub( "^.*cond_per_seq(\\d+).*",'\\1', i)
-    replicate$condition = sub( "^.*seq_(\\d+).*",'\\1', i, perl = T)
-    colnames(replicate) = colnames(demographic)
-    demographic = rbind(replicate,demographic)
-  }
-}else if(getwd() == hd_rand_evo || getwd() == hd_rand_evo_no_upt
-         || getwd() == rand_evo_dir || getwd() == evo_dir){
-  
-  for (i in  list.files(path = '.',
-                        pattern = "rand_evo_a3.000000cond_\\d+sim_demographic_s\\d+change_\\d+"))
-  {
-    if(file.size(i) <= 0) next()
-    replicate = read.csv(i)
-    replicate$seed = sub( "^.*s(\\d+).*",'\\1', i);
-    replicate$change = sub( "^.*_(\\d+).*",'\\1', i)
-    replicate$condition = sub( "^.*cond_(\\d+).*",'\\1', i, perl = T)
-    colnames(replicate) = colnames(demographic)
-    demographic = rbind(replicate,demographic)
-  }
-}
-
-
-n_columns = ncol(demographic)
-colnames(demographic)= c("cycle",
-                         "active",
-                         "spore",
-                         "sporu" ,
-                         "n_timesteps",
-                         sprintf("env_p_%s",seq(1:(n_columns - 5 - 4))),
-                         "seed",
-                         "change_freq",
-                         "n_env",
-                         "condition")
-
-
-demographic$seed = as.factor(demographic$seed)
-demographic$change_freq = as.factor(demographic$change_freq)
-demographic$condition = as.factor(demographic$condition)
-demographic$n_timesteps = as.numeric(demographic$n_timesteps)
-
-# create new columns for ratio of spore produced and starting production
-demographic = demographic %>%
-  group_by(seed,condition,cycle, change_freq) %>%
-  mutate(total_n = sum(c_across(c(spore, sporu, active)))) %>% 
-  ungroup() %>%
-  group_by(condition,cycle) %>%
-  mutate("ratio_value" = spore / max(spore)) %>%
-  ungroup() %>%
-  group_by(condition, seed) %>%
-  mutate("change_value" = spore / spore[min(cycle)] - 1) %>%
-  mutate("ratio_start_production" = ratio_value[min(cycle)]) %>%
-  mutate("ratio_end_production" = ratio_value[max(cycle)]) %>%
-  mutate("delta_rv_start_end" = ratio_end_production - ratio_start_production) %>%
-  mutate("start_production" = spore[min(cycle)])  %>%
-  mutate(success = spore * 10 + (sporu * 0 + active)) %>% 
-  ungroup() %>%
-  group_by(condition) %>%
-  mutate("standardized_delta_rv_start_end" = delta_rv_start_end / max(delta_rv_start_end)) %>%
-  mutate("overall_r_value" = spore / max(spore)) %>% 
-  mutate(env_type = as.factor(as.numeric(as.factor(env_p_3)))) %>%  
-  ungroup()
-
-coeffs = demographic %>% 
-  group_by(condition, seed, env_type) %>%
-  do(coeffs = coefficients(lm(spore ~ cycle, data = .))) %>% 
-  mutate(slope = as.numeric(coeffs[2][[1]])) %>% 
-  mutate(intercept = as.numeric(coeffs[1][[1]]))%>%
-  ungroup()
-
-coeffs_success = demographic %>% 
-  group_by(condition, seed, env_type) %>%
-  do(coeffs_success = coefficients(lm(success ~ cycle, data = .))) %>% 
-  mutate("slope_success" = as.numeric(coeffs_success[2][[1]])) %>% 
-  mutate("intercept_success" = as.numeric(coeffs_success[1][[1]]))
-
-demographic = demographic %>% left_join(coeffs)
-demographic = demographic %>% left_join(coeffs_success)
-
-if(getwd() == death_eden) {
-  
-  death_eden_demographic  = demographic
-  save(death_eden_demographic, file = "death_eden_rand_evo_demo.R")
-  
-} else if(getwd() == death_death) {
-  
-  death_death_demographic  = demographic
-  save(death_death_demographic, file = "death_death_rand_evo_demo.R")
-  
-} else if(getwd()  == sequence) {
-  
-  seq_demographic  = demographic
-  save(seq_demographic, file = "seq_rand_evo_demo.R")
-  
-} else if(getwd()  == sequence_extr) {
-  
-  seqex_demographic  = demographic
-  save(seqex_demographic, file = "seqex_rand_evo_demo.R")
-  
 }
 ####load hd_rand ####
 setwd(hd_rand_evo)
@@ -207,16 +217,22 @@ load("death_eden_rand_evo_demo.R")
 setwd(death_death)
 load("death_death_rand_evo_demo.R")
 
-dem = death_death_demographic
+setwd(sel_spores)
+load("sel_spores_rand_evo_demo.R")
+
+dem = sel_spore_demographic
 ####saving all dfs binded toghther####
 tot_dem = rbind(seqex_demographic %>% mutate(type = "seqex"),
                 death_eden_demographic %>% mutate(type = "eden"),
+                sel_spore_demographic %>% mutate(type = "sel_spores"),
                 death_death_demographic %>% mutate(type = "death"))
 setwd(death_death)
 save(tot_dem, file ="tot_dem.R")
 ####loading totatl dataframe####
 setwd(death_death)
 load("tot_dem.R")
+tot_dem$type = as.factor(tot_dem$type)
+dem = tot_dem %>% subset(type == "sel_spores")
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -507,7 +523,7 @@ sections_avg_rv_value = unique(
 ####for value
 v_qntl = quantile(dem$spore)
 sections_v_value = unique(
-  c( seq(v_qntl[1], v_qntl[2], length = as.integer(n_colors/3 + 4)),
+  c( seq(v_qntl[1], v_qntl[2], length = as.integer(n_colors/3 + 3)),
      seq(v_qntl[2], v_qntl[4], length = as.integer(n_colors/3 + 1)),
      seq(v_qntl[4], v_qntl[5], length = as.integer(n_colors/3))))
 
@@ -515,17 +531,18 @@ sections_v_value = unique(
 ####Plotting spore/active/sporu lines + success on backgr####
 
 ggplot(data = dem %>% 
+         mutate( spores = spore) %>%  
          pivot_longer(c(spore, sporu, active, total_n))) +
   geom_rect(aes(xmin= cycle,
                 xmax= cycle + 1,
                 ymin= 0,
                 ymax= max(value)  + 1,
-                fill =  success), alpha =0.5) +
+                fill =  spores), alpha =0.5) +
   scale_fill_gradientn("success",colors = rbg) +
   geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/suc_+_ind_seqex.pdf",
+ggsave("../../research presentation/sel_spore/spore_+_ind_sel_sp.pdf",
        width = 500,
        height = 300, 
        units = "cm",
@@ -1500,7 +1517,7 @@ heatmap.2(as.matrix(clust_slope_intercept_scs),
           breaks = sections_sl_int_scs_value_plot,
           main = "slope_of_intercepts_success")
 
-####heatmap cluster for total sum of spore deltas from first to lst cycle in one env_type####  
+####Heatmap cluster for total sum of spore deltas from first to lst cycle in one env_type####  
 total_improvement = dem %>%
   group_by(condition, seed, env_type) %>% 
   summarise(improvement = spore[length(spore)] - spore[1]) %>% 
@@ -1554,6 +1571,7 @@ ggplot(data = var_demo) +
   facet_grid( . ~ condition)
 
 ####Plotting CORRELATION of avg_slope over success#####
+
 avg_vals = tot_dem %>% 
   group_by(seed, condition, type) %>% 
   summarise(avg_slope = mean(slope_success),
@@ -1600,7 +1618,79 @@ ggscatter(cdd %>%
           cor.method = "pearson",
           main = "pearson") +
   facet_grid(name ~ type)
-####Testing if SUCCESS_SLOPE changes over time(evolves)
+####Plotting CORRELATION of avg_improvment over success#####
+
+tot_dem_deltas_and_starts = tot_dem %>%
+  select(cycle, env_type, seed, condition, type, success) %>% 
+  group_by(condition, seed, type, env_type) %>% 
+  mutate(improvement = success[length(success)] - success[1]) %>% 
+  mutate(start = success[1]) %>% 
+  group_by(condition, seed, type) %>% 
+  summarise(avg_start = mean(start), 
+            avg_improvement = mean(improvement),
+            avg_success = mean(success)) 
+
+my.formula <- y ~ x
+data = tot_dem_deltas_and_starts %>% filter(type == "death") %>% 
+  pivot_longer(c(avg_start, avg_improvement)) %>%
+  filter(name == "avg_improvement")
+ggscatter(data = data,
+          x = "value", 
+          y = "avg_success",
+          color = "type",
+          add = "reg.line",
+          add.params = list(size = 0.5),
+          fullrange = T,
+          size = 0.01,
+          conf.int = TRUE, 
+          cor.coef = TRUE,
+          cor.method = "pearson",
+          # main = "pearson"
+          ) +
+  stat_poly_eq( data = data,
+                formula = my.formula, 
+                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                parse = TRUE,
+                label.y = "bottom",
+                label.x = "right") +    
+  theme(legend.position = "none")+
+  facet_grid(. ~ .)
+
+####Testing if improvement grows over time###
+tot_improv_start_regr = 
+  tot_dem %>%
+  select(cycle, env_type, seed, condition, type, success) %>% 
+  group_by(condition, seed, type, env_type) %>% 
+  mutate(improvement = success[length(success)] - success[1]) %>% 
+  mutate(start = success[1]) %>% 
+  slice_min(cycle)
+
+coeffs_impr_start_regr = 
+  tot_improv_start_regr%>% 
+  group_by(seed,condition, type) %>% 
+  do(coeffs_success = coefficients(lm(improvement ~ cycle, data = .))) %>% 
+  mutate("slope_improvement" = as.numeric(coeffs_success[2][[1]]))
+
+ggplot(coeffs_impr_start_regr %>%  subset(type != "eden")) + 
+  geom_tile(aes(x = condition, y = seed,
+                fill = slope_improvement))+
+  scale_fill_gradientn("slope of improvement",colors = rbg) +
+  facet_grid(. ~ type )
+
+###Testing if slope of improv correlates with final success
+ggscatter(tot_dem_deltas_and_starts %>%
+            pivot_longer(c(avg_start, avg_improvement)) %>% 
+            subset(name == "avg_improvement"),
+          x = "value", 
+          y = "avg_success", 
+          add = "reg.line",
+          conf.int = TRUE, 
+          cor.coef = TRUE,
+          cor.method = "pearson",
+          main = "pearson") +
+  facet_grid(name ~ type)
+
+####Testing if SUCCESS_SLOPE changes over time(evolves)####
 slope_of_slopes = dem %>%
   group_by(condition, seed, env_type) %>% 
   slice_min(cycle) %>%
@@ -1608,98 +1698,3 @@ slope_of_slopes = dem %>%
   do(model = lm(slope_success ~ cycle, data = .))
 unserialize(slope_of_slopes$model)
 unlist(slope_of_slopes$model)
-####### Fitting logistic regression model to data and adding it to dataframe####
-
-fit_logistic <-
-  function(value, cycle) {
-    out <- tryCatch(
-      {
-        nls(value ~ SSlogis(cycle, Asym, xmid, scal))
-      },
-      error=function(cond){
-        second_fit <- tryCatch(
-          {
-            #Estimation of starting parameter, and formula for model taken from here: 
-            # https://stats.stackexchange.com/questions/160552/why-is-nls-giving-me-singular-gradient-matrix-at-initial-parameter-estimates
-            # This works for datapoints that describe the ascending part of the logisitc function already past the flexion point
-            c.0 = min(value) * 0.5
-            model.0 = lm(log(value - c.0) ~ cycle)
-            start = list(a=exp(coef(model.0)[1]), b=coef(model.0)[2], c=c.0)
-            nlc = nls.control(maxiter = 1000, minFactor = 1/10^20)
-            nls(value ~ a * exp(b * cycle) + c, start = start, control = nlc)
-          },    
-          error=function(cond) 
-          {
-            return(NA)
-          }
-          
-        )
-        return(second_fit)
-      }
-    )    
-    return(out)
-  }
-
-me = 
-  demographic %>% 
-  group_by(condition, seed) %>% 
-  mutate( "fit" = list(fit_logistic(value, cycle))) %>% 
-  ungroup()%>% 
-  drop_na()
-
-mef = me %>%   subset(cycle == 1) 
-
-me_nested =
-  me %>% 
-  group_by(condition, seed) %>% 
-  nest()
-
-mef = me %>% 
-  select(c(fit)) %>% 
-  mutate( "fit_prediction" = list(predict(fit[[1]],seq(1,499))))
-
-
-###plotting three params of regressions####
-###NOT WORKING!!!!!!
-ggplot(data = me) +
-  geom_line(aes(x = cycle, y = predict(fit, seq(1,499), data = me %>% group_by(seed, condition)))) + 
-  facet_grid(seed ~ condition)
-
-
-###working on a single plot######
-
-o = dem_all_tmstps %>% 
-  subset(condition ==  "9" ) %>% 
-  subset(seed == "90")
-
-coef(o$fit[[1]])[2]
-#Estimation of starting parameter, and formula for model taken from here: 
-# https://stats.stackexchange.com/questions/160552/why-is-nls-giving-me-singular-gradient-matrix-at-initial-parameter-estimates
-# This works for datapoints that describe the ascending part of the logisitc function already past the flexion point
-c.0 = min(of$value) * 0.5
-model.0 = lm(log(value - c.0) ~ cycle, data = of)
-start = list(a=exp(coef(model.0)[1]), b=coef(model.0)[2], c=c.0)
-nlc = nls.control(maxiter = 1000, minFactor = 1/10^20)
-model = nls(value ~ a * exp(b * cycle) + c, data = of, start = start, control = nlc)
-coeffit = as.data.frame(coef(model))
-
-# this work for other datapoints(full sigmoid or first half)
-model1 <- nls(value ~ SSlogis(cycle, Asym, xmid, scal), data = of)
-
-
-ggplot(data = pivot_longer(o,c(spore, active, sporu, total_n), names_to = "variable"))+
-  geom_line(aes(x = cycle, y = value, color = variable))
-
-
-lines(
-  seq(1,499),
-  predict(o$fit[[1]], seq(1,499))
-)
-
-#plot asymptote
-lines(of$cycle, 
-      rep(exp(coef(model)[1]),length(of$cycle))
-)
-
-#plot midpoint
-abline(v = exp(coef(model)[2]))

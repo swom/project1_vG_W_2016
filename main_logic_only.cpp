@@ -83,7 +83,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else  if(args.size() > 1 && args[1] == "--rand")
     {
-        run_sim_rand(amplitude,
+        run_sim_vs_rand_cond(amplitude,
                      change_freq,
                      n_seq,
                      pop_max,
@@ -92,7 +92,7 @@ int main(int argc, char ** argv) //!OCLINT tests may be long
     }
     else  if(args.size() > 1 && args[1] == "--rand_best")
     {
-        run_sim_best_rand(amplitude,
+        run_sim_best_vs_rand_cond(amplitude,
                           change_freq,
                           n_seq,
                           pop_max,

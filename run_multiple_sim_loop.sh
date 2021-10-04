@@ -3,11 +3,11 @@
 #
 # Usage, locally:
 #
-#   ./run_multiple.sh
+#   ./run_multiple_switches.sh
 #
 # Usage, on Peregrine:
 #
-#   sbatch ./run_multiple.sh
+#   sbatch ./run_multiple_switches.sh
 #
 # Peregrine directives:
 #SBATCH --time=4:00:00
@@ -15,8 +15,8 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --job-name=run
-#SBATCH --output=run_sim.log
+#SBATCH --job-name=run_multiple_switches
+#SBATCH --output=run_multiple_switches.log
 
 
 # simulation_logic_only has this command-linae interface:
@@ -31,8 +31,9 @@ make clean
 qmake simulation_logic_only.pro
 make 
 
-change_freqs=(0)
-for i in $(seq 1 100)
+change_freqs=(0,1,0.5)
+
+for i in (seq 1 100)
 do
   for j in "${change_freqs[@]}"
 do

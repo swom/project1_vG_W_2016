@@ -1410,12 +1410,21 @@ void test_simulation()//!OCLINT tests may be many
 
         auto demo_sim = test_against_random_conditions(s, repeats, pop_max, amplitude, filename);
 
-        assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
-                          demo_sim.get_demo_cycles().begin(),
-                          [](const std::pair<env_param, ind_param>& r,
-                          const demographic_cycle& d)
-        {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
+        assert(std::all_of(rand_conditions_vector.begin(), rand_conditions_vector.end(),
+                            [&demo_sim](const std::pair<env_param, ind_param>& r) {
+            return std::find_if(demo_sim.get_demo_cycles().begin(),
+                             demo_sim.get_demo_cycles().end(),
+                             [r](const demographic_cycle& d)
+            {return r.first == d.get_env_param() && r.second == d.get_ind_param();}) !=  demo_sim.get_demo_cycles().end();
+        }
+        )
                );
+//        assert(std::equal(rand_conditions_vector.begin(),rand_conditions_vector.end(),
+//                          demo_sim.get_demo_cycles().begin(),
+//                          [](const std::pair<env_param, ind_param>& r,
+//                          const demographic_cycle& d)
+//        {return r.first == d.get_env_param() && r.second == d.get_ind_param();})
+//               );
         assert(exists(filename));
         auto demo_sim_load = load_demographic_sim(filename);
         assert(demo_sim == demo_sim_load);

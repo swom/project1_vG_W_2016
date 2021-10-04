@@ -255,7 +255,8 @@ void set_all_cell_food(environment& e, double f)
                   e.get_grid().end(),
                   [=](env_grid_cell& g)
     {g.set_food(f);});
-};
+}
+
 void reset_env(environment& e, int grid_side, double diff_coeff, double food)
 {
     e = environment(env_param{grid_side,diff_coeff,food});

@@ -555,7 +555,7 @@ template <typename Real = double, typename URNG>
 inline Real uniform01(URNG& reng)
 {
   return detail::generate_canonical<Real, size_t(-1), URNG>(reng);
-};
+}
 
 
 // The simplest one. Just missing in <random>

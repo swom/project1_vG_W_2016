@@ -5,9 +5,10 @@ library(ggplot2)
 dir = dirname(rstudioapi::getActiveDocumentContext()$path)
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 death_data = "C:/Users/p288427/Desktop/hd_rand_evo/death_data"
+sel_spore_data = "C:/Users/p288427/Desktop/hd_rand_evo/sel_spores_data"
 
-setwd(evo_dir)
-if(getwd() == evo_dir){
+setwd(death_data)
+if(getwd() == evo_dir | getwd() == sel_spore_data){
   pattern = "sim_demographic_s\\d+change_\\d+"
 } else if(getwd() == death_data){
   pattern = "death_sim_demographic_s\\d+change_\\d+"

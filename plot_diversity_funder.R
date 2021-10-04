@@ -34,27 +34,17 @@ for(nth_cycle in unique(subs$cycle))
 {
   f = list()
   f$tree = nj(subs %>%
-    subset(cycle == nth_cycle) %>% 
+    subset(cycle == 1) %>% 
     select(-c(cycle,ID,success))%>% 
     dist(method ="euclidean",
          diag = T,
          upper = T))
   f$cycle = nth_cycle
+  
 }
 
-
-###Plot ###
-  ggtree(nj(subs %>%
-            select(-c(cycle,ID,success)) %>% 
-            dist(method ="euclidean",
-                 diag = T,
-                 upper = T)), 
-       layout = "circular") 
-
-  
-  
-  trees <- lapply(c(10, 20, 40), rtree)
-  class(trees) <- "multiPhylo"
-  p  = ggtree( trees, aes(frame = .id))
+ggtree(f[[1]],
+       layout = "circular") +
+  geom_treescale()
 
 

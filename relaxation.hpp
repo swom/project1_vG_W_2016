@@ -16,8 +16,8 @@ namespace relaxation {
 }
 
 // announce types we want to use to the hrtree library
-HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof);
-HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1());
+HRTREE_ADAPT_POINT_FUNCTION(glm::vec2, float, 2, (float*)std::addressof)
+HRTREE_ADAPT_MBR_MEMBERS(relaxation::mbr_t, glm::vec2, p0(), p1())
 
 
 namespace relaxation {
