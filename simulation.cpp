@@ -420,7 +420,7 @@ demographic_cycle demographics(const simulation &s, const env_param &e) noexcept
         count_actives(p),
                 count_spores(p),
                 count_sporulating(p),
-                s.get_timestep(),
+                s.get_cycle(),
                 e,
                 p.get_v_ind().begin()->get_param()};
 }
@@ -886,8 +886,10 @@ demographic_sim test_against_random_conditions(const simulation& s,
         exec_cycle(rand_s);
         rand_s.tick_cycles();
         rand_s.reset_timesteps();
-        }
+        std::cout<< "generation n"<< i << std::endl;
 
+        }
+        rand_s.reset_cycles();
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<float>(stop - start);
         std::cout<< "condition n"<< counter <<": " << duration.count() << std::endl;
@@ -1206,20 +1208,20 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     }
 
 #endif
-    auto prefix = create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);
+    auto load_prefix = create_rand_extreme_prefix(seq_index, cond_per_seq, amplitude);
     if(death)
     {
-        prefix = "death_" + prefix;
+        load_prefix = "death_" + load_prefix;
         if(eden)
         {
-            prefix = "eden_" + prefix;
+            load_prefix = "eden_" + load_prefix;
         }
     }
     else
     {
         if(sel_spores)
         {
-            prefix = "sel_sp_" + prefix;
+            load_prefix = "sel_sp_" + load_prefix;
         }
     }
     //little trick added for now since sim_par are not saved with prefix
@@ -1234,21 +1236,21 @@ demographic_sim run_test_extreme_rand_evo_beginning_end(int original_seed,
     save_sim_parameters(load_sim_parameters(name_of_sim_par),
                         create_sim_par_name(original_seed,
                                             original_change,
-                                            data_folder + prefix));
+                                            data_folder + load_prefix));
 
     std::cout<< "Created name: " << create_sim_par_name(original_seed,
                                      original_change,
-                                     data_folder + prefix) << std::endl;
+                                     data_folder + load_prefix) << std::endl;
     std::cout << "/" << std::endl;
 
-    auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + prefix);
+    auto new_s = load_sim_no_pop(original_seed, original_change, data_folder + load_prefix);
 
     if(death){new_s.activate_death();}
     if(sel_spores){new_s.select_only_for_spores();}
     int n_rand_cond = 100;
     int pop_max = 10000;
 
-    auto save_name = prefix + create_test_random_condition_name(amplitude, original_change, original_seed);
+    auto save_name = load_prefix + create_test_random_condition_name(amplitude, original_change, original_seed);
     recreate_generation(new_s, 0);
     auto test_one = test_against_random_conditions(new_s, n_rand_cond, pop_max, amplitude, "first_gen_" + save_name);
 

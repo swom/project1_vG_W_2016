@@ -1,3 +1,4 @@
+######Setting up############
 library(tidyr)
 library(tidyverse)
 library(tidytree)
@@ -13,6 +14,7 @@ dir = "X:/project1_vG_W_2016"
 rand_evo_dir = paste(dir,"/vG_W_2016_data/rand_evo",sep = "")
 evo_dir = paste(dir,"/vG_W_2016_data/evo",sep = "")
 
+#########Reading######
 getwd()
 setwd(evo_dir)
 funders_success = data.frame()
@@ -44,6 +46,8 @@ funders_success$seed = as.numeric(funders_success$seed)
 ##take away symbols for saving
 funders_success = funders_success %>% select(where(is.numeric),ID,cycle,success,seed)
 funder = c(499,rep(0,ncol(funders_success) - 5),0,0,0,0)
+#####Make the tree#######
+
 ### Add funder (a network with all weights == 0), that will be used as root
 funders_success = rbind(funder, funders_success)
 njs = list();
@@ -69,7 +73,7 @@ for(nth_cycle in unique(funders_success$cycle))
   njs[[length(njs) + 1]] = ff
 }
 
-
+#######Create the table of nodes that distinguish the different clades (seeds)#######
 clades = array()
 for (i in unique(ff$seed)){
   if(!is.na(i))
@@ -132,21 +136,7 @@ p1 = ggtree(as.treedata(ff),
   geom_highlight(data=clades, aes(node=node, fill= avg_suc)) +
   scale_fill_gradientn("success", colors = rbg)
 
-p1
 
-  p1 + 
-    geom_point2(aes(subset=(node==1002)), shape=21, size=1, fill='green') +
-   geom_point2(aes(subset=(node==1210)), shape=21, size=1, fill='green')
-  
-  p <- ggtree(tree) + geom_tiplab()
-  viewClade(p1, offspring(p1, 916))
-  
-p2 = ggtree(njs[[2]][[1]],
-            layout = "circular") +
-  geom_treescale()
 
-p3 = ggtree(njs[[3]][[1]],
-       layout = "circular") +
-  geom_treescale()
-grid.arrange(p1, p2, p3, ncol=3)
+
 

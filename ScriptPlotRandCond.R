@@ -26,8 +26,8 @@ folders = c(first_s, last_s,
             first_death, last_death, 
             first_eden, last_eden,
             first_sel, last_sel)
-types = c("normal","eden", "death", "sel")
-# types = c("death","normal","sel")
+# types = c("normal","eden", "death", "sel")
+types = c("death","normal","sel")
 
 ####reading####
 for(j in folders){
@@ -69,7 +69,6 @@ for(j in folders){
     
   }
   
-  n_env = 1
   for (i in  list.files(path = '.', pattern = pattern)
   )
   {
@@ -102,12 +101,17 @@ for(j in folders){
   rand_demographic$condition = as.factor(rand_demographic$condition)
   rand_demographic$n_timesteps = as.numeric(rand_demographic$n_timesteps)
   
-  
-  rand_demographic =  rand_demographic %>% 
+  rand_demographic = rand_demographic %>% 
+    group_by(seq) %>% 
+    mutate(env_type = as.factor(as.numeric(as.factor(env_p_3)))) %>%
+    group_by(seed, seq, env_type) %>% 
+    mutate(cycle = seq(1:n())) %>% 
     group_by(seed, condition, seq) %>% 
-    mutate("success" = spore * 10 + (sporu * 0 + active))
+    mutate("success" = spore * 10 + (sporu * 0 + active)) %>% 
+    group_by(seed, seq, env_type) %>% 
+    mutate(improvement = success[max(cycle)] - success[min(cycle)])
   
-  if(getwd() == first_s){
+    if(getwd() == first_s){
     
     first_rand_demographic = rand_demographic
     save(first_rand_demographic, file = "first_test_rand_evo_demo.R")
@@ -190,8 +194,8 @@ for(j in folders){
 }
 
 #### Unite dataframes ####
-for( i in types)
-{
+for( i in types){
+  
   if(i == "normal")
   {
     first = first_rand_demographic
@@ -242,22 +246,22 @@ for( i in types)
 
 eden_test_demog$type = "eden"
 a = eden_test_demog %>% 
-  select(gen, seed, success, condition, type, seq) %>% 
+  select(gen, seed, success, env_type, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 death_test_demog$type = "death"
 b = death_test_demog %>% 
-  select(gen, seed, success, condition, type, seq) %>% 
+  select(gen, seed, success, env_type, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 seqex_test_demog$type = "seqex"
 c = seqex_test_demog %>% 
-  select(gen, seed, success, condition, type, seq) %>% 
+  select(gen, seed, success, env_type, type, seq) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 sel_test_demog$type = "sel"
 d = sel_test_demog %>% 
-  select(gen, seed, success, condition, type, seq) %>% 
+  select(gen, seed, success, env_type, type, seq, cycle) %>% 
   pivot_wider(names_from = gen, values_from = success)
 
 # total = rbind(a, b, c) %>% 
@@ -315,6 +319,7 @@ for( i in types)
   } else if ( i == "death")
   {
     test_demog = death_test_demog
+  
   }
   
   ####Check envs are the same####
@@ -343,7 +348,7 @@ for( i in types)
   
   scaled = ggplot(data =  test_demog %>%  
                     pivot_longer(c(spore, success)) %>%
-                    subset(seed != "9") %>% 
+                    # subset(seed != "9") %>% 
                     group_by(name) %>% 
                     mutate(value = scale(value))) +
     geom_tile(aes(x = condition, y = seed, fill = value))+
@@ -376,11 +381,9 @@ for(i in types)
   
   clust_test_demog_first = 
     test_demog %>% 
-    subset(gen == "first") %>% 
-    subset(seed != 9) %>% 
-    subset(seq == 1) %>%
-    select(seed, condition, success) %>% 
-    spread(condition, success)  %>% 
+    filter(gen == "first", seq == 1, cycle == 1) %>%
+    select(seed, env_type, success) %>% 
+    spread(env_type, success)  %>% 
     column_to_rownames(var = "seed") %>% 
     select(-seq)
   
@@ -397,11 +400,9 @@ for(i in types)
   
   clust_test_demog_last = 
     test_demog %>% 
-    subset(gen == "last") %>% 
-    subset(seed != 9) %>% 
-    subset(seq == 1) %>%
-    select(seed, condition, success) %>% 
-    spread(condition, success) %>% 
+    filter(gen == "last", seq == 1, cycle == 1) %>%
+    select(seed, env_type, success) %>% 
+    spread(env_type, success)  %>% 
     column_to_rownames(var = "seed") %>% 
     select(-seq)
   
@@ -412,6 +413,47 @@ for(i in types)
             col = rbg,
             # breaks = sections,
             main = paste("last_",i))
+ 
+  ok_seqs = c(1,2,10)
+ if(max(test_demog$cycle) != 1)
+  {
+    #all sequences are equal in the first test you silly duck! So no need to check for sequences
+    # ggplot(data = test_demog %>% filter(gen == "first", seq == 1)) +
+    #   geom_rect(aes(xmin= cycle - 1,
+    #                 xmax= cycle,
+    #                 ymin= 0,
+    #                 ymax= 1,
+    #                 fill =  success)) +
+    #   scale_fill_gradientn("success",colors = rbg) +
+    #   facet_grid(seed ~ env_type) +
+    #   labs(title = "first")
+    # 
+    # ggplot(data = test_demog %>% filter(gen == "last", seq == 4)) +
+    #   geom_rect(aes(xmin= cycle,
+    #                 xmax= cycle + 1,
+    #                 ymin= 0,
+    #                 ymax= 1,
+    #                 fill =  success)) +
+    #   scale_fill_gradientn("success",colors = rbg) +
+    #   facet_grid(seed ~ env_type) +
+    #   labs(title = "last") 
+    
+    ggplot(data = test_demog %>% filter(seq  %in% ok_seqs)) +
+      geom_tile(aes(x = env_type, y = seed, fill = improvement)) +
+      scale_fill_gradientn("improvement",colors = rbg) +
+      facet_grid(seq ~ gen) +
+      labs(title = paste("improvement", i, sep = "_")) 
+    
+    
+    ggplot(data = test_demog %>% 
+             filter(seq %in% ok_seqs) %>% 
+             group_by(seed, seq, env_type, gen) %>% 
+             mutate(final_success = success[max(cycle)])) +
+      geom_tile(aes(x = env_type, y = seed, fill = final_success)) +
+      scale_fill_gradientn("final_success",colors = rbg) +
+      facet_grid(seq ~ gen) +
+      labs(title = paste("improvement", i, sep = "_")) 
+  }
 }
 ####Boxplots#####
   total %>% 
@@ -419,6 +461,12 @@ for(i in types)
   pivot_longer(c(avg_first,avg_last)) %>% 
   # group_by(seed) %>% 
   # filter(any(gen == "first" & success > quantile(test_demog$success, 0.9))) %>%
+  ggplot(aes(x=name, y=value, fill=name)) +
+  geom_violin() +
+  geom_boxplot(width = 0.5) +
+  facet_grid( . ~ .) 
+
+
   ggplot(aes(x=name, y=value, fill=name)) +
   geom_violin() +
   geom_boxplot(width = 0.5) +

@@ -232,7 +232,7 @@ save(tot_dem, file ="tot_dem.R")
 setwd(death_death)
 load("tot_dem.R")
 tot_dem$type = as.factor(tot_dem$type)
-dem = tot_dem %>% subset(type == "sel_spores")
+dem = tot_dem %>% subset(type == "death")
 ####Check quantiles of change_value####
 #i.e. how much the population improved its score production from the beginning
 
@@ -530,24 +530,25 @@ sections_v_value = unique(
 
 ####Plotting spore/active/sporu lines + success on backgr####
 
-ggplot(data = dem %>% 
+env_change_time = dem$cycle[which(dem$env_type != dplyr::lag(dem$env_type))]
+ggplot(data = dem %>% filter(as.numeric(seed) < 20, as.numeric(condition) < 20) %>% 
          mutate( spores = spore) %>%  
          pivot_longer(c(spore, sporu, active, total_n))) +
-  geom_rect(aes(xmin= cycle,
-                xmax= cycle + 1,
+  geom_rect(aes(xmin= cycle - 1,
+                xmax= cycle ,
                 ymin= 0,
                 ymax= max(value)  + 1,
-                fill =  spores), alpha =0.5) +
+                fill =  success), alpha =0.5) +
   scale_fill_gradientn("success",colors = rbg) +
+  geom_vline(xintercept = env_change_time, linetype = "dashed", size = 0.1) +
   geom_line(aes(cycle,value, color = name)) +
   facet_grid(seed ~ condition)
 
-ggsave("../../research presentation/sel_spore/spore_+_ind_sel_sp.pdf",
+ggsave("C:/Users/p288427/Desktop/research presentation/death_death_plots/death_ind+suc_20seeds_20conditions.pdf",
        width = 500,
        height = 300, 
        units = "cm",
        limitsize = F)
-
 ####Plotting spore value every last cycle before condition change####
 #(useful only when change of cond)
 
@@ -1671,17 +1672,38 @@ coeffs_impr_start_regr =
   do(coeffs_success = coefficients(lm(improvement ~ cycle, data = .))) %>% 
   mutate("slope_improvement" = as.numeric(coeffs_success[2][[1]]))
 
-ggplot(coeffs_impr_start_regr %>%  subset(type != "eden")) + 
+ggplot(coeffs_impr_start_regr %>%  subset(type == "death")) + 
   geom_tile(aes(x = condition, y = seed,
                 fill = slope_improvement))+
   scale_fill_gradientn("slope of improvement",colors = rbg) +
   facet_grid(. ~ type )
 
+ggscatter(data = tot_improv_start_regr %>%  subset(type == "death"),
+          x = "cycle", 
+          y = "improvement",
+          color = "type",
+          add = "reg.line",
+          add.params = list(size = 0.5),
+          fullrange = T,
+          size = 0.01,
+          conf.int = TRUE, 
+          cor.coef = TRUE,
+          cor.method = "pearson",
+          # main = "pearson"
+) +
+  stat_poly_eq( data = tot_improv_start_regr %>%  subset(type == "death"),
+                formula = my.formula, 
+                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
+                parse = TRUE,
+                label.y = "bottom",
+                label.x = "right") +    
+  theme(legend.position = "none")+
+  facet_grid(condition ~ seed)
 ###Testing if slope of improv correlates with final success
 ggscatter(tot_dem_deltas_and_starts %>%
-            pivot_longer(c(avg_start, avg_improvement)) %>% 
-            subset(name == "avg_improvement"),
-          x = "value", 
+            left_join(coeffs_impr_start_regr %>%
+                        select(-coeffs_success)),
+          x = "", 
           y = "avg_success", 
           add = "reg.line",
           conf.int = TRUE, 

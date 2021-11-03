@@ -79,6 +79,9 @@ public:
     ///Resets the timesteps to 0
     void reset_timesteps() noexcept {m_sim_timesteps = 0;}
 
+    ///Resets the cycles to 0
+    void reset_cycles() noexcept {m_executed_cycles = 0;}
+
     ///Allows the first 50 cycles to select all types of inds, and then
     /// activates the select_only_spores_flag
     void evolve_and_select_for_spores() noexcept {m_evolve_and_select_for_spores = true;}
